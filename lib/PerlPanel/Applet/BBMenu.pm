@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.25 2003/10/08 13:05:56 jodrell Exp $
+# $Id: BBMenu.pm,v 1.26 2003/10/12 16:22:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -227,16 +227,6 @@ sub add_control_items {
 			undef,
 			'<StockItem>',
 			'gtk-refresh',
-		],
-		[
-			'/Close Panel',
-			undef,
-			sub {
-				$PerlPanel::OBJECT_REF->shutdown;
-			},
-			undef,
-			'<StockItem>',
-			'gtk-quit',
 		],
 	));
 	return 1;

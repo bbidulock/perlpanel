@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.10 2003/10/08 13:21:28 jodrell Exp $
+$Id: perlpanel.pod,v 1.11 2003/10/12 16:22:17 jodrell Exp $
 
 =head1 Introduction
 
@@ -37,6 +37,8 @@ What you will need is this:
 
 =item * The Gtk2-Perl libraries
 
+=item * The Gnome2::Wnck Perl module (for the tasklist and pager applets)
+
 =back
 
 Perl and Gtk+ should have been installed with your operating system. If
@@ -44,9 +46,13 @@ you don't have Gtk+ 2 or higher, then you might want to try a Gnome
 distribution such as Ximian Desktop or Dropline. Alternatively you can
 download source code from L<http://www.gtk.org/>.
 
-The XML::Simple is available on CPAN. The Gtk2-Perl libraries can be
-found on the Sourceforge page at
+The XML::Simple is available on CPAN. The Gtk2-Perl and Gnome2::Wnck
+libraries can be found on the Sourceforge page at
 L<http://sourceforge.net/projects/gtk2-perl>.
+
+Gnome2::Wnck is the Perl bindings for libwnck, the Window Navigation
+Construction Kit. You do not need the Gnome2 libraries in order to use
+this module - it has the Gnome2:: prefix because it's a Gnome package.
 
 =head2 Note about XML::Simple
 
@@ -70,13 +76,13 @@ tarball, extracting it, and then running the following commands:
 By default, PerlPanel will install into the C</usr/local> directory.
 If you want to change this, you can either edit the C<PREFIX> variable
 in the Makefile, or add 'C<PREFIX=/path/to/directory>' as an argument
-to the 'make' calls above.
+to C<make>.
 
 =head1 Running PerlPanel
 
-Running PerlPanel is as simple as typing 'perlpanel' into your terminal.
-However you might wish to add this to your C<.xinitrc> file or any other
-scripts that start when your X session begins.
+Running PerlPanel is as simple as typing C<perlpanel> into your
+terminal. However you might wish to add this to your C<.xinitrc> file or
+any other scripts that start when your X session begins.
 
 To run PerlPanel with a configuration file other than the default, you
 can specify a file as an argument, for example:
@@ -84,6 +90,9 @@ can specify a file as an argument, for example:
 	perlpanel ~/.perlpanelrc-2
 
 This allows you to run more than one panel at a time.
+
+You can also run the C<perlpaneld> program. Should PerlPanel ever crash,
+this script will restart it.
 
 =head1 Configuring PerlPanel
 

@@ -15,7 +15,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.12 2003/10/12 16:10:27 jodrell Exp $
+# $Id: Makefile,v 1.13 2003/10/12 16:22:17 jodrell Exp $
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -34,6 +34,7 @@ perlpanel:
 install:
 	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR) $(IMGDIR)
 	install -m 0755 build/perlpanel $(BINDIR)/
+	install -m 0755 src/perlpaneld $(BINDIR)/
 	install -m 0755 src/perlpanel-item-edit $(BINDIR)/
 	cp -Rvp lib/* $(LIBDIR)/
 	install -m 0755 build/perlpanel.1 $(MANDIR)/
@@ -47,4 +48,4 @@ clean:
 	rm -rf build
 
 uninstall:
-	rm -rf $(BINDIR)/perlpanel $(LIBDIR) $(MANDIR)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
+	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(LIBDIR) $(MANDIR)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1

@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.3 2003/08/12 16:03:14 jodrell Exp $
+# $Id: Socket.pm,v 1.4 2003/10/12 16:22:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ sub configure {
 	$self->{widget} = Gtk2::Socket->new;
 	$self->{id} = $self->{widget}->get_id;
 	$self->{socketfile} = sprintf('%s/.$s/socketid', $ENV{HOME}, lc($PerlPanel::NAME));
-	open(SOCKETFILE, "$self->{socketfile}") or $PerlPanel::OBJECT_REF->error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
+	open(SOCKETFILE, ">$self->{socketfile}") or $PerlPanel::OBJECT_REF->error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
 	print SOCKETFILE $self->{id};
 	close(SOCKETFILE);
 	return 1;

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.31 2003/10/09 11:47:33 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.32 2003/10/12 16:22:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,8 +28,9 @@ our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',
 );
 our @CO_AUTHORS		= (
-	'Eric Andreychek <eric@openthought.net>',
-	'Scott Arrington <muppet@asofyet.org>',
+	'Eric Andreychek <eric@openthought.net> (Applet development)',
+	'Scott Arrington <muppet@asofyet.org> (Bug fixes)',
+	'Torsten Schoenfeld <kaffeetisch@web.de> (libwnck libraries)',
 );
 
 our $URL		= 'http://jodrell.net/projects/perlpanel';
@@ -50,6 +51,7 @@ our %DEFAULTS = (
 	applets => [
 		'BBMenu',
 		'IconBar',
+		'Tasklist',
 		'Clock',
 		'Configurator',
 		'Commander',
@@ -184,8 +186,9 @@ sub load_applets {
 		print STDERR $@;
 		if ($@) {
 			my $message = "Error loading $appletname applet.\n";
-			if ($@ =~ /can't locate/i) {
-				$message = "Error: couldn't load applet file $appletname.pm in\n\n\t".join("\n\t", @INC);
+			my $toplevel = (split(/::/, $appletname))[0];
+			if ($@ =~ /can't locate $toplevel/i) {
+				$message = "Error: couldn't find applet file $appletname.pm in\n\n\t".join("\n\t", @INC);
 			}
 			$self->error($message, sub { $self->shutdown });
 			return undef;

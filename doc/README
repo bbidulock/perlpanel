@@ -1,9 +1,9 @@
 README
 ======
 
-PerlPanel is an attempt to build a useable, lean panel program (like Gnome's
-gnome-panel and KDE's Kicker) in Perl, using Gtk2. There are several reasons for
-this:
+PerlPanel is an attempt to build a useable, lean panel program (like
+Gnome's gnome-panel and KDE's Kicker) in Perl, using Gtk2. There are
+several reasons for this:
 
 	1. I really enjoy programming with Gtk and Perl. It's neat.
 	2. Using a popular language like Perl lowers the barrier to entry,
@@ -17,25 +17,26 @@ A few tenets:
 
 	1. Everything is OO.
 	2. Gnome is neat, but not everyone likes Gnome. So we avoid using it
-	   and stick to pure Gtk.
+	   and stick to pure Gtk¹.
 	3. All config is stored in XML.
 	4. Sane defaults. Not everyone wants a CPU/eth meter by default.
 	5. Everything is subject to debate. If something is broken in the
 	   panel/applet/config systems, then we can fix it. I can't imagine
-	   a normal user will want to use PerlPanel for a long time, so breaking
-	   compatability between versions is no problem.
+	   a normal user will want to use PerlPanel for a long time, so
+	   breaking compatability between versions is no problem.
 
 A few wahs, or, TODO:
 
-	1. There's no NetWM bindings for Perl, so we can't talk to the window
-	   manager. This sucks. But it would take greater skills than mine to
-	   create them.
-	2. At the moment the Panel is nothing more than a packing box in a popup
-	   window that's been warped into a rectangle. This will probably raise
-	   havoc with a lot of things. There's probably a way to do it
-	   "properly" using Gdk but that's beyond my experience. Feel free to
-	   correct this with a patch :-)
-	3. No I18N yet.
+	1. At the moment the Panel is nothing more than a packing box in
+	   a popup window that's been warped into a rectangle. This will
+	   probably raise havoc with a lot of things. There's probably a
+	   way to do it "properly" using Gdk but that's beyond my
+	   experience. Feel free to correct this with a patch :-)
+	2. No I18N yet.
+
+¹: We use the Gnome2::Wnck library for the tasklist, show desktop
+button and pager. However this module doesn't require the rest of the
+Gnome2 bundle - it's just named that way because it's a Gnome package.
 
 --
-$Id: README,v 1.6 2003/06/19 16:29:43 jodrell Exp $
+$Id: README,v 1.7 2003/10/12 16:22:17 jodrell Exp $
