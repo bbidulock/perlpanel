@@ -1,4 +1,4 @@
-# $Id: NotificationArea.pm,v 1.4 2004/09/17 11:28:53 jodrell Exp $
+# $Id: NotificationArea.pm,v 1.5 2004/09/17 15:54:35 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -51,11 +51,9 @@ sub configure {
 
 	$self->{config} = PerlPanel::get_config('NotificationArea');
 
-	$self->{widget} = Gtk2::HBox->new;
-	$self->widget->set_size_request(-1, PerlPanel::icon_size());
+	$self->{box} = Gtk2::HBox->new;
 
 	$self->{hbox} = Gtk2::HBox->new;
-	$self->{hbox}->set_border_width(0);
 	$self->{hbox}->set_spacing(1);
 
 	$self->{button} = Gtk2::Button->new;
@@ -77,8 +75,8 @@ sub configure {
 	});
 	PerlPanel::tips->set_tip($self->{button}, _('Hide icons'));
 
-	$self->widget->pack_start($self->{button}, 0, 0, 0);
-	$self->widget->pack_start($self->{hbox}, 1, 1, 0);
+	$self->{box}->pack_start($self->{button}, 0, 0, 0);
+	$self->{box}->pack_start($self->{hbox}, 1, 1, 0);
 
 	if ($CAN_MANAGE == 1) {
 		$TRAY_MANAGER->signal_connect('tray_icon_added', sub {
@@ -108,6 +106,12 @@ sub configure {
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
 		});
 	}
+
+	$self->{widget} = Gtk2::Frame->new;
+	$self->widget->add($self->{box});
+	$self->widget->set_border_width(0);
+	$self->widget->set_size_request(-1, PerlPanel::icon_size());
+
 	$self->widget->show_all;
 	return 1;
 }
