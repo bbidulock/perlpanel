@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.37 2004/01/09 00:26:37 jodrell Exp $
+# $Id: BBMenu.pm,v 1.38 2004/01/13 14:16:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,16 +22,16 @@ use strict;
 
 our @menufiles = (
 	'%s/.perlpanel/menu',
-	'%s/.blackbox/menu',
-	'%s/.fluxbox/menu',
-	'%s/.openbox/menu',
-	'%s/.waimea/menu',
-	'/usr/local/share/blackbox/menu',
-	'/usr/share/blackbox/menu',
-	'/usr/local/share/fluxbox/menu',
-	'/usr/share/fluxbox/menu',
-	'/usr/local/share/waimea/menu',
-	'/usr/share/waimea/menu',
+#	'%s/.blackbox/menu',
+#	'%s/.fluxbox/menu',
+#	'%s/.openbox/menu',
+#	'%s/.waimea/menu',
+#	'/usr/local/share/blackbox/menu',
+#	'/usr/share/blackbox/menu',
+#	'/usr/local/share/fluxbox/menu',
+#	'/usr/share/fluxbox/menu',
+#	'/usr/local/share/waimea/menu',
+#	'/usr/share/waimea/menu',
 );
 
 our @ICON_DIRECTORIES = (
@@ -129,10 +129,10 @@ sub parse_menufile {
 			last;
 		}
 	}
-	if (!defined($self->{menufile})) {
-		$PerlPanel::OBJECT_REF->error("Couldn't find a menu file anywhere in\n\t".join("\n\t", @menufiles));
-		return undef;
-	} else {
+	$self->{items} = [ [ '/', undef, undef, undef, '<Branch>' ] ];
+	$self->{paths} = [];
+	$self->{separatorcount} = 0;
+	if (defined($self->{menufile})) {
 		open(MENU, $self->{menufile}) or $PerlPanel::OBJECT_REF->error("Error opening $self->{menufile}: $!") and return undef;
 		$self->{menudata} = [];
 		while (<MENU>) {
@@ -142,9 +142,6 @@ sub parse_menufile {
 			push(@{$self->{menudata}}, $_);
 		}
 		close(MENU);
-		$self->{items} = [ [ '/', undef, undef, undef, '<Branch>' ] ];
-		$self->{paths} = [];
-		$self->{separatorcount} = 0;
 		for (my $line_no = 0 ; $line_no < scalar(@{$self->{menudata}}) ; $line_no++) {
 			my $line = @{$self->{menudata}}[$line_no];
 			my ($cmd, $name, $val);
@@ -186,15 +183,17 @@ sub parse_menufile {
 
 sub add_control_items {
 	my $self = shift;
-	push(@{$self->{items}},
-		[
-			'/CtrlSeparator0',
-			undef,
-			undef,
-			undef,
-			'<Separator>',
-		],
-	);
+	if (scalar(@{$self->{items}}) > 1) {
+		push(@{$self->{items}},
+			[
+				'/CtrlSeparator0',
+				undef,
+				undef,
+				undef,
+				'<Separator>',
+			],
+		);
+	}
 	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
 		push(@{$self->{items}},
