@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.1 2003/05/27 16:00:32 jodrell Exp $
+# $Id: Commander.pm,v 1.2 2003/05/29 12:32:18 jodrell Exp $
 package PerlPanel::Applet::Commander;
 use strict;
 
@@ -11,19 +11,31 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gtk2::Entry->new();
-	$self->{widget}->signal_connect('activate', sub { $self->activate });
+	$self->{widget} = Gtk2::Button->new;
+	$self->{image} = Gtk2::Image->new_from_stock('gtk-execute', $PerlPanel::ICON_SIZE_NAME);
+	$self->{widget}->add($self->{image});
+	$self->{widget}->set_relief('none');
+	$self->{widget}->signal_connect('clicked', sub { $self->run });
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Run Command');
-	$self->{widget}->grab_focus();
 	return 1;
 }
 
-sub activate {
+sub run {
 	my $self = shift;
-	my $command = sprintf('%s &', $self->{widget}->get_text());
-	system($command);
-	$self->{widget}->set_text('');
-	$self->{widget}->grab_focus();
+	$PerlPanel::OBJECT_REF->request_string(
+		'Enter command:',
+		sub {
+			my $str = shift;
+			my $cmd = sprintf('%s &', $str);
+			if (!system($cmd)) {
+				$PerlPanel::OBJECT_REF->warning(
+					"Error running '$str'",
+					sub { $self->run },
+					sub {}
+				);
+			}
+		}
+	);
 	return 1;
 }
 
@@ -40,7 +52,7 @@ sub fill {
 }
 
 sub end {
-	return 'start';
+	return 'end';
 }
 
 1;

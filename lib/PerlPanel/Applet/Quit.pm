@@ -1,4 +1,4 @@
-# $Id: Quit.pm,v 1.2 2003/05/27 16:00:32 jodrell Exp $
+# $Id: Quit.pm,v 1.3 2003/05/29 12:32:18 jodrell Exp $
 package PerlPanel::Applet::Quit;
 use strict;
 
@@ -12,9 +12,10 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-quit', 'menu');
+	$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-quit', $PerlPanel::ICON_SIZE_NAME);
 	$self->{widget}->add($self->{pixmap});
-	$self->{widget}->signal_connect('clicked', sub { eval caller()."->shutdown(\$".caller()."::OBJECT_REF)" });
+	my $code = sprintf('$%s::OBJECT_REF->shutdown', caller());
+	$self->{widget}->signal_connect('clicked', sub { eval $code ; if ($@) { print STDERR "Error shutting down: $@\n" ; exit 1 } });
 	$self->{widget}->set_relief('none');
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Quit');
 }
