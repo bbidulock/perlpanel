@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.66 2004/03/22 21:43:05 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.67 2004/03/25 00:16:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -206,6 +206,7 @@ sub build_ui {
 sub configure {
 	my $self = shift;
 	$self->panel->set_default_size($self->screen_width, 0);
+	$self->panel->set_border_width(0);
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{hbox}->set_border_width(0);
 	if ($self->{config}{panel}{autohide} eq 'true') {
@@ -487,6 +488,18 @@ sub icon_size {
 sub icon_size_name {
 	my $self = shift || $OBJECT_REF;
 	return @{$SIZE_MAP{$self->{config}{panel}{size}}}[1];
+}
+
+#
+# These do the same as the two subs above, but may do something else in the future:
+#
+sub menu_icon_size {
+	my $self = shift || $OBJECT_REF;
+	return $self->icon_size;
+}
+sub menu_icon_size_name {
+	my $self = shift || $OBJECT_REF;
+	return $self->icon_size_name;
 }
 
 sub screen_width {

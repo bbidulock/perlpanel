@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.41 2004/02/24 17:07:18 jodrell Exp $
+# $Id: Configurator.pm,v 1.42 2004/03/25 00:16:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -152,15 +152,15 @@ sub configure {
 
 sub load_appletregistry {
 	my $self = shift;
-	$self->{regfile} = sprintf('%s/share/%s/applet.registry', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
-	open(REGFILE, $self->{regfile});
+	my $file = sprintf('%s/share/%s/applet.registry', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+	open(REGFILE, $file);
 	while (<REGFILE>) {
 		chomp;
 		s/^\s*//g;
 		s/\s*$//g;
 		next if (/^$/ or /^#/);
 		if (/^(\w+)=(.+)$/) {
-			$self->{registry}{$1} = $2;
+			$self->{registry}{$1} = _($2);
 		}
 	}
 	close(REGFILE);

@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.12 2004/02/25 16:05:54 jodrell Exp $
+# $Id: MenuBase.pm,v 1.13 2004/03/25 00:16:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -146,26 +146,26 @@ sub add_control_items {
 	}
 	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
-		$self->menu->append($self->menu_item(_('Lock Screen'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
+		$self->menu->append($self->menu_item(_('Lock Screen'), PerlPanel::get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
 	}
-	$self->menu->append($self->menu_item(_('Run Program...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('commander'), sub {
+	$self->menu->append($self->menu_item(_('Run Program...'), PerlPanel::get_applet_pbf_filename('commander'), sub {
 		require('Commander.pm');
 		PerlPanel::Applet::Commander->run;
 	}));
-	$self->menu->append($self->menu_item(_('Take Screenshot...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('screenshot'), sub {
+	$self->menu->append($self->menu_item(_('Take Screenshot...'), PerlPanel::get_applet_pbf_filename('screenshot'), sub {
 		require('ScreenShot.pm');
 		my $screenshot = PerlPanel::Applet::ScreenShot->new;
 		$screenshot->configure;
 		$screenshot->prompt;
 	}));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	$self->menu->append($self->menu_item(_('Configure...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('configurator'), sub {
+	$self->menu->append($self->menu_item(_('Configure...'), PerlPanel::get_applet_pbf_filename('configurator'), sub {
 		require('Configurator.pm');
 		my $configurator = PerlPanel::Applet::Configurator->new;
 		$configurator->configure;
 		$configurator->init;
 	}));
-	$self->menu->append($self->menu_item(_('Reload'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('reload'), sub { $PerlPanel::OBJECT_REF->reload }));
+	$self->menu->append($self->menu_item(_('Reload'), PerlPanel::get_applet_pbf_filename('reload'), sub { PerlPanel::reload }));
 
 	my $item = $self->menu_item(_('Add To Panel'), 'gtk-add');
 	my $menu = Gtk2::Menu->new;
@@ -181,16 +181,24 @@ sub add_control_items {
 	@files = sort(@files);
 
 	require('Configurator.pm');
+	my $registry = {};
+	PerlPanel::Applet::Configurator::load_appletregistry($registry);
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
-		$menu->append($self->menu_item($appletname, $PerlPanel::OBJECT_REF->get_applet_pbf($appletname, $PerlPanel::OBJECT_REF->icon_size), sub {$self->add_applet_dialog($appletname)}));
+		my $item = $self->menu_item(
+			$appletname,
+			PerlPanel::get_applet_pbf($appletname, PerlPanel::icon_size),
+			sub {$self->add_applet_dialog($appletname)},
+		);
+		PerlPanel::tips->set_tip($item, $registry->{registry}->{$appletname});
+		$menu->append($item);
 	}
 
 	$self->menu->append($item);
 
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
 
-	$self->menu->append($self->menu_item(_('About...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('about'), sub {
+	$self->menu->append($self->menu_item(_('About...'), PerlPanel::get_applet_pbf_filename('about'), sub {
 		require('About.pm');
 		my $about = PerlPanel::Applet::About->new;
 		$about->configure;
@@ -225,23 +233,23 @@ sub menu_item {
 		$pbf = $icon;
 	} else {
 		# assume it's a stock ID:
-		$pbf = $self->widget->render_icon($icon, $PerlPanel::OBJECT_REF->icon_size_name);
+		$pbf = $self->widget->render_icon($icon, PerlPanel::menu_icon_size_name);
 	}
 	if (ref($pbf) ne 'Gtk2::Gdk::Pixbuf') {
-		$pbf = Gtk2::Gdk::Pixbuf->new('rgb', 1, 8, $PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
+		$pbf = Gtk2::Gdk::Pixbuf->new('rgb', 1, 8, PerlPanel::menu_icon_size, PerlPanel::menu_icon_size);
 	}
 	my $x0 = $pbf->get_width;
 	my $y0 = $pbf->get_height;
-	if ($x0 > $PerlPanel::OBJECT_REF->icon_size || $y0 > $PerlPanel::OBJECT_REF->icon_size) {
+	if ($x0 > PerlPanel::menu_icon_size || $y0 > PerlPanel::menu_icon_size) {
 		my ($x1, $y1);
 		if ($x0 > $y0) {
 			# image is landscape:
-			$x1 = $PerlPanel::OBJECT_REF->icon_size;
-			$y1 = int(($y0 / $x0) * $PerlPanel::OBJECT_REF->icon_size);
+			$x1 = PerlPanel::menu_icon_size;
+			$y1 = int(($y0 / $x0) * PerlPanel::menu_icon_size);
 		} else {
 			# image is portrait:
-			$x1 = int(($x0 / $y0) * $PerlPanel::OBJECT_REF->icon_size);
-			$y1 = $PerlPanel::OBJECT_REF->icon_size;
+			$x1 = int(($x0 / $y0) * PerlPanel::menu_icon_size);
+			$y1 = PerlPanel::menu_icon_size;
 		}
 		$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
 	}
@@ -261,13 +269,13 @@ sub popup {
 
 sub popup_position {
 	my $self = shift;
-	my ($x, undef) = $PerlPanel::OBJECT_REF->get_widget_position($self->widget);
+	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
 	$x = 0 if ($x < 5);
-	if ($PerlPanel::OBJECT_REF->position eq 'top') {
-		return ($x, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	if (PerlPanel::position eq 'top') {
+		return ($x, PerlPanel::panel->allocation->height);
 	} else {
 		$self->menu->realize;
-		return ($x, $PerlPanel::OBJECT_REF->screen_height - $self->menu->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return ($x, PerlPanel::screen_height - $self->menu->allocation->height - PerlPanel::panel->allocation->height);
 	}
 }
 
@@ -327,7 +335,7 @@ sub add_applet_dialog {
 	}
 	if ($idx >= 0) {
 		splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx+1, 0, $applet);
-		$PerlPanel::OBJECT_REF->reload;
+		PerlPanel::reload;
 	}
 	return 1;
 }
