@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.5 2003/10/12 16:10:27 jodrell Exp $
+# $Id: applet.registry,v 1.6 2003/12/23 16:46:25 uid68241 Exp $
 
 About=A button to show an "About" dialog.
 BatteryMonitor=Shows the status of your laptop's battery.
@@ -24,3 +24,5 @@ XMMS=An applet to control the XMMS media player.
 Pager=Displays your current workspaces.
 Tasklist=Lists the programs currently running.
 ShowDesktop=Show or hide all the programs on screen.
+NautilusBookmarks=Launch Nautilus bookmarks.
+GaleonBookmarks=Launch Galeon bookmarks.

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.25 2003/10/27 10:06:17 jodrell Exp $
+# $Id: IconBar.pm,v 1.26 2003/12/23 16:46:25 uid68241 Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -165,7 +165,7 @@ sub build {
 	$self->{widget}->set_border_width(0);
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) });
+	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) ; return undef});
 
 	my $tip = $self->{name} || $self->{exec};
 	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');

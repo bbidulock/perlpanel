@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.30 2003/11/03 14:10:15 jodrell Exp $
+# $Id: BBMenu.pm,v 1.31 2003/12/23 16:46:25 uid68241 Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,7 +16,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::BBMenu;
-use vars qw(@menufiles $MENU_ARROW);
+use File::Basename qw(basename);
+use vars qw(@menufiles $MENU_ARROW @ICON_DIRECTORIES);
 use strict;
 
 our @menufiles = (
@@ -29,13 +30,18 @@ our @menufiles = (
 	'/usr/share/blackbox/menu',
 	'/usr/local/share/fluxbox/menu',
 	'/usr/share/fluxbox/menu',
-	'/usr/local/share/openbox/menu',
-	'/usr/share/openbox/menu',
 	'/usr/local/share/waimea/menu',
 	'/usr/share/waimea/menu',
 );
 
 our $MENU_ARROW = sprintf('%s/share/pixmaps/perlpanel-menu-arrow.png', $PerlPanel::PREFIX);
+
+our @ICON_DIRECTORIES = (
+	'%s/share/pixmaps',
+	'%/local/share/pixmaps',
+	'%s/share/icons/gnome/48x48/apps',
+	'%s/local/share/icons/gnome/48x48/apps',
+);
 
 sub new {
 	my $self		= {};
@@ -99,9 +105,9 @@ sub configure {
 		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 		$self->widget->child->pack_start(Gtk2::Label->new($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{label}), 1, 1, 0);
 	}
-	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief});
+	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief} eq 'true' ? 'half' : 'none');
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
-	$self->widget->signal_connect('button_release_event', sub { $self->popup($_[1]->button) ; return 1});
+	$self->widget->signal_connect('button_release_event', sub { $self->popup($_[1]->button) ; return undef});
 	$self->widget->grab_focus;
 	return 1;
 }
@@ -127,7 +133,7 @@ sub get_default_config {
 		icon => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
 		show_control_items => 'true',
 		label	=> 'Menu',
-		relief	=> 'half',
+		relief	=> 'true',
 	};
 }
 
