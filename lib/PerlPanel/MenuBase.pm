@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.30 2004/09/24 16:29:54 jodrell Exp $
+# $Id: MenuBase.pm,v 1.31 2004/09/26 12:59:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -286,37 +286,8 @@ sub add_control_items {
 		'gtk-add',
 		sub { PerlPanel::install_applet_dialog() },
 	);
-	PerlPanel::tips->set_tip($add_item, _('Install a New applet'));
+	PerlPanel::tips->set_tip($add_item, _('Install a New applet'), sub { $self->create_menu if ($_[0] == 1) });
 	$applet_menu->append($add_item);
-
-	my $dir = sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME));
-	if (-d $dir) {
-		if (!opendir(DIR, $dir)) {
-			print STDERR "*** Error opening '$dir': $!\n";
-
-		} else {
-	
-			my @applets = grep { /\.pm$/i } readdir(DIR);
-			closedir(DIR);
-
-			if (scalar(@applets) > 0) {
-				$applet_menu->append(Gtk2::SeparatorMenuItem->new);
-
-				foreach my $filename (sort @applets) {
-					my ($applet, undef) = split(/\./, $filename, 2);
-	
-					$applet_menu->append($self->menu_item(
-						$applet,
-						PerlPanel::get_applet_pbf($applet),
-						sub {$self->add_applet_dialog($applet)},
-
-					));
-
-				}
-
-			}
-		}
-	}
 
 	$self->menu->append($item);
 

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.113 2004/09/24 16:29:54 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.114 2004/09/26 12:59:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ use Digest::MD5 qw(md5_hex);
 use POSIX qw(setlocale);
 use Locale::gettext;
 use base 'Exporter';
-use File::Basename qw(basename fileparse);
+use File::Basename qw(basename fileparse dirname);
 use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
@@ -282,7 +282,8 @@ sub load_icon_theme {
 		# we're in sandbox mode
 		$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
 	}
-	$self->{icon_theme}->prepend_search_path(sprintf('%s/.%s/icon-files/', $ENV{HOME}, lc($NAME)));
+	$self->{icon_theme}->prepend_search_path(sprintf('%s/.%s/icon-files', $ENV{HOME}, lc($NAME)));
+	$self->{icon_theme}->prepend_search_path(sprintf('%s/.local/share/icons', $ENV{HOME}));
 
 	return 1;
 }
@@ -1100,12 +1101,21 @@ sub load_appletregistry {
 			s/\s*$//g;
 			next if (/^$/ or /^#/);
 			my ($applet, $description, $category) = split(/:/, $_, 3);
+			next unless (applet_exists($applet));
 			$registry->{$applet} = _($description);
 			push(@{$registry->{_categories}->{$category}}, $applet);
 		}
 		close(REGFILE);
 	}
 	return $registry;
+}
+
+sub applet_exists {
+	my $applet = shift;
+	foreach my $dir (@INC) {
+		return 1 if -e ("$dir/$applet.pm");
+	}
+	return undef;
 }
 
 sub new_applet_id {
@@ -1123,8 +1133,12 @@ sub install_applet_dialog {
 		$glade->get_widget('install_applet_dialog')->destroy;
 		if ($_[1] eq 'ok') {
 			my ($code, $error) = install_applet($file);
-			if (defined($callback)) {
-				&{$callback}($code, $error);
+			if ($code == 1) {
+				warning(_("Error installing '{file}': {error}", file => $file, error => $error));
+
+			} elsif (defined($callback)) {
+				&{$callback}();
+
 			}
 		}
 	});
@@ -1165,7 +1179,7 @@ sub install_applet {
 	if ($name eq '' || $version eq '') {
 		return (1, _('Cannot parse filename for name and version'));
 	}
-	print Dumper([$name, $version]);
+
 	my $cmd = sprintf('tar -ztf "%s"', $file);
 	my %files;
 	open(TAR, "$cmd|") or die "$cmd: $!\n";
@@ -1182,9 +1196,46 @@ sub install_applet {
 	# append the applet description:
 
 	my $regfile = sprintf('%s/.%s/applet.registry', $ENV{HOME}, lc($NAME));
-	open(REGFILE, ">>$regfile") or die "$regfile: $!";
-	print REGFILE `tar zxvf "$file" "applet.info" -O`;
-	close(REGFILE);
+	# put the > at the front of $regfile so we append:
+	tar_extract($file, 'applet.info', ">$regfile") or exit(256);
+
+	mkpath(sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
+	my $appletfile = sprintf('%s/.%s/applets/%s.pm', $ENV{HOME}, lc($NAME), $name);
+	tar_extract($file, "applets/$name.pm", $appletfile) or exit(256);
+
+	my @share = grep { ! /\/$/ } grep { /^share\/(icons|perlpanel\/glade)\// } keys(%files);
+	foreach my $share_file (@share) {
+		my $dest = sprintf('%s/.local/%s', $ENV{HOME}, $share_file);
+		mkpath(dirname($dest));
+		tar_extract($file, $share_file, $dest) or exit(256);
+	}
+
+	return 0;
+}
+
+sub tar_extract {
+	my ($tarball, $source, $dest) = @_;
+	if (!open(SRC, sprintf('tar zxvf "%s" "%s" -O |', $tarball, $source))) {
+		print STDERR "Cannot pipe from '$tarball': $!\n";
+		return undef;
+
+	} elsif (!open(DEST, ">$dest")) {
+		print STDERR "Cannot open '$dest': $!\n";
+		return undef;
+
+	} else {
+		while (<SRC>) {
+			print DEST $_;
+		}
+		close(SRC);
+		close(DEST);
+		return 1;
+	}
+}
+
+sub mkpath {
+	my $dir = shift;
+	return system(sprintf('mkdir -p "%s"', $dir));
 }
 
 1;

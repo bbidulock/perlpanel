@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.60 2004/09/18 00:03:30 jodrell Exp $
+# $Id: Configurator.pm,v 1.61 2004/09/26 12:59:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -166,7 +166,6 @@ sub configure {
 
 sub init {
 	my $self = shift;
-	$self->{registry} = PerlPanel::load_appletregistry;
 	$self->build_ui;
 	return 1;
 }
@@ -343,8 +342,28 @@ sub setup_custom_settings {
 	$column->clear_attributes($renderer);
 	$column->add_attribute($renderer, 'markup', 1);
 
+	$self->load_applet_list;
+
+	return 1;
+}
+
+sub get_applet_list {
+	my $self = shift;
+	my @files;
+
+	@files = sort grep { $_ !~ /^_/ } keys %{$self->{registry}};
+
+	$self->{files} = \@files;
+	return 1;
+}
+
+sub load_applet_list {
+	my $self = shift;
+
+	$self->{registry} = PerlPanel::load_appletregistry;
 	$self->get_applet_list;
 
+	@{$self->{add_applet_list}->{data}} = ();
 	foreach my $file (@{$self->{files}}) {
 		my ($appletname, undef) = split(/\./, $file, 2);
 		push(@{$self->{add_applet_list}->{data}}, [
@@ -353,20 +372,6 @@ sub setup_custom_settings {
 		]);
 	}
 
-	return 1;
-}
-
-sub get_applet_list {
-	my $self = shift;
-	my @files;
-	foreach my $dir (@PerlPanel::APPLET_DIRS) {
-		opendir(DIR, $dir) or next;
-		push(@files, grep { /\.pm$/ } readdir(DIR));
-		closedir(DIR);
-	}
-
-	@files = sort(@files);
-	$self->{files} = \@files;
 	return 1;
 }
 
@@ -391,8 +396,10 @@ sub run_add_applet_dialog {
 		}
 
 		$self->app->get_widget('add_dialog')->hide_all;
-		return undef;
 	});
+
+	$self->app->get_widget('install_button')->signal_connect('clicked', sub { PerlPanel::install_applet_dialog(sub { $self->load_applet_list }) });
+
 	$self->app->get_widget('add_dialog')->show_all;
 
 	return 1;
