@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.140 2005/01/10 10:11:10 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.141 2005/01/10 11:54:44 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -890,6 +890,7 @@ sub alert {
 	my $dialog = Gtk2::MessageDialog->new($self->{window}, 'modal', $type, $buttons, $message);
 	$dialog->set_title($NAME);
 	$dialog->set_icon($self->icon);
+	$dialog->set_position('center');
 
 	$dialog->signal_connect(
 		'response',
