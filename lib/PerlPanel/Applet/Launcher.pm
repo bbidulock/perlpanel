@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.17 2004/11/26 12:47:54 jodrell Exp $
+# $Id: Launcher.pm,v 1.18 2004/12/13 15:12:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -69,7 +69,7 @@ sub init {
 	} else {
 		my $entry = PerlPanel::DesktopEntry->new($self->{file});
 
-		if (!defined($entry) || !$entry->is_valid || $entry->Name eq '' || $entry->Exec eq '') {
+		if (!defined($entry) || !$entry->is_valid(PerlPanel::locale) || $entry->Name(PerlPanel::locale) eq '' || $entry->Exec eq '') {
 			PerlPanel::warning(_('Launcher file is empty or invalid. Click OK to edit.'), sub { $self->edit });
 
 		} else {
