@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.28 2004/10/28 13:23:12 jodrell Exp $
+# $Id: Clock.pm,v 1.29 2004/10/28 13:37:32 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -142,6 +142,12 @@ sub make_calendar {
 		'text'	=> 'text',
 	);
 
+	$self->{events}->signal_connect('button_press_event', sub {
+		if ($_[1]->type eq '2button-press' && $_[1]->button == 1) {
+			$self->edit_event;
+		}
+	});
+
 	$self->{glade}->get_widget('add_button')->signal_connect('clicked', sub { $self->add_event_dialog });
 
 	$self->{window}->child->show_all;
@@ -191,23 +197,28 @@ sub hide_calendar {
 
 sub show_events {
 	my ($self, $year, $month, $day) = @_;
-	my $date = sprintf("%04d-%02d-%02d", $year, $month, $day);
+	my @events = $self->get_events_for($year, $month, $day);
+
 	@{$self->{events}->{data}} = ();
-	my %events;
+	foreach my $event (@events) {
+		push(@{$self->{events}->{data}}, [ $event->{time}, $event->{notes} ]);
+	}
+
+	return 1;
+}
+
+sub get_events_for {
+	my ($self, $year, $month, $day) = @_;
+
+	my $date = sprintf("%04d-%02d-%02d", $year, $month, $day);
+	my @events;
+
+	# munge the reference:
 	if (ref($self->{config}->{events}) ne 'ARRAY') {
 		$self->{config}->{events} = [ $self->{config}->{events} ];
 	}
-	foreach my $event (@{$self->{config}->{events}}) {
-		if ($event->{date} eq $date) {
-			push(@{$events{$event->{time}}}, $event);
-		}
-	}
-	foreach my $time (sort keys %events) {
-		foreach my $event (@{$events{$time}}) {
-			push(@{$self->{events}->{data}}, [ $time, $event->{notes} ]);
-		}
-	}
-	return 1;
+
+	return sort { $a->{time} cmp $b->{time} } grep { $_->{date} eq $date }  @{$self->{config}->{events}};
 }
 
 sub add_event_dialog {
@@ -323,6 +334,14 @@ sub my_strftime {
 sub strtotime {
 	my $str = shift;
 	return UnixDate(ParseDate($str), '%s');
+}
+
+sub edit_event {
+	my $self = shift;
+	my ($idx) = $self->{events}->get_selected_indices;
+	my @events = $self->get_events_for($self->{calendar}->get_date);
+	print Data::Dumper::Dumper($events[$idx]);
+	return 1;
 }
 
 1;
