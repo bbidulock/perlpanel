@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.27 2004/10/26 16:17:20 jodrell Exp $
+# $Id: Clock.pm,v 1.28 2004/10/28 13:23:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,9 +19,16 @@
 #
 package PerlPanel::Applet::Clock;
 use Gtk2::SimpleList;
-use POSIX qw(strftime);
-use vars qw($MULTI %REMINDERS);
+use POSIX;
+use vars qw($MULTI %REMINDERS $REMINDER_DIALOG_FMT);
+use Date::Manip;
 use strict;
+
+#
+# Please note that month values are zero-indexed throughout this applet,
+# since all Perl's various date manipulation functions use zero-indexed
+# months, and so does GtkCalendar.
+#
 
 our $MULTI = 1;
 
@@ -33,6 +40,8 @@ our %REMINDERS = (
 	60	=> _('1 hour before'),
 	120	=> _('2 hours before'),
 );
+
+our $REMINDER_DIALOG_FMT = "<span weight=\"bold\" size=\"x-large\">%s</span>\n\n%s";
 
 sub new {
 	my $self		= {};
@@ -59,6 +68,17 @@ sub configure {
 		}
 	});
 	$self->update;
+
+	$self->{glade}->get_widget('reminder_dialog')->signal_connect('response', sub {
+		$self->{glade}->get_widget('reminder_dialog')->hide_all;
+		return 1;
+	});
+	$self->{glade}->get_widget('reminder_dialog')->signal_connect('delete_event', sub {
+		$self->{glade}->get_widget('reminder_dialog')->hide_all;
+		return 1;
+	});
+	$self->{glade}->get_widget('reminder_dialog')->set_icon(PerlPanel::icon);
+
 	Glib::Timeout->add(1000, sub { $self->update });
 	$self->widget->show_all;
 	return 1;
@@ -66,8 +86,9 @@ sub configure {
 
 sub update {
 	my $self = shift;
-	$self->{label}->set_text(' '.strftime($self->{config}{format}, localtime(time())).' ');
-	PerlPanel::tips->set_tip($self->widget, strftime($self->{config}{date_format}, localtime(time())));
+	$self->{label}->set_text(' '.my_strftime($self->{config}{format}, time()).' ');
+	PerlPanel::tips->set_tip($self->widget, my_strftime($self->{config}{date_format}, time()));
+	$self->show_reminders;
 	return 1;
 }
 
@@ -173,6 +194,9 @@ sub show_events {
 	my $date = sprintf("%04d-%02d-%02d", $year, $month, $day);
 	@{$self->{events}->{data}} = ();
 	my %events;
+	if (ref($self->{config}->{events}) ne 'ARRAY') {
+		$self->{config}->{events} = [ $self->{config}->{events} ];
+	}
 	foreach my $event (@{$self->{config}->{events}}) {
 		if ($event->{date} eq $date) {
 			push(@{$events{$event->{time}}}, $event);
@@ -250,6 +274,55 @@ sub setup_add_event_dialog_callbacks {
 	}
 
 	return 1;
+}
+
+sub show_reminders {
+	my $self = shift;
+
+	my $now = time();
+
+	foreach my $event (@{$self->{config}->{events}}) {
+		my $timestamp = $self->get_timestamp_for($event);
+		if (($timestamp - ($event->{reminder} * 60)) < $now && $event->{reminded} ne 'true' && $event->{notes} ne '') {
+			$event->{reminded} = 'true';
+			PerlPanel::save_config();
+			$self->reminder($event);
+		}
+	}
+
+	return 1;
+}
+
+sub reminder {
+	my ($self, $event) = @_;
+	$self->{glade}->get_widget('reminder_dialog_label')->set_markup(sprintf(
+		$REMINDER_DIALOG_FMT,
+		_('Event Reminder'),
+		_(
+			'You asked to be reminded about the following event, which takes place on {date}:',
+			date => my_strftime(_('%Y-%m-%d at %H:%M'), $self->get_timestamp_for($event))
+		),
+	));
+	$self->{glade}->get_widget('reminder_dialog_notes_label')->set_text($event->{notes});
+	$self->{glade}->get_widget('reminder_dialog')->show_all;
+	return 1;
+}
+
+sub get_timestamp_for {
+	my ($self, $event) = @_;
+	my ($year, $month, $day) = split(/-/, $event->{date}, 3);
+	my ($hour, $min) = split(/:/, $event->{time}, 2);
+	return strtotime(sprintf('%04d-%02d-%02d %02d:%02d:00', $year, $month+1, $day, $hour, $min));
+}
+
+sub my_strftime {
+	my ($fmt, $timestamp) = @_;
+	return POSIX::strftime($fmt, localtime($timestamp));
+}
+
+sub strtotime {
+	my $str = shift;
+	return UnixDate(ParseDate($str), '%s');
 }
 
 1;
