@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.91 2004/07/01 10:09:58 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.92 2004/07/01 10:42:22 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -871,7 +871,7 @@ sub lookup_icon {
 sub get_run_history {
 	my @history;
 	if (!open(HISTFILE, $RUN_HISTORY_FILE)) {
-		print STDERR "*** error opening $RUN_HISTORY_FILE for appending: $!\n";
+		print STDERR "*** error opening $RUN_HISTORY_FILE for reading: $!\n";
 	} else {
 		@history = reverse(<HISTFILE>);
 		map { chomp($history[$_]) } 0..scalar(@history);
@@ -905,7 +905,7 @@ sub append_run_history {
 		$self = $OBJECT_REF;
 		$command = shift;
 	}
-	if (open(HISTFILE, ">>$RUN_HISTORY_FILE")) {
+	if (!open(HISTFILE, ">>$RUN_HISTORY_FILE")) {
 		print STDERR "*** error opening $RUN_HISTORY_FILE for appending: $!\n";
 		return undef;
 	} else {
