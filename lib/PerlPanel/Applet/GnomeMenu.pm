@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.21 2004/11/26 11:38:27 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.22 2004/11/26 11:49:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -71,12 +71,32 @@ sub configure {
 
 	$self->create_menu;
 
+	Glib::Timeout->add(1000, sub {
+		my ($result, $info) = Gnome2::VFS->get_file_info($self->{config}->{base}, 'default');
+		if ($result eq 'ok') {
+			$self->create_menu if ($info->{mtime} != $self->{mtime});
+		}
+	});
+
 	return 1;
 }
 
 sub create_menu {
 	my $self = shift;
+	if (defined($self->menu)) {
+		$self->menu->destroy;
+	}
 	$self->{menu} = Gtk2::Menu->new;
+
+	my ($result, $info) = Gnome2::VFS->get_file_info($self->{config}->{base}, 'default');
+	if ($result ne 'ok') {
+		printf(STDERR "Error loading '%s': %s\n", $self->{config}->{base}, $result);
+		return undef;
+
+	} else {
+		$self->{mtime} = $info->{mtime};
+
+	}
 
 	if ($self->{config}->{apps_in_submenu} eq 'true' && !PerlPanel::has_action_menu) {
 
@@ -183,7 +203,6 @@ sub create_submenu_for {
 			);
 			my $sub_menu = Gtk2::Menu->new;
 			$item->set_submenu($sub_menu);
-			#$menu->append($item);
 			push(@dir_items, $item);
 
 			$self->create_submenu_for($path, $sub_menu);
@@ -216,7 +235,6 @@ sub create_submenu_for {
 				if ($comment ne '') {
 					PerlPanel::tips->set_tip($item, $comment);
 				}
-				#$menu->append($item);
 				push(@file_items, $item);
 			}
 
