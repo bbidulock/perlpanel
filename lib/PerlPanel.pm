@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.94 2004/07/02 10:26:39 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.95 2004/07/02 12:52:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,7 +32,8 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
-		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES);
+		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES
+		$DEFAULT_THEME);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -89,6 +90,8 @@ our $RUN_HISTORY_FILE	= sprintf('%s/.perlpanel/run-history', $ENV{HOME});
 our $RUN_HISTORY_LENGTH	= 15;
 
 our @APPLET_CATEGORIES = qw(Actions System Utilities Launchers Menus);
+
+our $DEFAULT_THEME = 'gnome';
 
 Gtk2->init;
 
@@ -865,7 +868,21 @@ sub lookup_icon {
 		$icon =~ s/\..+$//g;
 
 		if (!defined($self->{icon_theme})) {
-			$self->{icon_theme} = Gtk2::IconTheme->get_default;
+			# user has forced use of a particular theme:
+			if ($self->{config}->{icon_theme} ne '') {
+				$self->{icon_theme} = Gtk2::IconTheme->new;
+				$self->{icon_theme}->set_custom_theme($self->{config}->{icon_theme});
+
+			} else {
+				# use the default:
+				$self->{icon_theme} = Gtk2::IconTheme->get_default;
+
+				# check to see that the theme has loaded OK (might not if GNOME's not running):
+				unless (-f $self->{icon_theme}->get_example_icon_name) {
+					$self->{icon_theme} = Gtk2::IconTheme->new;
+					$self->{icon_theme}->set_custom_theme($DEFAULT_THEME);
+				}
+			}
 			if ($VERSION !~ /^[\d\.]$/) {
 				# we're in sandbox mode
 				$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
