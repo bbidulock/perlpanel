@@ -1,6 +1,20 @@
 ChangeLog
 =========
 
+2004-12-10 - v0.9.0
+	* This release adds proper calendaring functions to the Clock applet -
+	  you can add events to your calendar for a particular date, and
+	  get reminders for them. A new command-line tool is available to
+	  install applets, so that third-party applets can be packaged as RPMs
+	  or DEBs. A new DriveManager applet makes it easy to mount, unmount
+	  and eject removable media devices. You now can specify the panel size
+	  in pixels instead of named sizes, and the panel can be set not to
+	  "expand", and instead will be centered on the window edge. Unicode
+	  support has been improved for .desktop files, and translated strings
+	  are used in the GNOME menu when available. You can drag and drop
+	  launcher icons to and from the panel. And there have been a large
+	  number of bug fixes and optimisations.
+
 2004-09-29 - v0.8.0
 
 	* This release introduces some massive changes to PerlPanel. First off
@@ -166,5 +180,5 @@ ChangeLog
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.9 2004/11/05 16:10:20 jodrell Exp $
+$Id: ChangeLog,v 1.10 2004/12/09 17:43:23 jodrell Exp $
 
