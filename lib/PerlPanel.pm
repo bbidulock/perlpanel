@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.136 2004/11/26 16:27:20 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.137 2004/11/26 16:35:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,6 +67,7 @@ our %DEFAULTS = (
 		size			=> 24,
 		has_border		=> 'true',
 		menu_size		=> 'medium',
+		menu_icon_size		=> 'medium',
 		expand			=> 'true',
 		use_struts		=> 'true',
 	},
@@ -945,12 +946,14 @@ sub icon_size {
 
 sub menu_icon_size {
 	my $self = $OBJECT_REF;
-	return @{$SIZE_MAP{'medium'}}[0];
+	my $size = (defined($OBJECT_REF->{config}->{panel}->{menu_icon_size}) ? $OBJECT_REF->{config}->{panel}->{menu_icon_size} : $DEFAULTS{panel}->{menu_icon_size});
+	return @{$SIZE_MAP{$size}}[0];
 }
 
 sub menu_icon_size_name {
 	my $self = $OBJECT_REF;
-	return @{$SIZE_MAP{'medium'}}[1];
+	my $size = (defined($OBJECT_REF->{config}->{panel}->{menu_icon_size}) ? $OBJECT_REF->{config}->{panel}->{menu_icon_size} : $DEFAULTS{panel}->{menu_icon_size});
+	return @{$SIZE_MAP{$size}}[1];
 }
 
 sub screen_width {
