@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.27 2004/02/02 12:47:48 jodrell Exp $
+# $Id: Makefile,v 1.28 2004/02/04 13:38:37 jodrell Exp $
 
 VERSION=0.3.1
 
@@ -27,6 +27,10 @@ IMGDIR=$(DATADIR)/pixmaps
 
 MAN_SECTION=man1
 MAN_LIBS_SECTION=man3
+
+#
+# NB: $(DESTDIR) is usally empty.
+#
 
 all: perlpanel
 
@@ -41,17 +45,17 @@ perlpanel:
 	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
 
 install:
-	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR)/$(MAN_SECTION) $(IMGDIR)
-	install -m 0755 build/perlpanel $(BINDIR)/
-	install -m 0755 build/perlpanel-item-edit $(BINDIR)/
-	install -m 0755 build/perlpanel-run-dialog $(BINDIR)/
-	install -m 0755 src/perlpaneld $(BINDIR)/
-	cp -Rvp lib/* $(LIBDIR)/
-	install -m 0644 build/PerlPanel.pm $(LIBDIR)/
-	install -m 0755 build/perlpanel.1 $(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/PerlPanel::MenuBase.1 $(MANDIR)/$(MAN_LIBS_SECTION)/
-	cp -Rvp share/pixmaps/* $(IMGDIR)/
+	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/$(MAN_SECTION) $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION) $(DESTDIR)$(IMGDIR)
+	install -m 0755 build/perlpanel $(DESTDIR)$(BINDIR)/
+	install -m 0755 build/perlpanel-item-edit $(DESTDIR)$(BINDIR)/
+	install -m 0755 build/perlpanel-run-dialog $(DESTDIR)$(BINDIR)/
+	install -m 0755 src/perlpaneld $(DESTDIR)$(BINDIR)/
+	cp -Rvp lib/* $(DESTDIR)$(LIBDIR)/
+	install -m 0644 build/PerlPanel.pm $(DESTDIR)$(LIBDIR)/
+	install -m 0755 build/perlpanel.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-applet-howto.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/PerlPanel::MenuBase.1 $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)/
+	cp -Rvp share/pixmaps/* $(DESTDIR)$(IMGDIR)/
 
 clean:
 	rm -rf build
