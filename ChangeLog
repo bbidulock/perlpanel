@@ -1,6 +1,18 @@
 ChangeLog
 =========
 
+YYYY-MM-DD - v0.9.1
+	* This release properly fixes the panel border by using low-level
+	  drawing functions. New applets include: Timer, Trash, Volume. A
+	  number of other applets have been given a spring clean. You can
+	  drag launchers from the GNOME Menu (although not yet onto the
+	  panel). The .desktop file library has been split into a separate
+	  package called X11::FreeDesktop::DesktopEntry, which is available
+	  from CPAN, and the .desktop editor program has been overhauled to
+	  use it. The BatteryMonitor applet does ACP/APM detection. You can
+	  now upload your SSH key to remote hosts with the ShellManager
+	  applet.
+
 2004-12-10 - v0.9.0
 	* This release adds proper calendaring functions to the Clock applet -
 	  you can add events to your calendar for a particular date, and
@@ -180,5 +192,5 @@ ChangeLog
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.10 2004/12/09 17:43:23 jodrell Exp $
+$Id: ChangeLog,v 1.11 2005/01/22 14:28:08 jodrell Exp $
 
