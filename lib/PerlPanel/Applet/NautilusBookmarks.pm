@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.1 2003/12/23 16:46:25 uid68241 Exp $
+# $Id: NautilusBookmarks.pm,v 1.2 2004/01/10 19:25:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,7 +31,23 @@ sub configure {
 	$self->{widget} = Gnome2::NautilusBookmarks->new(Gtk2::Image->new_from_stock('gtk-open', $PerlPanel::OBJECT_REF->icon_size_name));
 	$self->widget->set_relief('none');
 	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Nautilus Bookmarks');
+	$self->widget->signal_connect('clicked', sub {
+		$self->widget->get_menu->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $self->widget, undef);
+	});
 	return 1;
+}
+
+sub popup_position {
+	my $self = shift;
+	my ($x, undef) = $PerlPanel::OBJECT_REF->get_widget_position($self->widget);
+	$x = 0 if ($x < 5);
+	if ($PerlPanel::OBJECT_REF->position eq 'top') {
+		return ($x, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	} else {
+		$self->widget->get_menu->realize;
+		$self->widget->get_menu->show_all;
+		return ($x, $PerlPanel::OBJECT_REF->screen_height - $self->widget->get_menu->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	}
 }
 
 sub widget {
