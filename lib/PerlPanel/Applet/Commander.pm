@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.11 2004/01/26 00:50:58 jodrell Exp $
+# $Id: Commander.pm,v 1.12 2004/02/02 12:02:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@ use vars qw($histfile $iconfile);
 use strict;
 
 our $histfile = sprintf('%s/.perlpanel/run-history', $ENV{HOME});
-our $iconfile = $PerlPanel::OBJECT_REF->get_applet_pbf_filename('commander');
+our $iconfile = PerlPanel::get_applet_pbf_filename(undef, 'commander');
 
 sub new {
 	my $self		= {};
@@ -113,6 +113,7 @@ sub run {
 
 	my $dialog = Gtk2::Dialog->new;
 	$dialog->set_title('Run Command');
+	$dialog->set_position('center');
 	$dialog->set_resizable(0);
 	$dialog->set_border_width(5);
 	$dialog->set_has_separator(0);

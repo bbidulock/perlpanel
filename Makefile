@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.23 2004/01/21 10:23:20 jodrell Exp $
+# $Id: Makefile,v 1.24 2004/02/02 12:02:45 jodrell Exp $
 
 VERSION=0.3.0
 
@@ -33,7 +33,7 @@ perlpanel:
 	mkdir build
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
-	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; print' < src/perlpanel-run-command > build/perlpanel-run-command
+	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; print' < src/perlpanel-run-dialog > build/perlpanel-run-dialog
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
@@ -43,7 +43,7 @@ install:
 	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR)/$(MAN_SECTION) $(IMGDIR)
 	install -m 0755 build/perlpanel $(BINDIR)/
 	install -m 0755 build/perlpanel-item-edit $(BINDIR)/
-	install -m 0755 build/perlpanel-run-command $(BINDIR)/
+	install -m 0755 build/perlpanel-run-dialog $(BINDIR)/
 	install -m 0755 src/perlpaneld $(BINDIR)/
 	cp -Rvp lib/* $(LIBDIR)/
 	install -m 0644 build/PerlPanel.pm $(LIBDIR)/
