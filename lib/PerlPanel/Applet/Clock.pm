@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.1 2003/05/27 14:54:42 jodrell Exp $
+# $Id: Clock.pm,v 1.1.1.1 2003/05/27 14:54:42 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use Config::Simple;
 use POSIX qw(strftime);

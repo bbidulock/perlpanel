@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.1 2003/05/27 14:54:42 jodrell Exp $
+# $Id: IconBar.pm,v 1.1.1.1 2003/05/27 14:54:42 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Config::Simple;
 use vars qw($ICON_SPACING $ICON_DIR);

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel,v 1.1 2003/05/27 14:54:42 jodrell Exp $
+# $Id: perlpanel,v 1.1.1.1 2003/05/27 14:54:42 jodrell Exp $
 use lib 'lib/';
 use PerlPanel;
 use strict;
