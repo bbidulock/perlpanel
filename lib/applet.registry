@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.6 2003/12/23 16:46:25 uid68241 Exp $
+# $Id: applet.registry,v 1.7 2004/01/04 17:03:12 jodrell Exp $
 
 About=A button to show an "About" dialog.
 BatteryMonitor=Shows the status of your laptop's battery.
@@ -13,16 +13,17 @@ BBMenu=A Blackbox-compatible program launcher.
 Clock=Shows the current time on the panel.
 Commander=A button to show a command dialog.
 Configurator=A comprehensive configuration dialog.
+GaleonBookmarks=Launch Galeon bookmarks.
 IconBar=Shows launcher icons on the panel.
 LoadMonitor=Shows the current CPU load.
 Lock=Locks the screen.
+NautilusBookmarks=Launch Nautilus bookmarks.
+Pager=Displays your current workspaces.
 Quit=A button to close the panel.
 Reload=A button to reload the panel.
 Separator=A separator.
-Socket=A Gtk Socket applet.
-XMMS=An applet to control the XMMS media player.
-Pager=Displays your current workspaces.
-Tasklist=Lists the programs currently running.
 ShowDesktop=Show or hide all the programs on screen.
-NautilusBookmarks=Launch Nautilus bookmarks.
-GaleonBookmarks=Launch Galeon bookmarks.
+Socket=A Gtk Socket applet.
+Spacer=A spacer.
+Tasklist=Lists the programs currently running.
+XMMS=An applet to control the XMMS media player.

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.26 2003/12/23 16:46:25 uid68241 Exp $
+# $Id: IconBar.pm,v 1.27 2004/01/04 17:03:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,10 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::IconBar;
-use vars qw($ICON_DIR);
+use vars qw($ICON_DIR $MENU_EDITOR);
 use strict;
 
 our $ICON_DIR = sprintf('%s/share/pixmaps', $PerlPanel::PREFIX);
+
+chomp (our $MENU_EDITOR = `which perlpanel-item-edit`);
 
 sub new {
 	my $self		= {};
@@ -89,6 +91,7 @@ sub get_default_config {
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;
+use Gtk2::Helper;
 use strict;
 
 sub new {
@@ -261,26 +264,25 @@ sub popup_position {
 
 sub edit {
 	my $self = shift;
-	chomp (my $menueditor = `which perlpanel-item-edit`);
-	if (-x $menueditor) {
-		# create a lock file for the subshell to remove when the editor is done:
-		my $lockfile = "$self->{filename}.lock";
-		open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
-		# record the desktop file's mod time:
+	if (-x $MENU_EDITOR) {
 		my $mtime = (stat($self->{filename}))[9];
-		# run the editor:
 		$self->{widget}->set_sensitive(0);
-		system("$menueditor $self->{filename} && rm -f $lockfile &");
-		# wait for the lockfile to be removed:
-		while (-e $lockfile) {
-			Gtk2->main_iteration while (Gtk2->events_pending);
-		}
-		# reload if the file changed:
-		$self->{widget}->set_sensitive(1);
-		my $newmtime = (stat($self->{filename}))[9];
-		if ($newmtime > $mtime) {
-			$PerlPanel::OBJECT_REF->reload;
-		}
+		open(MENU_EDITOR, "$MENU_EDITOR $self->{filename}|");
+		my $tag;
+		$tag = Gtk2::Helper->add_watch(fileno(MENU_EDITOR), 'in', sub {
+			if (eof(MENU_EDITOR)) {
+				close(MENU_EDITOR);
+
+				$self->{widget}->set_sensitive(1);
+
+				my $newmtime = (stat($self->{filename}))[9];
+
+				if ($newmtime > $mtime) {
+					$PerlPanel::OBJECT_REF->reload;
+				}
+				Gtk2::Helper->remove_watch($tag);
+			}
+		});
 	} else {
 		$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');
 	}
@@ -289,29 +291,24 @@ sub edit {
 
 sub add {
 	my $self = shift;
-	chomp (my $menueditor = `which perlpanel-item-edit`);
+	chomp (my $MENU_EDITOR = `which perlpanel-item-edit`);
 	my $filename = sprintf('%s/.%s/icons/%d.desktop', $ENV{HOME}, lc($PerlPanel::NAME), time());
-	if (-x $menueditor) {
-		# create a lock file for the subshell to remove when the editor is done:
-		my $lockfile = "$filename.lock";
-		open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
-		# touch the file:
+	if (-x $MENU_EDITOR) {
 		open(FILE, ">$filename") && close(FILE);
-		# record the desktop file's mod time:
-		my $mtime = (stat($filename))[9];
-		# run the editor:
-		system("$menueditor $filename && rm -f $lockfile &");
-		# wait for the lockfile to be removed:
-		while (-e $lockfile) {
-			Gtk2->main_iteration while (Gtk2->events_pending);
-		}
-		# reload if the file changed:
-		my $newmtime = (stat($filename))[9];
-		if ($newmtime > $mtime) {
-			$PerlPanel::OBJECT_REF->reload;
-		} else {
-			unlink($filename);
-		}
+		my $mtime = time();
+		open(MENU_EDITOR, "$MENU_EDITOR $filename|");
+		my $tag;
+		$tag = Gtk2::Helper->add_watch(fileno(MENU_EDITOR), 'in', sub {
+			if (eof(MENU_EDITOR)) {
+				close(MENU_EDITOR);
+				my $newmtime = (stat($filename))[9];
+
+				if ($newmtime > $mtime) {
+					$PerlPanel::OBJECT_REF->reload;
+				}
+				Gtk2::Helper->remove_watch($tag);
+			}
+		});
 	} else {
 		$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');
 	}

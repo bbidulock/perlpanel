@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.31 2003/12/23 16:46:25 uid68241 Exp $
+# $Id: BBMenu.pm,v 1.32 2004/01/04 17:03:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -107,7 +107,7 @@ sub configure {
 	}
 	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief} eq 'true' ? 'half' : 'none');
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
-	$self->widget->signal_connect('button_release_event', sub { $self->popup($_[1]->button) ; return undef});
+	$self->widget->signal_connect('clicked', sub { $self->popup });
 	$self->widget->grab_focus;
 	return 1;
 }
@@ -275,8 +275,8 @@ sub create_menu {
 }
 
 sub popup {
-	my ($self, $event_button) = @_;
-	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $event_button, 0);
+	my $self = shift;
+	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $self->widget, 0);
 	return 1;
 }
 
