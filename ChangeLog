@@ -1,6 +1,13 @@
 ChangeLog
 =========
 
+2004-08-25 - v0.7.0
+	* This release includes two new icon themes - Bluecurve and crystalsvg.
+	  The main development work has focused on implementing support for
+	  applets with multiple instances - so you can have to mailbox
+	  monitoring applets, each monitoring a different mailbox. There's a
+	  new "Launcher" applet which uses this.
+
 2004-07-07 - v0.6.0
 
 	* PerlPanel now supports icon themes, so icon themers can create icons
@@ -141,4 +148,4 @@ ChangeLog
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.5 2004/07/07 14:05:56 jodrell Exp $
+$Id: ChangeLog,v 1.6 2004/08/25 10:20:36 jodrell Exp $
