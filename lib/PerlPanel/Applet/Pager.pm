@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.12 2004/09/17 16:00:16 jodrell Exp $
+# $Id: Pager.pm,v 1.13 2004/10/09 11:50:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ sub new {
 sub configure {
 	my $self = shift;
 
-	$self->{config} = PerlPanel::get_config('Pager');
+	$self->{config} = PerlPanel::get_config('Pager', $self->{id});
 
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{screen}->force_update;
@@ -55,7 +55,7 @@ sub configure {
 
 	$self->{pager} = Gnome2::Wnck::Pager->new($self->{screen});
 	$self->{pager}->set_shadow_type('in');
-	$self->{pager}->set_n_rows($self->{config}->{rows});
+	$self->{pager}->set_n_rows($self->{config}->{rows} > 0 ? $self->{config}->{rows} : 1);
 
 	$self->widget->add($self->{pager});
 
