@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.54 2004/07/05 14:49:56 jodrell Exp $
+# $Id: Configurator.pm,v 1.55 2004/07/05 15:03:48 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -213,10 +213,13 @@ sub setup_config_mapping {
 	foreach my $widget_id (keys %SETTINGS_MAP) {
 		my $widget = $self->app->get_widget($widget_id);
 		my ($ref, $key, $type, @values) = @{$SETTINGS_MAP{$widget_id}};
+
 		if ($type eq 'string') {
 			$widget->set_text($ref->{$key});
+
 		} elsif ($type eq 'boolean') {
 			$widget->set_active($ref->{$key} eq 'true' ? 1 : undef);
+
 		} elsif ($type eq 'enum') {
 			my $i = 0;
 			foreach my $value (@values) {
@@ -225,10 +228,13 @@ sub setup_config_mapping {
 				}
 				$i++;
 			}
+
 		} elsif ($type eq 'integer') {
 			$widget->set_value($ref->{$key});
+
 		} else {
 			die("unknown type '$type' for key '$key'");
+
 		}
 	}
 	return 1;
@@ -243,14 +249,19 @@ sub apply_settings {
 		my ($ref, $key, $type, @values) = @{$SETTINGS_MAP{$widget_id}};
 		if ($type eq 'string') {
 			$ref->{$key} = $widget->get_text;
+
 		} elsif ($type eq 'boolean') {
 			$ref->{$key} = ($widget->get_active ? 'true' : 'false');
+
 		} elsif ($type eq 'enum') {
 			$ref->{$key} = $widget->child->get_text;
+
 		} elsif ($type eq 'integer') {
 			$ref->{$key} = $widget->get_value_as_int;
+
 		} else {
 			die("unknown type '$type' for key '$key'");
+
 		}
 	}
 	return 1;
@@ -265,13 +276,13 @@ sub setup_custom_settings {
 
 	my @dirs = $PerlPanel::OBJECT_REF->{icon_theme}->get_search_path;
 	my %themes = (
-		ucfirst($PerlPanel::DEFAULT_THEME) => 1,
+		$PerlPanel::DEFAULT_THEME => 1,
 	);
 	foreach my $dir (@dirs) {
 		if (!opendir(DIR, $dir)) {
 			print STDERR "*** Error opening '$dir' for reading: $!\n";
 		} else {
-			map { $themes{ucfirst($_)}++ if (-e "$dir/$_/index.theme") } readdir(DIR);
+			map { $themes{$_}++ if (-e "$dir/$_/index.theme") } readdir(DIR);
 			closedir(DIR);
 		}
 	}
@@ -281,7 +292,7 @@ sub setup_custom_settings {
 	my @themes = sort(keys(%themes));
 	for (my $i = 0 ; $i < scalar(@themes) ; $i++) {
 		push(@{$self->{icon_theme_list}->{data}}, $themes[$i]);
-		if (lc($themes[$i]) eq lc($PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme})) {
+		if ($themes[$i] eq $PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme}) {
 			$self->app->get_widget('icon_theme')->set_active($i);
 		}
 	}
