@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.17 2003/06/13 15:43:33 jodrell Exp $
+# $Id: IconBar.pm,v 1.18 2003/06/17 11:04:59 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -132,7 +132,7 @@ sub build {
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $self->{name} || $self->{exec});
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('button_press_event', sub { $self->clicked($_[1]->button) });
+	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) });
 	return 1;
 }
 
@@ -178,7 +178,6 @@ sub clicked {
 					'<StockItem>',
 					'gtk-add',
 				],
-
 			];
 			$self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
 			$self->{factory}->create_items(@{$self->{itemfactory}});
