@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.5 2004/09/26 14:08:53 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.6 2004/11/22 11:25:00 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -312,6 +312,7 @@ sub locales {
 	my $type		= $entry->Type($locale);
 	my $icon		= $entry->Icon($locale);
 	my $exec		= $entry->Exec($locale);
+	my $url			= $entry->URL($locale);
 	my $startup_notify	= $entry->StartupNotify($locale);
 
 These methods are shortcuts for the mostly commonly accessed fields from a
@@ -325,6 +326,7 @@ sub Comment		{ $_[0]->get_value('Comment',		$DEFAULT_GROUP, $_[1]) }
 sub Type		{ $_[0]->get_value('Type',		$DEFAULT_GROUP, $_[1]) }
 sub Icon		{ $_[0]->get_value('Icon',		$DEFAULT_GROUP, $_[1]) }
 sub Exec		{ $_[0]->get_value('Exec',		$DEFAULT_GROUP, $_[1]) }
+sub URL			{ $_[0]->get_value('URL',		$DEFAULT_GROUP, $_[1]) }
 sub StartupNotify	{ return ($_[0]->get_value('StartupNotify', $DEFAULT_GROUP, $_[1]) eq 'true' ? 1 : undef) }
 
 =pod
