@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.56 2004/06/25 14:36:31 jodrell Exp $
+# $Id: BBMenu.pm,v 1.57 2004/06/28 21:27:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -128,9 +128,6 @@ sub create_menu {
 	if ($self->{config}->{show_control_items} eq 'true' && !PerlPanel::has_action_menu) {
 		$self->add_control_items(
 			menu_data => $self->get_menu_data,
-			menu_edit_callback => sub {
-				PerlPanel::notify('This does nothing');
-			},
 		);
 	}
 	return 1;
