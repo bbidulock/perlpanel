@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.20 2004/01/17 15:38:52 jodrell Exp $
+# $Id: Makefile,v 1.21 2004/01/18 13:01:34 jodrell Exp $
 
 VERSION=0.3.0
 
@@ -33,7 +33,7 @@ perlpanel:
 	mkdir build
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
-	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print < lib/PerlPanel.pm > build/PerlPanel.pm
+	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
 
@@ -53,3 +53,6 @@ clean:
 
 uninstall:
 	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
+
+release:
+	./make.rpm $(VERSION)
