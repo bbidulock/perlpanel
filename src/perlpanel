@@ -1,12 +1,17 @@
 #!/usr/bin/perl
-# $Id: perlpanel,v 1.2 2003/06/05 23:25:53 jodrell Exp $
+# PerlPanel - a panel program written in Perl.
+# Copyright (c) 2003 Gavin Brown. All rights reserved. This program is free
+# software; you can redistribute it and/or modify it under the terms
+# of the GNU General Public License.
+# $Id: perlpanel,v 1.3 2003/06/10 14:18:27 jodrell Exp $
 use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
 use PerlPanel;
 
 # if you're running from a sandbox, you can get PerlPanel to run by symlinking
 # this file into a directory in your PATH, and symlinking the
-# lib/PerlPanel/Applet to ~/.perlpanel/applets. Then you can work on PerlPanel
-# without having to install it, or hard-coding paths into the scripts.
+# lib/PerlPanel/Applet to ~/.perlpanel/applets. Then you can run perlpanel when
+# in the PerlPanel source directory, and work on PerlPanel without having to
+# install it, or hard-coding paths into the scripts.
 
 $PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $PerlPanel::PREFIX);
 

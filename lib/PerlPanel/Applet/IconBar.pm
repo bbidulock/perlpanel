@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.13 2003/06/10 13:30:05 jodrell Exp $
+# $Id: IconBar.pm,v 1.14 2003/06/10 14:18:27 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use MIME::Base64;
@@ -102,7 +102,7 @@ sub build {
 	$self->{widget} = Gtk2::Button->new;
 	if (-e $self->{icon}) {
 		$self->{iconfile} = $self->{icon};
-	} elsif (-e "$ICON_DIR/$self->{icon}") {
+	} elsif (-e "$ICON_DIR/$self->{icon}" && "$ICON_DIR/$self->{icon}" =~ /\.(png|gif|jpeg|jpg|xpm|bmp)$/) {
 		$self->{iconfile} = "$ICON_DIR/$self->{icon}";
 	} else {
 		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', $PerlPanel::OBJECT_REF->icon_size_name);

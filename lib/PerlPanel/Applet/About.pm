@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.1 2003/06/05 11:32:10 jodrell Exp $
+# $Id: About.pm,v 1.2 2003/06/10 14:18:27 jodrell Exp $
 package PerlPanel::Applet::About;
 use strict;
 
@@ -23,13 +23,13 @@ sub configure {
 sub about {
 	my $self = shift;
 	my $text = sprintf(
-		"<span weight=\"bold\" size=\"x-large\">%s version %s</span>\n\n%s\n\nAuthors:\n%s\n\n%s\n\n<span size=\"x-small\">%s</span>",
+		"<span weight=\"bold\" size=\"x-large\">%s version %s</span>\n\n%s\n\nAuthors:\n%s\n\n%s\n\n<span size=\"small\">%s</span>",
 		$PerlPanel::NAME,
 		$PerlPanel::VERSION,
 		$PerlPanel::DESCRIPTION,
 		join("\n", @PerlPanel::AUTHORS),
 		$PerlPanel::URL,
-		$PerlPanel::LICENSE,
+			$PerlPanel::LICENSE,
 	);
 	$self->{window} = Gtk2::Window->new('toplevel');
 	$self->{window}->set_position('center');

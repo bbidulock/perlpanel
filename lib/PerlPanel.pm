@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.14 2003/06/10 13:30:05 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.15 2003/06/10 14:18:27 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -67,6 +67,7 @@ sub init {
 	my $self = shift;
 	$self->load_config;
 	$self->build_ui;
+	$self->show_all;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->show_all;
@@ -133,6 +134,7 @@ sub load_applets {
 				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
 			}
 			$applet->configure;
+			$applet->widget->show_all;
 			$self->add($applet->widget, $applet->expand, $applet->fill, $applet->end);
 		}
 	}
