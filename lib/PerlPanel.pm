@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.89 2004/06/30 18:30:13 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.90 2004/06/30 18:57:50 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -853,7 +853,7 @@ sub lookup_icon {
 			$self->{icon_theme}->rescan_if_needed;
 		}
 
-		my $info = $self->{icon_theme}->lookup_icon($icon, PerlPanel::icon_size, 'use-builtin');
+		my $info = $self->{icon_theme}->lookup_icon($icon, 48, 'use-builtin');
 
 		if (!defined($info)) {
 			return undef;
