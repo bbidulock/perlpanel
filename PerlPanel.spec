@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: PerlPanel.spec,v 1.13 2004/02/20 12:35:07 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.14 2004/03/19 16:10:22 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -41,7 +41,7 @@ Prefix: %{_prefix}
 AutoReq: no
 
 BuildRequires: perl >= 5.8.0
-Requires: perl >= 5.8.0, gtk2, libglade2, perl(Gtk2), perl(Gnome2::Wnck), perl(Gtk2::GladeXML), perl(XML::Simple), perl(Xmms::Remote)
+Requires: perl >= 5.8.0, gtk2, libglade2, perl(Gtk2), perl(Gnome2::Wnck), perl(Gtk2::GladeXML), perl(XML::Simple), perl(Xmms::Remote), perl(Locale::gettext)
 
 %description
 PerlPanel is an attempt to build a useable, lean panel program (like Gnome's

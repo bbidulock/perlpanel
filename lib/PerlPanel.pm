@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.63 2004/02/24 17:07:18 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.64 2004/03/19 16:10:22 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,6 +22,8 @@ package PerlPanel;
 use Gtk2;
 use Gtk2::GladeXML;
 use Data::Dumper;
+use POSIX qw(setlocale);
+use Locale::gettext;
 use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX $LIBDIR %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE @APPLET_DIRS);
 use base 'Exporter';
 use strict;
@@ -87,6 +89,11 @@ sub new {
 		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),	# user-installed applets
 		sprintf('%s/%s/Applet', $LIBDIR, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
 	);								# determined at runtime)
+
+	setlocale(LC_ALL, $ENV{LANG});
+
+	bindtextdomain(lc($NAME), sprintf('%s/share/locale', $PREFIX));
+	textdomain(lc($NAME));
 
 	# these are here cos we need a valid prefix before we can do the translation:
 	our $DESCRIPTION	= _('A lean, mean panel program written in Perl.');
@@ -695,12 +702,13 @@ sub load_glade {
 sub _ {
 	my $str = shift;
 	my %params = @_;
+	my $translated = gettext($str);
 	if (scalar(keys(%params)) > 0) {
 		foreach my $key (keys %params) {
-			$str =~ s/\{$key\}/$params{$key}/g;
+			$translated =~ s/\{$key\}/$params{$key}/g;
 		}
 	}
-	return $str;
+	return $translated;
 }
 
 1;
