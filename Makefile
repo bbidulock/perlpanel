@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.26 2004/02/02 12:26:18 jodrell Exp $
+# $Id: Makefile,v 1.27 2004/02/02 12:47:48 jodrell Exp $
 
 VERSION=0.3.1
 
@@ -26,6 +26,7 @@ MANDIR=$(DATADIR)/man/
 IMGDIR=$(DATADIR)/pixmaps
 
 MAN_SECTION=man1
+MAN_LIBS_SECTION=man3
 
 all: perlpanel
 
@@ -49,13 +50,14 @@ install:
 	install -m 0644 build/PerlPanel.pm $(LIBDIR)/
 	install -m 0755 build/perlpanel.1 $(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/PerlPanel::MenuBase.1 $(MANDIR)/$(MAN_LIBS_SECTION)/
 	cp -Rvp share/pixmaps/* $(IMGDIR)/
 
 clean:
 	rm -rf build
 
 uninstall:
-	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(BINDIR)/perlpanel-run-dialog $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
+	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(BINDIR)/perlpanel-run-dialog $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1
 
 release:
 	./make.rpm $(VERSION)
