@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.10 2003/06/20 13:31:51 jodrell Exp $
+# $Id: Configurator.pm,v 1.11 2003/06/20 13:48:31 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -237,10 +237,12 @@ sub add_dialog {
 	);
 
 	$dialog->signal_connect('response', sub {
-		$dialog->destroy;
+		$dialog->hide_all;
 		if ($_[1] == 0) {
 			# 'ok' was clicked
-			my ($iter, $blah) = $view->get_selection->get_selected;
+			my $seln = $view->get_selection;
+			return unless (defined($seln));
+			my ($iter, $blah) = $seln->get_selected;
 			return undef unless (defined($iter));
 			my $idx = ($model->get_path($iter)->get_indices)[0];
 			my ($appletname, undef) = split(/\./, $files[$idx], 2);
@@ -248,6 +250,7 @@ sub add_dialog {
 			my $newiter = $self->{store}->append;
 			$self->{store}->set($newiter, 0, $appletname);
 		}
+		$dialog->destroy;
 	});
 
 	$dialog->show_all;
