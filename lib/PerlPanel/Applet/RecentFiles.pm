@@ -1,4 +1,4 @@
-# $Id: RecentFiles.pm,v 1.4 2004/07/07 13:27:06 jodrell Exp $
+# $Id: RecentFiles.pm,v 1.5 2004/07/17 17:06:47 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -105,13 +105,13 @@ sub create_menu {
 			if (defined($mimetype)) {
 				my $icon;
 
-				#if (-d Gnome2::VFS->get_local_path_from_uri($file->{URI})) {
-				#	$icon = PerlPanel::lookup_icon('gnome-fs-directory');
+				if (-d Gnome2::VFS->get_local_path_from_uri($file->{URI})) {
+					$icon = PerlPanel::lookup_icon('gnome-fs-directory');
 
-				#} else {
+				} else {
 					$icon = $mimetype->get_icon;
 
-				#}
+				}
 
 				if (! -e $icon) {
 					$icon = PerlPanel::lookup_icon($icon);
@@ -140,7 +140,7 @@ sub create_menu {
 					}
 				}
 
-				$self->menu->append($self->menu_item(
+				my $item = $self->menu_item(
 					uri_unescape(basename($file->{URI})),
 					$icon,
 					sub {
@@ -156,7 +156,15 @@ sub create_menu {
 
 						}
 					},
-				));
+				);
+				my $launcher = $mimetype->get_default_application;
+				if (!defined($launcher)) {
+					$launcher = ($mimetype->get_all_applications)[0];
+				}
+				if (defined($launcher)) {
+					PerlPanel::tips->set_tip($item, _("Open '{file}' with '{launcher}'", file => uri_unescape(basename($file->{URI})), launcher => $launcher->{name}));
+				}
+				$self->menu->append($item);
 			}
 			last if ($i == 20);
 		}
@@ -184,9 +192,7 @@ sub end {
 }
 
 sub get_default_config {
-	return {
-		label => _('Files'),
-	};
+	return undef;
 }
 
 1;
