@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.137 2004/11/26 16:35:16 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.138 2005/01/03 15:22:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -70,6 +70,7 @@ our %DEFAULTS = (
 		menu_icon_size		=> 'medium',
 		expand			=> 'true',
 		use_struts		=> 'true',
+		icon_theme		=> $DEFAULT_THEME,
 	},
 	appletconf => {
 		null => {},
