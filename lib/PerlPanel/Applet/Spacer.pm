@@ -1,4 +1,4 @@
-# $Id: Spacer.pm,v 1.1 2004/01/04 17:03:12 jodrell Exp $
+# $Id: Spacer.pm,v 1.2 2004/02/17 12:30:31 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Spacer;
 use strict;

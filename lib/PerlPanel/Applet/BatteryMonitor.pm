@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.3 2004/02/11 17:04:09 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.4 2004/02/17 12:30:31 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -15,24 +15,9 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-
+# Copyright: (C) 2003-2004 Eric Andreychek <eric@openthought.net>
+#
 package PerlPanel::Applet::BatteryMonitor;
-
-###########################################################################
-# Battery Applet for Perl Panel
-#
-# Author: Eric Andreychek <eric@openthought.net>
-#           Based on LoadMonitor by Gavin Brown
-#           Sys::Apm by Raoul Zwart
-#
-# Description: Monitor the battery for your laptop using the APM support in the
-#              kernel.  Internally, this uses /proc/apm.
-#
-#
-# Todo: This should definitely support icons, instead of text based symbols.
-#
-###########################################################################
-
 use strict;
 
 $PerlPanel::Applet::BatteryMonitor::VERSION = 0.01;

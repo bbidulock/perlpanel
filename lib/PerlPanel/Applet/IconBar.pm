@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.34 2004/02/11 17:04:09 jodrell Exp $
+# $Id: IconBar.pm,v 1.35 2004/02/17 12:30:31 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::IconBar;
 use vars qw($ICON_DIR $MENU_EDITOR $OBJECT_REF);
