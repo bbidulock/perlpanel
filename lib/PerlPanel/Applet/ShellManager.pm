@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.8 2005/01/16 13:35:34 jodrell Exp $
+# $Id: ShellManager.pm,v 1.9 2005/01/16 17:03:55 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,7 +20,10 @@
 package PerlPanel::Applet::ShellManager;
 use base 'PerlPanel::MenuBase';
 use Gtk2::SimpleList;
+use vars qw($KEY);
 use strict;
+
+our $KEY = sprintf('%s/.ssh/id_rsa.pub', $ENV{HOME});
 
 sub configure {
 	my $self = shift;
@@ -143,6 +146,24 @@ sub edit_dialog {
 		splice(@{$list->{data}}, $idx, 1);
 		$list->select($idx);
 	});
+
+	if ($ENV{SSH_AGENT_PID} > 0 && -x $ENV{SSH_ASKPASS}) {
+		$glade->get_widget('key_button')->signal_connect('clicked', sub {
+			if (! -r $KEY) {
+				PerlPanel::warning(_("Error: cannot find RSA public key. You may need to create one using:\n\n\tssh-keygen -t rsa"));
+
+			} else {
+				my ($idx) = $list->get_selected_indices;
+				my ($user, $host, $port) = @{(@{$list->{data}})[$idx]};
+				my $cmd = sprintf('cat "%s" | ssh -p %d %s@%s \'cat >> .ssh/authorized_keys2\' &', $KEY, $port, $user, $host);
+				system($cmd);
+			}
+		});
+
+	} else {
+		$glade->get_widget('key_button')->set_sensitive(0);
+
+	}
 
 	$dialog->show_all;
 
