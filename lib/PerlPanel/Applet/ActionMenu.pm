@@ -1,4 +1,4 @@
-# $Id: ActionMenu.pm,v 1.6 2004/02/24 17:07:18 jodrell Exp $
+# $Id: ActionMenu.pm,v 1.7 2004/06/30 18:17:23 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,31 +30,7 @@ sub configure {
 
 	$self->widget->set_relief($self->{config}->{relief} eq 'true' ? 'half' : 'none');
 
-	$self->{iconfile} = $self->{config}->{icon};
-	if (-e $self->{iconfile}) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
-		my $x0 = $self->{pixbuf}->get_width;
-		my $y0 = $self->{pixbuf}->get_height;
-		if ($x0 != PerlPanel::icon_size || $y0 != PerlPanel::icon_size) {
-			my ($x1, $y1);
-			if ($x0 > $y0) {
-				# image is landscape:
-				$x1 = PerlPanel::icon_size;
-				$y1 = int(($y0 / $x0) * PerlPanel::icon_size);
-			} elsif ($x0 == $y0) {
-				# image is square:
-				$x1 = PerlPanel::icon_size;
-				$y1 = PerlPanel::icon_size;
-			} else {
-				# image is portrait:
-				$x1 = int(($x0 / $y0) * PerlPanel::icon_size);
-				$y1 = PerlPanel::icon_size;
-			}
-			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
-		}
-	} else {
-		$self->{pixbuf} = $self->widget->render_icon('gtk-jump-to', PerlPanel::icon_size_name);
-	}
+	$self->{pixbuf} = PerlPanel::get_applet_pbf('ActionMenu', PerlPanel::icon_size);
 
 	$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	if ($self->{config}->{label} eq '') {
@@ -85,7 +61,6 @@ sub create_menu {
 
 sub get_default_config {
 	return {
-		icon => PerlPanel::get_applet_pbf_filename('actionmenu'),
 		label	=> _('Actions'),
 		relief	=> 'false',
 	};

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.57 2004/06/28 21:27:06 jodrell Exp $
+# $Id: BBMenu.pm,v 1.58 2004/06/30 18:17:23 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -54,31 +54,7 @@ sub configure {
 
 	$self->widget->set_relief($self->{config}->{relief} eq 'true' ? 'half' : 'none');
 
-	$self->{iconfile} = $self->{config}->{icon};
-	if (-e $self->{iconfile}) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
-		my $x0 = $self->{pixbuf}->get_width;
-		my $y0 = $self->{pixbuf}->get_height;
-		if ($x0 != PerlPanel::icon_size || $y0 != PerlPanel::icon_size) {
-			my ($x1, $y1);
-			if ($x0 > $y0) {
-				# image is landscape:
-				$x1 = PerlPanel::icon_size;
-				$y1 = int(($y0 / $x0) * PerlPanel::icon_size);
-			} elsif ($x0 == $y0) {
-				# image is square:
-				$x1 = PerlPanel::icon_size;
-				$y1 = PerlPanel::icon_size;
-			} else {
-				# image is portrait:
-				$x1 = int(($x0 / $y0) * PerlPanel::icon_size);
-				$y1 = PerlPanel::icon_size;
-			}
-			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
-		}
-	} else {
-		$self->{pixbuf} = $self->widget->render_icon('gtk-jump-to', PerlPanel::icon_size_name);
-	}
+	$self->{pixbuf} = PerlPanel::get_applet_pbf('BBMenu', PerlPanel::icon_size);
 
 	if ($self->{config}->{arrow} eq 'true') {
 		my $fixed = Gtk2::Fixed->new;
@@ -89,18 +65,22 @@ sub configure {
 		$fixed->put(Gtk2::Image->new_from_pixbuf($arrow), $x, $y);
 		$self->{icon} = Gtk2::Alignment->new(0.5, 0.5, 0, 0);
 		$self->{icon}->add($fixed);
+
 	} else {
 		$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
+
 	}
 
 	if ($self->{config}->{label} eq '') {
 		$self->widget->add($self->{icon});
+
 	} else {
 		$self->widget->add(Gtk2::HBox->new);
 		$self->widget->child->set_border_width(0);
 		$self->widget->child->set_spacing(0);
 		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
+
 	}
 
 	PerlPanel::tips->set_tip($self->{widget}, _('Menu'));
@@ -253,7 +233,6 @@ sub parse_menufile {
 
 sub get_default_config {
 	return {
-		icon => PerlPanel::get_applet_pbf_filename('bbmenu'),
 		show_control_items => 'true',
 		label	=> _('Menu'),
 		relief	=> 'false',

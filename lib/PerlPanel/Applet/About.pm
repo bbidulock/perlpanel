@@ -1,4 +1,4 @@
-# $self->{image}d: About.pm,v 1.13 2004/05/27 16:29:52 jodrell Exp $
+# $Id: About.pm,v 1.16 2004/06/30 18:17:23 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify

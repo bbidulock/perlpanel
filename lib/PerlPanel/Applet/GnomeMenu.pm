@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.9 2004/06/25 14:36:43 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.10 2004/06/30 18:17:23 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -235,7 +235,7 @@ sub get_file_contents {
 sub get_default_config {
 	return {
 		label			=> _('Applications'),
-		arrow			=> 'true',
+		arrow			=> 'false',
 		show_control_items	=> 'true',
 		apps_in_submenu		=> 'true',
 		base			=> 'applications:',

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.87 2004/06/28 22:18:35 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.88 2004/06/30 18:17:23 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -57,7 +57,6 @@ our %DEFAULTS = (
 		position		=> 'bottom',
 		spacing			=> 0,
 		size			=> 'medium',
-		theme			=> 'default',
 		has_border		=> 'false',
 		menu_size_as_panel	=> 'true',
 		menu_size		=> 'medium',
@@ -755,7 +754,7 @@ sub get_applet_pbf_filename {
 		$self = $OBJECT_REF;
 		$applet = shift;
 	}
-	return sprintf('%s/%s.png', $APPLET_ICON_DIR, lc($applet));
+	return $self->lookup_icon(sprintf('%s-applet-%s', lc($NAME), lc($applet)));
 }
 
 sub get_applet_pbf {
@@ -846,12 +845,15 @@ sub lookup_icon {
 
 		if (!defined($self->{icon_theme})) {
 			$self->{icon_theme} = Gtk2::IconTheme->get_default;
-			if ($self->{config}->{panel}->{icon_theme} ne '') {
-				$self->{icon_theme}->set_custom_theme($self->{config}->{panel}->{icon_theme});
+			if ($VERSION !~ /^[\d\.]$/) {
+				# we're in sandbox mode
+				$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
 			}
+		} else {
+			$self->{icon_theme}->rescan_if_needed;
 		}
 
-		my $info = $self->{icon_theme}->lookup_icon($icon, 48, 'no-svg');
+		my $info = $self->{icon_theme}->lookup_icon($icon, PerlPanel::icon_size, 'use-builtin');
 
 		if (!defined($info)) {
 			return undef;
