@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.19 2004/09/17 11:28:53 jodrell Exp $
+# $Id: About.pm,v 1.20 2004/11/04 17:18:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -87,7 +87,7 @@ sub about {
 	$self->{image} = Gtk2::Image->new_from_file(sprintf('%s/share/%s/%s-about.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc($PerlPanel::NAME)));
 
 	$self->{label} = Gtk2::Label->new;
-	$self->{label}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER, -1);
+	$self->{label}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER -1, -1);
 	$self->{label}->set_justify('center');
 	$self->{label}->set_line_wrap(1);
 	$self->{label}->set_markup(sprintf($markup, '#FFFFFF'));
