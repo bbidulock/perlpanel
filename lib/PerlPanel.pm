@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.134 2004/11/26 11:38:27 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.135 2004/11/26 12:48:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -510,17 +510,72 @@ sub drop_handler {
 	if ($file !~ /^file:\/\//) {
 		warning(_('Sorry, applets can only be installed from local files.'));
 
-	} elsif (basename($file) !~ /^(\w+)-(.+)\.tar\.gz$/) {
-		warning('Cannot install this applet: invalid filename.');
-
 	} else {
-		$file =~ s!^file:/+!/!g;
-		install_applet_dialog(undef, $file);
+
+		if ($file =~ /\.desktop$/i) {
+			launcher_drop_receive($file);
+
+		} elsif (basename($file) !~ /^(\w+)-(.+)\.tar\.gz$/) {
+			warning(_('Cannot install this applet: invalid filename.'));
+
+		} else {
+			$file =~ s!^file:/+!/!g;
+			install_applet_dialog(undef, $file);
+
+		}
 
 	}
 
 	return 1;
 
+}
+
+sub launcher_drop_receive {
+	my $file = shift;
+	$file =~ s!file://!!g;
+	if (!-e $file) {
+		warning(_('Cannot load file "{file}": not found.', file => basename($file)));
+
+	} elsif (!-r $file) {
+		warning(_('Cannot read file "{file}".', file => basename($file)));
+
+	} else {
+		require('Launcher.pm');
+
+		return undef if ($file =~ /^$PerlPanel::Applet::Launcher::LAUNCHER_DIR/);
+
+		my $id = new_applet_id();
+		my $applet = sprintf('Launcher::%s', $id);
+		my $new_file = sprintf('%s/%s.desktop', $PerlPanel::Applet::Launcher::LAUNCHER_DIR, $id);
+
+		my $xpos = ($OBJECT_REF->panel->get_root_window->get_pointer)[1];
+
+		my $i = 0;
+		my $last = 0;
+		WIDGET: foreach my $widget ($OBJECT_REF->{hbox}->get_children) {
+			my $widget_pos_x = (get_widget_position($widget))[0];
+			if (($widget_pos_x < $xpos) && (($widget_pos_x + $widget->allocation->width) > $xpos)) {
+				mkpath($PerlPanel::Applet::Launcher::LAUNCHER_DIR);
+				open(SRC, $file) or die "$file: $!\n";
+				open(DST, ">$new_file") or die "$new_file: $!\n";
+				while (<SRC>) {
+					print DST $_;
+				}
+				close(DST);
+				close(SRC);
+				splice(@{$OBJECT_REF->{config}->{applets}}, $i+1, 0, $applet);
+				$OBJECT_REF->load_applet($applet, $i+1);
+				save_config();
+
+			} else {
+				$last = $widget_pos_x;
+				$i++;
+			}
+		}
+
+	}
+
+	return 1;
 }
 
 sub remove_applet {
