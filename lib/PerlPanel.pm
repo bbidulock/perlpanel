@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.32 2003/10/12 16:22:17 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.33 2003/10/25 14:07:59 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL 
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.1.0';
+our $VERSION		= '0.1.1';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',
@@ -328,10 +328,10 @@ sub alert {
 	$dialog->signal_connect(
 		'response',
 		sub {
-			if ($_[1] == -5) {
-				$ok_callback->() if $ok_callback;
-			} else {
+			if ($_[1] eq 'cancel') {
 				$cancel_callback->() if $cancel_callback;
+			} else {
+				$ok_callback->() if $ok_callback;
 			}
 			$dialog->destroy;
 		}
@@ -349,7 +349,7 @@ sub question {
 
 sub error {
 	my ($self, $message, $ok_callback) = @_;
-	return $self->alert($message, $ok_callback, undef, 'error');
+	return $self->alert($message, (defined($ok_callback) ? $ok_callback : sub { $self->shutdown} ), undef, 'error');
 }
 
 sub warning {
