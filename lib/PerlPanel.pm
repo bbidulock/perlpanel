@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.93 2004/07/01 20:47:11 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.94 2004/07/02 10:26:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
-		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH);
+		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -48,6 +48,7 @@ our @CO_AUTHORS		= (
 	'Torsten Schoenfeld',
 	'Marc Brockschmidt',
 	'Mark Ng',
+	'Nathan Powell',
 );
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 
@@ -86,6 +87,8 @@ our $RUN_COMMAND_FILE	= sprintf('%s/.%s/run-command', $ENV{HOME}, lc($NAME));
 our $PIDFILE		= sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
 our $RUN_HISTORY_FILE	= sprintf('%s/.perlpanel/run-history', $ENV{HOME});
 our $RUN_HISTORY_LENGTH	= 15;
+
+our @APPLET_CATEGORIES = qw(Actions System Utilities Launchers Menus);
 
 Gtk2->init;
 
@@ -928,6 +931,24 @@ sub append_run_history {
 		close(HISTFILE);
 		return 1;
 	}
+}
+
+sub load_appletregistry {
+	my $self = shift;
+	my $file = sprintf('%s/share/%s/applet.registry', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+	my $registry = {};
+	open(REGFILE, $file);
+	while (<REGFILE>) {
+		chomp;
+		s/^\s*//g;
+		s/\s*$//g;
+		next if (/^$/ or /^#/);
+		my ($applet, $description, $category) = split(/:/, $_, 3);
+		$registry->{$applet} = _($description);
+		push(@{$registry->{_categories}->{$category}}, $applet);
+	}
+	close(REGFILE);
+	return $registry;
 }
 
 1;

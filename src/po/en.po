@@ -1,4 +1,4 @@
-# $Id: en.po,v 1.7 2004/06/25 14:36:44 jodrell Exp $
+# $Id: en.po,v 1.8 2004/07/02 10:26:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ msgstr ""
 "Project-Id-Version: PerlPanel X.Y.Z\n"
 "Report-Msgid-Bugs-To: gavin.brown@uk.com\n"
 "POT-Creation-Date: 2004-04-05 22:08+0100\n"
-"PO-Revision-Date: $Date: 2004/06/25 14:36:44 $\n"
+"PO-Revision-Date: $Date: 2004/07/02 10:26:39 $\n"
 "Last-Translator: $Author: jodrell $\n"
 "Language-Team: perlpanel-devel@savannah.nongnu.org\n"
 "MIME-Version: 1.0\n"
@@ -510,6 +510,13 @@ msgid "Show the Desktop"
 msgstr ""
 
 msgid "Restore Windows"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/WifiMonitor.pm
+#
+
+msgid "Wireless Signal Strength"
 msgstr ""
 
 #

@@ -1,40 +1,40 @@
 # Plugin Registry file for PerlPanel
-# Format is very simple; AppletName=description.
+# Format is very simple; AppletName:description:category.
 # As you may have noticed, lines with a # at the
 # beginning are comments.
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.8 2004/06/25 14:36:43 jodrell Exp $
+# $Id: applet.registry,v 1.9 2004/07/02 10:26:39 jodrell Exp $
 
-About=A button to show an "About" dialog.
-ActionMenu=A menu containing useful actions.
-BatteryMonitor=Shows the status of your laptop's battery.
-BBMenu=A Blackbox-compatible program launcher.
-Clock=Shows the current time on the panel.
-Commander=A button to show a command dialog.
-Configurator=A comprehensive configuration dialog.
-CPUTemp=Shows the temperature of your computer's CPU.
-GnomeMenu=Your GNOME Menu.
-IconBar=Shows launcher icons on the panel.
-LoadMonitor=Shows the current CPU load.
-Lock=Locks the screen.
-NautilusBookmarks=Launch Nautilus bookmarks.
-OpenBoxMenu=Your OpenBox Menu.
-Pager=Displays your current workspaces.
-PanelPet=A friendly creature to keep you company.
-Quit=A button to close the panel.
-RecentFiles=A button that shows files you've recently opened.
-Reload=A button to reload the panel.
-RunMe=A simple command line.
-ScreenShot=Capture images of your desktop.
-Separator=A separator.
-SetiAtHome=A Seti@Home status monitor.
-ShellManager=A simple launcher for SSH sessions.
-ShowDesktop=Show or hide all the programs on screen.
-Slot=A socket for applications which support the XEMBED protocol.
-Socket=A Gtk Socket applet.
-Spacer=A spacer.
-Tasklist=Lists the programs currently running.
-WindowMenu=A menu containing currently opened windows.
-XMMS=An applet to control the XMMS media player.
+About:A button to show an "About" dialog.:Actions
+ActionMenu:A menu containing useful actions.:Utilities
+BatteryMonitor:Shows the status of your laptop's battery.:System
+BBMenu:A Blackbox-compatible program launcher.:Menus
+Clock:Shows the current time on the panel.:Utilities
+Commander:A button to show a command dialog.:Launchers
+Configurator:A comprehensive configuration dialog.:Utilitiies
+CPUTemp:Shows the temperature of your computer's CPU.:System
+GnomeMenu:Your GNOME Menu.:Menus
+IconBar:Shows launcher icons on the panel.:Launchers
+LoadMonitor:Shows the current CPU load.:System
+Lock:Locks the screen.:Actions
+NautilusBookmarks:Launch Nautilus bookmarks.:Launchers
+OpenBoxMenu:Your OpenBox Menu.:Menus
+Pager:Displays your current workspaces.:Utilities
+PanelPet:A friendly creature to keep you company.
+Quit:A button to close the panel.:Actions
+RecentFiles:A button that shows files you've recently opened.:Launchers
+Reload:A button to reload the panel.:Actions
+RunMe:A simple command line.:Launchers
+ScreenShot:Capture images of your desktop.:Actions
+Separator:A separator.:Utilities
+SetiAtHome:A Seti@Home status monitor.:System
+ShellManager:A simple launcher for SSH sessions.:Launchers
+ShowDesktop:Show or hide all the programs on screen.:Actions
+Slot:A socket for applications which support the XEMBED protocol.:Utilities
+Spacer:A spacer.:Utilities
+Tasklist:Lists the programs currently running.:Utilities
+WiFiMonitor:An applet that shows your current wireless signal strength.:System
+WindowMenu:A menu containing currently opened windows.:Utilities
+XMMS:An applet to control the XMMS media player.:Actions

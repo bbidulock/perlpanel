@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.23 2004/07/01 10:09:58 jodrell Exp $
+# $Id: MenuBase.pm,v 1.24 2004/07/02 10:26:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -222,30 +222,70 @@ sub add_control_items {
 	}
 
 	my $item = $self->menu_item(_('Add To Panel'), 'gtk-add');
-	my $menu = Gtk2::Menu->new;
-	$item->set_submenu($menu);
+	my $applet_menu = Gtk2::Menu->new;
+	$item->set_submenu($applet_menu);
 
-	my @files;
-	foreach my $dir (@PerlPanel::APPLET_DIRS) {
-		opendir(DIR, $dir) or next;
-		push(@files, grep { /\.pm$/ } readdir(DIR));
-		closedir(DIR);
+	my $registry = PerlPanel::load_appletregistry;
+
+	foreach my $category (@PerlPanel::APPLET_CATEGORIES) {
+		my $icon = PerlPanel::lookup_icon(sprintf('%s-applets-%s', lc($PerlPanel::NAME), lc($category)));
+		unless (-e $icon) {
+			$icon = PerlPanel::lookup_icon(sprintf('%s-applets', lc($PerlPanel::NAME)));
+		}
+		my $item = $self->menu_item(
+			_($category),
+			$icon,
+		);
+		my $submenu = Gtk2::Menu->new;
+		$item->set_submenu($submenu);
+		$applet_menu->append($item);
+
+		foreach my $applet (sort @{$registry->{_categories}->{$category}}) {
+			my $item = $self->menu_item(
+				$applet,
+				PerlPanel::get_applet_pbf($applet),
+				sub {$self->add_applet_dialog($applet)},
+			);
+			PerlPanel::tips->set_tip($item, $registry->{$applet});
+			$submenu->append($item);
+		}
 	}
 
-	@files = sort(@files);
-
-	require('Configurator.pm');
-	my $registry = {};
-	PerlPanel::Applet::Configurator::load_appletregistry($registry);
-	foreach my $file (@files) {
-		my ($appletname, undef) = split(/\./, $file, 2);
+	foreach my $applet (sort @{$registry->{_categories}->{''}}) {
 		my $item = $self->menu_item(
-			$appletname,
-			PerlPanel::get_applet_pbf($appletname, PerlPanel::icon_size),
-			sub {$self->add_applet_dialog($appletname)},
+			$applet,
+			PerlPanel::get_applet_pbf($applet),
+			sub {$self->add_applet_dialog($applet)},
 		);
-		PerlPanel::tips->set_tip($item, $registry->{registry}->{$appletname});
-		$menu->append($item);
+		PerlPanel::tips->set_tip($item, $registry->{$applet});
+		$applet_menu->append($item);
+	}
+
+	my $dir = sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME));
+	if (!opendir(DIR, $dir)) {
+		print STDERR "*** Error opening '$dir': $!\n";
+
+	} else {
+
+		my @applets = grep { /\.pm$/i } readdir(DIR);
+		closedir(DIR);
+
+		if (scalar(@applets) > 0) {
+			$applet_menu->append(Gtk2::SeparatorMenuItem->new);
+
+			foreach my $filename (sort @applets) {
+				my ($applet, undef) = split(/\./, $filename, 2);
+
+				$applet_menu->append($self->menu_item(
+					$applet,
+					PerlPanel::get_applet_pbf($applet),
+					sub {$self->add_applet_dialog($applet)},
+
+				));
+
+			}
+
+		}
 	}
 
 	$self->menu->append($item);
@@ -277,7 +317,7 @@ the menu.
 
 sub menu_item {
 	my ($self, $label, $icon, $callback) = @_;
-	my $item = Gtk2::ImageMenuItem->new_with_label($label);
+	my $item;
 	my $pbf;
 	if (-f $icon) {
 		# it's a file:
@@ -289,27 +329,32 @@ sub menu_item {
 		# assume it's a stock ID:
 		$pbf = $self->widget->render_icon($icon, PerlPanel::menu_icon_size_name);
 	} else {
-		$pbf = $self->widget->render_icon('gtk-missing', PerlPanel::menu_icon_size_name);
+		$pbf = $self->widget->render_icon('gtk-new', PerlPanel::menu_icon_size_name);
+
 	}
 	if (ref($pbf) ne 'Gtk2::Gdk::Pixbuf') {
-		$pbf = Gtk2::Gdk::Pixbuf->new('rgb', 1, 8, PerlPanel::menu_icon_size, PerlPanel::menu_icon_size);
-	}
-	my $x0 = $pbf->get_width;
-	my $y0 = $pbf->get_height;
-	if ($x0 > PerlPanel::menu_icon_size || $y0 > PerlPanel::menu_icon_size) {
-		my ($x1, $y1);
-		if ($x0 > $y0) {
-			# image is landscape:
-			$x1 = PerlPanel::menu_icon_size;
-			$y1 = int(($y0 / $x0) * PerlPanel::menu_icon_size);
-		} else {
-			# image is portrait:
-			$x1 = int(($x0 / $y0) * PerlPanel::menu_icon_size);
-			$y1 = PerlPanel::menu_icon_size;
+		$item = Gtk2::MenuItem->new_with_label($label);
+
+	} else {
+		$item = Gtk2::ImageMenuItem->new_with_label($label);
+		my $x0 = $pbf->get_width;
+		my $y0 = $pbf->get_height;
+		if ($x0 > PerlPanel::menu_icon_size || $y0 > PerlPanel::menu_icon_size) {
+			my ($x1, $y1);
+			if ($x0 > $y0) {
+				# image is landscape:
+				$x1 = PerlPanel::menu_icon_size;
+				$y1 = int(($y0 / $x0) * PerlPanel::menu_icon_size);
+			} else {
+				# image is portrait:
+				$x1 = int(($x0 / $y0) * PerlPanel::menu_icon_size);
+				$y1 = PerlPanel::menu_icon_size;
+			}
+			$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
 		}
-		$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
+		$item->set_image(Gtk2::Image->new_from_pixbuf($pbf));
 	}
-	$item->set_image(Gtk2::Image->new_from_pixbuf($pbf));
+
 	if (defined($callback)) {
 		$item->signal_connect('activate', $callback);
 	}

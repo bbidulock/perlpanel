@@ -1,0 +1,48 @@
+README-THEMES
+=============
+
+PerlPanel now supports the Freedesktop.org icon theme specification. Previously,
+PerlPanel's icons were installed in $PREFIX/share/pixmaps/perlpanel, now they're
+in $PREFIX/share/icons/hicolor/48x48/apps. Therefore, if an icon theme includes
+icon files that PerlPanel is looking for, they will be automatically picked up.
+
+Naming conventions
+==================
+
+PerlPanel's icons are named thus:
+
+	1. Applets - an applet's icon has the form:
+
+		perlpanel-applet-[appletname].png
+
+	   where [appletname] is the name of the applet in lower case.
+
+	2. Actions - action icons (eg reboot, shutdown) have the form:
+
+		perlpanel-action-[action].png
+
+	3. Configurator icons - there are currently two icons in the
+	   Configuration dialog that can be themed (the others are take from the
+	   Applet). These icons are named:
+
+		perlpanel-applets.png
+		perlpanel-panel.png
+
+	4. Main program icon - the main program icon is named perlpanel.png.
+
+	5. Applet category icons - applet category icons have names of the form
+
+		perlpanel-applets-[category].png
+
+	   The current categories are: actions, system, utilities, launchers and
+	   menus.
+
+Further Information
+===================
+
+For more information about the Freedesktop.org icon theme spec, see
+
+	http://www.freedesktop.org/Standards/icon-theme-spec
+
+--
+$Id: README-THEMES,v 1.1 2004/07/02 10:26:39 jodrell Exp $
