@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.6 2004/07/06 12:46:29 jodrell Exp $
+# $Id: ShellManager.pm,v 1.7 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,6 +47,7 @@ sub configure {
 	$self->create_menu;
 
 	$self->widget->signal_connect('clicked', sub { $self->popup });
+	$self->widget->show_all;
 
 	return 1;
 

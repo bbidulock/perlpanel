@@ -1,4 +1,4 @@
-# $Id: Reload.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
+# $Id: Reload.pm,v 1.9 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -36,6 +36,7 @@ sub configure {
 	$self->widget->signal_connect('clicked', sub {
 		PerlPanel::reload;
 	});
+	$self->widget->show_all;
 	return 1;
 
 }

@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.17 2004/08/24 15:22:04 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.18 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,6 +47,7 @@ sub configure {
 		return 1;
 	});
 
+	$self->widget->show_all;
 	return 1;
 }
 

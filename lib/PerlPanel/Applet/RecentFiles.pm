@@ -1,4 +1,4 @@
-# $Id: RecentFiles.pm,v 1.5 2004/07/17 17:06:47 jodrell Exp $
+# $Id: RecentFiles.pm,v 1.6 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -52,6 +52,7 @@ sub configure {
 	PerlPanel::tips->set_tip($self->{widget}, _('Recent Files'));
 
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
+	$self->widget->show_all;
 
 	$self->create_menu;
 

@@ -1,4 +1,4 @@
-# $Id: ScreenShot.pm,v 1.3 2004/07/06 12:46:29 jodrell Exp $
+# $Id: ScreenShot.pm,v 1.4 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -71,6 +71,7 @@ sub configure {
 	});
 
 	PerlPanel::tips->set_tip($self->widget, _('Take Screenshot'));
+	$self->widget->show_all;
 	return 1;
 
 }

@@ -1,4 +1,4 @@
-# $Id: OpenBoxMenu.pm,v 1.2 2004/06/28 12:41:25 jodrell Exp $
+# $Id: OpenBoxMenu.pm,v 1.3 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -66,12 +66,7 @@ sub configure {
 
 	$self->widget->signal_connect('clicked', sub { $self->popup });
 
-	#Glib::Timeout->add(1000, sub {
-	#	my $age = $self->file_age;
-	#	my $time = $self->{mtime};
-	#	$self->create_menu if ($age > $time);
-	#	return 1;
-	#});
+	$self->widget->show_all;
 
 	return 1;
 }

@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.12 2004/08/24 15:22:03 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.13 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -58,6 +58,8 @@ sub configure {
 
 	$self->widget->set_relief('none');
 	PerlPanel::tips->set_tip($self->widget, _('Menu'));
+
+	$self->widget->show_all;
 
 	$self->create_menu;
 

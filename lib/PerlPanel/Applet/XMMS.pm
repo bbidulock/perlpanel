@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.13 2004/07/05 14:30:28 jodrell Exp $
+# $Id: XMMS.pm,v 1.14 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -123,6 +123,7 @@ sub configure {
 			return 1;
 		}
 	});
+	$self->widget->show_all;
 	return 1;
 }
 

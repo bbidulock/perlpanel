@@ -1,4 +1,4 @@
-# $Id: RunMe.pm,v 1.3 2004/07/07 14:03:55 jodrell Exp $
+# $Id: RunMe.pm,v 1.4 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -57,6 +57,7 @@ sub configure {
 
 		PerlPanel::append_run_history($command);
 	});
+	$self->widget->show_all;
 	return 1;
 }
 

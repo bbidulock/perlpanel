@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.9 2004/07/07 14:05:18 jodrell Exp $
+# $Id: Lock.pm,v 1.10 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -57,6 +57,9 @@ sub configure {
 		}
 		return 1;
 	});
+
+	$self->widget->show_all;
+	return 1;
 }
 
 sub widget {

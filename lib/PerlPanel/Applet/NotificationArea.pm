@@ -1,4 +1,4 @@
-# $Id: NotificationArea.pm,v 1.3 2004/09/10 16:24:11 jodrell Exp $
+# $Id: NotificationArea.pm,v 1.4 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -107,9 +107,9 @@ sub configure {
 			$self->{hbox}->remove($_[1]->parent) if defined($_[1]->parent);
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
 		});
-
-		return 1;
 	}
+	$self->widget->show_all;
+	return 1;
 }
 
 sub widget {

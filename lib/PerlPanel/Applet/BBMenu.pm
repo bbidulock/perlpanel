@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.61 2004/07/05 14:31:37 jodrell Exp $
+# $Id: BBMenu.pm,v 1.62 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -87,8 +87,8 @@ sub configure {
 		return 1;
 	});
 
+	$self->widget->show_all;
 	return 1;
-
 }
 
 sub create_menu {

@@ -1,4 +1,4 @@
-# $Id: ShowDesktop.pm,v 1.9 2004/06/28 19:54:06 jodrell Exp $
+# $Id: ShowDesktop.pm,v 1.10 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -43,6 +43,9 @@ sub configure {
 	});
 
 	PerlPanel::tips->set_tip($self->{widget}, _('Show the Desktop'));
+	$self->widget->show_all;
+
+	return 1;
 }
 
 sub widget {

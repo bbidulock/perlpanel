@@ -1,4 +1,4 @@
-# $Id: Slot.pm,v 1.3 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Slot.pm,v 1.4 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -41,7 +41,6 @@ sub configure {
 	$self->widget->child->set_border_width(0);
 	$self->widget->child->set_shadow_type('in');
 
-
 	$self->{socketfile} = sprintf('%s/.%s/socketid', $ENV{HOME}, lc($PerlPanel::NAME));
 
 	$socket->signal_connect('realize', sub {
@@ -49,6 +48,8 @@ sub configure {
 		print SOCKETFILE $socket->get_id;
 		close(SOCKETFILE);
 	});
+
+	$self->widget->show_all;
 
 	return 1;
 }

@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.10 2004/06/28 21:27:07 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.11 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -43,8 +43,8 @@ sub configure {
 		$self->{label}= Gtk2::Label->new();
 		$self->{widget}->add($self->{label});
 	}
-
 	PerlPanel::tips->set_tip($self->{widget}, _('CPU Usage'));
+	$self->widget->show_all;
 	$self->update;
 	Glib::Timeout->add(1000, sub { $self->update });
 	return 1;

@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.18 2004/08/24 15:22:03 jodrell Exp $
+# $Id: About.pm,v 1.19 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -54,8 +54,8 @@ sub configure {
 	$self->{widget}->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('about', PerlPanel::icon_size)));
 	$self->{widget}->signal_connect('clicked', sub { $self->about });
 	PerlPanel::tips->set_tip($self->{widget}, _('About {name}', name => $PerlPanel::NAME));
+	$self->widget->show_all;
 	return 1;
-
 }
 
 sub about {

@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.10 2004/04/04 13:51:25 jodrell Exp $
+# $Id: Pager.pm,v 1.11 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,6 +47,7 @@ sub configure {
 	$self->widget->add($self->{pager});
 
 	PerlPanel::tips->set_tip($self->widget, _('Workspace Pager'));
+	$self->widget->show_all;
 	return 1;
 }
 

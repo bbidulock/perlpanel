@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.42 2004/09/10 13:01:14 jodrell Exp $
+# $Id: IconBar.pm,v 1.43 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -46,6 +46,8 @@ sub configure {
 	}
 
 	$self->load_icons;
+
+	$self->widget->show_all;
 
 	return 1;
 }

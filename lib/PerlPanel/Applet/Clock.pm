@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.21 2004/06/28 21:27:06 jodrell Exp $
+# $Id: Clock.pm,v 1.22 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@ sub configure {
 	$self->{widget} = Gtk2::EventBox->new;
 	$self->widget->add($self->{label});
 	$self->{config} = PerlPanel::get_config('Clock');
+	$self->widget->show_all;
 	$self->update;
 	Glib::Timeout->add(1000, sub { $self->update });
 	return 1;

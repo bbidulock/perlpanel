@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.7 2004/09/10 13:01:14 jodrell Exp $
+# $Id: PanelPet.pm,v 1.8 2004/09/17 11:28:53 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -35,6 +35,8 @@ sub configure {
         $self->{config}{interval},
         sub { $self->_update },
     );
+
+    $self->widget->show_all;
 
     return 1;
 

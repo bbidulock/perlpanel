@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.20 2004/08/24 12:45:04 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.21 2004/09/17 11:28:53 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -24,7 +24,7 @@ This document explains how to write applets for the PerlPanel.
 	sub configure {
 		my $self = shift;
 		$self->{widget} = Gtk2::Button->new('Click Me!');
-		$self->{widget}->signal_connect(
+		$self->widget->signal_connect(
 			'clicked',
 			sub {
 				PerlPanel::alert(
@@ -32,6 +32,7 @@ This document explains how to write applets for the PerlPanel.
 				);
 			}
 		);
+		$self->widget->show_all;
 	}
 
 	# return the widget;

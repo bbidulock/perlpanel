@@ -1,4 +1,4 @@
-# $Id: Separator.pm,v 1.7 2004/09/10 16:24:30 jodrell Exp $
+# $Id: Separator.pm,v 1.8 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,6 +32,7 @@ sub configure {
 	$self->{widget} = Gtk2::Alignment->new(0.5, 0.5, 1, 1);
 	$self->widget->set_size_request(10, PerlPanel::icon_size);
 	$self->widget->add(Gtk2::VSeparator->new);
+	$self->widget->show_all;
 	return 1;
 }
 

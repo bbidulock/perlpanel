@@ -1,4 +1,4 @@
-# $Id: SetiAtHome.pm,v 1.5 2004/09/10 13:01:14 jodrell Exp $
+# $Id: SetiAtHome.pm,v 1.6 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -52,6 +52,7 @@ sub configure {
 		our $TIMEOUT = Glib::Timeout->add(1000 * $self->{config}->{interval}, sub { $self->refresh; return 1 });
 		Glib::Timeout->add(1000, sub { $self->refresh; return undef });
 	}
+	$self->widget->show_all;
 	return 1;
 
 }

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.105 2004/09/10 16:23:47 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.106 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -138,7 +138,10 @@ sub init {
 	$self->build_panel;
 	$self->configure;
 	$self->load_applets;
-	$self->show_all;
+	$self->{hbox}->show;
+	$self->{vbox}->show;
+	$self->{separator}->show;
+	$self->{panel}->show;
 
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->autohide;
@@ -297,6 +300,7 @@ sub build_panel {
 	$self->{panel}->add($self->{vbox});
 
 	$self->arrange_border;
+
 	return 1;
 }
 
@@ -431,7 +435,7 @@ sub load_applet {
 
 	} else {
 		$self->add_applet($applet->widget, $applet->expand, $applet->fill, $position);
-		$applet->widget->show_all;
+		$applet->widget->show;
 	}
 
 	return 1;

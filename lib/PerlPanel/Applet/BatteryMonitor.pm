@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.7 2004/07/06 12:45:29 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.8 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -36,10 +36,10 @@ sub configure {
 	$self->{widget}->add($self->{label});
 	$self->{config} = PerlPanel::get_config('BatteryMonitor');
 	PerlPanel::tips->set_tip($self->{widget}, 'Battery Monitor');
+	$self->widget->show_all;
 	$self->update;
 	Glib::Timeout->add($self->{config}->{interval}, sub { $self->update });
 	return 1;
-
 }
 
 sub update {

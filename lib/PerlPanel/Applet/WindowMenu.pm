@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.9 2004/04/04 13:51:25 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.10 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -41,6 +41,7 @@ sub configure {
 	}
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	PerlPanel::tips->set_tip($self->widget, _('Window List'));
+	$self->widget->show_all;
 	return 1;
 }
 

@@ -1,4 +1,4 @@
-# $Id: WiFiMonitor.pm,v 1.1 2004/07/02 09:50:20 jodrell Exp $
+# $Id: WiFiMonitor.pm,v 1.2 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 #
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,6 +47,7 @@ sub configure {
 
 	$self->{config} = PerlPanel::get_config('WiFiMonitor');
 	PerlPanel::tips->set_tip($self->{widget}, _('Wireless Signal Strength'));
+	$self->widget->show_all;
 	$self->update;
 	Glib::Timeout->add($self->{config}->{interval}, sub { $self->update });
 	return 1;

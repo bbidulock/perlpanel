@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.25 2004/08/12 13:20:28 jodrell Exp $
+# $Id: Commander.pm,v 1.26 2004/09/17 11:28:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ sub configure {
 		$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('commander', PerlPanel::icon_size)));
 		$self->widget->signal_connect('clicked', sub { $self->run });
 		PerlPanel::tips->set_tip($self->widget, _('Run Command'));
+		$self->widget->show_all;
 	}
 	our $iconfile = PerlPanel::get_applet_pbf_filename('commander');
 	$self->{store} = $self->create_store;
