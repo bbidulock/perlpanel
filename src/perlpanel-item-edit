@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.5 2005/01/10 11:55:25 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.6 2005/01/21 18:09:10 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -76,7 +76,7 @@ $glade->get_widget('launcher_name')->set_text($entry->Name($LOCALE));
 $glade->get_widget('launcher_comment')->set_text($entry->Comment($LOCALE));
 
 $PROGRAM = $entry->Exec;
-$glade->get_widget('launcher_exec')->set_text(basename($PROGRAM));
+$glade->get_widget('launcher_exec')->set_text($PROGRAM);
 
 $ICON = $entry->Icon;
 
