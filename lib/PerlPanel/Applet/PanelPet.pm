@@ -1,14 +1,40 @@
-# $Id: PanelPet.pm,v 1.10 2005/01/06 15:11:58 jodrell Exp $
+# $Id: PanelPet.pm,v 1.11 2005/01/12 14:16:59 jodrell Exp $
+# This file is part of PerlPanel.
+# 
+# PerlPanel is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# PerlPanel is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PerlPanel; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2005 Eric Andreychek (eric@openthought.net)
+#
 package PerlPanel::Applet::PanelPet;
+use vars qw($VERSION);
 use strict;
 
-$PerlPanel::Applet::PanelPet::VERSION = "0.25";
+$VERSION = '0.51';
 
 # Applet Constructor
 sub new {
     my $self            = {};
     $self->{package}    = shift;
     bless($self, $self->{package});
+
+    if ( system("fortune > /dev/null 2>&1") == 0 ) {
+        $self->{fortune} = 1;
+
+        $self->_get_fortune_databases();
+    }
+
     return $self;
 }
 
@@ -17,6 +43,12 @@ sub configure {
     my $self = shift;
 
     $self->{config} = PerlPanel::get_config('PanelPet');
+
+    unless ( -f $self->{config}{image} ) {
+        if ( -f "$PerlPanel::PREFIX/share/pixmaps/fish/oldwanda.png" ) {
+            $self->{config}{image} = "$PerlPanel::PREFIX/share/pixmaps/fish/oldwanda.png";
+        }
+    }
 
     $self->{widget} = Gtk2::Button->new;
     $self->{widget}->set_relief('none');
@@ -67,6 +99,7 @@ sub get_default_config {
     return { image      => "$PerlPanel::PREFIX/share/pixmaps/fish/oldwanda.png",
              frames     => 3,
              interval   => 2000,
+             fortune   => "ALL",
            };
 }
 
@@ -103,10 +136,11 @@ sub _right_click_menu {
     $menu->add($preferences);
     $menu->add($about);
     $menu->show_all;
-    $menu->popup(undef, undef,
-	 	 sub { return $self->_popup_position($menu) },
-		 undef, 3, undef
-		);
+    $menu->popup(
+        undef, undef,
+        sub { return $self->_popup_position($menu) },
+        undef, 3, undef
+    );
 
     return 1;
 }
@@ -116,10 +150,14 @@ sub _popup_position {
         my ($x, undef) = PerlPanel::get_widget_position($self->widget);
         $x = 0 if ($x < 5);
         if (PerlPanel::position eq 'top') {
-                return ($x, PerlPanel::panel->allocation->height);
-        } else {
-                $menu->realize;
-                return ($x, PerlPanel::screen_height() - $menu->allocation->height - PerlPanel::panel->allocation->height);
+            return ($x, PerlPanel::panel->allocation->height);
+        }
+        else {
+            $menu->realize;
+            return ($x, PerlPanel::screen_height() -
+                        $menu->allocation->height  -
+                        PerlPanel::panel->allocation->height
+            );
         }
 }
 
@@ -127,27 +165,48 @@ sub _popup_position {
 # Do this when the PanelPet is left-clicked
 sub _panel_pet {
     my $self = shift;
-    my $text = _("Just a hello from your Panel Pet!\n\nBark Bark");
+    my $text;
 
-    my $window = Gtk2::Window->new('toplevel');
-    $window->set_position('center');
-    $window->set_border_width(15);
-    $window->set_title(_('Panel Pet: Hello'));
-    $window->set_icon(PerlPanel::icon);
-    my $vbox = Gtk2::VBox->new;
-    $vbox->set_spacing(15);
-    my $label = Gtk2::Label->new();
-    $label->set_justify('center');
-    $label->set_markup($text);
-    $vbox->pack_start($label, 1, 1, 0);
-    my $button = Gtk2::Button->new_from_stock('gtk-ok');
-    $button->signal_connect(
-            'clicked',
-            sub { $window->destroy },
-    );
-    $vbox->pack_start($button, 0, 0, 0);
-    $window->add($vbox);
-    $window->show_all;
+    if ( $self->{fortune} ) {
+        $text = _("Hello, I'm your Panel Pet!  I retrieved the following fortune:\n\n") . $self->_get_fortune;
+    }
+    else {
+        $text= _("Just a hello from your Panel Pet!\n\nBark Bark\n\n(If you install the 'fortune' program, I'd consider giving you a fortune instead of barking)");
+    }
+
+    if ( $self->{pet_window} ) {
+        $self->{pet_label}->set_text($text);
+    }
+    else {
+        $self->{pet_window} = Gtk2::Dialog->new;
+        $self->{pet_window}->set_position('center');
+        $self->{pet_window}->set_border_width(15);
+        $self->{pet_window}->set_title(_('Panel Pet: Hello'));
+        $self->{pet_window}->set_icon(PerlPanel::icon);
+
+        #my $vbox = Gtk2::VBox->new;
+        $self->{pet_window}->vbox->set_spacing(15);
+        $self->{pet_label} = Gtk2::Label->new();
+        $self->{pet_label}->set_justify('left');
+        $self->{pet_label}->set_text($text);
+        $self->{pet_window}->vbox->pack_start($self->{pet_label}, 1, 1, 0);
+
+        #my $button = Gtk2::Button->new_from_stock('gtk-ok');
+        $self->{pet_window}->add_buttons(
+            'gtk-ok',     0,
+        );
+        $self->{pet_window}->signal_connect(
+            'response',
+            sub {
+                $self->{pet_window}->destroy;
+                delete $self->{pet_window}
+            },
+        );
+
+        #$window->vbox->pack_start($button, 0, 0, 0);
+        #$self->{pet_window}->add($vbox);
+        $self->{pet_window}->show_all;
+    }
 
     return 1;
 }
@@ -160,9 +219,8 @@ sub _about {
   PanelPet version $PerlPanel::Applet::PanelPet::VERSION
 </span>
 
-A friend for people who spend far too much
-time on their computers, and have no other
-social contact.
+A little friend to keep you company while
+you play around on your computer.
 
 Author:
 Eric Andreychek &lt;eric\@openthought.net&gt;
@@ -176,27 +234,27 @@ Eric Andreychek &lt;eric\@openthought.net&gt;
 </span>
 EOF
 
-    $self->{window} = Gtk2::Window->new('toplevel');
-    $self->{window}->set_position('center');
-    $self->{window}->set_border_width(15);
-    $self->{window}->set_title(_('About'));
-    $self->{window}->set_icon(PerlPanel::icon);
-    $self->{vbox} = Gtk2::VBox->new;
-    $self->{vbox}->set_spacing(15);
-    #$self->{vbox}->pack_start(Gtk2::Image->new_from_file("$PerlPanel::PREFIX/share/pixmaps/perlpanel.png"), 0, 0, 0);
-    $self->{label} = Gtk2::Label->new();
-    $self->{label}->set_justify('center');
-    $self->{label}->set_markup($text);
-    $self->{vbox}->pack_start($self->{label}, 1, 1, 0);
-    $self->{button} = Gtk2::Button->new_from_stock('gtk-ok');
-    $self->{button}->signal_connect(
-            'clicked',
-            sub { $self->{window}->destroy },
+    my $window = Gtk2::Dialog->new;
+    $window->set_position('center');
+    $window->set_border_width(15);
+    $window->set_title(_('About'));
+    $window->set_icon(PerlPanel::icon);
+
+    $window->vbox->set_spacing(15);
+    my $label = Gtk2::Label->new();
+    $label->set_justify('center');
+    $label->set_markup($text);
+    $window->vbox->pack_start($label, 1, 1, 0);
+
+    $window->add_buttons(
+        'gtk-ok',     0,
+    );
+    $window->signal_connect(
+            'response',
+            sub { $window->destroy },
     );
 
-    $self->{vbox}->pack_start($self->{button}, 0, 0, 0);
-    $self->{window}->add($self->{vbox});
-    $self->{window}->show_all;
+    $window->show_all;
 
     return 1;
 }
@@ -204,45 +262,52 @@ EOF
 # Update the PanelPet preferences
 sub _preferences {
     my $self = shift;
+
     $self->{widget}->set_sensitive(0);
-    $self->{window} = Gtk2::Dialog->new;
-    $self->{window}->set_title(_('Configuration'));
-    $self->{window}->signal_connect(
+
+    my $window = Gtk2::Dialog->new;
+    $window->set_title(_('Configuration'));
+    $window->signal_connect(
             'delete_event',
             sub { $self->{widget}->set_sensitive(1) }
     );
 
-    $self->{window}->set_border_width(8);
-    $self->{window}->vbox->set_spacing(8);
-    $self->{window}->set_icon(PerlPanel::icon);
-    $self->{table} = Gtk2::Table->new(5, 2, 0);
-    $self->{table}->set_col_spacings(8);
-    $self->{table}->set_row_spacings(8);
+    $window->set_border_width(8);
+    $window->vbox->set_spacing(8);
+    $window->set_icon(PerlPanel::icon);
 
+    my $notebook = Gtk2::Notebook->new;
+    $window->vbox->add($notebook);
+
+    my $table = Gtk2::Table->new(5, 3, 0);
+    $table->set_col_spacings(8);
+    $table->set_row_spacings(8);
+
+    # Update interval preference
     my $adj_interval = Gtk2::Adjustment->new(
             $self->{config}{interval},
             100, 60000, 100, 1000, undef,
     );
-
     $self->{controls}{interval} = Gtk2::SpinButton->new($adj_interval, 1, 0);
 
     $self->{labels}{interval} = Gtk2::Label->new(_('Update interval (ms):'));
     $self->{labels}{interval}->set_alignment(1, 0.5);
-    $self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
-    $self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
+    $table->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
+    $table->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
 
+    # Frames in animation preference
     my $adj_frames = Gtk2::Adjustment->new(
             $self->{config}{frames},
             1, 100000, 1, 10, undef,
     );
-
     $self->{controls}{frames} = Gtk2::SpinButton->new($adj_frames, 1, 0);
 
     $self->{labels}{frames} = Gtk2::Label->new(_('Frames in animation:'));
     $self->{labels}{frames}->set_alignment(1, 0.5);
-    $self->{table}->attach_defaults($self->{labels}{frames}, 0, 1, 3, 4);
-    $self->{table}->attach_defaults($self->{controls}{frames}, 1, 2, 3, 4);
+    $table->attach_defaults($self->{labels}{frames}, 0, 1, 3, 4);
+    $table->attach_defaults($self->{controls}{frames}, 1, 2, 3, 4);
 
+    # Image for the PanelPet
     my $image = Gtk2::Image->new_from_file(
             $self->{config}{image},
     );
@@ -256,15 +321,56 @@ sub _preferences {
 
     $self->{labels}{image} = Gtk2::Label->new(_('PanelPet Imagefile:'));
     $self->{labels}{image}->set_alignment(1, 0.5);
-    $self->{table}->attach_defaults($self->{labels}{image}, 0, 1, 4, 5);
-    $self->{table}->attach_defaults($self->{controls}{image}, 1, 2, 4, 5);
+    $table->attach_defaults($self->{labels}{image}, 0, 1, 4, 5);
+    $table->attach_defaults($self->{controls}{image}, 1, 2, 4, 5);
 
-    $self->{window}->add_buttons(
+    # Fortune DB list
+    $self->{labels}{fortune} = Gtk2::Label->new(_('Fortune Database:'));
+    $self->{labels}{fortune}->set_alignment(1, 0.5);
+
+    $self->{controls}{fortune} = Gtk2::VBox->new;
+
+    my $scrolled_window = Gtk2::ScrolledWindow->new;
+    $self->{controls}{fortune_checkbox} = Gtk2::CheckButton->new_with_label("Randomly Select From All Databases");
+    $self->{controls}{fortune}->pack_start($self->{controls}{fortune_checkbox}, 0, 0, 0);
+    $self->{controls}{fortune}->pack_start($scrolled_window, 1, 1, 1);
+    $scrolled_window->set_policy (qw/automatic automatic/);
+
+    my $list = Gtk2::SimpleList->new (
+                                "Fortune Database" => 'text',
+                                "Enabled"          => 'bool',
+                            );
+    $list->get_selection->set_mode('single');
+    $scrolled_window->add( $list );
+
+    if ( $self->{fortune} ) {
+        @{ $list->{data} } = $self->_fill_fortune_database_list;
+    }
+    else {
+        $self->{controls}{fortune}->set_sensitive(0);
+    }
+
+    $self->{controls}{fortune_checkbox}->signal_connect('toggled', sub {
+                my $button = shift;
+
+                if ($button->get_active) {
+                    $list->set_sensitive(0);
+                }
+                else {
+                    $list->set_sensitive(1);
+                }
+        }
+    );
+    if ( $self->{config}{fortune} eq "ALL" ) {
+        $self->{controls}{fortune_checkbox}->set_active(1);
+    }
+
+    $window->add_buttons(
         'gtk-cancel', 1,
         'gtk-ok',     0,
     );
 
-    $self->{window}->signal_connect('response', sub {
+    $window->signal_connect('response', sub {
 
         # 'Okay' was clicked, this all needs to be saved
         if ($_[1] == 0) {
@@ -273,23 +379,123 @@ sub _preferences {
             $self->{config}{frames} =
                                 $self->{controls}{frames}->get_value_as_int;
             $self->{config}{image} =
-                                $self->{controls}{selector}{filename};
+                                $self->{controls}{selector}{filename} ||
+                                $self->{config}{image};
+
+            if ( $self->{controls}{fortune_checkbox}->get_active) {
+                $self->{config}{fortune} = "ALL";
+            }
+            else {
+                $self->{config}{fortune} =
+                    $self->_get_selected_fortune_databases( $list->{data} );
+
+            }
+
 
             $self->{widget}->set_sensitive(1);
-            $self->{window}->destroy;
+            $window->destroy;
             PerlPanel::save_config;
 
         }
         elsif ($_[1] == 1) {
             $self->{widget}->set_sensitive(1);
-            $self->{window}->destroy;
+            $window->destroy;
         }
     });
 
-    $self->{window}->vbox->pack_start($self->{table}, 1, 1, 0);
-    $self->{window}->show_all;
+    my $label_g = Gtk2::Label->new('General');
+    my $label_f = Gtk2::Label->new('Fortune');
+    $notebook->append_page($table, $label_g);
+    $notebook->append_page($self->{controls}{fortune}, $label_f);
+
+    $window->show_all;
 
     return 1;
+}
+
+sub _get_fortune_databases {
+    my $self = shift;
+
+    my @data = `fortune -f 2>&1`;
+    shift @data;
+    chomp @data;
+
+    @{ $self->{fortune_dbs} } = sort map { ((split /\s+/)[2]) } @data;
+}
+
+sub _get_fortune_database_by_name {
+    my ( $self, $name ) = @_;
+
+    my $i = 0;
+    foreach my $database ( @{ $self->{fortune_dbs} } ) {
+        return $i if $name eq $database;
+        $i++;
+    }
+
+    return 0;
+}
+
+sub _get_fortune_database_by_id {
+    my ( $self, $id ) = @_;
+
+    return ${ $self->{fortune_dbs} }[$id];
+}
+
+sub _get_fortune {
+    my $self = shift;
+
+    if ( $self->{config}{fortune} eq "ALL" ) {
+            return `fortune`;
+    }
+    else {
+        my @databases = join " ", $self->_selected_fortune_databases;
+        return `fortune @databases`;
+    }
+}
+
+sub _get_selected_fortune_databases {
+    my ( $self, $list ) = @_;
+
+    my $selected_list = "";
+    foreach my $item ( @{ $list } ) {
+        if ( $item->[1] ) {
+            $selected_list .= "$item->[0],";
+        }
+    }
+
+    chop $selected_list;
+    return $selected_list;
+}
+
+sub _selected_fortune_databases {
+    my $self = shift;
+
+    my @databases = split /,/, $self->{config}{fortune};
+
+    return @databases;
+}
+
+sub _database_is_selected {
+    my ( $self, $name ) = @_;
+
+    my @databases = split /,/, $self->{config}{fortune};
+
+    foreach my $database ( @databases ) {
+        return 1 if $database eq $name;
+    }
+
+    return "";
+}
+
+sub _fill_fortune_database_list {
+    my $self = shift;
+
+    my @list;
+    foreach my $fortune_db ( @{ $self->{fortune_dbs} } ) {
+        push @list, [ $fortune_db, $self->_database_is_selected($fortune_db) ];
+    }
+
+    return @list;
 }
 
 # Update the PanelPet image
@@ -407,3 +613,4 @@ sub _remove {
 }
 
 1;
+
