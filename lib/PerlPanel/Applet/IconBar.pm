@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.9 2003/06/05 12:56:07 jodrell Exp $
+# $Id: IconBar.pm,v 1.10 2003/06/05 15:02:37 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -17,19 +17,24 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
 	$self->{widget}->set_spacing($PerlPanel::OBJECT_REF->{config}{panel}{spacing});
+
 	$self->{icondir} = sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));
 	unless (-e $self->{icondir}) {
 		mkdir(sprintf('%s/.%s', $ENV{HOME}, lc($PerlPanel::NAME)));
 		mkdir($self->{icondir});
 		return undef;
 	}
+
 	opendir(DIR, $self->{icondir});
 	my @icons = grep { /\.desktop$/i } readdir(DIR);
 	closedir(DIR);
+
 	foreach my $file (sort @icons) {
 		my $filename = sprintf("%s/%s", $self->{icondir}, $file);
 		$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
 	}
+
+	return 1;
 }
 
 sub add_icon {
