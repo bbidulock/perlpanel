@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.8 2003/06/24 14:42:12 jodrell Exp $
+$Id: perlpanel.pod,v 1.9 2003/08/13 13:47:42 jodrell Exp $
 
 =head1 Introduction
 
@@ -33,6 +33,8 @@ What you will need is this:
 
 =item * The XML::Simple Perl module
 
+=item * The XML::Parser Perl module
+
 =item * The Gtk2-Perl libraries
 
 =back
@@ -45,6 +47,15 @@ download source code from L<http://www.gtk.org/>.
 The XML::Simple is available on CPAN. The Gtk2-Perl libraries can be
 found on the Sourceforge page at
 L<http://sourceforge.net/projects/gtk2-perl>.
+
+=head2 Note about XML::Simple
+
+By default, XML::Simple will attempt to use XML::SAX as an XML parser.
+However we have observed that in some situations this can result in
+unreliable conversion of data. So PerlPanel forces the use of
+XML::Parser instead of XML::SAX. So even if you have XML::Simple
+installed you may find that PerlPanel won't run - this is because
+XML::Parser is required.
 
 =head1 Installation
 

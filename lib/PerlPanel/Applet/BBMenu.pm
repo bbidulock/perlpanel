@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.23 2003/08/12 16:03:14 jodrell Exp $
+# $Id: BBMenu.pm,v 1.24 2003/08/13 13:47:42 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -77,7 +77,7 @@ sub configure {
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('clicked', sub { $self->popup });
+	$self->{widget}->signal_connect('button_release_event', sub { $self->popup($_[1]->button) });
 	return 1;
 }
 
@@ -251,8 +251,8 @@ sub create_menu {
 }
 
 sub popup {
-	my $self = shift;
-	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $self->{widget}, 0);
+	my ($self, $event_button) = @_;
+	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $event_button, 0);
 	return 1;
 }
 

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.28 2003/08/12 16:03:14 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.29 2003/08/13 13:47:42 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,14 +22,14 @@ use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL 
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.0.5';
+our $VERSION		= '0.1.0';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',
 );
 our @CO_AUTHORS		= (
-	'Scott Arrington <muppet@asofyet.org>',
 	'Eric Andreychek <eric@openthought.net>',
+	'Scott Arrington <muppet@asofyet.org>',
 );
 
 our $URL		= 'http://jodrell.net/projects/perlpanel';
@@ -81,6 +81,7 @@ sub init {
 	$self->load_config;
 	$self->get_screen || $self->parse_xdpyinfo;
 	$self->build_ui;
+	$self->configure;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->show_all;
@@ -96,6 +97,7 @@ sub check_deps {
 		$self->error("Couldn't load the XML::Simple module!", sub { exit });
 		Gtk2->main();
 	} else {
+		$XML::Simple::PREFERRED_PARSER = 'XML::Parser';
 		return 1;
 	}
 }
@@ -144,14 +146,19 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->screen_width, 0);
 	$self->{hbox} = Gtk2::HBox->new;
-	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{port} = Gtk2::Viewport->new;
-	$self->{port}->set_shadow_type('out');
 	$self->{port}->add($self->{hbox});
 	$self->{panel}->add($self->{port});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+	return 1;
+}
+
+sub configure {
+	my $self = shift;
+	$self->{panel}->set_default_size($self->screen_width, 0);
+	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
+	$self->{port}->set_shadow_type('out');
 	return 1;
 }
 
@@ -225,10 +232,13 @@ sub reload {
 	my $self = shift;
 	$self->{panel}->set_sensitive(0);
 	$self->save_config;
-	$self->{panel}->destroy;
-	undef $self;
-	my $panel = PerlPanel->new;
-	$panel->init;
+	foreach my $applet ($self->{hbox}->get_children) {
+		$applet->destroy;
+	}
+	$self->load_applets;
+	$self->configure;
+	$self->move;
+	$self->{panel}->set_sensitive(1);
 	return 1;
 }
 
@@ -247,10 +257,9 @@ sub request_string {
 	$dialog->vbox->set_spacing(8);
 
 	my $entry = Gtk2::Entry->new;
-	# this is broken at the moment:
-	#if ($visible == 1) {
-	#	$entry->set_visible(1);
-	#}
+	if ($visible == 1) {
+		$entry->set_visibility(0);
+	}
 
 	my $table = Gtk2::Table->new(2, 2, 0);
 	$table->set_col_spacings(8);

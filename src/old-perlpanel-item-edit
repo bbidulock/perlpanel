@@ -16,7 +16,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: old-perlpanel-item-edit,v 1.4 2003/08/12 16:03:14 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.5 2003/08/13 13:47:42 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -108,7 +108,7 @@ my $exec_label = Gtk2::Label->new('Program:');
 $exec_label->set_alignment(1, 0.5);
 
 my $exec_button_label = Gtk2::Label->new('Browse...');
-my $exec_button_image = Gtk2::Image->new_from_stock('gtk-floppy', 'menu');
+my $exec_button_image = Gtk2::Image->new_from_stock('gtk-open', 'menu');
 my $exec_button_box = Gtk2::HBox->new;
 $exec_button_box->pack_start($exec_button_image, 0, 0, 0);
 $exec_button_box->pack_start($exec_button_label, 1, 1, 0);
