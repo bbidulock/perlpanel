@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.10 2003/06/05 15:02:37 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.11 2003/06/05 15:31:17 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -33,6 +33,7 @@ our %DEFAULTS = (
 	},
 	appletsdirs => [
 		sprintf('%s/share/%s/applets', $PREFIX, lc($NAME)),
+		sprintf('%s/lib/%s/applets', $PREFIX, lc($NAME)),
 		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),
 	],
 	applets => [
