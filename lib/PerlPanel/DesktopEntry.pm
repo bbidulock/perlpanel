@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.7 2004/11/23 14:34:56 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.8 2004/12/13 15:11:49 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -265,6 +265,8 @@ sub get_value {
 	my ($self, $key, $group, $locale) = @_;
 	$group	= (defined($group) ? $group : $DEFAULT_GROUP);
 	$locale	= (defined($locale) ? $locale : $DEFAULT_LOCALE);
+
+	($locale, undef) = split(/\./, $locale, 2); # in case locale is of the form xx_YY.UTF-8
 
 	my $rval;
 	if (!defined($self->{data}->{$group}->{$key}->{$locale})) {
