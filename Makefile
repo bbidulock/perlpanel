@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.30 2004/02/17 13:56:26 jodrell Exp $
+# $Id: Makefile,v 1.31 2004/02/17 14:23:04 jodrell Exp $
 
 VERSION=0.4.0
 
@@ -22,8 +22,7 @@ PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
 BINDIR=$(PREFIX)/bin
 DATADIR=$(PREFIX)/share
-MANDIR=$(DATADIR)/man/
-IMGDIR=$(DATADIR)/pixmaps
+MANDIR=$(DATADIR)/man
 
 MAN_SECTION=man1
 MAN_LIBS_SECTION=man3
@@ -47,7 +46,7 @@ perlpanel:
 	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
 
 install:
-	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/$(MAN_SECTION) $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION) $(DESTDIR)$(IMGDIR)
+	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/$(MAN_SECTION) $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)
 	install -m 0755 build/perlpanel $(DESTDIR)$(BINDIR)/
 	install -m 0755 build/perlpanel-item-edit $(DESTDIR)$(BINDIR)/
 	install -m 0755 build/perlpanel-run-dialog $(DESTDIR)$(BINDIR)/
@@ -59,7 +58,7 @@ install:
 	install -m 0755 build/perlpanel-item-edit.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-run-dialog.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/PerlPanel::MenuBase.1 $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)/
-	cp -Rvp share/pixmaps/* $(DESTDIR)$(IMGDIR)/
+	cp -Rvp share/* $(DESTDIR)$(DATADIR)/
 
 clean:
 	rm -rf build
@@ -70,11 +69,14 @@ uninstall:
 		$(BINDIR)/perlpanel-item-edit \
 		$(BINDIR)/perlpanel-run-dialog \
 		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
+		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-applet-howto.1 \
 		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-run-dialog.1 \
 		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1 \
 		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
 		$(MANDIR)/perlpanel-applet-howto.1 \
-		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1
+		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1 \
+		$(DATADIR)/perlpanel \
+		$(DATADIR)/pixmaps/perlpanel*
 
 release:
 	./make-rpm $(VERSION)
