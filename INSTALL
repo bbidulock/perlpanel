@@ -67,12 +67,22 @@ tarball, extracting it, and then running the following commands:
 
 By default, PerlPanel will install into the /usr/local directory. If you
 want to change this, you can either edit the PREFIX variable in the
-Makefile, or add 'PREFIX=/path/to/directory' as an argument to make.
+Makefile, or add 'PREFIX=/path/to/directory' as an argument to make:
 
-PerlPanel is also available in RPM package form. These packages should
-work on any operating system that supports the RPM system, for example
-Red Hat, Fedora, Mandrake and SuSE. Simply download the NoArch RPM and
-run:
+	[user@host]$ make PREFIX=/opt/perlpanel
+	[user@host]$ su
+	Enter password:
+	[root@host]# make install PREFIX=/opt/perlpanel
+
+PerlPanel Packages
+==================
+
+PerlPanel is also available in pre-built packages for a number of
+operating systems.
+
+RPM: These packages should work on any operating system that supports
+the RPM system, for example Red Hat, Fedora, Mandrake and SuSE. Simply
+download the NoArch RPM and run:
 
         [root@host]# rpm -Uvh PerlPanel-x.y.z-1.noarch.rpm
 
@@ -88,11 +98,13 @@ You can also build an RPM directly from the source tarball, using
 
         [root@host]# rpmbuild -tb PerlPanel-x.y.z.tar.gz
 
-Users of Debian GNU/Linux can install PerlPanel by running the command
+Debian: Users of Debian GNU/Linux or its derivatives can install
+PerlPanel by running the command
 
 	apt-get install perlpanel
 
-Users of the Gentoo operating system can find ebuilds via the project website.
+Gentoo: Users of the Gentoo operating system can find ebuilds via the
+project website.
 
 --
-$Id: INSTALL,v 1.6 2004/10/21 15:51:39 jodrell Exp $
+$Id: INSTALL,v 1.7 2004/12/13 13:40:21 jodrell Exp $
