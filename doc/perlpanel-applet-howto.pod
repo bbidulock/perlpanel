@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.3 2003/06/19 15:59:38 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.4 2003/06/19 16:03:00 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -173,7 +173,7 @@ Again, use this to correctly scale things in your applet.
 	$PerlPanel::OBJECT_REF->screen_height
 
 These two methods return the width and height (in pixels) of the default
-display. PerlPanel attempts to work this out if the systems Gtk+ is
+display. PerlPanel attempts to work this out if the system's Gtk+ is
 recent enough, otherwise it will take them from the user's config file.
 
 	$PerlPanel::OBJECT_REF->save_config
