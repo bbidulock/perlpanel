@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.80 2004/05/28 10:46:38 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.81 2004/05/28 13:32:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -843,7 +843,9 @@ sub lookup_icon {
 
 		if (!defined($self->{icon_theme})) {
 			$self->{icon_theme} = Gtk2::IconTheme->get_default;
-	
+			if ($self->{config}->{panel}->{icon_theme} ne '') {
+				$self->{icon_theme}->set_custom_theme($self->{config}->{panel}->{icon_theme});
+			}
 		}
 
 		my $info = $self->{icon_theme}->lookup_icon($icon, 48, 'no-svg');

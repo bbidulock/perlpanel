@@ -4,11 +4,11 @@
 # NB: make sure cvs2cl will work, and that your user has
 # write permissions on RPM's build directory.
 #
-# $Id: make-rpm,v 1.7 2004/04/05 20:16:31 jodrell Exp $
+# $Id: make-rpm,v 1.8 2004/05/28 13:32:29 jodrell Exp $
 
 CWD=$PWD
 VERSION=$1
-TOPDIR=$HOME/.rpmbuild
+TOPDIR=`grep topdir ~/.rpmmacros  | cut -d " " -f 2`
 DIR=`basename $PWD`
 
 if [ -z $VERSION ] ; then
@@ -38,8 +38,10 @@ cd $CWD
 
 echo Building Source RPM:
 rpmbuild --quiet -ta $HOME/$DIR-$VERSION.tar.gz 1> /dev/null 2> /dev/null
-mv $TOPDIR/SRPMS/$DIR-$VERSION*src.rpm $HOME/
+mv -u $TOPDIR/SRPMS/$DIR-$VERSION-*src.rpm $HOME/ 1> /dev/null 2> /dev/null
 
 echo Building NoArch RPM:
-rpmbuild --quiet -tb $HOME/$DIR-$VERSION.tar.gz --target=noarch 1> /dev/null 2> /dev/null
-mv $TOPDIR/RPMS/noarch/$DIR-$VERSION*.rpm $HOME/
+rpmbuild --quiet -tb --target=noarch $HOME/$DIR-$VERSION.tar.gz 1> /dev/null 2> /dev/null
+mv -u $TOPDIR/RPMS/noarch/$DIR-$VERSION-*.noarch.rpm $HOME/ 1> /dev/null 2> /dev/null
+
+true
