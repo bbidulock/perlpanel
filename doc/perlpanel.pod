@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.16 2004/01/14 23:12:25 jodrell Exp $
+$Id: perlpanel.pod,v 1.17 2004/01/17 13:47:52 jodrell Exp $
 
 =head1 Introduction
 
@@ -40,6 +40,8 @@ What you will need is this:
 =back
 
 Some of the applets also require additional modules, for example:
+
+=over
 
 =item * The Gnome2::Wnck Perl module for the tasklist, pager and
 window menu applets
