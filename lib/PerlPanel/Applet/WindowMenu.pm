@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.1 2004/01/12 22:53:31 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.2 2004/01/13 13:30:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -46,8 +46,18 @@ sub clicked {
 	my $self = shift;
 	$self->{menu} = Gtk2::Menu->new;
 	my $workspace = $self->{screen}->get_active_workspace;
+	my @windows;
 	foreach my $window ($self->{screen}->get_windows) {
 		if (!$window->is_skip_tasklist && $window->get_workspace->get_number == $workspace->get_number) {
+			push(@windows, $window);
+		}
+	}
+	if (scalar(@windows) < 1) {
+		my $item = Gtk2::MenuItem->new_with_label('No Windows Open');
+		$item->set_sensitive(0);
+		$self->{menu}->append($item);
+	} else {
+		foreach my $window (@windows) {
 			my $pbf = $window->get_icon;
 			my $x0 = $pbf->get_width;
 			my $y0 = $pbf->get_height;
