@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.11 2005/01/03 14:14:18 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.12 2005/01/03 18:52:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -24,6 +24,26 @@ use X11::FreeDesktop::DesktopEntry;
 use base 'X11::FreeDesktop::DesktopEntry';
 use Gnome2::VFS;
 use strict;
+
+=pod
+
+=head1 NAME
+
+PerlPanel::DesktopEntry - an interface to .desktop files for the PerlPanel.
+
+=head1 INHERITANCE
+
+This modules inherits from X11::FreeDesktop::DesktopEntry. See L<X11::FreeDesktop::DesktopEntry>
+for more information.
+
+=head1 CONSTRUCTOR
+
+	my $entry = PerlPanel::DesktopEntry->new($uri);
+
+returns a desktop entry object using the data found at C<$uri>. Gnome2::VFS is
+used to retrieve the URI.
+
+=cut
 
 sub new {
 	my ($package, $uri) = @_;
@@ -56,5 +76,19 @@ sub get_file_contents {
 		return undef;
 	}
 }
+
+=pod
+
+=head1 SEE ALSO
+
+=over
+
+=item * L<perlpanel>
+
+=item * L<X11::FreeDesktop::DesktopEntry>
+
+=back
+
+=cut
 
 1;
