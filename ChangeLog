@@ -1,6 +1,12 @@
 ChangeLog
 =========
 
+2004-05-28 - v0.4.2
+
+	* This release introduces a handful of new applets: A Gnome menu,
+	an SSH shell manager, a SETI@Home monitor, and a "mini-commander".
+	This release requires Gtk+ 2.4.0.
+
 2004-04-06 - v0.4.1
 
 	* This release focuses on the implementation of support for GNU
@@ -112,4 +118,4 @@ ChangeLog
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.2 2004/04/05 20:16:31 jodrell Exp $
+$Id: ChangeLog,v 1.3 2004/05/28 13:16:17 jodrell Exp $
