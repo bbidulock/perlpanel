@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.119 2004/09/29 13:17:43 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.120 2004/09/29 15:09:40 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -102,14 +102,15 @@ our $APPLET_ERROR_MARKUP = <<"END";
 <span weight="bold">%s</span>
 END
 
-Gtk2->init;
-
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
 	$self->{rcfile}		= (defined($ARGV[0]) ? $ARGV[0] : sprintf('%s/.%src', $ENV{HOME}, lc($NAME)));
 	$OBJECT_REF		= $self;
 	bless($self, $self->{package});
+
+	Gtk2->init;
+
 	our $APPLET_ICON_DIR	= sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
 	our $DEFAULT_RCFILE	= sprintf('%s/etc/%src', $PREFIX, lc($NAME));
 	our @APPLET_DIRS	= (
