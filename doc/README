@@ -28,27 +28,20 @@ A few tenets:
 
 A few wahs, or, TODO:
 
-	1. Support FreeDesktop icon themes for menus, applets, etc - this
-	   will be pretty easy now that GnomeIconTheme has become
-           GtkIconTheme.
-	2. Drag-and-drop sorting of applets and icons in the IconBar would
+	1. Drag-and-drop sorting of applets and icons in the IconBar would
 	   be nice.
-	3. Support for multiheaded systems - there is a way to kludge this
+	2. Support for multiheaded systems - there is a way to kludge this
 	   but a "proper" solution is more desirable.
-	4. One day, all applets will be widgets in their own right, and
+	3. One day, all applets will be widgets in their own right, and
 	   will inherit from a base class that will let us do neat things
 	   like having standard pop-ups. Maybe the Panel will also be a
 	   widget as well.
-	5. Someone needs to work out how to place a shadow around the panel
-	   without violating Fitt's Law[2].
-	6. Translations are incomplete.
+	4. Translations are incomplete.
 
 [1]: We use the Gnome2::Wnck library for the tasklist, show desktop
 button and pager. However this module doesn't require the rest of the
 Gnome2 modules - it's just named that way because it's maintained by the
 GNOME developers.
 
-[2]: See http://www.asktog.com/basics/firstPrinciples.html#fitts's%20law.
-
 --
-$Id: README,v 1.13 2004/06/28 22:18:35 jodrell Exp $
+$Id: README,v 1.14 2004/07/02 11:32:33 jodrell Exp $
