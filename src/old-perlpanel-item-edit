@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.16 2004/10/24 21:30:04 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.17 2004/10/26 16:15:33 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -222,7 +222,7 @@ sub choose_icon {
 		my $file = $selector->get_filename;
 		if (-f $file) {
 			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, 48, 48);
-			$selector->get_preview_widget->set_from_pixbuf($pbf) if (defined($pixbuf));
+			$selector->get_preview_widget->set_from_pixbuf($pbf) if (defined($pbf));
 		}
 	});
 
