@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.133 2004/11/26 11:29:15 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.134 2004/11/26 11:38:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -576,10 +576,10 @@ sub move {
 
 		} elsif ($self->{config}->{panel}->{expand} eq 'false' && $self->{config}->{panel}->{use_struts} eq 'false') {
 			($top, $bottom) = (0, 0);
-	
+
 		} else {
 			($top, $bottom) = ($self->position eq 'top' ? ($self->panel->allocation->height, 0) : (0, $self->panel->allocation->height));
-	
+
 		}
 
 		$self->panel->window->property_change(
@@ -1269,7 +1269,7 @@ sub install_applet_dialog {
 	});
 	$glade->get_widget('file_entry')->set_text($file);
 
-	$glade->get_widget('install_applet_dialog')->show_all;	
+	$glade->get_widget('install_applet_dialog')->show_all;
 	return 1;
 }
 

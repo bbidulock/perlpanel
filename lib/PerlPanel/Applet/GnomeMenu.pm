@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.20 2004/11/23 14:56:53 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.21 2004/11/26 11:38:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -140,6 +140,9 @@ sub create_submenu_for {
 			}
 		}
 
+		my @dir_items;
+		my @file_items;
+
 		foreach my $dirname (sort keys %dirs) {
 
 			my $dir  = $dirs{$dirname};
@@ -180,7 +183,8 @@ sub create_submenu_for {
 			);
 			my $sub_menu = Gtk2::Menu->new;
 			$item->set_submenu($sub_menu);
-			$menu->append($item);
+			#$menu->append($item);
+			push(@dir_items, $item);
 
 			$self->create_submenu_for($path, $sub_menu);
 		}
@@ -212,9 +216,17 @@ sub create_submenu_for {
 				if ($comment ne '') {
 					PerlPanel::tips->set_tip($item, $comment);
 				}
-				$menu->append($item);
+				#$menu->append($item);
+				push(@file_items, $item);
 			}
 
+		}
+
+		foreach my $item (sort { ($a->get_children)[0]->get_text cmp ($b->get_children)[0]->get_text } @dir_items) {
+			$menu->append($item);
+		}
+		foreach my $item (sort { ($a->get_children)[0]->get_text cmp ($b->get_children)[0]->get_text } @file_items) {
+			$menu->append($item);
 		}
 
 		return 1;
