@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.19 2004/01/17 13:47:52 jodrell Exp $
+# $Id: Makefile,v 1.20 2004/01/17 15:38:52 jodrell Exp $
 
 VERSION=0.3.0
 
@@ -31,8 +31,9 @@ all: perlpanel
 
 perlpanel:
 	mkdir build
-	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; s!\@VERSION\@!$(VERSION)!g ; print' < src/perlpanel > build/perlpanel
+	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
+	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print < lib/PerlPanel.pm > build/PerlPanel.pm
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
 
@@ -42,6 +43,7 @@ install:
 	install -m 0755 build/perlpanel-item-edit $(BINDIR)/
 	install -m 0755 src/perlpaneld $(BINDIR)/
 	cp -Rvp lib/* $(LIBDIR)/
+	install -m 0644 build/PerlPanel.pm $(LIBDIR)/
 	install -m 0755 build/perlpanel.1 $(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_SECTION)/
 	cp -Rvp share/pixmaps/* $(IMGDIR)/
