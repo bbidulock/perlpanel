@@ -14,11 +14,11 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: PerlPanel.spec,v 1.6 2004/01/17 13:47:52 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.7 2004/01/23 00:18:08 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
-Version: 0.3.0
+Version: 0.3.1
 Release: 1
 Epoch: 0
 Group: Applications/Accessories

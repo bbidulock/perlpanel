@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.29 2004/01/22 16:45:41 jodrell Exp $
+# $Id: Configurator.pm,v 1.30 2004/01/23 00:18:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,11 +17,7 @@
 #
 package PerlPanel::Applet::Configurator;
 use Gtk2::SimpleList;
-use vars qw($ICON_DIR $ICON_SIZE);
 use strict;
-
-our $ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
-our $ICON_SIZE = 24;
 
 sub new {
 	my $self		= {};
@@ -313,7 +309,7 @@ sub create_list {
 	$self->{view}->set_reorderable(1);
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		push(@{$self->{view}->{data}}, [$self->get_applet_pbf($appletname), $appletname]);
+		push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname), $appletname]);
 	}
 	return 1;
 }
@@ -362,7 +358,7 @@ sub add_dialog {
 
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
-		push(@{$view->{data}}, [$self->get_applet_pbf($appletname), $appletname, $self->{registry}{$appletname}]);
+		push(@{$view->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname), $appletname, $self->{registry}{$appletname}]);
 	}
 
 	my $scrwin = Gtk2::ScrolledWindow->new;
@@ -388,7 +384,7 @@ sub add_dialog {
 			my $idx = ($view->get_model->get_path($iter)->get_indices)[0];
 			my ($appletname, undef) = split(/\./, $files[$idx], 2);
 			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
-			push(@{$self->{view}->{data}}, [$self->get_applet_pbf($appletname), $appletname]);
+			push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname), $appletname]);
 		}
 		$dialog->destroy;
 	});
@@ -449,22 +445,6 @@ sub choose_menu_icon {
 	});
 	$selector->show_all;
 	return 1;
-}
-
-sub get_applet_pbf {
-	my ($self, $applet) = @_;
-	if (!defined($self->{pbfs}{$applet})) {
-		my $file = sprintf('%s/%s.png', $ICON_DIR, lc($applet));
-		if (-e $file) {
-			$self->{pbfs}{$applet} = Gtk2::Gdk::Pixbuf->new_from_file($file);
-			if ($self->{pbfs}{$applet}->get_height != $ICON_SIZE) {
-				$self->{pbfs}{$applet} = $self->{pbfs}{$applet}->scale_simple($ICON_SIZE, $ICON_SIZE, 'bilinear');
-			}
-		} else {
-			$self->{pbfs}{$applet} = $self->get_applet_pbf('missing');
-		}
-	}
-	return $self->{pbfs}{$applet};
 }
 
 1;

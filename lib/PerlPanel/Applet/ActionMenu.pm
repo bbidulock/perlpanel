@@ -1,4 +1,4 @@
-# $Id: ActionMenu.pm,v 1.1 2004/01/22 16:45:41 jodrell Exp $
+# $Id: ActionMenu.pm,v 1.2 2004/01/23 00:18:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -87,7 +87,7 @@ sub get_default_config {
 	return {
 		icon => $DEFAULT_ICON,
 		label	=> 'Actions',
-		relief	=> 'true',
+		relief	=> 'false',
 	};
 }
 

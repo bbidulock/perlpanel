@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.4 2004/01/22 16:45:41 jodrell Exp $
+# $Id: MenuBase.pm,v 1.5 2004/01/23 00:18:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 package PerlPanel::MenuBase;
 use vars qw(@ICON_DIRECTORIES);
 use File::Basename qw(basename);
+use Gtk2::SimpleList;
 use strict;
 
 our @ICON_DIRECTORIES = (
@@ -170,10 +171,7 @@ sub add_control_items {
 	require('Configurator.pm');
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
-		$menu->append($self->menu_item($appletname, sprintf('%s/share/pixmaps/%s/applets/%s.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc($appletname)), sub {
-			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
-			$PerlPanel::OBJECT_REF->reload;
-		}));
+		$menu->append($self->menu_item($appletname, $PerlPanel::OBJECT_REF->get_applet_pbf($appletname), sub {$self->add_applet_dialog($appletname)}));
 	}
 
 	$self->menu->append($item);
@@ -304,6 +302,21 @@ sub detect_icon {
 	}
 
 	return undef;
+}
+
+sub add_applet_dialog {
+	my ($self, $applet) = @_;
+	# place the new applet next to the menu:
+	my $idx = 0;
+	foreach my $applet ($PerlPanel::OBJECT_REF->{hbox}->get_children) {
+		last if ($applet eq $self->widget);
+		$idx++;
+	}
+	if ($idx >= 0) {
+		splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx+1, 0, $applet);
+		$PerlPanel::OBJECT_REF->reload;
+	}
+	return 1;
 }
 
 =pod

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.48 2004/01/22 16:45:41 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.49 2004/01/23 00:18:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,8 +19,10 @@ package PerlPanel;
 
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
+use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE);
 use strict;
+
+use vars qw();
 
 our $NAME		= 'PerlPanel';
 our $VERSION		= '@VERSION@'; # this is replaced at build time.
@@ -65,6 +67,8 @@ our %SIZE_MAP = (
 	large	=> ['48', 'dialog'],
 );
 
+our $APPLET_ICON_SIZE = 24;
+
 Gtk2->init;
 
 sub new {
@@ -85,6 +89,7 @@ sub init {
 	$self->get_screen || $self->parse_xdpyinfo;
 	$self->build_ui;
 	$self->configure;
+	our $APPLET_ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->{panel}->get_root_window->set_cursor($self->{normal_cursor});
@@ -518,6 +523,22 @@ sub has_action_menu {
 		return 1 if ($applet eq 'ActionMenu')
 	}
 	return undef;
+}
+
+sub get_applet_pbf {
+	my ($self, $applet) = @_;
+	if (!defined($self->{pbfs}{$applet})) {
+		my $file = sprintf('%s/%s.png', $APPLET_ICON_DIR, lc($applet));
+		if (-e $file) {
+			$self->{pbfs}{$applet} = Gtk2::Gdk::Pixbuf->new_from_file($file);
+			if ($self->{pbfs}{$applet}->get_height != $APPLET_ICON_SIZE) {
+				$self->{pbfs}{$applet} = $self->{pbfs}{$applet}->scale_simple($APPLET_ICON_SIZE, $APPLET_ICON_SIZE, 'bilinear');
+			}
+		} else {
+			$self->{pbfs}{$applet} = $self->get_applet_pbf('missing');
+		}
+	}
+	return $self->{pbfs}{$applet};
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.44 2004/01/22 16:45:41 jodrell Exp $
+# $Id: BBMenu.pm,v 1.45 2004/01/23 00:18:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -98,17 +98,6 @@ sub create_menu {
 	return 1;
 }
 
-sub get_default_config {
-	return {
-		icon => $DEFAULT_ICON,
-		show_control_items => 'true',
-		label	=> 'Menu',
-		relief	=> 'true',
-		apps_in_submenu => 'false',
-		submenu_label	=> 'Applications',
-	};
-}
-
 sub parse_menufile {
 	my $self = shift;
 	foreach my $menufile (@menufiles) {
@@ -205,6 +194,17 @@ sub parse_menufile {
 		}
 		return 1;
 	}
+}
+
+sub get_default_config {
+	return {
+		icon => $DEFAULT_ICON,
+		show_control_items => 'true',
+		label	=> 'Menu',
+		relief	=> 'false',
+		apps_in_submenu => 'false',
+		submenu_label	=> 'Applications',
+	};
 }
 
 1;
