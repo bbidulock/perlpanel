@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.51 2004/01/26 15:22:54 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.52 2004/02/02 11:56:42 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -96,6 +96,25 @@ sub init {
 	} else {
 		$self->move;
 	}
+
+	# if/when gtk2-perl gets bonobo support, we can register
+	# the panel here with:
+	#
+	#	/* Strip off the screen portion of the display */
+	#	display = g_strdup (g_getenv ("DISPLAY"));
+	#	p = strrchr (display, ':');
+	#	if (p) {
+	#		p = strchr (p, '.');
+	#		if (p)
+	#			p [0] = '\0';
+	#	}
+	#
+	#	iid = bonobo_activation_make_registration_id ("OAFIID:GNOME_PanelShell", display);
+	#	reg_res = bonobo_activation_active_server_register (iid, BONOBO_OBJREF (panel_shell));
+	#
+	# which I copied from gnome-panel/panel-shell.c. This will make PerlPanel act as a "real"
+	# GNOME panel.
+
 	Gtk2->main;
 	return 1;
 }
@@ -195,8 +214,8 @@ sub load_applets {
 		my $applet;
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
 		eval($expr);
-		print STDERR $@;
 		if ($@) {
+			print STDERR $@;
 			my $message = "Error loading $appletname applet.\n";
 			my $toplevel = (split(/::/, $appletname))[0];
 			if ($@ =~ /can't locate $toplevel/i) {
