@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.99 2004/07/17 17:11:43 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.100 2004/08/02 13:51:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -343,7 +343,7 @@ sub load_applets {
 
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
 
-		undef($@);		
+		undef($@);
 		eval($expr);
 
 		if ($@ || !defined($applet)) {
@@ -704,21 +704,21 @@ sub autoshow {
 #
 #0,0
 #   +----------------------------------+
-#   |                                  |
-#   | Screen                           |
-#   |                                  |
+#   |				  |
+#   | Screen			   |
+#   |				  |
 #   |   +-------------------------+    |
-#   |   |                         |    |
-#   |   | Window                  |    |
-#   |   |                         |    |
-#   |   |  +--------+             |    |
-#   |   |  | Widget |             |    |
-#   |   |  +--------+             |    |
-#   |   |              + - pointer|    |
-#   |   |                         |    |
+#   |   |			 |    |
+#   |   | Window		  |    |
+#   |   |			 |    |
+#   |   |  +--------+	     |    |
+#   |   |  | Widget |	     |    |
+#   |   |  +--------+	     |    |
+#   |   |	      + - pointer|    |
+#   |   |			 |    |
 #   |   +-------------------------+    |
-#   |                                  |
-#   |                                  |
+#   |				  |
+#   |				  |
 #   +----------------------------------+
 #
 # - $win_pos_x,$win_pos_y describes the position of the window relative to the screen
@@ -977,19 +977,26 @@ sub append_run_history {
 
 sub load_appletregistry {
 	my $self = shift;
-	my $file = sprintf('%s/share/%s/applet.registry', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 	my $registry = {};
-	open(REGFILE, $file);
-	while (<REGFILE>) {
-		chomp;
-		s/^\s*//g;
-		s/\s*$//g;
-		next if (/^$/ or /^#/);
-		my ($applet, $description, $category) = split(/:/, $_, 3);
-		$registry->{$applet} = _($description);
-		push(@{$registry->{_categories}->{$category}}, $applet);
+	my @registry_dirs = ( 
+		sprintf('%s/share/%s', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
+		sprintf('%s/.%s', $ENV{HOME}, lc($PerlPanel::NAME)),
+	);
+	foreach my $dir (@registry_dirs) {
+		my $file = "$dir/applet.registry";
+		next unless -r $file;
+		open(REGFILE, $file);
+		while (<REGFILE>) {
+			chomp;
+			s/^\s*//g;
+			s/\s*$//g;
+			next if (/^$/ or /^#/);
+			my ($applet, $description, $category) = split(/:/, $_, 3);
+			$registry->{$applet} = _($description);
+			push(@{$registry->{_categories}->{$category}}, $applet);
+		}
+		close(REGFILE);
 	}
-	close(REGFILE);
 	return $registry;
 }
 
