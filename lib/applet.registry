@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.3 2003/07/12 12:05:26 jodrell Exp $
+# $Id: applet.registry,v 1.4 2003/10/08 13:05:56 jodrell Exp $
 
 About=A button to show an "About" dialog.
 BatteryMonitor=Shows the status of your laptop's battery.
@@ -21,3 +21,5 @@ Reload=A button to reload the panel.
 Separator=A separator.
 Socket=A Gtk Socket applet.
 XMMS=An applet to control the XMMS media player.
+Pager=Displays your current workspaces.
+Tasklist=Lists the programs currently running.

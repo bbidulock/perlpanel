@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.23 2003/08/12 16:03:14 jodrell Exp $
+# $Id: IconBar.pm,v 1.24 2003/10/08 13:05:57 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -73,7 +73,7 @@ sub widget {
 }
 
 sub expand {
-	return 1;
+	return 0;
 }
 
 sub fill {

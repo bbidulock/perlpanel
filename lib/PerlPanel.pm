@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.29 2003/08/13 13:47:42 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.30 2003/10/08 13:05:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -53,6 +53,7 @@ our %DEFAULTS = (
 		'Clock',
 		'Configurator',
 		'Commander',
+		'Pager',
 	],
 );
 
@@ -68,7 +69,7 @@ Gtk2->init;
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
-	$self->{rcfile}		= sprintf('%s/.%src', $ENV{HOME}, lc($NAME));
+	$self->{rcfile}		= (defined($ARGV[0]) ? $ARGV[0] : sprintf('%s/.%src', $ENV{HOME}, lc($NAME)));
 	$OBJECT_REF		= $self;
 	bless($self, $self->{package});
 	return $self;

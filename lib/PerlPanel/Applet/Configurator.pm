@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.18 2003/08/12 16:03:14 jodrell Exp $
+# $Id: Configurator.pm,v 1.19 2003/10/08 13:05:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -127,7 +127,6 @@ sub build_ui {
 
 		$self->{notebook}->append_page($self->{pages}{menu}, $self->control_label('Menu'));
 	}
-
 
 	$self->{store} = Gtk2::ListStore->new('Glib::String');
 

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.24 2003/08/13 13:47:42 jodrell Exp $
+# $Id: BBMenu.pm,v 1.25 2003/10/08 13:05:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -209,6 +209,7 @@ sub add_control_items {
 			'/Configure Panel...',
 			undef,
 			sub {
+				require('Configurator.pm');
 				my $configurator = PerlPanel::Applet::Configurator->new;
 				$configurator->configure;
 				$configurator->init;
