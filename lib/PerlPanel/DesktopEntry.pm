@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.9 2005/01/01 20:23:30 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.10 2005/01/01 20:28:59 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,10 +37,14 @@ sub new {
 
 	my $self = X11::FreeDesktop::DesktopEntry->new_from_data($data);
 
-	bless($self, $package);
+	if (defined($self)) {
+		return undef;
 
-	return undef unless ($self->parse);
-	return $self;
+	} else {
+		bless($self, $package);
+		return $self;
+
+	}
 }
 
 sub get_file_contents {
