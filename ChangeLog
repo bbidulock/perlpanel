@@ -1,0 +1,104 @@
+ChangeLog
+=========
+
+2004-02-20 - v0.4.0
+
+	* The Configuration applet has been rewritten using Glade for
+	  improved maintainability. The applet API has been
+	  substantially cleaned up, and new functionality has been
+	  added. The documentation has been expanded to include manual
+	  pages for PerlPanel's supporting programs. The build system has
+	  been overhauled, to comply with Debian's packaging policies.
+	  You can now change the geometry of the Pager applet.
+
+2004-02-02 - v0.3.1
+
+	* This release includes a new "action menu" applet, for which a
+	  base menu class has been implemented. The Commander dialog has
+	  been improved, and can now be called from an external program.
+	  The handling of icons has been made more consistent to make it
+	  easier to implement icon themes in the future. A load of bugs
+	  have been fixed.
+
+2004-01-17 - v0.3.0
+
+	* This release supports EWMH struts, so maximizing windows
+	  doesn't obscure the panel. You can now reorder icons on the
+	  IconBar. The Applet selector has been beautified, with icons
+	  for each applet. The XMMS applet has been almost completely
+	  rewritten, and now includes a volume control. Popup menus now
+	  appear correctly aligned with the applets. The BBMenu applet
+	  has been substantially rewritten, allowing for custom icons.
+	  A new WindowMenu applet gives you access to all the open
+	  windows without using up space.
+
+2004-01-06 - v0.2.0
+
+	* The interaction with the icon editor is much more efficient.
+	  The menu button's click behavior is more user-friendly. The
+	  config file version mismatch test has been disabled. The menu
+	  applet will attempt to locate an icon for application
+	  entries. The Separator applet has been given some spacing on
+	  each side to make it more visible. Two new applets have been
+	  introduced: a "Flexible spacer" applet and a "Slot" applet
+	  which supports the XEMBED extension, allowing non-PerlPanel
+	  programs to attach to the panel. The old PanelPet applet has
+	  been restored. Source and noarch RPMs are now available.
+
+2003-12-23 - v0.1.1
+
+	* This release fixes a lot of bugs with the panel itself and
+	  with many of the applets. It also introduces a configurable
+	  label for the menu button. There is also a new Nautilus
+	  bookmarks applet.
+
+2003-10-12 - v0.1.0
+
+	* This release includes Tasklist, Workspace Pager, and "Show
+	  Desktop" applets using the libwnck Perl bindings. You can now
+	  run multiple panels by specifying an alternate configuration
+	  file.
+
+2003-07-21 - v0.0.5
+
+	* This release is compatible with the recent 0.90 release of
+	  Gtk2-Perl. A couple of new applets have been included. The
+	  configurator includes some options for the menu. The applet
+	  interface and documentation have been revised.
+
+2003-06-27 - v0.0.4
+
+	* This is the first beta quality release. A calendar widget has
+	  been added to the clock dialog. PerlPanel will now take screen
+	  dimensions from the xdpyinfo program when GdkScreen is not
+	  available. The menu applet has a new icon. Drag and drop has
+	  been implemented in the Applet configuration tab.
+
+2003-06-23 - v0.0.3
+
+	* This release includes a huge number of improvements. The Menu
+	  applet has been rewritten and loads much more quickly. A new
+	  CPU load applet has been added. The applet interface has been
+	  cleaned up and extended. Manual pages for the program and a
+	  HOWTO for applet developers have been added. A Gtk-only
+	  .desktop file editor has been created. PerlPanel will take
+	  screen dimensions directly from Gdk where available. Icons are
+	  resized at the GdkPixbuf level, removing the need for the
+	  Image::Size module and a cache on disk. Icons also have a
+	  context menu.
+
+2003-06-10 - v0.0.2
+
+	* This release introduces a large number of improvements,
+	  including a Makefile for installation, a GUI configuration
+	  dialog, a working menu applet that uses your
+	  Blackbox/Fluxbox/OpenBox/Waimea menu, and context menus on
+	  icons. Icons are dynamically rescaled using GdkPixbuf instead
+	  of being cached on disk.
+
+2003-06-02 - v0.0.1
+
+	* Initial release.
+
+--
+$Id: ChangeLog,v 1.1 2004/02/20 14:42:11 jodrell Exp $
