@@ -1,6 +1,5 @@
-# $Id: Clock.pm,v 1.4 2003/05/29 16:04:46 jodrell Exp $
+# $Id: Clock.pm,v 1.5 2003/06/02 22:25:27 jodrell Exp $
 package PerlPanel::Applet::Clock;
-use Config::Simple;
 use POSIX qw(strftime);
 use vars qw($FORMAT $INTERVAL);
 use strict;
