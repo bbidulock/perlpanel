@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.24 2004/07/01 10:09:58 jodrell Exp $
+# $Id: Commander.pm,v 1.25 2004/08/12 13:20:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -189,10 +189,8 @@ sub run {
 	
 			PerlPanel::append_run_history($command);
 
-			my $old_dir = $ENV{PWD};
 			chdir($ENV{HOME});
 			system("$command &");
-			chdir($old_dir);
 		}
 		if (!defined($PerlPanel::OBJECT_REF)) {
 			# we're not in a panel, so we can just quit:
