@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.9 2004/04/04 13:51:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -66,31 +66,11 @@ sub create_menu {
 		$self->menu->append($item);
 	} else {
 		foreach my $window (@windows) {
-			my $pbf = $window->get_icon;
-			my $x0 = $pbf->get_width;
-			my $y0 = $pbf->get_height;
-			if ($x0 != PerlPanel::icon_size || $y0 != PerlPanel::icon_size) {
-				my ($x1, $y1);
-				if ($x0 > $y0) {
-					# image is landscape:
-					$x1 = PerlPanel::icon_size;
-					$y1 = int(($y0 / $x0) * PerlPanel::icon_size);
-				} elsif ($x0 == $y0) {
-					# image is square:
-					$x1 = PerlPanel::icon_size;
-					$y1 = PerlPanel::icon_size;
-				} else {
-					# image is portrait:
-					$x1 = int(($x0 / $y0) * PerlPanel::icon_size);
-					$y1 = PerlPanel::icon_size;
-				}
-				$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
-			}
 			my $label = $window->get_name;
 			$label = (length($label) < 25 ? $label : substr($label, 0, 22).'...');
 			$self->menu->append($self->menu_item(
 				$label,
-				$pbf,
+				$window->get_icon,
 				sub { $window->activate },
 			));
 		}

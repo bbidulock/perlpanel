@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.70 2004/04/03 10:29:44 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.71 2004/04/04 13:51:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -25,11 +25,15 @@ use Gtk2::SimpleList;
 use Data::Dumper;
 use POSIX qw(setlocale);
 use Locale::gettext;
-use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX $LIBDIR %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE @APPLET_DIRS);
 use base 'Exporter';
+use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
+		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
+		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
+		$APPLET_ICON_SIZE		@APPLET_DIRS);
 use strict;
 
-our @EXPORT_OK = qw(_);
+
+our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
 
 our $NAME		= 'PerlPanel';
 our $VERSION		= '@VERSION@'; # this is replaced at build time.
@@ -86,10 +90,11 @@ sub new {
 	our $APPLET_ICON_DIR	= sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
 
 	our @APPLET_DIRS	= (
-		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),	# user-installed applets
-		sprintf('%s/%s/Applet', $LIBDIR, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
+		sprintf('%s/.%s/applets',	$ENV{HOME}, lc($NAME)),	# user-installed applets
+		sprintf('%s/%s/Applet',		$LIBDIR, $NAME),	# admin-installed or sandbox applets ($LIBDIR is
 	);								# determined at runtime)
 
+	# stuff for ill8n - this has to be done before any strings are used:
 	setlocale(LC_ALL, $ENV{LANG});
 	bindtextdomain(lc($NAME), sprintf('%s/share/locale', $PREFIX));
 	textdomain(lc($NAME));
@@ -143,9 +148,10 @@ sub init {
 
 sub check_deps {
 	my $self = shift;
+	$@ = '';
 	eval 'use XML::Simple;';
-	if ($@) {
-		$self->error(_("Couldn't load the XML::Simple module!"), sub { exit });
+	if ($@ ne '') {
+		$self->error(_("Couldn't load the {module} module!", module => 'XML::Simple'), sub { exit });
 		Gtk2->main;
 	} else {
 		$XML::Simple::PREFERRED_PARSER = 'XML::Parser';
@@ -176,10 +182,9 @@ sub parse_xdpyinfo {
 
 sub load_config {
 	my $self = shift;
-	$self->{config_backend} = 'new';
 	$self->{config} = (-e $self->{rcfile} ? XMLin($self->{rcfile}) : \%DEFAULTS);
 	if ($self->{config}{version} ne $VERSION) {
-		print STDERR "Warning: Your config file is from an earlier version, strange things may happen!\n";
+		print STDERR "*** your config file is from a different version, strange things may happen!\n";
 	}
 	return 1;
 }
@@ -195,57 +200,69 @@ sub save_config {
 
 sub build_ui {
 	my $self = shift;
+
 	$self->{tips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tips};
-	$self->{panel} = Gtk2::Window->new;
-	$self->panel->set_type_hint('dock');
-	$self->panel->stick; # needed for some window managers
-	$self->{hbox} = Gtk2::HBox->new;
-	# the panel is just a window with an hbox in it. we wrap the hbox in a toolbar
-	# as an easy way to give the panel a shadow while still obeying fitt's law.
-	$self->{hbox}->set_size_request(
-		PerlPanel::screen_width(),
-		-1
-	);
-	$self->panel->add(Gtk2::Toolbar->new);
 
-	$self->panel->child->add($self->{hbox});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+
+	$self->{hbox} = Gtk2::HBox->new;
+	$self->{hbox}->set_border_width(0);
+
+	$self->{panel} = Gtk2::Window->new;
+
+	$self->panel->add($self->{hbox});
+
 	return 1;
 }
 
 sub configure {
 	my $self = shift;
+
 	$self->panel->set_default_size($self->screen_width, 0);
 	$self->panel->set_border_width(0);
+	$self->panel->set_type_hint('dock');
+	$self->panel->stick; # needed for some window managers
+
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{hbox}->set_border_width(0);
+
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
 		$self->{enter_connect_id} = $self->panel->signal_connect('enter_notify_event', sub { $self->autoshow; });
 	}
+
 	push(@INC, @APPLET_DIRS);
+
 	return 1;
 }
 
 sub load_applets {
 	my $self = shift;
+
+	# this is some munging for when the config gets confused when being serialized to/from XML:
 	if (ref($self->{config}{applets}) ne 'ARRAY') {
 		$self->{config}{applets} = [ $self->{config}{applets} ];
 	}
 
 	foreach my $appletname (@{$self->{config}{applets}}) {
+
 		my $applet;
+
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
+
 		undef($@);		
 		eval($expr);
+
 		if ($@) {
 			print STDERR $@;
+
 			my $message = _("Error loading {applet} applet.\n", applet => $appletname);
 			my $toplevel = (split(/::/, $appletname))[0];
 			if ($@ =~ /can't locate $toplevel/i) {
 				$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
 			}
+
 			$self->warning($message, sub {
 				require('Configurator.pm');
 				my $configurator = PerlPanel::Applet::Configurator->new;
@@ -253,13 +270,15 @@ sub load_applets {
 				$configurator->init;
 				$configurator->app->get_widget('notebook')->set_current_page(3);
 			});
-			#return undef;
+
 		} else {
+
 			if (!defined($self->{config}{appletconf}{$appletname})) {
 				my $hashref;
 				eval '$hashref = $applet->get_default_config';
 				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
 			}
+
 			$applet->configure;
 			$self->add($applet->widget, $applet->expand, $applet->fill);
 			$applet->widget->show_all;
@@ -285,11 +304,14 @@ sub show_all {
 sub move {
 	my $self = shift;
 	my $panel_height = $self->panel->allocation->height;
+
 	if ($self->position eq 'top') {
 		$self->panel->move(0, 0);
+
 	} elsif ($self->position eq 'bottom') {
 		my $screen_height= $self->screen_height;
 		$self->panel->move(0, ($screen_height - $panel_height));
+
 	} else {
 		$self->error(_("Invalid panel position '{position}'.", position => $self->position), sub { $self->shutdown });
 	}

@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.9 2004/04/03 10:29:44 jodrell Exp $
+# $Id: Pager.pm,v 1.10 2004/04/04 13:51:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@ sub configure {
 	$self->{screen}->force_update;
 
 	$self->{widget} = Gtk2::HBox->new;
-	$self->widget->set_border_width(1);
+	$self->widget->set_border_width(Gtk2->CHECK_VERSION(2,4,0) ? 0 : 1);
 	$self->widget->set_size_request(-1, PerlPanel::icon_size());
 
 	$self->{pager} = Gnome2::Wnck::Pager->new($self->{screen});
