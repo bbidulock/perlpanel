@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+# perlpanel-run-command - a command dialog.
+# This file is part of PerlPanel.
+# 
+# PerlPanel is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# PerlPanel is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PerlPanel; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# $Id: perlpanel-run-command,v 1.1 2004/01/21 10:23:20 jodrell Exp $
+
+use Gtk2 -init;
+use Data::Dumper;
+use strict;
+
+my $histfile = sprintf('%s/.perlpanel/run-history', $ENV{HOME});
+
+open(HISTFILE, $histfile);
+my @history = reverse(<HISTFILE>);
+map { chomp($history[$_]) } 0..scalar(@history);
+
+close(HISTFILE);
+
+my $iconfile = sprintf('%s/share/pixmaps/perlpanel/applets/commander.png', (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD}));
+
+my $icon = Gtk2::Image->new_from_file($iconfile);
+my $icon_alignment = Gtk2::Alignment->new(0.5, 0.5, 1, 1);
+$icon_alignment->add($icon);
+
+my $command_entry = Gtk2::Combo->new;
+$command_entry->disable_activate;
+$command_entry->set_popdown_strings(@history);
+$command_entry->entry->set_text(undef);
+$command_entry->entry->signal_connect('activate', sub { response(undef, 'ok') });
+
+my $terminal_checkbutton = Gtk2::CheckButton->new('Run in terminal');
+
+my $file_button = Gtk2::Button->new('Run with file...');
+$file_button->signal_connect('clicked', \&choose_file);
+
+my $hbox = Gtk2::HBox->new;
+$hbox->set_spacing(12);
+$hbox->pack_start($terminal_checkbutton, 1, 1, 0);
+$hbox->pack_start($file_button, 0, 0, 0);
+
+my $vbox = Gtk2::VBox->new;
+$vbox->set_spacing(6);
+$vbox->pack_start($command_entry, 0, 0, 0);
+$vbox->pack_start($hbox, 1, 1, 0);
+
+my $main_hbox = Gtk2::HBox->new;
+$main_hbox->set_border_width(5);
+$main_hbox->set_spacing(6);
+$main_hbox->pack_start($icon_alignment, 0, 0, 0);
+$main_hbox->pack_start($vbox, 1, 1, 0);
+
+my $dialog = Gtk2::Dialog->new;
+$dialog->set_title('Run Command');
+$dialog->set_resizable(0);
+$dialog->set_border_width(5);
+$dialog->set_has_separator(0);
+$dialog->set_icon($icon->get_pixbuf);
+$dialog->add_buttons('gtk-cancel' => 'cancel', 'gtk-execute' => 'ok');
+$dialog->action_area->set_layout('end');
+$dialog->vbox->pack_start($main_hbox, 1, 1, 0);
+$dialog->signal_connect('response', \&response);
+$dialog->show_all;
+$dialog->run;
+
+sub choose_file {
+	my $file_selection = Gtk2::FileSelection->new('Choose File');
+	$file_selection->signal_connect('response', sub {
+		if ($_[1] eq 'ok') {
+			my $file = $file_selection->get_filename;
+			if ($file !~ /^([A-Za-z0-9\_\-\.])$/) {
+				$file = "'$file'";
+			}
+			$command_entry->entry->set_text($command_entry->entry->get_text . ' ' . $file);
+		}
+		$file_selection->destroy;
+	});
+	$file_selection->run;
+	return 1;
+}
+
+sub response {
+	if ($_[1] eq 'ok') {
+		my $command = $command_entry->entry->get_text;
+		if ($terminal_checkbutton->get_active) {
+			$command = 'xterm -e '.$command;
+		}
+
+		open(HISTFILE, ">>$histfile");
+		print HISTFILE "$command\n";
+		close(HISTFILE);
+		system("$command &");
+	}
+	exit;
+}

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.46 2004/01/19 15:48:10 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.47 2004/01/21 10:23:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -77,7 +77,6 @@ sub new {
 }
 
 sub init {
-	chdir($ENV{HOME});
 	my $self = shift;
 	$self->{normal_cursor}	= Gtk2::Gdk::Cursor->new('left_ptr');
 	$self->{busy_cursor}	= Gtk2::Gdk::Cursor->new('watch');

@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.8 2004/01/11 23:07:45 jodrell Exp $
+# $Id: Commander.pm,v 1.9 2004/01/21 10:23:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,32 +28,10 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->{image} = Gtk2::Image->new_from_stock('gtk-execute', $PerlPanel::OBJECT_REF->icon_size_name);
-	$self->{widget}->add($self->{image});
-	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('clicked', sub { $self->run });
+	$self->widget->set_relief('none');
+	$self->widget->add(Gtk2::Image->new_from_stock('gtk-execute', $PerlPanel::OBJECT_REF->icon_size_name));
+	$self->widget->signal_connect('clicked', sub { system('perlpanel-run-command &') });
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Run Command');
-	return 1;
-}
-
-sub run {
-	my $self = shift;
-	$PerlPanel::OBJECT_REF->request_string(
-		'Enter command:',
-		sub {
-			my $str = shift;
-			my $cmd = sprintf('%s &', $str);
-			system($cmd);
-			if ($!) {
-				$PerlPanel::OBJECT_REF->warning(
-					"Error running '$str'",
-					sub { $self->run },
-					undef
-				);
-			}
-			$self->widget->set_sensitive(1);
-		}
-	);
 	return 1;
 }
 

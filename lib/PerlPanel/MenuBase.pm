@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.2 2004/01/19 22:54:21 jodrell Exp $
+# $Id: MenuBase.pm,v 1.3 2004/01/21 10:23:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -144,12 +144,7 @@ sub add_control_items {
 	if (-x $xscreensaver) {
 		$self->menu->append($self->menu_item('Lock Screen', sprintf('%s/share/pixmaps/%s/applets/lock.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)), sub { system("$xscreensaver -lock &") }));
 	}
-	$self->menu->append($self->menu_item('Run Program...', 'gtk-execute', sub {
-		require('Commander.pm');
-		my $commander = PerlPanel::Applet::Commander->new;
-		$commander->configure;
-		$commander->run;
-	}));
+	$self->menu->append($self->menu_item('Run Program...', 'gtk-execute', sub { system('perlpanel-run-command &') }));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	$self->menu->append($self->menu_item("Configure...", 'gtk-preferences', sub {
 		require('Configurator.pm');
