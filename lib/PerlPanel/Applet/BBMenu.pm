@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.14 2003/06/18 15:18:03 jodrell Exp $
+# $Id: BBMenu.pm,v 1.15 2003/06/18 20:24:22 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -112,7 +112,8 @@ sub parse_menufile {
 					push (@{$self->{items}}, [ $path, undef, undef, undef, '<Separator>' ]);
 				} elsif ($cmd eq 'exec') {
 					my $path = join('/', @{$self->{paths}}, $name);
-					push (@{$self->{items}}, [ $path, undef, sub { print "hello\n" }, undef, '<StockItem>', 'gtk-execute' ]);
+					my $code = sprintf('system("%s &")', $val);
+					push (@{$self->{items}}, [ $path, undef, sub { eval $code }, undef, '<StockItem>', 'gtk-execute' ]);
 				}
 			}
 		}
