@@ -4,7 +4,7 @@
 # NB: make sure cvs2cl will work, and that your user has
 # write permissions on RPM's build directory.
 #
-# $Id: make-rpm,v 1.4 2004/02/20 14:42:57 jodrell Exp $
+# $Id: make-rpm,v 1.5 2004/02/20 14:46:00 jodrell Exp $
 
 CWD=$PWD
 VERSION=$1
@@ -29,9 +29,9 @@ mv $DIR-$VERSION.tar.gz $HOME/
 cd $CWD
 
 echo Building Source RPM:
-rpmbuild --quiet -ta $DIR-$VERSION.tar.gz 1> /dev/null 2> /dev/null
+rpmbuild --quiet -ta $HOME/$DIR-$VERSION.tar.gz 1> /dev/null 2> /dev/null
 mv $TOPDIR/SRPMS/$DIR-$VERSION*src.rpm $HOME/
 
 echo Building NoArch RPM:
-rpmbuild --quiet -tb $DIR-$VERSION.tar.gz --target=noarch 1> /dev/null 2> /dev/null
+rpmbuild --quiet -tb $HOME/$DIR-$VERSION.tar.gz --target=noarch 1> /dev/null 2> /dev/null
 mv $TOPDIR/RPMS/noarch/$DIR-$VERSION*.rpm $HOME/
