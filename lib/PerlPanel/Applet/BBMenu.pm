@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.45 2004/01/23 00:18:08 jodrell Exp $
+# $Id: BBMenu.pm,v 1.46 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #
 package PerlPanel::Applet::BBMenu;
 use base 'PerlPanel::MenuBase';
-use vars qw(@menufiles @ICON_DIRECTORIES $DEFAULT_ICON);
+use vars qw(@menufiles @ICON_DIRECTORIES);
 use strict;
 
 our @menufiles = (
@@ -33,8 +33,6 @@ our @menufiles = (
 	'/usr/local/share/waimea/menu',
 	'/usr/share/waimea/menu',
 );
-
-our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub configure {
 	my $self = shift;
@@ -198,7 +196,7 @@ sub parse_menufile {
 
 sub get_default_config {
 	return {
-		icon => $DEFAULT_ICON,
+		icon => $PerlPanel::OBJECT_REF->get_applet_pbf_filename('bbmenu'),
 		show_control_items => 'true',
 		label	=> 'Menu',
 		relief	=> 'false',

@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.3 2004/01/11 23:07:45 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.4 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,10 +17,7 @@
 #
 package PerlPanel::Applet::NautilusBookmarks;
 use Gnome2::NautilusBookmarks;
-use vars qw($ICON_DIR);
 use strict;
-
-our $ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -31,12 +28,7 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	my $file = "$ICON_DIR/nautilusbookmarks.png";
-	my $pbf = Gtk2::Gdk::Pixbuf->new_from_file($file);
-	if ($pbf->get_height != $PerlPanel::OBJECT_REF->icon_size) {
-		$pbf = $pbf->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
-	}
-	$self->{widget} = Gnome2::NautilusBookmarks->new(Gtk2::Image->new_from_pixbuf($pbf));
+	$self->{widget} = Gnome2::NautilusBookmarks->new(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('nautilusbookmarks', $PerlPanel::OBJECT_REF->icon_size)));
 	$self->widget->set_relief('none');
 	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Nautilus Bookmarks');
 	$self->widget->signal_connect('clicked', sub {

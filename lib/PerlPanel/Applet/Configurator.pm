@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.30 2004/01/23 00:18:08 jodrell Exp $
+# $Id: Configurator.pm,v 1.31 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,11 +29,10 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->{image} = Gtk2::Image->new_from_stock('gtk-preferences', $PerlPanel::OBJECT_REF->icon_size_name);
-	$self->{widget}->add($self->{image});
-	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('clicked', sub { $self->{widget}->set_sensitive(0) ; $self->init });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'PerlPanel Configurator');
+	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('configurator', $PerlPanel::OBJECT_REF->icon_size)));
+	$self->widget->set_relief('none');
+	$self->widget->signal_connect('clicked', sub { $self->widget->set_sensitive(0) ; $self->init });
+	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Configure');
 	return 1;
 }
 
@@ -71,40 +70,39 @@ sub build_ui {
 	$self->{window}->signal_connect('delete_event', sub { $self->discard });
 	$self->{window}->set_title('PerlPanel Configuration');
 	$self->{window}->set_position('center');
-	$self->{window}->set_border_width(12);
+	$self->{window}->set_has_separator(0);
 	$self->{window}->set_default_size(250, 350);
-	$self->{window}->vbox->set_border_width(12);
-	$self->{window}->vbox->set_spacing(12);
+	$self->{window}->action_area->set_layout('end');
 	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 
 	$self->{notebook} = Gtk2::Notebook->new;
+	$self->{notebook}->set_border_width(6);
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 
-	$self->{pages}{panel} = Gtk2::Table->new(6, 2, 0);
-	$self->{pages}{panel}->set_border_width(12);
-	$self->{pages}{panel}->set_col_spacings(12);
-	$self->{pages}{panel}->set_row_spacings(12);
+	$self->{pages}{panel_table} = Gtk2::Table->new(3, 2, 0);
+	$self->{pages}{panel_table}->set_col_spacings(12);
+	$self->{pages}{panel_table}->set_row_spacings(12);
 
-	$self->{pages}{panel}->attach_defaults($self->control_label('Panel position:'), 0, 1, 0, 1);
+	$self->{pages}{panel_table}->attach_defaults($self->control_label('Panel position:'), 0, 1, 0, 1);
 	$self->{controls}{position} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'position', 'enum', qw(top bottom));
-	$self->{pages}{panel}->attach($self->{controls}{position}, 1, 2, 0, 1, 'fill', 'expand', 0, 0);
+	$self->{pages}{panel_table}->attach($self->{controls}{position}, 1, 2, 0, 1, 'fill', 'expand', 0, 0);
 
-	$self->{pages}{panel}->attach_defaults($self->control_label('Applet spacing:'), 0, 1, 1, 2);
+	$self->{pages}{panel_table}->attach_defaults($self->control_label('Applet spacing:'), 0, 1, 1, 2);
 	$self->{controls}{spacing} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'spacing', 'int');
-	$self->{pages}{panel}->attach_defaults($self->{controls}{spacing}, 1, 2, 1, 2);
+	$self->{pages}{panel_table}->attach_defaults($self->{controls}{spacing}, 1, 2, 1, 2);
 
-	$self->{pages}{panel}->attach_defaults($self->control_label('Icon size:'), 0, 1, 2, 3);
+	$self->{pages}{panel_table}->attach_defaults($self->control_label('Icon size:'), 0, 1, 2, 3);
 	$self->{controls}{icon_size} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'size', 'enum', qw(tiny small medium large));
-	$self->{pages}{panel}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'fill', 'expand', 0, 0);
+	$self->{pages}{panel_table}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'fill', 'expand', 0, 0);
 
-	$self->{pages}{panel}->attach_defaults($self->control_label('Auto-hide panel:'), 0, 1, 3, 4);
-	$self->{controls}{autohide} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'autohide', 'boolean');
-	$self->{pages}{panel}->attach_defaults($self->{controls}{autohide}, 1, 2, 3, 4);
-	if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'true') {
-		$self->{pages}{panel}->attach_defaults(Gtk2::Label->new("NB: if you change this,\nyou must restart the panel."), 1, 2, 4, 5);
-	}
+	$self->{pages}{panel} = Gtk2::VBox->new(0,0);
+	$self->{pages}{panel}->set_border_width(12);
+	$self->{pages}{panel}->set_spacing(6);
 
-	$self->{notebook}->append_page($self->{pages}{panel}, $self->control_label('Panel'));
+	$self->{pages}{panel}->pack_start($self->{pages}{panel_table}, 0, 0, 0);
+	$self->{pages}{panel}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'autohide', 'boolean', 'Autohide'), 0, 0, 0);
+
+	$self->{notebook}->append_page($self->{pages}{panel}, 'Panel');
 
 	$self->{pages}{menu} = Gtk2::VBox->new;
 	$self->{pages}{menu}->set_border_width(12);
@@ -161,7 +159,10 @@ sub build_ui {
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
 
 		if (!$PerlPanel::OBJECT_REF->has_action_menu) {
-			$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu'), 0, 0, 0);
+			my $control = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu');
+			$control->signal_connect('toggled', sub { $self->{controls}{submenu_label}->set_sensitive($control->get_active) });
+			$self->{controls}{submenu_label}->set_sensitive($control->get_active);
+			$self->{pages}{menu}->pack_start($control, 0, 0, 0);
 		}
 
 		$self->{pages}{menu}->pack_start($self->{menu}{table}, 0, 0, 0);
@@ -208,13 +209,13 @@ sub build_ui {
 	}
 
 	if ($PerlPanel::OBJECT_REF->has_application_menu || $PerlPanel::OBJECT_REF->has_action_menu) {
-		$self->{notebook}->append_page($self->{pages}{menu}, $self->control_label('Menu'));
+		$self->{notebook}->append_page($self->{pages}{menu}, 'Menus');
 	}
 
 	$self->create_list;
 
 	$self->{scrwin} = Gtk2::ScrolledWindow->new;
-	$self->{scrwin}->set_shadow_type('etched_in');
+	$self->{scrwin}->set_shadow_type('in');
 	$self->{scrwin}->set_policy('automatic', 'automatic');
 	$self->{scrwin}->add($self->{view});
 
@@ -244,7 +245,7 @@ sub build_ui {
 	$self->{pages}{applets}->pack_start(Gtk2::Label->new('Drag and drop items in the list to move them.'), 0, 0, 0);
 	$self->{pages}{applets}->pack_start($self->{buttonbox}, 0, 0, 0);
 
-	$self->{notebook}->append_page($self->{pages}{applets}, $self->control_label('Applets'));
+	$self->{notebook}->append_page($self->{pages}{applets}, 'Applets');
 
 	$self->{window}->add_buttons(
 		'gtk-cancel', 1,
@@ -257,6 +258,10 @@ sub build_ui {
 			$self->{window}->destroy;
 			if ($_[1] == 0) {
 				$self->rebuild_appletlist;
+				if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'false' && $self->{backup}{panel}{autohide} eq 'true') {
+					$PerlPanel::OBJECT_REF->{panel}->signal_handler_disconnect($PerlPanel::OBJECT_REF->{enter_connect_id});
+					$PerlPanel::OBJECT_REF->{panel}->signal_handler_disconnect($PerlPanel::OBJECT_REF->{leave_connect_id});
+				}
 				$PerlPanel::OBJECT_REF->save_config;
 				$PerlPanel::OBJECT_REF->reload;
 			} elsif ($_[1] == 1) {
@@ -307,9 +312,10 @@ sub create_list {
 		'Name'	=> 'text',
 	);
 	$self->{view}->set_reorderable(1);
+	$self->{view}->set_headers_visible(0);
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname), $appletname]);
+		push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname, 24), $appletname]);
 	}
 	return 1;
 }
@@ -338,14 +344,22 @@ sub add_dialog {
 	$dialog->set_position('center');
 	$dialog->set_modal(1);
 	$dialog->set_border_width(12);
-	$dialog->set_default_size(550, 350);
+	$dialog->set_default_size(450, 350);
 	$dialog->set_icon($PerlPanel::OBJECT_REF->icon);
 
 	my $view = Gtk2::SimpleList->new(
 		'Icon'		=> 'pixbuf',
 		'Name'		=> 'text',
-		'Description'	=> 'text',
 	);
+	$view->set_headers_visible(0);
+
+	my $column = $view->get_column(1);
+	$column->set_spacing(12);
+
+	my ($renderer) = $column->get_cell_renderers;
+
+	$column->clear_attributes($renderer);
+	$column->add_attribute($renderer, 'markup', 1);
 
 	my @files;
 	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME)), sprintf('%s/lib/%s/Applet', $ENV{PWD}, $PerlPanel::NAME)) {
@@ -358,11 +372,14 @@ sub add_dialog {
 
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
-		push(@{$view->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname), $appletname, $self->{registry}{$appletname}]);
+		push(@{$view->{data}}, [
+			$PerlPanel::OBJECT_REF->get_applet_pbf($appletname),
+			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, $self->{registry}{$appletname}),
+		]);
 	}
 
 	my $scrwin = Gtk2::ScrolledWindow->new;
-	$scrwin->set_shadow_type('etched_in');
+	$scrwin->set_shadow_type('in');
 	$scrwin->set_policy('automatic', 'automatic');
 	$scrwin->add($view);
 
@@ -384,7 +401,7 @@ sub add_dialog {
 			my $idx = ($view->get_model->get_path($iter)->get_indices)[0];
 			my ($appletname, undef) = split(/\./, $files[$idx], 2);
 			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
-			push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname), $appletname]);
+			push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname, 24), $appletname]);
 		}
 		$dialog->destroy;
 	});
@@ -397,7 +414,7 @@ sub add_dialog {
 sub control_label {
 	my ($self, $message) = @_;
 	my $label = Gtk2::Label->new($message);
-	$label->set_alignment(1, 0.5);
+	$label->set_alignment(0, 0.5);
 	return $label;
 }
 

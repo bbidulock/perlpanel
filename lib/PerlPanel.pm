@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.49 2004/01/23 00:18:08 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.50 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ our %SIZE_MAP = (
 	large	=> ['48', 'dialog'],
 );
 
-our $APPLET_ICON_SIZE = 24;
+our $APPLET_ICON_SIZE = 48;
 
 Gtk2->init;
 
@@ -82,8 +82,6 @@ sub new {
 
 sub init {
 	my $self = shift;
-	$self->{normal_cursor}	= Gtk2::Gdk::Cursor->new('left_ptr');
-	$self->{busy_cursor}	= Gtk2::Gdk::Cursor->new('watch');
 	$self->check_deps;
 	$self->load_config;
 	$self->get_screen || $self->parse_xdpyinfo;
@@ -92,7 +90,6 @@ sub init {
 	our $APPLET_ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
-	$self->{panel}->get_root_window->set_cursor($self->{normal_cursor});
 	$self->show_all;
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->autohide;
@@ -161,8 +158,6 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new;
-
-	$self->{panel}->get_root_window->set_cursor($self->{busy_cursor});
 
 	$self->{panel}->set_type_hint('dock');
 	$self->{panel}->stick; # needed for some window managers
@@ -253,7 +248,13 @@ sub move {
 		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
 	}
 
-	my ($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
+	my ($top, $bottom);
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'false') {
+		($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
+	} else {
+		($top, $bottom) = (0, 0);
+	}
+
 	$self->{panel}->window->property_change(
 		Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
 		Gtk2::Gdk::Atom->intern('CARDINAL', undef),
@@ -525,20 +526,28 @@ sub has_action_menu {
 	return undef;
 }
 
-sub get_applet_pbf {
+# this is just a stub, should we ever implement icon themes this will become
+# more useful:
+sub get_applet_pbf_filename {
 	my ($self, $applet) = @_;
-	if (!defined($self->{pbfs}{$applet})) {
-		my $file = sprintf('%s/%s.png', $APPLET_ICON_DIR, lc($applet));
+	return sprintf('%s/%s.png', $APPLET_ICON_DIR, lc($applet));
+}
+
+sub get_applet_pbf {
+	my ($self, $applet, $size) = @_;
+	$size = ($size > 0 ? $size : $APPLET_ICON_SIZE);
+	if (!defined($self->{pbfs}{$applet}{$size})) {
+		my $file = $self->get_applet_pbf_filename($applet);
 		if (-e $file) {
-			$self->{pbfs}{$applet} = Gtk2::Gdk::Pixbuf->new_from_file($file);
-			if ($self->{pbfs}{$applet}->get_height != $APPLET_ICON_SIZE) {
-				$self->{pbfs}{$applet} = $self->{pbfs}{$applet}->scale_simple($APPLET_ICON_SIZE, $APPLET_ICON_SIZE, 'bilinear');
+			$self->{pbfs}{$applet}{$size} = Gtk2::Gdk::Pixbuf->new_from_file($file);
+			if ($self->{pbfs}{$applet}{$size}->get_height != $size) {
+				$self->{pbfs}{$applet}{$size} = $self->{pbfs}{$applet}{$size}->scale_simple($size, $size, 'bilinear');
 			}
 		} else {
-			$self->{pbfs}{$applet} = $self->get_applet_pbf('missing');
+			$self->{pbfs}{$applet}{$size} = $self->get_applet_pbf('missing', $size);
 		}
 	}
-	return $self->{pbfs}{$applet};
+	return $self->{pbfs}{$applet}{$size};
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.8 2004/01/16 00:31:21 jodrell Exp $
+# $Id: About.pm,v 1.9 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	$self->{widget}->set_relief('none');
-	$self->{widget}->add(Gtk2::Image->new_from_stock('gtk-dialog-info', $PerlPanel::OBJECT_REF->icon_size_name));
+	$self->{widget}->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('about', $PerlPanel::OBJECT_REF->icon_size)));
 	$self->{widget}->signal_connect('clicked', sub { $self->about });
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, "About $PerlPanel::NAME");
 	return 1;

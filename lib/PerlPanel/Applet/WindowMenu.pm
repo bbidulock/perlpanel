@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.2 2004/01/13 13:30:34 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.3 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,12 +31,7 @@ sub configure {
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{screen}->force_update;
 	$self->{widget} = Gtk2::Button->new;
-	$self->{pbf} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s/applets/windowmenu.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
-	if ($self->{pbf}->get_height != $PerlPanel::OBJECT_REF->icon_size) {
-		$self->{pbf} = $self->{pbf}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
-	}
-	$self->widget->add(Gtk2::Image->new_from_pixbuf($self->{pbf}));
-	$self->widget->set_relief('none');
+	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('windowmenu', $PerlPanel::OBJECT_REF->icon_size)));	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Window List');
 	return 1;

@@ -1,4 +1,4 @@
-# $Id: ActionMenu.pm,v 1.2 2004/01/23 00:18:08 jodrell Exp $
+# $Id: ActionMenu.pm,v 1.3 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,10 +17,7 @@
 #
 package PerlPanel::Applet::ActionMenu;
 use base 'PerlPanel::MenuBase';
-use vars qw(@menufiles @ICON_DIRECTORIES $DEFAULT_ICON);
 use strict;
-
-our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s/applets/actionmenu.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub configure {
 	my $self = shift;
@@ -85,7 +82,7 @@ sub create_menu {
 
 sub get_default_config {
 	return {
-		icon => $DEFAULT_ICON,
+		icon => $PerlPanel::OBJECT_REF->get_applet_pbf_filename('actionmenu'),
 		label	=> 'Actions',
 		relief	=> 'false',
 	};

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.32 2004/01/17 00:56:19 jodrell Exp $
+# $Id: IconBar.pm,v 1.33 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -97,8 +97,8 @@ sub reorder_window {
 	my $self = shift;
 	my $dialog = Gtk2::Dialog->new;
 	$dialog->set_title('Reorder Icons');
-	$dialog->set_border_width(12);
 	$dialog->set_default_size(250, 200);
+	$dialog->set_has_separator(0);
 	$dialog->add_buttons('gtk-cancel' => 'cancel', 'gtk-ok' => 'ok');
 	my $list = Gtk2::SimpleList->new(
 		'Icon'	=> 'pixbuf',
@@ -109,10 +109,12 @@ sub reorder_window {
 	foreach my $icon (@{$self->{icons}}) {
 		push(@{$list->{data}}, [$icon->{pixbuf}, $icon->{name}, $icon->{filename}]);
 	}
+	$list->set_headers_visible(0);
 	$list->set_reorderable(1);
 	my $scrwin = Gtk2::ScrolledWindow->new;
 	$scrwin->set_policy('never', 'automatic');
 	$scrwin->set_shadow_type('etched_in');
+	$scrwin->set_border_width(6);
 	$scrwin->add($list);
 	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
 	$dialog->signal_connect('response', sub {

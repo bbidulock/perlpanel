@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.4 2004/01/16 00:31:21 jodrell Exp $
+# $Id: Lock.pm,v 1.5 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,12 +16,11 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::Lock;
-use vars qw($DEFAULT_LOCK_PROGRAM, $DEFAULT_ARGS $DEFAULT_ICON);
+use vars qw($DEFAULT_LOCK_PROGRAM $DEFAULT_ARGS);
 use strict;
 
 chomp(our $DEFAULT_LOCK_PROGRAM = `which xscreensaver-command`);
 our $DEFAULT_ARGS = '-lock';
-our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s/applets/lock.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -33,17 +32,9 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	if (-e $PerlPanel::OBJECT_REF->{config}{appletconf}{Lock}{icon}) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{Lock}{icon});
-		$self->{pixbuf} = $self->{pixbuf}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
-		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
-	} else {
-		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-dialog-error', $PerlPanel::OBJECT_REF->icon_size_name);
-	}
-	$self->{widget}->add($self->{pixmap});
-	$self->{widget}->signal_connect('clicked', sub { $self->lock });
-	$self->{widget}->set_relief('none');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Lock the Screen');
+	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('lock', $PerlPanel::OBJECT_REF->icon_size)));	$self->widget->signal_connect('clicked', sub { $self->lock });
+	$self->widget->set_relief('none');
+	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Lock the Screen');
 }
 
 sub widget {
@@ -66,7 +57,6 @@ sub get_default_config {
 	return {
 		program => $DEFAULT_LOCK_PROGRAM,
 		args	=> $DEFAULT_ARGS,
-		icon	=> $DEFAULT_ICON,
 	};
 }
 

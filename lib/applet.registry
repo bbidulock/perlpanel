@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.11 2004/01/22 16:45:41 jodrell Exp $
+# $Id: applet.registry,v 1.12 2004/01/26 00:50:58 jodrell Exp $
 
 About=A button to show an "About" dialog.
 ActionMenu=A menu containing useful actions.
@@ -29,5 +29,5 @@ Slot=A socket for applications which support the XEMBED protocol.
 Socket=A Gtk Socket applet.
 Spacer=A spacer.
 Tasklist=Lists the programs currently running.
-WindowMenu=An applet showing a menu containing currently opened windows.
+WindowMenu=A menu containing currently opened windows.
 XMMS=An applet to control the XMMS media player.

@@ -1,4 +1,4 @@
-# $Id: ShowDesktop.pm,v 1.4 2004/01/16 00:31:21 jodrell Exp $
+# $Id: ShowDesktop.pm,v 1.5 2004/01/26 00:50:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,10 +17,7 @@
 #
 package PerlPanel::Applet::ShowDesktop;
 use Gnome2::Wnck;
-use vars qw($DEFAULT_ICON);
 use strict;
-
-our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s/applets/showdesktop.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -64,7 +61,7 @@ sub end {
 
 sub get_default_config {
 	return {
-		icon	=> $DEFAULT_ICON,
+		icon => $PerlPanel::OBJECT_REF->get_applet_pbf_filename('showdesktop'),
 	};
 
 }
