@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.15 2004/09/29 13:17:43 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.16 2004/10/24 21:30:04 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -130,10 +130,10 @@ $icon_label->set_alignment(1, 0);
 my $icon_image;
 my $pixmap_path = sprintf('%s/share/pixmaps/%s', $PREFIX, $data->{$desktop_namespace}{Icon});
 
-if (-r $data->{$desktop_namespace}{Icon}) {
+if (-r $data->{$desktop_namespace}{Icon} && is_image($data->{$desktop_namespace}{Icon})) {
 	$icon_image = Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($data->{$desktop_namespace}{Icon}, 48, 48));
 
-} elsif (-r $pixmap_path) {
+} elsif (-r $pixmap_path && is_image($pixmap_path)) {
 	$icon_image = Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($pixmap_path, 48, 48));
 
 } else {
@@ -222,7 +222,7 @@ sub choose_icon {
 		my $file = $selector->get_filename;
 		if (-f $file) {
 			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, 48, 48);
-			$selector->get_preview_widget->set_from_pixbuf($pbf);
+			$selector->get_preview_widget->set_from_pixbuf($pbf) if (defined($pixbuf));
 		}
 	});
 
@@ -276,6 +276,15 @@ sub save {
 	}
 	close(FILE);
 	exit;
+}
+
+# we could do all kinds of clever stuff here, using gdk-pixbuf-query-loaders to get
+# gdkpixbuf's supported file types, or using file -ib to get the file's mime type,
+# but they're all suboptimal, so just regex the filename:
+sub is_image {
+	my $filename = shift;
+	return ($filename =~ /\.(jpe?g|png|bmp|gif|tif)$/i);
+	
 }
 
 exit;
