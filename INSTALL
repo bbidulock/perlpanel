@@ -21,6 +21,7 @@ Some of the applets also require additional modules, for example:
 
     * URI::Escape for the RecentFiles applet
     * Xmms::Remote for the XMMS applet
+    * Audio::Mixer for the Volume applet
 
 Your Perl package should include the following modules, but if it's an
 older version you may need to install them yourself:
@@ -108,4 +109,4 @@ Gentoo: Users of the Gentoo operating system can find ebuilds via the
 project website.
 
 --
-$Id: INSTALL,v 1.8 2005/01/01 20:24:40 jodrell Exp $
+$Id: INSTALL,v 1.9 2005/01/08 18:42:55 jodrell Exp $
