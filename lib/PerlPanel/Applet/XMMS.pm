@@ -1,7 +1,7 @@
-# $Id: XMMS.pm,v 1.2 2003/07/03 16:07:39 jodrell Exp $
+# $Id: XMMS.pm,v 1.3 2003/07/05 12:41:14 jodrell Exp $
 package PerlPanel::Applet::XMMS;
 use vars qw(%TOOLTIPS %STOCK_IDS %CALLBACKS);
-use Xmms;
+use Xmms::Remote;
 use strict;
 
 our %TOOLTIPS = (
@@ -21,11 +21,11 @@ our %STOCK_IDS = (
 );
 
 our %CALLBACKS = (
-	prev	=> sub { },
-	stop	=> sub { },
-	play	=> sub { play() },
-	next	=> sub { },
-	open	=> sub { },
+	prev	=> sub { Xmms::Remote->new->playlist_prev },
+	stop	=> sub { Xmms::Remote->new->stop },
+	play	=> sub { Xmms::Remote->new->play },
+	next	=> sub { Xmms::Remote->new->playlist_next },
+	open	=> sub { Xmms::Remote->new->pl_win_toggle(1) },
 );
 
 sub new {
