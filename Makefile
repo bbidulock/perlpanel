@@ -17,9 +17,9 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.43 2004/09/02 11:30:40 jodrell Exp $
+# $Id: Makefile,v 1.44 2004/09/27 10:39:19 jodrell Exp $
 
-VERSION=0.7.1
+VERSION=0.8.0
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -48,11 +48,12 @@ perlpanel:
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-run-dialog > build/perlpanel-run-dialog
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	perl -I$(PWD)/build -MPerlPanel -MXML::Simple -e 'print XMLout(\%PerlPanel::DEFAULTS)' > build/perlpanelrc
-	pod2man doc/perlpanel.pod		> build/perlpanel.1
-	pod2man doc/perlpanel-applet-howto.pod	> build/perlpanel-applet-howto.1
-	pod2man doc/perlpanel-run-dialog.pod	> build/perlpanel-run-dialog.1
-	pod2man doc/perlpanel-item-edit.pod	> build/perlpanel-item-edit.1
-	pod2man lib/PerlPanel/MenuBase.pm	> build/PerlPanel::MenuBase.1
+	pod2man doc/perlpanel.pod		| gzip -c > build/perlpanel.1.gz
+	pod2man doc/perlpanel-applet-howto.pod	| gzip -c > build/perlpanel-applet-howto.1.gz
+	pod2man doc/perlpanel-run-dialog.pod	| gzip -c > build/perlpanel-run-dialog.1.gz
+	pod2man doc/perlpanel-item-edit.pod	| gzip -c > build/perlpanel-item-edit.1.gz
+	pod2man lib/PerlPanel/MenuBase.pm	| gzip -c > build/PerlPanel::MenuBase.3.gz
+	pod2man lib/PerlPanel/DesktopEntry.pm	| gzip -c > build/PerlPanel::DesktopEntry.3.gz
 
 	@# similarly for other locales as they become available:
 	mkdir -p  build/locale/en/$(LC_CATEGORY)
@@ -68,19 +69,25 @@ install:
 			$(DESTDIR)/$(LOCALEDIR)/en/$(LC_CATEGORY) \
 			$(DESTDIR)/$(LOCALEDIR)/de/$(LC_CATEGORY) \
 			$(DESTDIR)/$(CONFDIR)
+
 	@echo Copying library files to $(DESTDIR)/$(LIBDIR):
 	@cp -Rp lib/*	$(DESTDIR)/$(LIBDIR)/
 	@echo Copying share files to $(DESTDIR)/$(DATADIR):
 	@cp -Rp share/*	$(DESTDIR)/$(DATADIR)/
-	install -m 0755 build/perlpanel			$(DESTDIR)/$(BINDIR)/
-	install -m 0755 build/perlpanel-item-edit 	$(DESTDIR)/$(BINDIR)/
-	install -m 0755 build/perlpanel-run-dialog	$(DESTDIR)/$(BINDIR)/
-	install -m 0644 build/PerlPanel.pm		$(DESTDIR)/$(LIBDIR)/
-	install -m 0755 build/perlpanel.1		$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-applet-howto.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-item-edit.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-run-dialog.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/PerlPanel::MenuBase.1	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
+
+	find $(DESTDIR)/$(LIBDIR) -type f -exec chmod 755 "{}" \;
+	find $(DESTDIR)/$(DATADIR) -type f -exec chmod 644 "{}" \;
+
+	install -m 0755 build/perlpanel				$(DESTDIR)/$(BINDIR)/
+	install -m 0755 build/perlpanel-item-edit 		$(DESTDIR)/$(BINDIR)/
+	install -m 0755 build/perlpanel-run-dialog		$(DESTDIR)/$(BINDIR)/
+	install -m 0644 build/PerlPanel.pm			$(DESTDIR)/$(LIBDIR)/
+	install -m 0755 build/perlpanel.1.gz			$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-applet-howto.1.gz	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-item-edit.1.gz		$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-run-dialog.1.gz		$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/PerlPanel::MenuBase.3.gz		$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
+	install -m 0755 build/PerlPanel::DesktopEntry.3.gz	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
 	install -m 0644 build/locale/en/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/en/$(LC_CATEGORY)/
 	install -m 0644 build/locale/de/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/de/$(LC_CATEGORY)/
 
@@ -92,7 +99,6 @@ install:
 		install -m 0644 build/perlpanelrc	$(DESTDIR)/$(CONFDIR)/; \
 	fi
 
-
 clean:
 	rm -rf build
 
@@ -100,11 +106,12 @@ uninstall:
 	rm -rf	$(BINDIR)/perlpanel \
 		$(BINDIR)/perlpanel-item-edit \
 		$(BINDIR)/perlpanel-run-dialog \
-		$(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
-		$(MANDIR)/$(MAN_SECTION)/perlpanel-applet-howto.1 \
-		$(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1 \
-		$(MANDIR)/$(MAN_SECTION)/perlpanel-run-dialog.1 \
-		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1 \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel.1.gz \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel-applet-howto.1.gz \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1.gz \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel-run-dialog.1.gz \
+		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.3.gz \
+		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::DesktopEntry.3.gz \
 		$(DATADIR)/perlpanel \
 		$(DATADIR)/pixmaps/perlpanel* \
 		$(LIBDIR) \
