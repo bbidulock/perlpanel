@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.143 2005/01/22 13:48:37 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.144 2005/02/21 15:58:50 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -1130,8 +1130,18 @@ sub get_applet_pbf {
 		my $file = get_applet_pbf_filename($applet);
 		if (-e $file) {
 			$self->{pbfs}->{$applet}->{$size} = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, $size, $size);
-		} else {
+		} elsif ($applet ne 'missing') {
 			$self->{pbfs}->{$applet}->{$size} = get_applet_pbf('missing', $size);
+		} else {
+			#on-the-fly weirdo icon (white, two red lines across):
+			my @xpm = ("$size $size 2 1", ". c Red", "  c White");
+			for my $x (1 .. $size) { 
+				for my $y (1 .. $size) { 
+					$_ .= ($y == $x || $y == $size - $x) ? "." : " "
+				} 
+				push @xpm, $_; $_ = "";
+			}
+			$self->{pbfs}->{$applet}->{$size} = Gtk2::Gdk::Pixbuf->new_from_xpm_data(@xpm);
 		}
 	}
 	return $self->{pbfs}->{$applet}->{$size};
