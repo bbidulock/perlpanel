@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.64 2004/03/19 16:10:22 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.65 2004/03/19 16:20:47 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -82,20 +82,17 @@ sub new {
 	$self->{rcfile}		= (defined($ARGV[0]) ? $ARGV[0] : sprintf('%s/.%src', $ENV{HOME}, lc($NAME)));
 	$OBJECT_REF		= $self;
 	bless($self, $self->{package});
+	our $APPLET_ICON_DIR	= sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
 
-	our $APPLET_ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
-
-	our @APPLET_DIRS = (
+	our @APPLET_DIRS	= (
 		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),	# user-installed applets
 		sprintf('%s/%s/Applet', $LIBDIR, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
 	);								# determined at runtime)
 
 	setlocale(LC_ALL, $ENV{LANG});
-
 	bindtextdomain(lc($NAME), sprintf('%s/share/locale', $PREFIX));
 	textdomain(lc($NAME));
 
-	# these are here cos we need a valid prefix before we can do the translation:
 	our $DESCRIPTION	= _('A lean, mean panel program written in Perl.');
 	our $LICENSE		= _("This program is Free Software. You may use it under the terms of the GNU General Public License.");
 
@@ -698,7 +695,6 @@ sub load_glade {
 	return Gtk2::GladeXML->new($file);
 }
 
-# stub for future il8n support:
 sub _ {
 	my $str = shift;
 	my %params = @_;
