@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.26 2004/01/16 00:31:21 jodrell Exp $
+# $Id: Configurator.pm,v 1.27 2004/01/16 17:08:52 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -118,7 +118,7 @@ sub build_ui {
 		$self->{pages}{menu}->set_border_width(12);
 		$self->{pages}{menu}->set_spacing(12);
 
-		$self->{menu}{table} = Gtk2::Table->new(2, 2);
+		$self->{menu}{table} = Gtk2::Table->new(3, 2);
 		$self->{menu}{table}->set_col_spacings(12);
 		$self->{menu}{table}->set_row_spacings(12);
 
@@ -135,14 +135,21 @@ sub build_ui {
 				$self->choose_menu_icon;
 			}
 		);
+
+		$self->{menu}{submenu_label} = $self->control_label('Submenu label:');
+		$self->{controls}{submenu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'submenu_label', 'text', 'Submenu label');
+
 		$self->{menu}{label} = $self->control_label('Menu label:');
 		$self->{controls}{label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'label', 'text', 'Menu label');
 
-		$self->{menu}{table}->attach_defaults($self->{menu}{label}, 0, 1, 0, 1);
-		$self->{menu}{table}->attach_defaults($self->{controls}{label}, 1, 2, 0, 1);
+		$self->{menu}{table}->attach_defaults($self->{menu}{submenu_label},     0, 1, 0, 1);
+		$self->{menu}{table}->attach_defaults($self->{controls}{submenu_label}, 1, 2, 0, 1);
 
-		$self->{menu}{table}->attach_defaults($self->{iconfile}{label}, 0, 1, 1, 2);
-		$self->{menu}{table}->attach_defaults($self->{controls}{iconfile}, 1, 2, 1, 2);
+		$self->{menu}{table}->attach_defaults($self->{menu}{label},    0, 1, 1, 2);
+		$self->{menu}{table}->attach_defaults($self->{controls}{label}, 1, 2, 1, 2);
+
+		$self->{menu}{table}->attach_defaults($self->{iconfile}{label},    0, 1, 2, 3);
+		$self->{menu}{table}->attach_defaults($self->{controls}{iconfile}, 1, 2, 2, 3);
 
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
@@ -235,7 +242,7 @@ sub control {
 	} else {
 		$control = Gtk2::Entry->new;
 		$control->set_text($ref->{$name});
-		$control->signal_connect('changed', sub { print $control->get_text."\n" ; $ref->{$name} = $control->get_text ; return 1 });
+		$control->signal_connect('changed', sub { $ref->{$name} = $control->get_text ; return 1 });
 	}
 	return $control;
 }

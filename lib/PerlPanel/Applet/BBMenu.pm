@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.40 2004/01/16 00:31:21 jodrell Exp $
+# $Id: BBMenu.pm,v 1.41 2004/01/16 17:08:52 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -122,6 +122,7 @@ sub get_default_config {
 		label	=> 'Menu',
 		relief	=> 'true',
 		apps_in_submenu => 'false',
+		submenu_label	=> 'Applications',
 	};
 }
 
@@ -150,8 +151,8 @@ sub parse_menufile {
 		my $current_menu;
 
 		if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{apps_in_submenu} eq 'true') {
-			my $item = Gtk2::ImageMenuItem->new_with_label('Applications');
-			$item->set_image($self->get_icon('Applications', 1));
+			my $item = Gtk2::ImageMenuItem->new_with_label($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label});
+			$item->set_image($self->get_icon($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label}, 1));
 			my $menu = Gtk2::Menu->new;
 			$item->set_submenu($menu);
 			$self->menu->append($item);
@@ -225,7 +226,7 @@ sub add_control_items {
 	}
 	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
-		$self->menu->append($self->control_item('Lock Screen', 'gtk-dialog-error', sub { system("$xscreensaver -lock &") }));
+		$self->menu->append($self->control_item('Lock Screen', sprintf('%s/share/pixmaps/%s/applets/lock.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)), sub { system("$xscreensaver -lock &") }));
 	}
 	$self->menu->append($self->control_item('Run Program...', 'gtk-execute', sub {
 		require('Commander.pm');
@@ -234,15 +235,15 @@ sub add_control_items {
 		$commander->run;
 	}));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	$self->menu->append($self->control_item("Configure $PerlPanel::NAME...", 'gtk-preferences', sub {
+	$self->menu->append($self->control_item("Configure...", 'gtk-preferences', sub {
 		require('Configurator.pm');
 		my $configurator = PerlPanel::Applet::Configurator->new;
 		$configurator->configure;
 		$configurator->init;
 	}));
-	$self->menu->append($self->control_item("Reload $PerlPanel::NAME", 'gtk-refresh', sub { $PerlPanel::OBJECT_REF->reload }));
+	$self->menu->append($self->control_item("Reload", 'gtk-refresh', sub { $PerlPanel::OBJECT_REF->reload }));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	$self->menu->append($self->control_item("About $PerlPanel::NAME...", 'gtk-dialog-info', sub {
+	$self->menu->append($self->control_item("About...", 'gtk-dialog-info', sub {
 		require('About.pm');
 		my $about = PerlPanel::Applet::About->new;
 		$about->configure;
@@ -254,7 +255,13 @@ sub add_control_items {
 sub control_item {
 	my ($self, $label, $stock_id, $callback) = @_;
 	my $item = Gtk2::ImageMenuItem->new_with_label($label);
-	$item->set_image(Gtk2::Image->new_from_stock($stock_id, $PerlPanel::OBJECT_REF->icon_size_name));
+	my $icon;
+	if (-e $stock_id) {
+		$icon = Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($stock_id)->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear'));
+	} else {
+		$icon = Gtk2::Image->new_from_stock($stock_id, $PerlPanel::OBJECT_REF->icon_size_name);
+	}
+	$item->set_image($icon);
 	$item->signal_connect('activate', $callback);
 	return $item;
 }

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.43 2004/01/16 00:31:21 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.44 2004/01/16 17:08:52 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -161,6 +161,7 @@ sub build_ui {
 
 	$self->{panel}->set_type_hint('dock');
 	$self->{panel}->stick;
+
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{port} = Gtk2::Viewport->new;
 	$self->{port}->add($self->{hbox});
@@ -225,7 +226,10 @@ sub add {
 }
 
 sub show_all {
-	$_[0]->{panel}->show_all;
+	my $self = shift;
+
+	$self->{panel}->show_all;
+
 	return 1;
 }
 
@@ -240,6 +244,23 @@ sub move {
 	} else {
 		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
 	}
+
+	# This is strangely broken:
+	#
+	#$self->{panel}->window->property_change(
+	#	Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
+	#	Gtk2::Gdk::Atom->intern('CARDINAL', undef),
+	#	32,
+	#	'replace',
+	#	[
+	#		0,
+	#		0,
+	#		($self->position eq 'top'    ? $self->{panel}->allocation->height : 0),
+	#		($self->position eq 'bottom' ? $self->{panel}->allocation->height : 0),
+	#	],
+	#	4
+	#);
+
 	return 1;
 }
 
