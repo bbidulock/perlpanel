@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.31 2004/02/17 14:23:04 jodrell Exp $
+# $Id: Makefile,v 1.32 2004/02/18 19:27:16 jodrell Exp $
 
 VERSION=0.4.0
 
@@ -46,19 +46,22 @@ perlpanel:
 	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
 
 install:
-	mkdir -p $(DESTDIR)$(LIBDIR) $(DESTDIR)$(BINDIR) $(DESTDIR)$(MANDIR)/$(MAN_SECTION) $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)
-	install -m 0755 build/perlpanel $(DESTDIR)$(BINDIR)/
-	install -m 0755 build/perlpanel-item-edit $(DESTDIR)$(BINDIR)/
-	install -m 0755 build/perlpanel-run-dialog $(DESTDIR)$(BINDIR)/
-	install -m 0755 src/perlpaneld $(DESTDIR)$(BINDIR)/
-	cp -Rvp lib/* $(DESTDIR)$(LIBDIR)/
-	install -m 0644 build/PerlPanel.pm $(DESTDIR)$(LIBDIR)/
-	install -m 0755 build/perlpanel.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-applet-howto.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-item-edit.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-run-dialog.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/PerlPanel::MenuBase.1 $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)/
-	cp -Rvp share/* $(DESTDIR)$(DATADIR)/
+	mkdir -p	$(DESTDIR)$(LIBDIR) \
+			$(DESTDIR)$(BINDIR) \
+			$(DESTDIR)$(MANDIR)/$(MAN_SECTION) \
+			$(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)
+	cp -Rvp lib/*	$(DESTDIR)$(LIBDIR)/
+	cp -Rvp share/*	$(DESTDIR)$(DATADIR)/
+	install -m 0755 build/perlpanel			$(DESTDIR)$(BINDIR)/
+	install -m 0755 build/perlpanel-item-edit 	$(DESTDIR)$(BINDIR)/
+	install -m 0755 build/perlpanel-run-dialog	$(DESTDIR)$(BINDIR)/
+	install -m 0755 src/perlpaneld			$(DESTDIR)$(BINDIR)/
+	install -m 0644 build/PerlPanel.pm		$(DESTDIR)$(LIBDIR)/
+	install -m 0755 build/perlpanel.1		$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-applet-howto.1	$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-item-edit.1	$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-run-dialog.1	$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/PerlPanel::MenuBase.1	$(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)/
 
 clean:
 	rm -rf build

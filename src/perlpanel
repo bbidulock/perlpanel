@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: perlpanel,v 1.9 2004/02/17 12:30:31 jodrell Exp $
+# $Id: perlpanel,v 1.10 2004/02/18 19:27:17 jodrell Exp $
 
 #
 # are we installed or running in a sandbox?
@@ -26,9 +26,14 @@ use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
 
 use PerlPanel;
 
+#
+# override prefix:
+#
 $PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 
-push(@INC, "$ENV{PWD}/lib/$PerlPanel::NAME/Applet") if (!-e '@PREFIX@');
+#
+# if we're in a sandbox then it's handy to add ./src to the PATH:
+#
 $ENV{PATH} = $ENV{PATH}.':'.$ENV{PWD}.'/src' if (!-e '@PREFIX@');
 
 chdir($ENV{HOME});

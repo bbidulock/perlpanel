@@ -1,4 +1,4 @@
-# $Id: NewConfigurator.pm,v 1.4 2004/02/17 13:56:26 jodrell Exp $
+# $Id: NewConfigurator.pm,v 1.5 2004/02/18 19:27:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -336,13 +336,13 @@ sub setup_custom_settings {
 		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 24), $appletname]);
 	}
 
-	my $add_applet_list = Gtk2::SimpleList->new_from_treeview(
+	$self->{add_applet_list} = Gtk2::SimpleList->new_from_treeview(
 		$self->app->get_widget('applet_info_list'),
 		'Icon'		=> 'pixbuf',
 		'Name'		=> 'text',
 	);
 
-	my $column = $add_applet_list->get_column(1);
+	my $column = $self->{add_applet_list}->get_column(1);
 	$column->set_spacing(12);
 
 	my ($renderer) = $column->get_cell_renderers;
@@ -350,39 +350,17 @@ sub setup_custom_settings {
 	$column->clear_attributes($renderer);
 	$column->add_attribute($renderer, 'markup', 1);
 
-	my @files;
-	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME)), sprintf('%s/lib/%s/Applet', $ENV{PWD}, $PerlPanel::NAME)) {
-		opendir(DIR, $dir) or next;
-		push(@files, grep { /\.pm$/ } readdir(DIR));
-		closedir(DIR);
-	}
+	$self->get_applet_list;
 
-	@files = sort(@files);
-
-	foreach my $file (@files) {
+	foreach my $file (@{$self->{files}}) {
 		my ($appletname, undef) = split(/\./, $file, 2);
-		push(@{$add_applet_list->{data}}, [
+		push(@{$self->{add_applet_list}->{data}}, [
 			PerlPanel::get_applet_pbf($appletname),
 			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}{$appletname} ne '' ? $self->{registry}{$appletname} : 'No description available.')),
 		]);
 	}
 
-	$self->app->get_widget('add_applet_button')->signal_connect('clicked', sub {
-		$self->app->get_widget('add_dialog')->signal_connect('response', sub {
-			if ($_[1] eq 'ok') {
-				my $seln = $add_applet_list->get_selection;
-				return unless (defined($seln));
-				my ($blah, $iter) = $seln->get_selected;
-				return undef unless (defined($iter));
-				my $idx = ($add_applet_list->get_model->get_path($iter)->get_indices)[0];
-				my ($appletname, undef) = split(/\./, $files[$idx], 2);
-				push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 24), $appletname]);
-			}
-			$self->app->get_widget('add_dialog')->hide_all;
-			return undef;
-		});
-		$self->app->get_widget('add_dialog')->show_all;
-	});
+	$self->app->get_widget('add_applet_button')->signal_connect('clicked', sub { $self->run_add_applet_dialog });
 
 	$self->app->get_widget('remove_applet_button')->signal_connect('clicked', sub {
 		my (undef, $iter) = $self->{applet_list}->get_selection->get_selected;
@@ -390,6 +368,48 @@ sub setup_custom_settings {
 		my $idx = ($self->{applet_list}->get_model->get_path($iter)->get_indices)[0];
 		$self->{applet_list}->get_model->remove($iter);
 	});
+
+	return 1;
+}
+
+sub get_applet_list {
+	my $self = shift;
+	my @files;
+	foreach my $dir (@PerlPanel::APPLET_DIRS) {
+		opendir(DIR, $dir) or next;
+		push(@files, grep { /\.pm$/ } readdir(DIR));
+		closedir(DIR);
+	}
+
+	@files = sort(@files);
+	$self->{files} = \@files;
+	return 1;
+}
+
+sub run_add_applet_dialog {
+	my $self = shift;
+
+	$self->app->get_widget('add_dialog')->signal_connect('delete_event', sub {
+		$self->app->get_widget('add_dialog')->hide_all;
+		return 1;
+	});
+	$self->app->get_widget('add_dialog')->signal_connect('response', sub {
+
+		if ($_[1] eq 'ok') {
+			my $seln = $self->{add_applet_list}->get_selection;
+			return unless (defined($seln));
+			my ($blah, $iter) = $seln->get_selected;
+			return undef unless (defined($iter));
+			my $idx = ($self->{add_applet_list}->get_model->get_path($iter)->get_indices)[0];
+			my ($appletname, undef) = split(/\./, $self->{files}[$idx], 2);
+			push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 24), $appletname]);
+			$seln->unselect_all;
+		}
+
+		$self->app->get_widget('add_dialog')->hide_all;
+		return undef;
+	});
+	$self->app->get_widget('add_dialog')->show_all;
 
 	return 1;
 }

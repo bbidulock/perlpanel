@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.14 2004/02/17 13:56:26 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.15 2004/02/18 19:27:16 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -110,6 +110,9 @@ Finally, you should place a 48x48 icon representing your applet into
 C<$PREFIX/share/pixmaps/perlpanel/applets>. This icon will be used in
 the applet selector.
 
+If your applet uses any Glade files, they should be installed into
+C<$PREFIX/share/perlpanel/glade>.
+
 =head1 REQUIRED METHODS
 
 	$applet->new
@@ -172,6 +175,12 @@ to the internal guts of the panel:
 
 This is a reference to the main panel object. A number of methods are
 available for your use, they're explained below.
+
+	@PerlPanel::APPLET_DIRS
+
+This contains directory paths which PerlPanel will use to search for
+applets. It will at least contain C<$PREFIX/lib/perlpanel/PerlPanel/Applet>
+and C<$HOME/.perlpanel/applets>.
 
 =head1 USEFUL FUNCTIONS
 
@@ -294,6 +303,25 @@ C<$callback>.
 
 This function exists mainly because the 'IconBar' applet needs a way to
 wait for the desktop entry editor to close.
+
+	PerlPanel::load_glade($name);
+
+This returns a C<Gtk2::GladeXML> object loaded from the file
+C<$PREFIX/share/perlpanel/glade/$name.glade>. This is a keyboard-plastic
+saving utility only, and doesn't do anything else.
+
+	PerlPanel::has_application_menu
+
+Returns a true value if an application launcher menu (BBMenu for example) is
+present in the user's applet list.
+
+	PerlPanel::has_action_menu
+
+Returns a true value if an ActionMenu applet is in the user's applet list.
+
+	PerlPanel::has_pager
+
+Returns a true value if an Pager applet is in the user's applet list.
 
 =head1 WRITING MENU APPLETS
 

@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.20 2004/02/17 14:10:39 jodrell Exp $
+$Id: perlpanel.pod,v 1.21 2004/02/18 19:27:16 jodrell Exp $
 
 =head1 Introduction
 
@@ -244,8 +244,6 @@ want to learn how to write applets, consult L<perlpanel-applet-howto>.
 =over
 
 =item * L<perl(1)>
-
-=item * L<xdpyinfo(1)>
 
 =item * L<Gtk2>
 

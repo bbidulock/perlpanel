@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.57 2004/02/17 13:56:26 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.58 2004/02/18 19:27:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ package PerlPanel;
 use Gtk2;
 use Gtk2::GladeXML;
 use Data::Dumper;
-use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE);
+use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE @APPLET_DIRS);
 use strict;
 
 use vars qw();
@@ -81,6 +81,15 @@ sub new {
 	$self->{rcfile}		= (defined($ARGV[0]) ? $ARGV[0] : sprintf('%s/.%src', $ENV{HOME}, lc($NAME)));
 	$OBJECT_REF		= $self;
 	bless($self, $self->{package});
+
+	our $APPLET_ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
+
+	our @APPLET_DIRS = (
+		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),		# user-installed applets
+		sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME),	# admin-installed applets
+		sprintf('%s/lib/%s/Applet', $PREFIX, $NAME),			# sandbox applets
+	);
+
 	return $self;
 }
 
@@ -91,10 +100,9 @@ sub init {
 	$self->get_screen || $self->parse_xdpyinfo;
 	$self->build_ui;
 	$self->configure;
-	our $APPLET_ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
-	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->show_all;
+
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->autohide;
 	} else {
@@ -120,6 +128,7 @@ sub init {
 	# GNOME panel.
 
 	Gtk2->main;
+
 	return 1;
 }
 
@@ -137,12 +146,13 @@ sub check_deps {
 
 sub get_screen {
 	my $self = shift;
-	my $code = '$self->{screen} = Gtk2::Gdk::Screen->get_screen';
+	my $code = '$self->{screen} = Gtk2::Gdk::Screen->get_default';
 	return eval($code);
 }
 
 sub parse_xdpyinfo {
 	my $self = shift;
+	print STDERR "*** using xdpyinfo to get screen dimenions, upgrading to gtk+ > 2.2.0 is recommended!\n";
 	chomp($self->{xdpyinfo} = `which xdpyinfo`);
 	open(XDPYINFO, "$self->{xdpyinfo} -display $ENV{DISPLAY} |") or $self->error("Can't open pipe from '$self->{xdpyinfo}': $!", sub { exit });
 	while (<XDPYINFO>) {
@@ -160,9 +170,6 @@ sub load_config {
 	$self->{config} = (-e $self->{rcfile} ? XMLin($self->{rcfile}) : \%DEFAULTS);
 	if ($self->{config}{version} ne $VERSION) {
 		print STDERR "Warning: Your config file is from an earlier version, strange things may happen!\n";
-	#	$self->error("Your config file is from an earlier\nversion ($self->{config}{version}). Please delete it and\nrestart $NAME.", sub { exit });
-	#	Gtk2->main;
-	#	return undef;
 	}
 	return 1;
 }
@@ -206,6 +213,7 @@ sub configure {
 		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
 		$self->{enter_connect_id} = $self->panel->signal_connect('enter_notify_event', sub { $self->autoshow; });
 	}
+	push(@INC, @APPLET_DIRS);
 	return 1;
 }
 
