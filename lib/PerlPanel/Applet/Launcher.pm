@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.16 2004/11/26 12:14:58 jodrell Exp $
+# $Id: Launcher.pm,v 1.17 2004/11/26 12:47:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -130,14 +130,22 @@ sub init {
 				$self->widget->child->set_from_pixbuf($pbf);
 
 			} else {
-				$self->widget->remove($self->widget->child) if defined($self->widget->child);
-				my $pbf = $PerlPanel::OBJECT_REF->panel->render_icon('gtk-missing-image', 'dialog')->scale_simple(
-					PerlPanel::icon_size,
-					PerlPanel::icon_size,
-					'bilinear'
-				);
-				$self->widget->add(Gtk2::Image->new_from_pixbuf($pbf));
+				$icon =~ s/\.png$//;
+				$icon = PerlPanel::lookup_icon($icon);
+				if (-r $icon) {
+					my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($icon, PerlPanel::icon_size(), PerlPanel::icon_size());
+					$self->widget->child->set_from_pixbuf($pbf);
 
+				} else {
+					$self->widget->remove($self->widget->child) if defined($self->widget->child);
+					my $pbf = $PerlPanel::OBJECT_REF->panel->render_icon('gtk-missing-image', 'dialog')->scale_simple(
+						PerlPanel::icon_size,
+						PerlPanel::icon_size,
+						'bilinear'
+					);
+					$self->widget->add(Gtk2::Image->new_from_pixbuf($pbf));
+
+				}
 			}
 
 			$self->widget->drag_source_set(
