@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: perlpanel,v 1.11 2004/02/20 12:35:07 jodrell Exp $
+# $Id: perlpanel,v 1.12 2004/04/02 12:18:08 jodrell Exp $
 
 #
 # are we installed or running in a sandbox?
@@ -36,12 +36,6 @@ $PerlPanel::LIBDIR = (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
 # if we're in a sandbox then it's handy to add ./src to the PATH:
 #
 $ENV{PATH} = $ENV{PATH}.':'.$ENV{PWD}.'/src' if (!-e '@PREFIX@');
-
-#
-# and then move to $HOME, so that launched applications start in the
-# right place:
-#
-chdir($ENV{HOME});
 
 #
 # start the panel:

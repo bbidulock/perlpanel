@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.67 2004/03/25 00:16:43 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.68 2004/04/02 12:18:08 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -133,6 +133,8 @@ sub init {
 	# which I copied from gnome-panel/panel-shell.c. This will make PerlPanel act as a "real"
 	# GNOME panel.
 
+	chdir($ENV{HOME});
+
 	Gtk2->main;
 
 	return 1;
@@ -225,6 +227,7 @@ sub load_applets {
 	foreach my $appletname (@{$self->{config}{applets}}) {
 		my $applet;
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
+		undef($@);		
 		eval($expr);
 		if ($@) {
 			print STDERR $@;
@@ -233,8 +236,14 @@ sub load_applets {
 			if ($@ =~ /can't locate $toplevel/i) {
 				$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
 			}
-			$self->error($message, sub { $self->shutdown });
-			return undef;
+			$self->warning($message, sub {
+				require('Configurator.pm');
+				my $configurator = PerlPanel::Applet::Configurator->new;
+				$configurator->configure;
+				$configurator->init;
+				$configurator->app->get_widget('notebook')->set_current_page(3);
+			});
+			#return undef;
 		} else {
 			if (!defined($self->{config}{appletconf}{$appletname})) {
 				my $hashref;
@@ -416,7 +425,7 @@ sub alert {
 		}
 	);
 
-	$dialog->run;
+	$dialog->show_all;
 
 	return 1;
 }
