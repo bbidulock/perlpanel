@@ -16,7 +16,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: old-perlpanel-item-edit,v 1.5 2003/08/13 13:47:42 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.6 2004/01/11 16:32:35 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -24,7 +24,7 @@ Gtk2->init;
 
 my $desktop_namespace = 'Desktop Entry';
 
-chomp(my $PREFIX = `gtk-config --prefix`);
+my $PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 
 my $namespace = '';
 my $data = {};

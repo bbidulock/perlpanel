@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.39 2004/01/08 00:36:28 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.40 2004/01/11 16:32:35 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -460,14 +460,22 @@ sub get_widget_position {
 
 sub get_mouse_pointer_position {
 	my $self = shift;
-	my ($win_pos_x, $win_pos_y) = $self->{pager}->get_position;
+	my (undef, $x, $y, undef) = $self->{panel}->get_root_window->get_pointer;
+	return ($x, $y);
+}
 
-	my ($win_mouse_pos_x, $win_mouse_pos_y) = $self->{pager}->get_pointer;
-
-	return (
-		$win_pos_x + $win_mouse_pos_x,
-		$win_pos_y + $win_mouse_pos_y,
-	);
+sub exec_wait {
+	my ($self, $command, $callback) = @_;
+	open(COMMAND, "$command|");
+	my $tag;
+	$tag = Gtk2::Helper->add_watch(fileno(COMMAND), 'in', sub {
+		if (eof(COMMAND)) {
+			close(COMMAND);
+			Gtk2::Helper->remove_watch($tag);
+			&$callback();
+		}
+	});
+	return 1;
 }
 
 1;

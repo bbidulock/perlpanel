@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.29 2004/01/08 00:36:28 jodrell Exp $
+# $Id: IconBar.pm,v 1.30 2004/01/11 16:32:35 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -174,10 +174,16 @@ sub build {
 		# should be that of 'clicked'. The clicked() method is only called if the mouse pointer is within
 		# the widget (get_pointer() returns the co-ords of the pointer relative to the top left corner of
 		# the widget):
-		my ($x_pos, $y_pos) = $self->widget->get_pointer;
-		my $x_size = $self->widget->size_request->width;
-		my $y_size = $self->widget->size_request->height;
-		if ($x_pos <= $x_size && $y_pos <= $y_size) {
+		my ($mouse_pos_x, $mouse_pos_y) = $self->widget->get_pointer;
+		my $widget_size_x = $self->widget->size_request->width;
+		my $widget_size_y = $self->widget->size_request->height;
+		if (
+			$mouse_pos_x <= $widget_size_x &&
+			$mouse_pos_y <= $widget_size_y &&
+			$mouse_pos_x > 0 &&
+			$mouse_pos_y > 0
+
+		) {
 			$self->clicked($_[1]->button);
 		}
 		return undef;
@@ -280,20 +286,13 @@ sub edit {
 	if (-x $MENU_EDITOR) {
 		my $mtime = (stat($self->{filename}))[9];
 		$self->widget->set_sensitive(0);
-		open(MENU_EDITOR, "$MENU_EDITOR $self->{filename}|");
-		my $tag;
-		$tag = Gtk2::Helper->add_watch(fileno(MENU_EDITOR), 'in', sub {
-			if (eof(MENU_EDITOR)) {
-				close(MENU_EDITOR);
+		$PerlPanel::OBJECT_REF->exec_wait("$MENU_EDITOR $self->{filename}", sub {
+			$self->widget->set_sensitive(1);
 
-				$self->widget->set_sensitive(1);
+			my $newmtime = (stat($self->{filename}))[9];
 
-				my $newmtime = (stat($self->{filename}))[9];
-
-				if ($newmtime > $mtime) {
-					$PerlPanel::OBJECT_REF->reload;
-				}
-				Gtk2::Helper->remove_watch($tag);
+			if ($newmtime > $mtime) {
+				$PerlPanel::OBJECT_REF->reload;
 			}
 		});
 	} else {
@@ -309,17 +308,11 @@ sub add {
 	if (-x $MENU_EDITOR) {
 		open(FILE, ">$filename") && close(FILE);
 		my $mtime = time();
-		open(MENU_EDITOR, "$MENU_EDITOR $filename|");
-		my $tag;
-		$tag = Gtk2::Helper->add_watch(fileno(MENU_EDITOR), 'in', sub {
-			if (eof(MENU_EDITOR)) {
-				close(MENU_EDITOR);
-				my $newmtime = (stat($filename))[9];
+		$PerlPanel::OBJECT_REF->exec_wait("$MENU_EDITOR $filename", sub {
+			my $newmtime = (stat($filename))[9];
 
-				if ($newmtime > $mtime) {
-					$PerlPanel::OBJECT_REF->reload;
-				}
-				Gtk2::Helper->remove_watch($tag);
+			if ($newmtime > $mtime) {
+				$PerlPanel::OBJECT_REF->reload;
 			}
 		});
 	} else {
