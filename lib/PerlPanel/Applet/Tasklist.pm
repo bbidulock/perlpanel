@@ -1,4 +1,4 @@
-# $Id: Tasklist.pm,v 1.9 2004/11/05 13:34:38 jodrell Exp $
+# $Id: Tasklist.pm,v 1.10 2004/11/07 20:00:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,10 +47,12 @@ sub configure {
 
 	$self->resize if (PerlPanel::expanded);
 
-	my $button = Gtk2::Button->new;
-	$button->signal_connect('clicked', sub { $self->popup_menu });
+	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{expand} eq 'false') {
+		my $button = Gtk2::Button->new;
+		$button->signal_connect('clicked', sub { $self->popup_menu });
+		$self->widget->pack_start($button, 0, 0, 0);
+	}
 
-	$self->widget->pack_start($button, 0, 0, 0);
 	$self->widget->pack_start($self->{tasklist}, 1, 1, 0);
 	$self->widget->show_all;
 
