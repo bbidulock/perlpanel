@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: PerlPanel.spec,v 1.18 2004/05/28 10:46:24 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.19 2004/05/28 11:29:34 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -34,7 +34,7 @@ Vendor: http://jodrell.net/
 #define __find_provides /usr/lib/rpm/find-provides.perl
 #define __find_requires /usr/lib/rpm/find-requires.perl
 
-Source: http://jodrell.net/download.html?file=/files/%{name}-%{version}.tar.gz
+Source: http://jodrell.net/download.html?file=/files/%{name}/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/root-%{name}-%{version}
 Prefix: %{_prefix}
 
