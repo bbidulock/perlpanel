@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.77 2004/05/17 13:33:27 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.78 2004/05/25 15:03:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -259,6 +259,7 @@ sub configure {
 	# check is_visible for reloads:
 	$self->panel->set_type_hint('dock');
 
+	$self->panel->set_decorated(0); # needed for some window managers
 	$self->panel->stick; # needed for some window managers
 
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
