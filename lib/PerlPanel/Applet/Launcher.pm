@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.10 2004/10/24 21:29:49 jodrell Exp $
+# $Id: Launcher.pm,v 1.11 2004/10/26 16:17:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -66,44 +66,59 @@ sub init {
 	} else {
 		my $entry = PerlPanel::DesktopEntry->new($self->{file});
 
-		my $name	= $entry->Name(PerlPanel::locale);
-		my $comment	= $entry->Comment(PerlPanel::locale);
-		my $program	= $entry->Exec(PerlPanel::locale);
-		my $icon	= $entry->Icon(PerlPanel::locale);
-
-		PerlPanel::tips->set_tip($self->widget, ($comment ne '' ? sprintf("%s\n%s", $name, $comment) : $name));
-
-		$self->widget->signal_handler_disconnect($self->{sigid}) if (defined($self->{sigid}));
-		$self->{sigid} = $self->widget->signal_connect('button_release_event', sub {
-			if ($_[1]->button == 1) {
-				PerlPanel::launch($program, $entry->StartupNotify);
-
-			} elsif ($_[1]->button == 3) {
-				my $menu = Gtk2::Menu->new;
-				my $exec_item = Gtk2::ImageMenuItem->new_from_stock('gtk-execute');
-				$exec_item->signal_connect('activate', sub { $menu->destroy ; PerlPanel::launch($program, $entry->StartupNotify) });
-				my $edit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
-				$edit_item->signal_connect('activate', sub { $menu->destroy ; $self->edit });
-				my $remove_item = Gtk2::ImageMenuItem->new_from_stock('gtk-remove');
-				$remove_item->signal_connect('activate', sub { $self->remove });
-				$menu->add($exec_item);
-				$menu->add($edit_item);
-				$menu->add($remove_item);
-				$menu->show_all;
-				$menu->popup(undef, undef, sub { return $self->popup_position($menu) }, undef, $_[1]->button, undef);
-
-			}
-			return undef;
-		});
-
-		if (-r $icon) {
-			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($icon, PerlPanel::icon_size(), PerlPanel::icon_size());
-			$self->widget->child->set_from_pixbuf($pbf);
+		if (!defined($entry) || !$entry->is_valid || $entry->Name eq '' || $entry->Exec eq '') {
+			PerlPanel::warning(_('Launcher file is empty or invalid. Click OK to edit.'), sub { $self->edit });
 
 		} else {
-			$self->widget->remove($self->widget->child) if defined($self->widget->child);
-			$self->widget->add(Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name));
 
+			my $name	= $entry->Name(PerlPanel::locale);
+			my $comment	= $entry->Comment(PerlPanel::locale);
+			my $program	= $entry->Exec(PerlPanel::locale);
+			my $icon	= $entry->Icon(PerlPanel::locale);
+
+			PerlPanel::tips->set_tip($self->widget, ($comment ne '' ? sprintf("%s\n%s", $name, $comment) : $name));
+
+			$self->widget->signal_handler_disconnect($self->{sigid}) if (defined($self->{sigid}));
+			$self->{sigid} = $self->widget->signal_connect('button_release_event', sub {
+				if ($_[1]->button == 1) {
+					PerlPanel::launch($program, $entry->StartupNotify);
+
+				} elsif ($_[1]->button == 3) {
+					my $menu = Gtk2::Menu->new;
+
+					my $exec_item = Gtk2::ImageMenuItem->new_from_stock('gtk-execute');
+					$exec_item->signal_connect('activate', sub { $menu->destroy ; PerlPanel::launch($program, $entry->StartupNotify) });
+
+					my $edit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
+					$edit_item->signal_connect('activate', sub { $menu->destroy ; $self->edit });
+
+					my $remove_item = Gtk2::ImageMenuItem->new_from_stock('gtk-remove');
+					$remove_item->signal_connect('activate', sub { $self->remove });
+
+					my $add_item = Gtk2::ImageMenuItem->new_from_stock('gtk-add');
+					$add_item->signal_connect('activate', sub { $self->add_launcher });
+
+					$menu->add($exec_item);
+					$menu->add($edit_item);
+					$menu->add($remove_item);
+					$menu->add(Gtk2::SeparatorMenuItem->new);
+					$menu->add($add_item);
+					$menu->show_all;
+					$menu->popup(undef, undef, sub { return $self->popup_position($menu) }, undef, $_[1]->button, undef);
+
+				}
+				return undef;
+			});
+
+			if (-r $icon) {
+				my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($icon, PerlPanel::icon_size(), PerlPanel::icon_size());
+				$self->widget->child->set_from_pixbuf($pbf);
+
+			} else {
+				$self->widget->remove($self->widget->child) if defined($self->widget->child);
+				$self->widget->add(Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name));
+
+			}
 		}
 	}
 	$self->widget->show_all;
@@ -134,7 +149,7 @@ sub edit {
 	PerlPanel::exec_wait("$LAUNCHER_EDITOR $self->{file}", sub {
 		$self->widget->set_sensitive(1);
 		my $newmtime = (stat($self->{file}))[9];
-	
+
 		if ($newmtime > $mtime) {
 			# the editor modified the file, so reload:
 			$self->init;
@@ -159,6 +174,24 @@ sub popup_position {
 		$menu->realize;
 		return ($x, PerlPanel::screen_height() - $menu->allocation->height - PerlPanel::panel->allocation->height);
 	}
+}
+
+### c+p'd from MenuBase.pm:
+sub add_launcher {
+	my $self = shift;
+	my $applet = 'Launcher';
+	# place the new applet next to the menu:
+	my $idx = 0;
+	foreach my $applet ($PerlPanel::OBJECT_REF->{hbox}->get_children) {
+		last if ($applet eq $self->widget);
+		$idx++;
+	}
+	if ($idx >= 0) {
+		splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx+1, 0, $applet);
+		$PerlPanel::OBJECT_REF->load_applet($applet, $idx+1);
+		PerlPanel::save_config();
+	}
+	return 1;
 }
 
 1;
