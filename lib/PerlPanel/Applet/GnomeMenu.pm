@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.13 2004/09/17 11:28:53 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.14 2004/09/17 15:52:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -91,9 +91,7 @@ sub create_menu {
 	}
 
 	if ($self->{config}->{show_control_items} eq 'true' && !PerlPanel::has_action_menu) {
-		$self->add_control_items(
-			menu_edit_command  => "nautilus --no-desktop \"$self->{config}->{base}\"",
-		);
+		$self->add_control_items;
 	}
 
 	return 1;
