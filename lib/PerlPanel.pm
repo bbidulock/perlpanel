@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.114 2004/09/26 12:59:05 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.115 2004/09/27 09:52:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -147,7 +147,7 @@ sub init {
 	$self->load_applets;
 	$self->{hbox}->show;
 	$self->{vbox}->show;
-	$self->{separator}->show;
+	$self->{border}->show;
 	$self->{panel}->show;
 
 	if ($self->{config}{panel}{autohide} eq 'true') {
@@ -304,8 +304,9 @@ sub build_panel {
 	$self->{vbox} = Gtk2::VBox->new;
 	$self->{vbox}->set_border_width(0);
 	$self->{vbox}->set_spacing(0);
-	$self->{separator} = Gtk2::HSeparator->new;
-	$self->{separator}->set_size_request(-1, 1);
+
+	$self->{border} = Gtk2::HSeparator->new;
+	$self->{border}->set_size_request(-1, 1);
 
 	$self->{panel}->add($self->{vbox});
 
@@ -316,11 +317,12 @@ sub build_panel {
 
 sub arrange_border {
 	my $self = shift;
+
 	if ($self->position eq 'top') {
 		$self->{vbox}->pack_start($self->{hbox},	1, 1, 0);
-		$self->{vbox}->pack_start($self->{separator},	0, 0, 0);
+		$self->{vbox}->pack_start($self->{border},	0, 0, 0);
 	} else {
-		$self->{vbox}->pack_start($self->{separator},	0, 0, 0);
+		$self->{vbox}->pack_start($self->{border},	0, 0, 0);
 		$self->{vbox}->pack_start($self->{hbox},	1, 1, 0);
 	}
 	return 1;
@@ -852,9 +854,9 @@ sub autoshow {
 #   |   |			  |    |
 #   |   | Window		  |    |
 #   |   |			  |    |
-#   |   |  +--------+	          |    |
-#   |   |  | Widget |	          |    |
-#   |   |  +--------+	          |    |
+#   |   |  +--------+		  |    |
+#   |   |  | Widget |		  |    |
+#   |   |  +--------+		  |    |
 #   |   |	      + - pointer |    |
 #   |   |			  |    |
 #   |   +-------------------------+    |
@@ -1162,7 +1164,16 @@ sub install_applet_dialog {
 
 	$glade->get_widget('ok_button')->set_sensitive(undef);
 	$glade->get_widget('file_entry')->signal_connect('changed', sub {
-		$glade->get_widget('ok_button')->set_sensitive(-e $glade->get_widget('file_entry')->get_text);
+		if (
+			-r $glade->get_widget('file_entry')->get_text &&
+			basename($glade->get_widget('file_entry')->get_text) =~ /^(\w+)-(.+)\.tar\.gz/
+		) {
+			$glade->get_widget('ok_button')->set_sensitive(1);
+
+		} else {
+			$glade->get_widget('ok_button')->set_sensitive(undef);
+
+		}
 	});
 
 	$glade->get_widget('install_applet_dialog')->show_all;	
