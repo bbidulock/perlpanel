@@ -46,10 +46,10 @@ A few wahs, or, TODO:
 	6. Currently there's no separation between panel config and applet
 	   config. A way to separate them is probably really easy, and will
 	   come soon. Maybe.
-	7. No IL8N yet.
+	7. No I18N yet.
 
 Any flames, praise, patches, offers of money or sexual favours to
 jodrell@spod.uk.net.
 
 --
-$Id: README,v 1.1 2003/06/02 13:17:06 jodrell Exp $
+$Id: README,v 1.2 2003/06/02 21:16:48 jodrell Exp $
