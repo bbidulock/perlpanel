@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.20 2004/11/04 17:18:43 jodrell Exp $
+# $Id: About.pm,v 1.21 2005/01/12 14:17:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -24,9 +24,7 @@ use strict;
 our $BORDER = 10;
 
 our $MARKUP_FMT = <<"END";
-<span foreground="%%s"><span size="large"><span weight="bold">%s</span>
-
-%s</span>
+<span size="large">%s</span>
 
 <span weight="bold">%s %s</span>
 
@@ -36,8 +34,7 @@ our $MARKUP_FMT = <<"END";
 
 <span size="small">%s
 
-%s</span></span>
-
+%s</span>
 END
 
 sub new {
@@ -63,12 +60,13 @@ sub about {
 	my $lead_authors = join(", ", @PerlPanel::LEAD_AUTHORS);
 	$lead_authors =~ s/</&lt;/g;
 	$lead_authors =~ s/>/&gt;/g;
+
 	my $co_authors = join(", ", @PerlPanel::CO_AUTHORS);
 	$co_authors =~ s/</&lt;/g;
 	$co_authors =~ s/>/&gt;/g;
+
 	my $markup = sprintf(
 		$MARKUP_FMT,
-		($PerlPanel::VERSION eq '@VERSION@' ? _('Sandbox Mode') : _('Version {version}', version => $PerlPanel::VERSION)),
 		$PerlPanel::DESCRIPTION,
 		_('Author:'),
 		$lead_authors,
@@ -84,41 +82,14 @@ sub about {
 		),
 	);
 
-	$self->{image} = Gtk2::Image->new_from_file(sprintf('%s/share/%s/%s-about.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc($PerlPanel::NAME)));
-
-	$self->{label} = Gtk2::Label->new;
-	$self->{label}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER -1, -1);
-	$self->{label}->set_justify('center');
-	$self->{label}->set_line_wrap(1);
-	$self->{label}->set_markup(sprintf($markup, '#FFFFFF'));
-
-	$self->{slabel} = Gtk2::Label->new;
-	$self->{slabel}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER -1, -1);
-	$self->{slabel}->set_justify('center');
-	$self->{slabel}->set_line_wrap(1);
-	$self->{slabel}->set_markup(sprintf($markup, '#000000'));
-
-	$self->{fixed} = Gtk2::Fixed->new;
-
-	$self->{fixed}->add($self->{image});
-
-	$self->{fixed}->put($self->{slabel}, $BORDER+1, 115+1);
-	$self->{fixed}->put($self->{label}, $BORDER, 115);
-
-	$self->{box} = Gtk2::EventBox->new;
-	$self->{box}->signal_connect('button_release_event', sub {
-		$self->{window}->destroy;
-	});
-	$self->{box}->add($self->{fixed});
-
-	$self->{window} = Gtk2::Window->new;
-	$self->{window}->set_title(_('About {name}', name => $PerlPanel::NAME));
-	$self->{window}->set_icon(PerlPanel::icon);
-	$self->{window}->set_decorated(0);
-	$self->{window}->set_modal(1);
-	$self->{window}->set_position('center');
-	$self->{window}->add($self->{box});
-	$self->{window}->show_all;
+	my $glade = PerlPanel::load_glade('about');
+	$glade->get_widget('version_label')->set_text($PerlPanel::VERSION eq '@VERSION@' ? _('Sandbox Mode') : _('Version {version}', version => $PerlPanel::VERSION));
+	$glade->get_widget('about_image')->set_from_pixbuf(PerlPanel::icon);
+	$glade->get_widget('about_label')->set_markup($markup);
+	$glade->get_widget('about_dialog')->signal_connect('response', sub { $glade->get_widget('about_dialog')->destroy });
+	$glade->get_widget('about_dialog')->set_position('center');
+	$glade->get_widget('about_dialog')->set_icon(PerlPanel::icon);
+	$glade->get_widget('about_dialog')->show_all;	
 
 	return 1;
 }
