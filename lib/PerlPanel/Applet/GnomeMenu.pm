@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.19 2004/09/27 14:40:50 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.20 2004/11/23 14:56:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,9 +21,12 @@ package PerlPanel::Applet::GnomeMenu;
 use base 'PerlPanel::MenuBase';
 use PerlPanel::DesktopEntry;
 use Gnome2::VFS;
+use vars qw($SYMLINK_DEPTH);
 use strict;
 
 $PerlPanel::DesktopEntry::SILENT = 1;
+
+$SYMLINK_DEPTH = 3;
 
 sub configure {
 	my $self = shift;
@@ -118,9 +121,22 @@ sub create_submenu_for {
 			if ($file->{type} eq 'directory') {
 				$dirs{$file->{name}} = $file;
 
-			} else {
+			} elsif ($file->{type} eq 'regular') {
 				$files{$file->{name}} = $file;
 
+			} elsif ($file->{type} eq 'symbolic-link') {
+				my $target = $self->resolve_target($file);
+
+				if ($target->{type} eq 'directory') {
+					$dirs{$file->{name}} = $target;
+
+				} elsif ($file->{type} eq 'regular') {
+					$files{$file->{name}} = $target;
+
+				} else {
+					print STDERR "*** GnomeMenu error: symbolic link at $uri/$file->{name} doesn't resolve to a directory or regular file!\n";
+
+				}
 			}
 		}
 
@@ -133,13 +149,17 @@ sub create_submenu_for {
 			my $dfile = sprintf('%s/.directory', $path);
 			my ($result, undef) = Gnome2::VFS->get_file_info($dfile, 'default');
 
-			my $menu_icon;
+			my ($menu_icon, $menu_name);
 
 			if ($result eq 'ok') {
 				my $entry = PerlPanel::DesktopEntry->new($dfile);
 				my $icon;
 				if (defined($entry)) {
 					$icon = $entry->Icon(PerlPanel::locale);
+					$menu_name = ($entry->Name(PerlPanel::locale) ne '' ? $entry->Name(PerlPanel::locale) : $dir->{name});
+
+				} else {
+					$menu_name = $dir->{name};
 				}
 
 				if ($icon eq '') {
@@ -147,6 +167,7 @@ sub create_submenu_for {
 
 				} else {
 					$menu_icon = PerlPanel::lookup_icon($icon);
+
 				}
 			} else {
 				$menu_icon = PerlPanel::lookup_icon('gnome-fs-directory');
@@ -154,7 +175,7 @@ sub create_submenu_for {
 			}
 
 			my $item = $self->menu_item(
-				$dir->{name},
+				$menu_name,
 				$menu_icon
 			);
 			my $sub_menu = Gtk2::Menu->new;
@@ -169,6 +190,11 @@ sub create_submenu_for {
 			my $file = $files{$filename};
 			my $path = sprintf('%s/%s', $uri, $file->{name});
 			my $entry = PerlPanel::DesktopEntry->new($path);
+
+			if (!defined($entry)) {
+				printf(STDERR "couldn't load a desktop entry for %s\n", $path);
+				next;
+			}
 
 			my $name	= $entry->Name(PerlPanel::locale);
 			my $comment	= $entry->Comment(PerlPanel::locale);
@@ -203,6 +229,23 @@ sub get_default_config {
 		apps_in_submenu		=> 'true',
 		base			=> 'applications:',
 	};
+}
+
+sub resolve_target {
+	my ($self, $file, $depth) = @_;
+	$depth = (defined($depth) ? $depth : 0);
+	my $info = Gnome2::VFS->get_file_info($file->{symlink_name}, 'default');
+	if ($info->{type} eq 'symbolic-link') {
+		if ($depth <= $SYMLINK_DEPTH) {
+			return $self->resolve_target($info, $depth+1);
+
+		} else {
+			return undef;
+
+		}
+	} else {
+		return $info;
+	}
 }
 
 1;
