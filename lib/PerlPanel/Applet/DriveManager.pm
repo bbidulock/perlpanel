@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.2 2004/10/28 21:52:45 jodrell Exp $
+# $Id: DriveManager.pm,v 1.3 2004/10/29 11:46:02 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::DriveManager;
-use vars qw($MULTI $NULL_DEVICE %TYPES $DEFAULT_TYPE $MOUNT);
+use vars qw($MULTI $NULL_DEVICE %TYPES $DEFAULT_TYPE $MOUNT $UMOUNT $EJECT);
 use base 'PerlPanel::MenuBase';
 use strict;
 
@@ -34,6 +34,8 @@ our %TYPES = (
 	usb		=> _('USB Device (Camera, external HD)'),
 );
 chomp(our $MOUNT	= `which mount`);
+chomp(our $UMOUNT	= `which umount`);
+chomp(our $EJECT	= `which eject`);
 
 sub configure {
 	my $self = shift;
@@ -42,11 +44,18 @@ sub configure {
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
+	$self->widget->add(Gtk2::Image->new);
 
 	$self->{config}->{type} = $DEFAULT_TYPE if ($TYPES{$self->{config}->{type}} eq '');
 
 	if (!-x $MOUNT) {
-		PerlPanel::error(_("DriveManager cannot find the 'mount' program, please check your PATH"));
+		PerlPanel::error(_("DriveManager cannot find the '{cmd}' program, please check your PATH", cmd => 'mount'));
+
+	} elsif (!-x $UMOUNT) {
+		PerlPanel::error(_("DriveManager cannot find the '{cmd}' program, please check your PATH", cmd => 'umount'));
+
+	} elsif (!-x $EJECT) {
+		PerlPanel::error(_("DriveManager cannot find the '{cmd}' program, please check your PATH", cmd => 'eject'));
 
 	} else {
 		$self->init;
@@ -57,16 +66,28 @@ sub configure {
 	Glib::Timeout->add(1000, sub { $self->update });
 	$self->update;
 
+	$self->{type_model} = Gtk2::ListStore->new(qw(Gtk2::Gdk::Pixbuf Glib::String));
+	foreach my $type (sort keys %TYPES) {
+		$self->{type_model}->set(
+			$self->{type_model}->append,
+			0 => Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-%s', lc($PerlPanel::NAME), $type)),
+				16, 16,
+			),
+			1 => $TYPES{$type},
+		);
+	}
+
 	return 1;
 }
 
 sub init {
 	my $self = shift;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+	$self->widget->child->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 		PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-%s', lc($PerlPanel::NAME), $self->{config}->{type})),
 		PerlPanel::icon_size,
 		PerlPanel::icon_size
-	)));
+	));
 
 	return 1;
 }
@@ -153,9 +174,41 @@ sub create_menu {
 	$self->{menu} = Gtk2::Menu->new;
 
 	if ($self->mounted) {
-
+		$self->menu->append($self->menu_item(
+			_('Browse...'),
+			'gtk-open',
+			sub { $self->browse },
+		));
+		$self->menu->append($self->menu_item(
+			_('Eject'),
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
+				PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
+			),
+			sub { $self->unmount && $self->eject },
+		));
 	} else {
-
+		$self->menu->append($self->menu_item(
+			_('Close Tray'),
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
+				PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
+			),
+			sub { $self->close },
+		));
+		$self->menu->append($self->menu_item(
+			_('Eject'),
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
+				PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
+			),
+			sub { $self->eject },
+		));
+		$self->menu->append($self->menu_item(
+			_('Mount'),
+			'gtk-go-forward',
+			sub { $self->mount },
+		));
 	}
 
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
@@ -180,6 +233,27 @@ sub config_dialog {
 	my $self = shift;
 
 	my $combo = Gtk2::ComboBox->new;
+	$combo->set_model($self->{type_model});
+
+	my $renderer = Gtk2::CellRendererPixbuf->new;
+	$combo->pack_start($renderer, undef);
+	$combo->set_attributes($renderer, 'pixbuf' => 0);
+
+	my $renderer = Gtk2::CellRendererText->new;
+	$combo->pack_start($renderer, undef);
+	$combo->set_attributes($renderer, 'text' => 1);
+
+	my $i = 0;
+	foreach my $type (sort keys %TYPES) {
+		if ($type eq $self->{config}->{type}) {
+			$combo->set_active($i);
+			last;
+
+		} else {
+			$i++;
+
+		}
+	}
 
 	my $glade = PerlPanel::load_glade('drivemanager');
 
@@ -194,12 +268,55 @@ sub config_dialog {
 	$glade->get_widget('type_combo_placeholder')->pack_start($combo, 1, 1, 0);
 
 	$glade->get_widget('config_dialog')->signal_connect('response', sub {
+		if ($_[1] eq 'ok') {
+			$self->{config}->{device}	= $glade->get_widget('device_entry')->get_text;
+			$self->{config}->{point}	= $glade->get_widget('mountpoint_entry')->get_text;
+			$self->{config}->{type}		= (sort(keys(%TYPES)))[$combo->get_active];
+			PerlPanel::save_config;
+			$self->init;
+		}
 		$glade->get_widget('config_dialog')->destroy;
 	});
 	$glade->get_widget('config_dialog')->set_position('center');
+	$glade->get_widget('config_dialog')->set_icon(PerlPanel::icon);
 	$glade->get_widget('config_dialog')->show_all;
 
 	return 1;
+}
+
+sub mount {
+	my $self = shift;
+	$self->wait_command(sprintf('%s %s %s', $MOUNT, $self->{config}->{device}, $self->{config}->{point}));
+}
+
+sub unmount {
+	my $self = shift;
+	$self->wait_command(sprintf('%s %s', $UMOUNT, $self->{config}->{point}));
+}
+
+sub eject {
+	my $self = shift;
+	$self->wait_command(sprintf('%s %s', $EJECT, $self->{config}->{device}));
+}
+
+sub close {
+	my $self = shift;
+	$self->wait_command(sprintf('%s -t %s', $EJECT, $self->{config}->{device}));
+}
+
+sub wait_command {
+	my ($self, $cmd) = @_;
+	my $panel = $PerlPanel::OBJECT_REF;
+	$panel->panel->get_root_window->set_cursor($panel->{cursors}->{busy});
+	$self->widget->set_sensitive(undef);
+	PerlPanel::exec_wait($cmd, sub {
+		$self->widget->set_sensitive(1);
+		$panel->panel->get_root_window->set_cursor($panel->{cursors}->{normal});
+		if ($? > 0) {
+			PerlPanel::warning(_("Error: command '{cmd}' failed", cmd => $cmd));
+		}
+	});
+	return ($? > 0 ? undef : 1);
 }
 
 1;
