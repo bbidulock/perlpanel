@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.7 2004/11/05 10:00:32 jodrell Exp $
+# $Id: DriveManager.pm,v 1.8 2004/11/07 17:04:24 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -306,6 +306,9 @@ sub config_dialog {
 	$glade->get_widget('point_combo_placeholder')->pack_start($point_combo,	1, 1, 0);
 	$glade->get_widget('type_combo_placeholder')->pack_start($type_combo,	1, 1, 0);
 
+	$self->widget->set_sensitive(0);
+
+	$glade->get_widget('config_dialog')->signal_connect('delete_event', sub { $self->widget->set_sensitive(1) });
 	$glade->get_widget('config_dialog')->signal_connect('response', sub {
 		if ($_[1] eq 'ok') {
 			$self->{config}->{point} = (sort(keys(%DEVICES)))[$point_combo->get_active];
@@ -313,6 +316,7 @@ sub config_dialog {
 			PerlPanel::save_config;
 			$self->init;
 		}
+		$self->widget->set_sensitive(1);
 		$glade->get_widget('config_dialog')->destroy;
 	});
 	$glade->get_widget('config_dialog')->set_position('center');
