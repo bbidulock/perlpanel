@@ -15,6 +15,7 @@ What you will need is this:
       - Gtk2::GladeXML
       - Gnome2::Wnck
       - Gnome2::VFS
+    * The X11::FreeDesktop::DesktopEntry module
 
 Some of the applets also require additional modules, for example:
 
@@ -107,4 +108,4 @@ Gentoo: Users of the Gentoo operating system can find ebuilds via the
 project website.
 
 --
-$Id: INSTALL,v 1.7 2004/12/13 13:40:21 jodrell Exp $
+$Id: INSTALL,v 1.8 2005/01/01 20:24:40 jodrell Exp $
