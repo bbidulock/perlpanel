@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.26 2003/10/12 16:22:17 jodrell Exp $
+# $Id: BBMenu.pm,v 1.27 2003/10/13 13:42:32 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::BBMenu;
-use vars qw(@menufiles);
+use vars qw(@menufiles $MENU_ARROW);
 use strict;
 
 our @menufiles = (
@@ -34,6 +34,8 @@ our @menufiles = (
 	'/usr/local/share/waimea/menu',
 	'/usr/share/waimea/menu',
 );
+
+our $MENU_ARROW = sprintf('%s/share/pixmaps/perlpanel-menu-arrow.png', $PerlPanel::PREFIX);
 
 sub new {
 	my $self		= {};
@@ -70,10 +72,24 @@ sub configure {
 			}
 			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
 		}
-		$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	} else {
-		$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
+		$self->{pixbuf} = $self->widget->render_icon('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
 	}
+	$self->{arrow_pbf} = Gtk2::Gdk::Pixbuf->new_from_file($MENU_ARROW);
+	$self->{arrow_pbf}->composite(
+		$self->{pixbuf},
+		0,
+		0,
+		$self->{arrow_pbf}->get_width,
+		$self->{arrow_pbf}->get_height,
+		0,
+		0,
+		1,
+		1,
+		'nearest',
+		1
+	);
+	$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->{widget}->set_relief('none');
