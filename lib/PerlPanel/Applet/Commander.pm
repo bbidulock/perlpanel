@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.22 2004/06/07 09:17:54 jodrell Exp $
+# $Id: Commander.pm,v 1.23 2004/07/01 09:07:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use File::Basename qw(basename);
 use vars qw($iconfile);
 use strict;
 
-our $iconfile = PerlPanel::get_applet_pbf_filename(undef, 'commander');
+our $iconfile = PerlPanel::get_applet_pbf_filename('commander');
 
 sub new {
 	my $self		= {};
