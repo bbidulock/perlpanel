@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.11 2004/09/19 15:54:25 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.12 2004/09/19 17:42:49 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -88,23 +88,21 @@ sub get_default_config {
 sub update_icon {
 	my $self = shift;
 	my $pbf;
-	eval {
-		my $window = $self->{screen}->get_active_window;
-		if (defined($window)) {
-			if (lc($window->get_name) ne 'perlpanel') {
-				$pbf = $window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $window->get_icon;
-			} else {
-				$pbf = PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size);
+	my $window = $self->{screen}->get_active_window;
+	if (!defined($window)) {
+		return undef;
+	} else {
+		if (lc($window->get_name) eq 'perlpanel') {
+			return undef;
+		} else {
+			$pbf = ($window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $window->get_icon);
+			if ($pbf->get_height > PerlPanel::icon_size()) {
+				$pbf = $pbf->scale_simple(($pbf->get_width * (PerlPanel::icon_size() / $pbf->get_height)), PerlPanel::icon_size(), 'bilinear');
 			}
+			$self->{icon}->set_from_pixbuf($pbf);
+			return 1;
 		}
-	};
-	if (defined($pbf)) {
-		if ($pbf->get_height > PerlPanel::icon_size()) {
-			$pbf = $pbf->scale_simple(($pbf->get_width * (PerlPanel::icon_size() / $pbf->get_height)), PerlPanel::icon_size(), 'bilinear');
-		}
-		$self->{icon}->set_from_pixbuf($pbf);
 	}
-	return 1;
 }
 
 1;

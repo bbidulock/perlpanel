@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.15 2004/09/18 00:03:30 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.16 2004/09/19 17:42:49 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -169,7 +169,7 @@ sub create_submenu_for {
 				my $item = $self->menu_item(
 					$name,
 					(-e $icon ? $icon : 'gtk-execute'),
-					sub { PerlPanel::launch($program, 1) },
+					sub { PerlPanel::launch($program) },
 				);
 				if ($comment ne '') {
 					PerlPanel::tips->set_tip($item, $comment);
