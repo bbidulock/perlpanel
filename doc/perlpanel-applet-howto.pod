@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.28 2004/11/04 16:12:01 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.29 2004/11/04 16:52:17 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -233,11 +233,6 @@ You don't need to resize the pixbuf, this is done when the application
 
 The size of icons on the panel, in pixels. You should use this to scale
 things so that everything fits nicely together.
-
-	PerlPanel::icon_size_name()
-
-The name of the Gtk stock icon size, eg C<'large-toolbar'> or C<'menu'>.
-Again, use this to correctly scale things in your applet.
 
 	PerlPanel::screen_width
 

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.63 2004/09/29 13:17:43 jodrell Exp $
+# $Id: Configurator.pm,v 1.64 2004/11/04 16:52:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -54,35 +54,15 @@ our %SETTINGS_MAP = (
 		'top',
 		'bottom',
 	],
-	'panel_size' => [
+	'panel_size_spin' => [
 		$PerlPanel::OBJECT_REF->{config}{panel},
 		'size',
-		'enum',
-		'tiny',
-		'small',
-		'medium',
-		'large',
+		'integer',
 	],
 	'panel_autohide' => [
 		$PerlPanel::OBJECT_REF->{config}{panel},
 		'autohide',
 		'boolean',
-	],
-
-	'menus_follow_panel' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
-		'menu_size_as_panel',
-		'boolean',
-	],
-
-	'menu_icon_size' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
-		'menu_size',
-		'enum',
-		'tiny',
-		'small',
-		'medium',
-		'large',
 	],
 
 	#
@@ -260,10 +240,6 @@ sub apply_settings {
 
 sub setup_custom_settings {
 	my $self = shift;
-
-	$self->app->get_widget('menus_follow_panel')->signal_connect('toggled', sub {
-		$self->app->get_widget('menu_icon_size')->set_sensitive($_[0]->get_active ? undef : 1);
-	});
 
 	my @dirs = $PerlPanel::OBJECT_REF->{icon_theme}->get_search_path;
 	my %themes = (

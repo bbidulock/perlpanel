@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.125 2004/11/04 16:12:01 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.126 2004/11/04 16:52:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ our %DEFAULTS = (
 	panel => {
 		position		=> 'bottom',
 		spacing			=> 0,
-		size			=> 'medium',
+		size			=> 24,
 		has_border		=> 'true',
 		menu_size_as_panel	=> 'true',
 		menu_size		=> 'medium',
@@ -231,6 +231,13 @@ sub load_config {
 	if ($self->{config}{version} ne $VERSION) {
 		print STDERR "*** your config file is from a different version, strange things may happen!\n";
 	}
+
+	# check for an old value for icon_size, and correct:
+	if (@{$SIZE_MAP{$OBJECT_REF->{config}->{panel}->{size}}}[0] > 0) {
+		$OBJECT_REF->{config}->{panel}->{size} = @{$SIZE_MAP{$OBJECT_REF->{config}->{panel}->{size}}}[0];
+		$self->save_config;
+	}
+
 	return 1;
 }
 
@@ -797,11 +804,7 @@ sub icon {
 }
 
 sub icon_size {
-	return @{$SIZE_MAP{$OBJECT_REF->{config}{panel}{size}}}[0];
-}
-
-sub icon_size_name {
-	return @{$SIZE_MAP{$OBJECT_REF->{config}{panel}{size}}}[1];
+	return $OBJECT_REF->{config}->{panel}->{size};
 }
 
 #
@@ -812,15 +815,7 @@ sub menu_icon_size {
 	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
 		return $self->icon_size;
 	} else {
-		return @{$SIZE_MAP{$self->{config}{panel}->{menu_size}}}[0];
-	}
-}
-sub menu_icon_size_name {
-	my $self = $OBJECT_REF;
-	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
-		return $self->icon_size_name;
-	} else {
-		return @{$SIZE_MAP{$self->{config}{panel}->{menu_size}}}[1];
+		return @{$SIZE_MAP{'medium'}}[0];
 	}
 }
 

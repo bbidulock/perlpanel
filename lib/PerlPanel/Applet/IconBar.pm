@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.45 2004/09/29 13:17:43 jodrell Exp $
+# $Id: IconBar.pm,v 1.46 2004/11/04 16:52:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -62,14 +62,8 @@ sub load_icons {
 	@{$self->{icons}} = ();
 
 	if (scalar(@icons) < 1) {
-		my $dummy = PerlPanel::Applet::IconBar::DesktopEntry->new('dummy');
-		my $icon = Gtk2::Image->new_from_stock('gtk-add', PerlPanel::icon_size_name);
-		my $button = Gtk2::Button->new;
-		$button->set_relief('none');
-		$button->signal_connect('clicked', sub { $dummy->add });
-		$button->add($icon);
-		PerlPanel::tips->set_tip($button, _('Add Icon'));
-		$self->widget->pack_start($button, 0, 0, 0);
+		$self->widget->pack_start(Gtk2::Label->new(_('The IconBar applet is deprecated, use a Launcher instead!')), 0, 0, 0);
+
 	} else {
 		foreach my $file (sort @icons) {
 			my $filename = sprintf("%s/%s", $self->{icondir}, $file);
@@ -215,7 +209,8 @@ sub build {
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 
 	} else {
-		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name);
+		my $pbf = $PerlPanel::OBJECT_REF->panel->render_icon('gtk-missing-image', 'dialog')->scale_simple(PerlPanel::icon_size, PerlPanel::icon_size, 'bilinear');
+		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($pbf);
 
 	}
 

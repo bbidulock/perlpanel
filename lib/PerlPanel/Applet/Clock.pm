@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.31 2004/11/04 16:12:01 jodrell Exp $
+# $Id: Clock.pm,v 1.32 2004/11/04 16:52:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,8 +30,6 @@ use strict;
 # months, and so does GtkCalendar.
 #
 
-our $MULTI = 1;
-
 our %REMINDERS = (
 	-1	=> _('No reminder'),
 	5	=> _('{mins} minutes before', mins => 5),
@@ -46,14 +44,13 @@ our $REMINDER_DIALOG_FMT = "<span weight=\"bold\" size=\"x-large\">%s</span>\n\n
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
-	$self->{id}		= shift;
 	bless($self,		$self->{package});
 	return			$self;
 }
 
 sub configure {
 	my $self = shift;
-	$self->{config} = PerlPanel::get_config('Clock', $self->{id});
+	$self->{config} = PerlPanel::get_config('Clock');
 	$self->{label} = Gtk2::Label->new;
 	$self->{widget} = Gtk2::ToggleButton->new;
 	$self->widget->set_relief('none');

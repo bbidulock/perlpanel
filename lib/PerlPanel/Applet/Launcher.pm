@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.11 2004/10/26 16:17:03 jodrell Exp $
+# $Id: Launcher.pm,v 1.12 2004/11/04 16:52:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -116,7 +116,12 @@ sub init {
 
 			} else {
 				$self->widget->remove($self->widget->child) if defined($self->widget->child);
-				$self->widget->add(Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name));
+				my $pbf = $PerlPanel::OBJECT_REF->panel->render_icon('gtk-missing-image', 'dialog')->scale_simple(
+					PerlPanel::icon_size,
+					PerlPanel::icon_size,
+					'bilinear'
+				);
+				$self->widget->add(Gtk2::Image->new_from_pixbuf($pbf));
 
 			}
 		}
