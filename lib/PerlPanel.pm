@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.69 2004/04/02 12:34:25 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.70 2004/04/03 10:29:44 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -201,7 +201,15 @@ sub build_ui {
 	$self->panel->set_type_hint('dock');
 	$self->panel->stick; # needed for some window managers
 	$self->{hbox} = Gtk2::HBox->new;
-	$self->panel->add($self->{hbox});
+	# the panel is just a window with an hbox in it. we wrap the hbox in a toolbar
+	# as an easy way to give the panel a shadow while still obeying fitt's law.
+	$self->{hbox}->set_size_request(
+		PerlPanel::screen_width(),
+		-1
+	);
+	$self->panel->add(Gtk2::Toolbar->new);
+
+	$self->panel->child->add($self->{hbox});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
 	return 1;
 }
@@ -225,6 +233,7 @@ sub load_applets {
 	if (ref($self->{config}{applets}) ne 'ARRAY') {
 		$self->{config}{applets} = [ $self->{config}{applets} ];
 	}
+
 	foreach my $appletname (@{$self->{config}{applets}}) {
 		my $applet;
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));

@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
+# $Id: Pager.pm,v 1.9 2004/04/03 10:29:44 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -36,11 +36,15 @@ sub configure {
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{screen}->force_update;
 
-	$self->{widget} = Gnome2::Wnck::Pager->new($self->{screen});
-	$self->widget->set_shadow_type('in');
-	$self->widget->set_n_rows($self->{config}->{rows});
+	$self->{widget} = Gtk2::HBox->new;
+	$self->widget->set_border_width(1);
+	$self->widget->set_size_request(-1, PerlPanel::icon_size());
 
-	$self->widget->set_size_request(-1, PerlPanel::icon_size);
+	$self->{pager} = Gnome2::Wnck::Pager->new($self->{screen});
+	$self->{pager}->set_shadow_type('in');
+	$self->{pager}->set_n_rows($self->{config}->{rows});
+
+	$self->widget->add($self->{pager});
 
 	PerlPanel::tips->set_tip($self->widget, _('Workspace Pager'));
 	return 1;
