@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.19 2004/02/17 13:56:26 jodrell Exp $
+$Id: perlpanel.pod,v 1.20 2004/02/17 14:10:39 jodrell Exp $
 
 =head1 Introduction
 
@@ -22,56 +22,6 @@ This is where PerlPanel comes in. It is a panel program much in the vein
 of the Gnome Panel and Kicker, but is completely independent of any
 particular environment. So you can use it with Blackbox, for example, or
 WindowMaker.
-
-What you will need is this:
-
-=over
-
-=item * Perl 5.8.0 or higher
-
-=item * Gtk+ version 2 or higher
-
-=item * The XML::Simple Perl module
-
-=item * The XML::Parser Perl module
-
-=item * The Gtk2-Perl libraries
-
-=back
-
-Some of the applets also require additional modules, for example:
-
-=over
-
-=item * The Gnome2::Wnck Perl module for the tasklist, pager and
-window menu applets
-
-=item * Xmms::Remote for the XMMS applet
-
-=back
-
-Perl and Gtk+ should have been installed with your operating system. If
-you don't have Gtk+ 2 or higher, then you might want to try a Gnome
-distribution such as Ximian Desktop or Dropline. Alternatively you can
-download source code from L<http://www.gtk.org/>.
-
-The XML::Simple is available on CPAN. The Gtk2-Perl and Gnome2::Wnck
-libraries can be found on the Sourceforge page at
-L<http://sourceforge.net/projects/gtk2-perl>.
-
-Gnome2::Wnck is the Perl bindings for libwnck, the Window Navigation
-Construction Kit. You do not need the Gnome2 libraries in order to use
-this module - it has the Gnome2:: prefix because it's maintained by the
-GNOME developers.
-
-=head2 Note about XML::Simple
-
-By default, XML::Simple will attempt to use XML::SAX as an XML parser.
-However we have observed that in some situations this can result in
-unreliable conversion of data. So PerlPanel forces the use of
-XML::Parser instead of XML::SAX. So even if you have XML::Simple
-installed you may find that PerlPanel won't run - this is because
-XML::Parser is required.
 
 =head1 Running PerlPanel
 
