@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.12 2004/09/19 17:42:49 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.13 2004/09/19 18:06:42 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,6 +29,13 @@ sub configure {
 	$self->{screen}->force_update;
 	$self->{icon} = Gtk2::Image->new;
 	$self->{screen}->signal_connect('active-window-changed', sub { $self->update_icon });
+	my $callback = sub {
+		if (scalar($self->get_workspace_windows) < 1) {
+			$self->{icon}->set_from_pixbuf(PerlPanel::get_applet_pbf('WindowMenu', PerlPanel::icon_size));
+		}
+	};
+	$self->{screen}->signal_connect('active-workspace-changed', $callback);
+	$self->{screen}->signal_connect('window-closed', $callback);
 	$self->update_icon;
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->set_relief('none');
@@ -56,13 +63,7 @@ sub clicked {
 sub create_menu {
 	my $self = shift;
 	$self->{menu} = Gtk2::Menu->new;
-	my $workspace = $self->{screen}->get_active_workspace;
-	my @windows;
-	foreach my $window ($self->{screen}->get_windows) {
-		if (!$window->is_skip_tasklist && $window->get_workspace->get_number == $workspace->get_number) {
-			push(@windows, $window);
-		}
-	}
+	my @windows = $self->get_workspace_windows;
 	if (scalar(@windows) < 1) {
 		my $item = Gtk2::MenuItem->new_with_label(_('No Windows Open'));
 		$item->set_sensitive(0);
@@ -87,22 +88,38 @@ sub get_default_config {
 
 sub update_icon {
 	my $self = shift;
-	my $pbf;
 	my $window = $self->{screen}->get_active_window;
 	if (!defined($window)) {
 		return undef;
 	} else {
+		my $pbf;
 		if (lc($window->get_name) eq 'perlpanel') {
-			return undef;
+			if (scalar($self->get_workspace_windows) < 1) {
+				$pbf = PerlPanel::get_applet_pbf('WindowMenu', PerlPanel::icon_size);
+			} else {
+				return undef;
+			}
 		} else {
 			$pbf = ($window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $window->get_icon);
-			if ($pbf->get_height > PerlPanel::icon_size()) {
-				$pbf = $pbf->scale_simple(($pbf->get_width * (PerlPanel::icon_size() / $pbf->get_height)), PerlPanel::icon_size(), 'bilinear');
-			}
-			$self->{icon}->set_from_pixbuf($pbf);
-			return 1;
+		}
+		if ($pbf->get_height > PerlPanel::icon_size()) {
+			$pbf = $pbf->scale_simple(($pbf->get_width * (PerlPanel::icon_size() / $pbf->get_height)), PerlPanel::icon_size(), 'bilinear');
+		}
+		$self->{icon}->set_from_pixbuf($pbf);
+		return 1;
+	}
+}
+
+sub get_workspace_windows {
+	my $self = shift;
+	my $workspace = $self->{screen}->get_active_workspace;
+	my @windows;
+	foreach my $window ($self->{screen}->get_windows) {
+		if (!$window->is_skip_tasklist && $window->get_workspace->get_number == $workspace->get_number) {
+			push(@windows, $window);
 		}
 	}
+	return @windows;
 }
 
 1;
