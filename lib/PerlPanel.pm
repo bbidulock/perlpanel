@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.142 2005/01/10 14:35:04 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.143 2005/01/22 13:48:37 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -830,6 +830,7 @@ sub reload {
 	$self->load_applets;
 	$self->configure;
 	$self->panel->set_sensitive(1);
+	$self->move;
 	return 1;
 }
 
