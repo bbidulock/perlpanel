@@ -1,0 +1,485 @@
+# $Id: de.po,v 1.1 2004/09/02 11:31:52 jodrell Exp $
+# This file is part of PerlPanel.
+# 
+# PerlPanel is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# PerlPanel is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PerlPanel; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PerlPanel 0.7.0\n"
+"POT-Creation-Date: 2004-04-05 22:08+0100\n"
+"PO-Revision-Date: 2004-08-29 21:21+0100\n"
+"Last-Translator: Ruediger Arp <ruediger@gmx.net>\n"
+"Language-Team: Deutsch <ruediger@gmx.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# lib/PerlPanel.pm
+msgid "A lean, mean panel program written in Perl."
+msgstr "Ein schickes, schlankes Panel geschrieben in Perl"
+
+msgid "This program is Free Software. You may use it under the terms of the GNU General Public License."
+msgstr "Dieses Program ist freie Software. Es unterliegt den Bedingungen der GNU·General·Public·License."
+
+msgid "Couldn't load the {module} module!"
+msgstr "Das Modul {module}·konnte nicht geladen werden!"
+
+#, fuzzy
+msgid "Can't open pipe from {prog}: {error}"
+msgstr "Can't open pipe from {prog}: {error}"
+
+msgid "Error loading {applet} applet.\n"
+msgstr "Fehler beim Laden des Applets {applet}.\n"
+
+msgid "Error: couldn't find applet file {file}.pm."
+msgstr "Fehler: Die Applet-Datei {file}.pm wurde nicht gefunden."
+
+msgid "Invalid panel position '{position}'."
+msgstr "Panel-Position '{position}' is ungültig."
+
+# lib/PerlPanel/MenuBase.pm
+msgid "Lock Screen"
+msgstr "Bildschirm sperren"
+
+msgid "Run Program..."
+msgstr "Anwendung ausführen..."
+
+msgid "Take Screenshot..."
+msgstr "Bildschirmfoto aufnehmen..."
+
+msgid "Shut Down..."
+msgstr "Herunterfahren..."
+
+msgid "Are you sure you want to shut down?"
+msgstr "Sind Sie sicher, dass Sie Ihr System herunterfahren wollen?"
+
+msgid "Reboot..."
+msgstr "Neustart..."
+
+msgid "Are you sure you want to reboot?"
+msgstr "Sind Sie sicher, dass Sie einen Neustart durchführen wollen?"
+
+msgid "Configure..."
+msgstr "Konfigurieren..."
+
+msgid "Add To Panel"
+msgstr "Zum Panel hinzufügen"
+
+msgid "About..."
+msgstr "Info..."
+
+# lib/PerlPanel/Applet/ActionMenu.pm
+msgid "Action Menu"
+msgstr "Menü Aktionen"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+# lib/PerlPanel/Applet/About.pm
+msgid "About {name}"
+msgstr "Info zu {name}"
+
+msgid "Sandbox Mode"
+msgstr "Sandbox-Modus"
+
+msgid "Version {version}"
+msgstr "Version {version}"
+
+msgid "Author:"
+msgstr "Autor:"
+
+msgid "Using Perl v{perl_ver}, Gtk+ v{gtk_ver} and Gtk2.pm v{gtk2_ver}."
+msgstr "Mit Perl v{perl_ver}, Gtk+ v{gtk_ver} und Gtk2.pm v{gtk2_ver}."
+
+# lib/PerlPanel/Applet/BatteryMonitor.pm
+msgid "No APM support in kernel"
+msgstr "Keine APM-Unterstützung im Kernel"
+
+msgid "The system is running on AC power"
+msgstr "Das System läuft mit Netzstrom"
+
+msgid "The system is running on battery power"
+msgstr "Das System läuft mit Akkustrom"
+
+#, fuzzy
+msgid "The system is running on backup power"
+msgstr "The·system·is·running·on·backup·power"
+
+msgid "Unknown status"
+msgstr "Status unbekannt"
+
+msgid "BatteryMonitor Configuration"
+msgstr "Konfiguration BatteryMonitor"
+
+msgid "Update interval (ms):"
+msgstr "Aktualisierungs-Intervall (ms):"
+
+# lib/PerlPanel/Applet/BBMenu.pm
+msgid "Menu"
+msgstr "Menü"
+
+msgid "Error opening {file}: {error}"
+msgstr "Fehler beim Öffnen von {file}: {error}"
+
+msgid "Parse error on line {line} of {file}"
+msgstr "Syntaxfehler in Zeile {line} der Datei {file}"
+
+msgid "Applications"
+msgstr "Anwendungen"
+
+# lib/PerlPanel/Applet/Clock.pm
+msgid "Clock"
+msgstr "Uhr"
+
+msgid "Date format:"
+msgstr "Datumsformat:"
+
+msgid "Tooltip format:"
+msgstr "Tooltip-Format:"
+
+msgid "Calendar"
+msgstr "Kalender"
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+# lib/PerlPanel/Applet/Commander.pm
+msgid "Run Command"
+msgstr "Anwendung ausführen"
+
+msgid "Run in terminal"
+msgstr "Im Terminal ausführen"
+
+msgid "Run with file..."
+msgstr "Mit Datei ausführen..."
+
+msgid "No description available."
+msgstr "Keine Beschreibung verfügbar"
+
+# Configurator.pm Glade
+msgid "PerlPanel Configuration"
+msgstr "Konfiguration PerlPanel"
+
+msgid "Icon Size:"
+msgstr "Symbolgröße:"
+
+msgid "top"
+msgstr "oben"
+
+msgid "bottom"
+msgstr "unten"
+
+msgid "tiny"
+msgstr "winzig"
+
+msgid "small"
+msgstr "klein"
+
+msgid "medium"
+msgstr "mittel"
+
+msgid "large"
+msgstr "groß"
+
+msgid "Panel Position:"
+msgstr "Position des Panels:"
+
+msgid "Autohide"
+msgstr "Auto-Verbergen"
+
+msgid "Menu icons follow panel size"
+msgstr "Menü-Symbole an Größe des Panels anpassen"
+
+msgid "Panel"
+msgstr "Panel"
+
+msgid "<span weight=\"bold\">BlackBox Menu</span>"
+msgstr "<span weight=\"bold\">BlackBox-Menü</span>"
+
+#, fuzzy
+msgid "Control items in menu"
+msgstr "Control items in menu"
+
+#, fuzzy
+msgid "Border on button"
+msgstr "Border·on·button"
+
+msgid "Arrow on icon"
+msgstr "Pfeil auf Symbol"
+
+msgid "Applications in a submenu"
+msgstr "Anwendungen in einem Untermenü"
+
+msgid "Submenu label:"
+msgstr "Titel für Untermenü:"
+
+msgid "Menu label:"
+msgstr "Titel für Menü:"
+
+msgid "Menu Icon:"
+msgstr "Menü-Symbol:"
+
+msgid "<span weight=\"bold\">Action Menu</span>"
+msgstr "<span weight=\"bold\">Menü Aktionen</span>"
+
+msgid "Action Menu Label:"
+msgstr "Titel für Menü Aktionen:"
+
+msgid "Action Menu Icon:"
+msgstr "Symbol für Menü Aktionen:"
+
+msgid "<span weight=\"bold\">GNOME Menu</span>Menus"
+msgstr "<span weight=\"bold\">GNOME-Menü</span>"
+
+msgid "Number of rows:"
+msgstr "Reihen:"
+
+msgid "Pager"
+msgstr "Pager"
+
+msgid "Drag and drop items in the list to move them."
+msgstr "Ordnen Sie die Elemente in der Liste nach Belieben an."
+
+msgid "Applets"
+msgstr "Applets"
+
+msgid "PerlPanel: Add Applet"
+msgstr "PerlPanel: Applet hinzufügen"
+
+# lib/PerlPanel/Applet/CPUTemp.pm
+msgid "Error opening '{command}': {error}"
+msgstr "Fehler beim Öffnen von '{command}': {error}"
+
+msgid "CPU Temperature"
+msgstr "CPU-Temperatur"
+
+# lib/PerlPanel/Applet/IconBar.pm
+msgid "Add Icon"
+msgstr "Symbol hinzufügen"
+
+msgid "Reorder Icons"
+msgstr "Symbole neu anordnen"
+
+msgid "Delete..."
+msgstr "Löschen..."
+
+msgid "Edit..."
+msgstr "Bearbeiten..."
+
+msgid "Add..."
+msgstr "Hinzufügen..."
+
+msgid "Reorder..."
+msgstr "Neu anordnen..."
+
+msgid "View Icon Directory"
+msgstr "Verzeichnis mit Symbolen öffnen"
+
+msgid "No desktop item editor could be found."
+msgstr "Es wurde kein Editor für Desktop-Elemente gefunden."
+
+# lib/PerlPanel/Applet/LoadMonitor.pm
+msgid "CPU Usage"
+msgstr "CPU-Last"
+
+msgid "Couldn't open '/proc/loadavg': {error}"
+msgstr "Fehler beim Öffnen von '/proc/loadavg': {error}"
+
+# lib/PerlPanel/Applet/Lock.pm
+msgid "Lock the Screen"
+msgstr "Bildschirm sperren"
+
+# lib/PerlPanel/Applet/NautilusBookmarks.pm
+msgid "Nautilus Bookmarks"
+msgstr "Nautilus-Lesezeichen"
+
+# lib/PerlPanel/Applet/OpenBoxMenu.pm
+msgid "Error parsing OpenBox menu: can't find the {id} menu"
+msgstr "Fehler in Syntax des OpenBox-Menüs: Menü {id} wurde nicht gefunden"
+
+# lib/PerlPanel/Applet/Pager.pm
+msgid "Workspace Pager"
+msgstr "Desktop-Pager"
+
+# lib/PerlPanel/Applet/PanelPet.pm
+msgid "Hi, I'm your Panel Pet!"
+msgstr "Hallo, ich bin Ihr Panel-Maskottchen!"
+
+msgid "Preferences"
+msgstr "Einstellungen"
+
+msgid "About"
+msgstr "Info"
+
+msgid "Remove From Panel"
+msgstr "Vom Panel entfernen"
+
+msgid ""
+"Just a hello from your Panel Pet!\n"
+"\n"
+"Bark Bark"
+msgstr ""
+"Hallo von Ihrem Panel-Maskottchen!\n"
+"\n"
+"Moin Moin!"
+
+msgid "Panel Pet: Hello"
+msgstr "Panel·Pet:·Hallo"
+
+#, fuzzy
+msgid "Frames in animation:"
+msgstr "Frames in Animation:"
+
+msgid "PanelPet Imagefile:"
+msgstr "Bilddatei für PanelPet:"
+
+msgid "Choose PanelPet Image"
+msgstr "Wählen Sie eine PanelPet-Bilddatei aus"
+
+# lib/PerlPanel/Applet/Quit.pm
+msgid "Close {name}"
+msgstr "{name} schliessen"
+
+# lib/PerlPanel/Applet/RecentFiles.pm
+msgid "Recent Files"
+msgstr "Zuletzt geöffnete Dokumente"
+
+msgid "Couldn't find a launcher for files of type '{type}'"
+msgstr "Starter für '{type}'-Dateien wurde nicht gefunden"
+
+# lib/PerlPanel/Applet/Reload.pm
+msgid "Reload"
+msgstr "Neu laden"
+
+# lib/PerlPanel/Applet/ScreenShot.pm
+msgid "Choose File"
+msgstr "Datei auswählen"
+
+msgid "Take Screenshot"
+msgstr "Bildschirmfoto aufnehmen"
+
+# ScreenShot.pm Glade:
+msgid "_Browse..."
+msgstr "_Auswählen..."
+
+# lib/PerlPanel/Applet/SetiAtHome.pm
+#, fuzzy
+msgid "Completed {units} workunits, {percent}% of current"
+msgstr "{units}·Arbeitseinheiten beendet, gegenwärtig·{percent}%"
+
+msgid "Completed {percent}%"
+msgstr "{percent}% abgeschlossen"
+
+msgid "ERROR"
+msgstr "FEHLER"
+
+# SetiAtHome.pm Glade:
+msgid "Location of Seti@Home data:"
+msgstr "Pfad zu den Daten von Seti@Home:"
+
+msgid "Seti@Home Account E-mail address:"
+msgstr "E-Mail-Adresse des Seti@Home-Kontos:"
+
+#, fuzzy
+msgid "Check on remote host (requires SSH)"
+msgstr "Auf entferntem Host nachsehen (benötigt SSH)"
+
+msgid "Remote host:"
+msgstr "Entfernter Host:"
+
+msgid "Remote user:"
+msgstr "Benutzer auf entferntem Host:"
+
+# lib/PerlPanel/Applet/ShellManager.pm
+msgid "Shell Manager"
+msgstr "Shell-Manager"
+
+# ShellManager.pm Glade:
+msgid "Connect to remote host"
+msgstr "Mit entferntem Host verbinden"
+
+msgid "Co_nnect"
+msgstr "Ver_binden"
+
+msgid "User:"
+msgstr "Benutzer:"
+
+msgid "Host:"
+msgstr "Host:"
+
+msgid "Port:"
+msgstr "Port:"
+
+msgid "Connection List"
+msgstr "Liste der Verbindungen"
+
+# lib/PerlPanel/Applet/ShowDesktop.pm
+msgid "{home}/screenshot.png"
+msgstr "{home}/Bildschirmfoto.png"
+
+msgid "Show the Desktop"
+msgstr "Desktop anzeigen"
+
+msgid "Restore Windows"
+msgstr "Fenster wiederherstellen"
+
+# lib/PerlPanel/Applet/WifiMonitor.pm
+msgid "Wireless Signal Strength"
+msgstr "Wireless-Signalstärke"
+
+# lib/PerlPanel/Applet/WindowMenu.pm
+msgid "Window List"
+msgstr "Fensterliste"
+
+msgid "No Windows Open"
+msgstr "Keine Fenster geöffnet"
+
+# lib/PerlPanel/Applet/XMMS.pm
+msgid "Play Previous Track"
+msgstr "Vorheriger Titel"
+
+msgid "Stop Playing"
+msgstr "Stop"
+
+msgid "Play"
+msgstr "Wiedergabe"
+
+msgid "Pause"
+msgstr "Pause"
+
+msgid "Play Next Track"
+msgstr "Nächster Titel"
+
+msgid "Adjust Volume"
+msgstr "Lautstärkeregler"
+
+msgid "The XMMS applet requires the Xmms-Perl module!"
+msgstr "Das XMMS-Applet benötigt das Xmms-Perl-Modul!"
+
+# menu-editor.glade
+msgid "Menu Editor"
+msgstr "Menüeditor"
+
+msgid "Name:"
+msgstr "Name:"
+
+msgid "Command:"
+msgstr "Befehl:"
+
+msgid "Icon:"
+msgstr "Symbol:"
+

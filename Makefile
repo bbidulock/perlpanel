@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.42 2004/08/26 14:58:34 jodrell Exp $
+# $Id: Makefile,v 1.43 2004/09/02 11:30:40 jodrell Exp $
 
 VERSION=0.7.1
 
@@ -57,6 +57,8 @@ perlpanel:
 	@# similarly for other locales as they become available:
 	mkdir -p  build/locale/en/$(LC_CATEGORY)
 	msgfmt -o build/locale/en/$(LC_CATEGORY)/perlpanel.mo src/po/en.po
+	mkdir -p  build/locale/de/$(LC_CATEGORY)
+	msgfmt -o build/locale/de/$(LC_CATEGORY)/perlpanel.mo src/po/de.po
 
 install:
 	mkdir -p	$(DESTDIR)/$(LIBDIR) \
@@ -64,6 +66,7 @@ install:
 			$(DESTDIR)/$(MANDIR)/$(MAN_SECTION) \
 			$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION) \
 			$(DESTDIR)/$(LOCALEDIR)/en/$(LC_CATEGORY) \
+			$(DESTDIR)/$(LOCALEDIR)/de/$(LC_CATEGORY) \
 			$(DESTDIR)/$(CONFDIR)
 	@echo Copying library files to $(DESTDIR)/$(LIBDIR):
 	@cp -Rp lib/*	$(DESTDIR)/$(LIBDIR)/
@@ -79,6 +82,7 @@ install:
 	install -m 0755 build/perlpanel-run-dialog.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/PerlPanel::MenuBase.1	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
 	install -m 0644 build/locale/en/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/en/$(LC_CATEGORY)/
+	install -m 0644 build/locale/de/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/de/$(LC_CATEGORY)/
 
 	@echo Installing default rcfile:
 	@if [ -e $(DESTDIR)/$(CONFDIR)/perlpanelrc ] ; then \
