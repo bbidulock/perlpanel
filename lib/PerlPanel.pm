@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.118 2004/09/28 20:19:13 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.119 2004/09/29 13:17:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -145,6 +145,7 @@ sub init {
 	$self->build_panel;
 	$self->configure;
 	$self->load_applets;
+	$self->setup_dnd;
 	$self->{hbox}->show;
 	$self->{vbox}->show;
 	$self->{border}->show;
@@ -460,6 +461,35 @@ sub add_applet {
 		$self->{hbox}->reorder_child($widget, $position);
 	}
 	return 1;
+}
+
+sub setup_dnd {
+	my $self = shift;
+	my $target_list	= Gtk2::TargetList->new;
+	$target_list->add(Gtk2::Gdk::Atom->new('text/uri-list'), 0, 0);
+	$self->panel->drag_dest_set(['drop', 'motion', 'highlight'], ['copy', 'private', 'default', 'move', 'link', 'ask']);
+	$self->panel->signal_connect(drag_data_received => sub { $self->drop_handler(@_) });
+	$self->panel->drag_dest_set_target_list($target_list);
+	return 1;
+}
+
+sub drop_handler {
+	my $self = shift;
+	my @uris = split(/[\r\n]+/, $_[4]->data);
+	my $file = $uris[0];
+	if ($file !~ /^file:\/\//) {
+		warning(_('Sorry, applets can only be installed from local files.'));
+
+	} elsif (basename($file) !~ /^(\w+)-(.+)\.tar\.gz$/) {
+		warning('Cannot install this applet: invalid filename.');
+
+	} else {
+		$file =~ s!^file:/+!/!g;
+		install_applet_dialog(undef, $file);
+	}
+
+	return 1;
+
 }
 
 sub remove_applet {
@@ -931,10 +961,7 @@ sub get_applet_pbf {
 	if (!defined($self->{pbfs}{$applet}{$size})) {
 		my $file = get_applet_pbf_filename($applet);
 		if (-e $file) {
-			$self->{pbfs}{$applet}{$size} = Gtk2::Gdk::Pixbuf->new_from_file($file);
-			if ($self->{pbfs}{$applet}{$size}->get_height != $size) {
-				$self->{pbfs}{$applet}{$size} = $self->{pbfs}{$applet}{$size}->scale_simple($size, $size, 'bilinear');
-			}
+			$self->{pbfs}{$applet}{$size} = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, $size, $size);
 		} else {
 			$self->{pbfs}{$applet}{$size} = get_applet_pbf('missing', $size);
 		}
@@ -1097,7 +1124,7 @@ sub new_applet_id {
 }
 
 sub install_applet_dialog {
-	my $callback = shift;
+	my ($callback, $file) = @_;
 	my $glade = load_glade('applet-install');
 	$glade->get_widget('install_applet_dialog')->set_position('center');
 	$glade->get_widget('install_applet_dialog')->set_icon(icon());
@@ -1147,6 +1174,7 @@ sub install_applet_dialog {
 
 		}
 	});
+	$glade->get_widget('file_entry')->set_text($file);
 
 	$glade->get_widget('install_applet_dialog')->show_all;	
 	return 1;

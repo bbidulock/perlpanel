@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.44 2004/09/24 12:43:31 jodrell Exp $
+# $Id: IconBar.pm,v 1.45 2004/09/29 13:17:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -211,26 +211,7 @@ sub build {
 
 	}
 	if (-e $self->{iconfile}) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
-		my $x0 = $self->{pixbuf}->get_width;
-		my $y0 = $self->{pixbuf}->get_height;
-		if ($x0 != PerlPanel::icon_size || $y0 != PerlPanel::icon_size) {
-			my ($x1, $y1);
-			if ($x0 > $y0) {
-				# image is landscape:
-				$x1 = PerlPanel::icon_size;
-				$y1 = int(($y0 / $x0) * PerlPanel::icon_size);
-			} elsif ($x0 == $y0) {
-				# image is square:
-				$x1 = PerlPanel::icon_size;
-				$y1 = PerlPanel::icon_size;
-			} else {
-				# image is portrait:
-				$x1 = int(($x0 / $y0) * PerlPanel::icon_size);
-				$y1 = PerlPanel::icon_size;
-			}
-			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
-		}
+		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{iconfile}, PerlPanel::icon_size, PerlPanel::icon_size);
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 
 	} else {

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.62 2004/09/27 10:37:24 jodrell Exp $
+# $Id: Configurator.pm,v 1.63 2004/09/29 13:17:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -174,9 +174,9 @@ sub build_ui {
 	my $self = shift;
 	$self->{app} = PerlPanel::load_glade('configurator');
 
-	$self->app->get_widget('panel_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(PerlPanel::lookup_icon(sprintf('%s-panel', lc($PerlPanel::NAME))))->scale_simple(24, 24, 'bilinear'));
-	$self->app->get_widget('menu_tab_image')->set_from_pixbuf(PerlPanel::get_applet_pbf('bbmenu')->scale_simple(24, 24, 'bilinear'));
-	$self->app->get_widget('applet_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(PerlPanel::lookup_icon(sprintf('%s-applets', lc($PerlPanel::NAME))))->scale_simple(24, 24, 'bilinear'));
+	$self->app->get_widget('panel_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size(PerlPanel::lookup_icon(sprintf('%s-panel', lc($PerlPanel::NAME))), 24, 24));
+	$self->app->get_widget('menu_tab_image')->set_from_pixbuf(PerlPanel::get_applet_pbf('bbmenu', 24));
+	$self->app->get_widget('applet_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size(PerlPanel::lookup_icon(sprintf('%s-applets', lc($PerlPanel::NAME))), 24, 24));
 
 	$self->setup_config_mapping;
 
@@ -319,10 +319,7 @@ sub setup_custom_settings {
 			if (-r $file) {
 				my $entry = PerlPanel::DesktopEntry->new($file);
 				if (-r $entry->Icon) {
-					my $launcher_pbf = Gtk2::Gdk::Pixbuf->new_from_file($entry->Icon);
-					if (defined($launcher_pbf)) {
-						$pbf = $launcher_pbf->scale_simple(32, 32, 'bilinear');
-					}
+					$pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($entry->Icon, 32, 32);
 				}
 			}
 		}

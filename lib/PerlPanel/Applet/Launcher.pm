@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.8 2004/09/27 09:51:19 jodrell Exp $
+# $Id: Launcher.pm,v 1.9 2004/09/29 13:17:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -97,10 +97,7 @@ sub init {
 		});
 
 		if (-r $icon) {
-			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon);
-			if ($pbf->get_height > PerlPanel::icon_size()) {
-				$pbf = $pbf->scale_simple(($pbf->get_width * (PerlPanel::icon_size() / $pbf->get_height)), PerlPanel::icon_size(), 'bilinear');
-			}
+			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($icon, PerlPanel::icon_size(), PerlPanel::icon_size());
 			$self->widget->child->set_from_pixbuf($pbf);
 
 		} else {

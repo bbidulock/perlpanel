@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.14 2004/09/17 11:28:53 jodrell Exp $
+# $Id: XMMS.pm,v 1.15 2004/09/29 13:17:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -70,10 +70,7 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
 	$self->{controller} = Xmms::Remote->new;
-	$self->{pbfs}{pause} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, 'pause'));
-	if ($self->{pbfs}{pause}->get_height > PerlPanel::icon_size) {
-		$self->{pbfs}{pause} = $self->{pbfs}{pause}->scale_simple(PerlPanel::icon_size, PerlPanel::icon_size, 'bilinear');
-	}
+	$self->{pbfs}{pause} = Gtk2::Gdk::Pixbuf->new_from_file_at_size(sprintf('%s/%s.png', $ICON_DIR, 'pause'), PerlPanel::icon_size, PerlPanel::icon_size);
 	foreach my $name (qw(prev play stop next volume)) {
 		$self->{buttons}{$name} = $self->create_button($name);
 		my $func = $CALLBACKS{$name};
@@ -129,10 +126,7 @@ sub configure {
 
 sub create_button {
 	my ($self, $id) = @_;
-	$self->{pbfs}{$id} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, $id));
-	if ($self->{pbfs}{$id}->get_height > PerlPanel::icon_size) {
-		$self->{pbfs}{$id} = $self->{pbfs}{$id}->scale_simple(PerlPanel::icon_size, PerlPanel::icon_size, 'bilinear');
-	}
+	$self->{pbfs}{$id} = Gtk2::Gdk::Pixbuf->new_from_file_at_size(sprintf('%s/%s.png', $ICON_DIR, $id), PerlPanel::icon_size, PerlPanel::icon_size);
 	my $button;
 	if ($id eq 'volume') {
 		$button = Gtk2::ToggleButton->new;
