@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.42 2004/01/16 22:46:33 jodrell Exp $
+# $Id: BBMenu.pm,v 1.43 2004/01/19 15:48:10 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::BBMenu;
-use File::Basename qw(basename);
+use base 'PerlPanel::MenuBase';
 use vars qw(@menufiles @ICON_DIRECTORIES $DEFAULT_ICON);
 use strict;
 
@@ -34,25 +34,16 @@ our @menufiles = (
 	'/usr/share/waimea/menu',
 );
 
-our @ICON_DIRECTORIES = (
-	sprintf('%s/.perlpanel/icon-files', $ENV{HOME}),
-	'%s/share/icons/gnome/48x48/apps',
-	'%s/share/pixmaps',
-);
-
 our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
-
-sub new {
-	my $self		= {};
-	$self->{package}	= shift;
-	bless($self, $self->{package});
-	return $self;
-}
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gtk2::Button->new;
-	$self->create_menu;
+
+	$self->{widget}	= Gtk2::Button->new;
+	$self->{menu}	= Gtk2::Menu->new;
+
+	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief} eq 'true' ? 'half' : 'none');
+
 	$self->{iconfile} = $PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon};
 	if (-e $self->{iconfile}) {
 		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
@@ -78,6 +69,7 @@ sub configure {
 	} else {
 		$self->{pixbuf} = $self->widget->render_icon('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
 	}
+
 	$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{label} eq '') {
 		$self->widget->add($self->{icon});
@@ -88,31 +80,22 @@ sub configure {
 		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 		$self->widget->child->pack_start(Gtk2::Label->new($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{label}), 1, 1, 0);
 	}
-	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief} eq 'true' ? 'half' : 'none');
+
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
+
+	$self->create_menu;
+
 	$self->widget->signal_connect('clicked', sub { $self->popup });
-	$self->widget->grab_focus;
+
 	return 1;
+
 }
 
-sub widget {
-	return $_[0]->{widget};
-}
-
-sub menu {
-	return $_[0]->{menu};
-}
-
-sub expand {
-	return 0;
-}
-
-sub fill {
-	return 0;
-}
-
-sub end {
-	return 'start';
+sub create_menu {
+	my $self = shift;
+	$self->parse_menufile;
+	$self->add_control_items if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{show_control_items} eq 'true');
+	return 1;
 }
 
 sub get_default_config {
@@ -147,16 +130,20 @@ sub parse_menufile {
 		close(MENU);
 
 		# $current_menu is a reference to the current menu or submenu - it starts out as the toplevel menu:
-
 		my $current_menu;
 
 		if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{apps_in_submenu} eq 'true') {
-			my $item = Gtk2::ImageMenuItem->new_with_label($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label});
-			$item->set_image($self->get_icon($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label}, 1));
+
+			my $item = $self->menu_item(
+				$PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label},
+				$self->get_icon($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label}, 1),
+			);
+
 			my $menu = Gtk2::Menu->new;
 			$item->set_submenu($menu);
 			$self->menu->append($item);
 			$current_menu = $menu;
+
 		} else {
 			$current_menu = $self->menu;
 		}
@@ -186,12 +173,12 @@ sub parse_menufile {
 					# we're in a submenu, so create an item, and a new menu, make the menu
 					# a submenu of the item, and make $current_menu a reference to it:
 
-					my $item = Gtk2::ImageMenuItem->new_with_label($name);
-					$item->set_image($self->get_icon($name, 1));
+					my $item = $self->menu_item($name, $self->get_icon($name, 1), undef);
 
 					$current_menu->append($item);
 
 					$current_menu = Gtk2::Menu->new;
+
 					$item->set_submenu($current_menu);
 
 				} elsif ($cmd eq 'end') {
@@ -208,145 +195,16 @@ sub parse_menufile {
 					$current_menu->append(Gtk2::SeparatorMenuItem->new);
 
 				} elsif ($cmd eq 'exec') {
-					my $item = Gtk2::ImageMenuItem->new_with_label($name);
-					$item->set_image($self->get_icon($val));
-					$item->signal_connect('activate', sub { system("$val &") });
-					$current_menu->append($item);
+					$current_menu->append($self->menu_item(
+						$name,
+						$self->get_icon($val, 0),
+						sub { system("$val &") }
+					));
 				}
 			}
 		}
 		return 1;
 	}
-}
-
-sub add_control_items {
-	my $self = shift;
-	if (scalar($self->menu->get_children) > 0) {
-		$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	}
-	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
-	if (-x $xscreensaver) {
-		$self->menu->append($self->control_item('Lock Screen', sprintf('%s/share/pixmaps/%s/applets/lock.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)), sub { system("$xscreensaver -lock &") }));
-	}
-	$self->menu->append($self->control_item('Run Program...', 'gtk-execute', sub {
-		require('Commander.pm');
-		my $commander = PerlPanel::Applet::Commander->new;
-		$commander->configure;
-		$commander->run;
-	}));
-	$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	$self->menu->append($self->control_item("Configure...", 'gtk-preferences', sub {
-		require('Configurator.pm');
-		my $configurator = PerlPanel::Applet::Configurator->new;
-		$configurator->configure;
-		$configurator->init;
-	}));
-	$self->menu->append($self->control_item("Reload", 'gtk-refresh', sub { $PerlPanel::OBJECT_REF->reload }));
-	$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	$self->menu->append($self->control_item("About...", 'gtk-dialog-info', sub {
-		require('About.pm');
-		my $about = PerlPanel::Applet::About->new;
-		$about->configure;
-		$about->about;
-	}));
-	return 1;
-}
-
-sub control_item {
-	my ($self, $label, $stock_id, $callback) = @_;
-	my $item = Gtk2::ImageMenuItem->new_with_label($label);
-	my $icon;
-	if (-e $stock_id) {
-		$icon = Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($stock_id)->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear'));
-	} else {
-		$icon = Gtk2::Image->new_from_stock($stock_id, $PerlPanel::OBJECT_REF->icon_size_name);
-	}
-	$item->set_image($icon);
-	$item->signal_connect('activate', $callback);
-	return $item;
-}
-
-sub create_menu {
-	my $self = shift;
-	$self->{menu} = Gtk2::Menu->new;
-	$self->parse_menufile;
-	$self->add_control_items if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{show_control_items} eq 'true');
-	return 1;
-}
-
-sub popup {
-	my $self = shift;
-	$self->menu->show_all;
-	$self->menu->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, undef, 0);
-	return 1;
-}
-
-sub popup_position {
-	my $self = shift;
-	my ($x, undef) = $PerlPanel::OBJECT_REF->get_widget_position($self->widget);
-	$x = 0 if ($x < 5);
-	if ($PerlPanel::OBJECT_REF->position eq 'top') {
-		return ($x, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
-	} else {
-		$self->menu->realize;
-		$self->menu->show_all;
-		return ($x, $PerlPanel::OBJECT_REF->screen_height - $self->{menu}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
-	}
-}
-
-# this is a kludgy system that attempts to associate icons with
-# entries in the menu. It looks in a set of hard-coded directories
-# for icons that have the same name as the entry's program. You
-# can control what icons are used by placing icons of your choice in
-# $HOME/.perlpanel/icon-files/, which is the first location looked at.
-
-sub get_icon {
-	my ($self, $executable, $is_dir) = @_;
-	$executable =~ s/\s/-/g if ($is_dir == 1);
-	my $file = $self->detect_icon($executable);
-	if (-e $file) {
-		return $self->generate_icon($file);
-	} else {
-		return Gtk2::Image->new_from_stock(($is_dir == 1 ? 'gtk-open' : 'gtk-execute'), $PerlPanel::OBJECT_REF->icon_size_name);
-	}
-}
-
-sub detect_icon {
-	my ($self, $executable) = @_;
-	my $program = lc(basename($executable));
-	($program, undef) = split(/\s/, $program, 2);
-	foreach my $dir (@ICON_DIRECTORIES) {
-		my $file = sprintf('%s/%s.png', sprintf($dir, $PerlPanel::PREFIX), $program);
-		if (-e $file) {
-			return $file;
-		}
-	}
-	return undef;
-}
-
-sub generate_icon {
-	my ($self, $file) = @_;
-	my $pbf = Gtk2::Gdk::Pixbuf->new_from_file($file);
-	my $x0 = $pbf->get_width;
-	my $y0 = $pbf->get_height;
-	if ($x0 != $PerlPanel::OBJECT_REF->icon_size || $PerlPanel::OBJECT_REF->icon_size) {
-		my ($x1, $y1);
-		if ($x0 > $y0) {
-			# image is landscape:
-			$x1 = $PerlPanel::OBJECT_REF->icon_size;
-			$y1 = ($y0 / $x0) * $PerlPanel::OBJECT_REF->icon_size;
-		} elsif ($x0 == $y0) {
-			# image is square:
-			$x1 = $PerlPanel::OBJECT_REF->icon_size;
-			$y1 = $PerlPanel::OBJECT_REF->icon_size;
-		} else {
-			# image is portrait:
-			$x1 = ($x0 / $y0) * $PerlPanel::OBJECT_REF->icon_size;
-			$y1 = $PerlPanel::OBJECT_REF->icon_size;
-		}
-		$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
-	}
-	return Gtk2::Image->new_from_pixbuf($pbf);
 }
 
 1;

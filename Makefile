@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.21 2004/01/18 13:01:34 jodrell Exp $
+# $Id: Makefile,v 1.22 2004/01/19 15:48:10 jodrell Exp $
 
 VERSION=0.3.0
 
@@ -36,6 +36,7 @@ perlpanel:
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
+	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
 
 install:
 	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR)/$(MAN_SECTION) $(IMGDIR)

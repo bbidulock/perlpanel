@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.45 2004/01/17 00:56:19 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.46 2004/01/19 15:48:10 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -164,8 +164,10 @@ sub build_ui {
 	$self->{panel}->stick; # needed for some window managers
 
 	$self->{hbox} = Gtk2::HBox->new;
+
 	$self->{port} = Gtk2::Viewport->new;
 	$self->{port}->add($self->{hbox});
+
 	$self->{panel}->add($self->{port});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
 
