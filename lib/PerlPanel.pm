@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.92 2004/07/01 10:42:22 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.93 2004/07/01 20:47:11 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -247,15 +247,27 @@ sub build_panel {
 
 	$self->{panel} = Gtk2::Window->new;
 
-	if ($self->{config}{panel}{has_border} eq 'true') {
-		my $toolbar = Gtk2::Toolbar->new;
-		$self->{hbox}->set_size_request(PerlPanel::screen_width(), -1);
-		$toolbar->add($self->{hbox});
-		$self->panel->add($toolbar);
-	} else {
-		$self->panel->add($self->{hbox});
-	}
+	$self->{vbox} = Gtk2::VBox->new;
+	$self->{vbox}->set_border_width(0);
+	$self->{vbox}->set_spacing(0);
+	$self->{separator} = Gtk2::HSeparator->new;
+	$self->{separator}->set_size_request(-1, 1);
 
+	$self->{panel}->add($self->{vbox});
+
+	$self->arrange_border;
+	return 1;
+}
+
+sub arrange_border {
+	my $self = shift;
+	if ($self->position eq 'top') {
+		$self->{vbox}->pack_start($self->{hbox},	1, 1, 0);
+		$self->{vbox}->pack_start($self->{separator},	0, 0, 0);
+	} else {
+		$self->{vbox}->pack_start($self->{separator},	0, 0, 0);
+		$self->{vbox}->pack_start($self->{hbox},	1, 1, 0);
+	}
 	return 1;
 }
 
@@ -402,6 +414,9 @@ sub reload {
 	foreach my $applet ($self->{hbox}->get_children) {
 		$applet->destroy;
 	}
+	$self->{vbox}->remove($self->{hbox});
+	$self->{vbox}->remove($self->{separator});
+	$self->arrange_border;
 	$self->load_applets;
 	$self->configure;
 	$self->move;
