@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.7 2004/09/24 14:49:13 jodrell Exp $
+# $Id: Launcher.pm,v 1.8 2004/09/27 09:51:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -43,6 +43,7 @@ sub configure {
 	$self->{widget}->set_relief('none');
 	$self->widget->add(Gtk2::Image->new);
 	$self->init;
+
 	return 1;
 }
 
@@ -72,7 +73,8 @@ sub init {
 
 		PerlPanel::tips->set_tip($self->widget, ($comment ne '' ? sprintf("%s\n%s", $name, $comment) : $name));
 
-		$self->widget->signal_connect('button_release_event', sub {
+		$self->widget->signal_handler_disconnect($self->{sigid}) if (defined($self->{sigid}));
+		$self->{sigid} = $self->widget->signal_connect('button_release_event', sub {
 			if ($_[1]->button == 1) {
 				PerlPanel::launch($program, $entry->StartupNotify);
 
@@ -93,6 +95,7 @@ sub init {
 			}
 			return undef;
 		});
+
 		if (-r $icon) {
 			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon);
 			if ($pbf->get_height > PerlPanel::icon_size()) {
