@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.2 2003/06/13 15:57:22 jodrell Exp $
+$Id: perlpanel.pod,v 1.3 2003/06/13 16:00:22 jodrell Exp $
 
 =head1 Introduction
 
@@ -56,7 +56,7 @@ above.
 
 Running PerlPanel is as simple as typing "perlpanel" into your terminal.
 However you might wish to add this to your .xinitrc file or any other
-scripts that start when your X session begins. =cut
+scripts that start when your X session begins.
 
 =head1 Configuring PerlPanel
 
