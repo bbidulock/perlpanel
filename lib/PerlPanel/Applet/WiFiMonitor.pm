@@ -1,4 +1,4 @@
-# $Id: WiFiMonitor.pm,v 1.7 2005/01/18 10:08:20 jodrell Exp $
+# $Id: WiFiMonitor.pm,v 1.8 2005/01/21 18:14:15 jodrell Exp $
 # This file is part of PerlPanel.
 #
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -159,7 +159,7 @@ sub _set_icon {
 
     return unless $self->{config}{show_icon} eq 'true';
 
-    my $image_dir = sprintf('%s/share/%s/wifimonitor', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+    my $image_dir = sprintf('%s/share/%s/applets/wifimonitor', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
     $self->{icon}->set_from_file("$image_dir/$icon");
     $self->{widget}->queue_draw;
 }

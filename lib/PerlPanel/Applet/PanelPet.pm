@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.13 2005/01/13 22:25:38 jodrell Exp $
+# $Id: PanelPet.pm,v 1.14 2005/01/21 18:14:15 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -88,7 +88,7 @@ sub end {
 
 # Build and return the default config values for this applet
 sub get_default_config {
-    my $image_dir = sprintf('%s/share/%s/panelpet', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+    my $image_dir = sprintf('%s/share/%s/applets/panelpet', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
     return { image      => "$image_dir/oldwanda.png",
              frames     => 3,
              interval   => 2000,
