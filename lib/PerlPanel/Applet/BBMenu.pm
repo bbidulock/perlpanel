@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.32 2004/01/04 17:03:12 jodrell Exp $
+# $Id: BBMenu.pm,v 1.33 2004/01/05 14:56:59 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,10 +37,9 @@ our @menufiles = (
 our $MENU_ARROW = sprintf('%s/share/pixmaps/perlpanel-menu-arrow.png', $PerlPanel::PREFIX);
 
 our @ICON_DIRECTORIES = (
-	'%s/share/pixmaps',
-	'%/local/share/pixmaps',
+	sprintf('%s/.perlpanel/icon-files', $ENV{HOME}),
 	'%s/share/icons/gnome/48x48/apps',
-	'%s/local/share/icons/gnome/48x48/apps',
+	'%s/share/pixmaps',
 );
 
 sub new {
@@ -191,6 +190,7 @@ sub parse_menufile {
 					push(@{$self->{items}}, [ $path, undef, undef, undef, '<Separator>' ]);
 				} elsif ($cmd eq 'exec') {
 					my $path = join('/', @{$self->{paths}}, $name);
+					push(@{$self->{entries}}, [ $path, $val ]);
 					push(@{$self->{items}}, [ $path, undef, sub { system(sprintf('%s &', $val)) }, undef, '<StockItem>', 'gtk-execute' ]);
 				}
 			}
@@ -269,6 +269,7 @@ sub create_menu {
 	my $self = shift;
 	$self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
 	$self->{factory}->create_items(@{$self->{items}});
+	$self->apply_icons;
 	$self->{menu_widget} = $self->{factory}->get_widget('<main>');
 	$self->{menu_widget}->show_all;
 	return 1;
@@ -289,6 +290,67 @@ sub popup_position {
 		$self->{menu_widget}->show_all;
 		return (0, $PerlPanel::OBJECT_REF->screen_height - $self->{menu_widget}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	}
+}
+
+# this is a kludgy system that attempts to associate icons with
+# entries in the menu. It looks in a set of hard-coded directories
+# for icons that have the same name as the entry's program. You
+# can control what icons are used by placing icons of your choice in
+# $HOME/.perlpanel/icon-files/, which is the first location looked at.
+
+sub apply_icons {
+	my $self = shift;
+	foreach my $entry (@{$self->{entries}}) {
+		my ($path, $executable) = @{$entry};
+		my $item = $self->{factory}->get_widget('<main>'.$path);
+		my $icon_file = $self->detect_icon($executable);
+		my $icon;
+		if (-e $icon_file) {
+			$icon = $self->generate_icon($icon_file);
+		} else {
+			$icon = Gtk2::Image->new_from_pixbuf($self->widget->render_icon('gtk-execute', @{$PerlPanel::SIZE_MAP{tiny}}[1]));
+		}
+		$item->set_image($icon);
+	}
+	return 1;
+}
+
+sub detect_icon {
+	my ($self, $executable) = @_;
+	my $program = lc(basename($executable));
+	($program, undef) = split(/\s/, $program, 2);
+	foreach my $dir (@ICON_DIRECTORIES) {
+		my $file = sprintf('%s/%s.png', sprintf($dir, $PerlPanel::PREFIX), $program);
+		if (-e $file) {
+			return $file;
+		}
+	}
+	return undef;
+}
+
+sub generate_icon {
+	my ($self, $file) = @_;
+	my $pbf = Gtk2::Gdk::Pixbuf->new_from_file($file);
+	my $x0 = $pbf->get_width;
+	my $y0 = $pbf->get_height;
+	if ($x0 != @{$PerlPanel::SIZE_MAP{tiny}}[0] || $y0 != @{$PerlPanel::SIZE_MAP{tiny}}[0]) {
+		my ($x1, $y1);
+		if ($x0 > $y0) {
+			# image is landscape:
+			$x1 = @{$PerlPanel::SIZE_MAP{tiny}}[0];
+			$y1 = int(($y0 / $x0) * @{$PerlPanel::SIZE_MAP{tiny}}[0]);
+		} elsif ($x0 == $y0) {
+			# image is square:
+			$x1 = @{$PerlPanel::SIZE_MAP{tiny}}[0];
+			$y1 = @{$PerlPanel::SIZE_MAP{tiny}}[0];
+		} else {
+			# image is portrait:
+			$x1 = int(($x0 / $y0) * @{$PerlPanel::SIZE_MAP{tiny}}[0]);
+			$y1 = @{$PerlPanel::SIZE_MAP{tiny}}[0];
+		}
+		$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
+	}
+	return Gtk2::Image->new_from_pixbuf($pbf);
 }
 
 1;

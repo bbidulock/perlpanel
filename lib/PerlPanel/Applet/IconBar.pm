@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.27 2004/01/04 17:03:12 jodrell Exp $
+# $Id: IconBar.pm,v 1.28 2004/01/05 14:56:59 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@ use strict;
 
 our $ICON_DIR = sprintf('%s/share/pixmaps', $PerlPanel::PREFIX);
 
-chomp (our $MENU_EDITOR = `which perlpanel-item-edit`);
+chomp (our $MENU_EDITOR = `which perlpanel-item-edit 2> /dev/null`);
 
 sub new {
 	my $self		= {};

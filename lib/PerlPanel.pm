@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.35 2003/12/23 16:46:25 uid68241 Exp $
+# $Id: PerlPanel.pm,v 1.36 2004/01/05 14:56:59 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL 
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.1.1';
+our $VERSION		= '0.2.0';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',
@@ -133,9 +133,10 @@ sub load_config {
 	my $self = shift;
 	$self->{config} = (-e $self->{rcfile} ? XMLin($self->{rcfile}) : \%DEFAULTS);
 	if ($self->{config}{version} ne $VERSION) {
-		$self->error("Your config file is from an earlier\nversion ($self->{config}{version}). Please delete it and\nrestart $NAME.", sub { exit });
-		Gtk2->main;
-		return undef;
+		print STDERR "Warning: Your config file is from an earlier version, strange things may happen!\n";
+	#	$self->error("Your config file is from an earlier\nversion ($self->{config}{version}). Please delete it and\nrestart $NAME.", sub { exit });
+	#	Gtk2->main;
+	#	return undef;
 	}
 	return 1;
 }

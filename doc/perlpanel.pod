@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.11 2003/10/12 16:22:17 jodrell Exp $
+$Id: perlpanel.pod,v 1.12 2004/01/05 14:56:59 jodrell Exp $
 
 =head1 Introduction
 
@@ -52,7 +52,8 @@ L<http://sourceforge.net/projects/gtk2-perl>.
 
 Gnome2::Wnck is the Perl bindings for libwnck, the Window Navigation
 Construction Kit. You do not need the Gnome2 libraries in order to use
-this module - it has the Gnome2:: prefix because it's a Gnome package.
+this module - it has the Gnome2:: prefix because it's maintained by the
+Gnome developers.
 
 =head2 Note about XML::Simple
 
@@ -119,14 +120,11 @@ order:
 	$HOME/.perlpanel/menu
 	$HOME/.blackbox/menu
 	$HOME/.fluxbox/menu
-	$HOME/.openbox/menu
 	$HOME/.waimea/menu
 	/usr/local/share/blackbox/menu
 	/usr/share/blackbox/menu
 	/usr/local/share/fluxbox/menu
 	/usr/share/fluxbox/menu
-	/usr/local/share/openbox/menu
-	/usr/share/openbox/menu
 	/usr/local/share/waimea/menu
 	/usr/share/waimea/menu
 
@@ -135,6 +133,14 @@ special Blackbox commands, so you might find that there are empty
 submenus and extra separators in the menu. If you copy your menu file
 into C<$HOME/.perlpanel> and remove the Blackbox-specific elements,
 PerlPanel will automatically detect it and use it instead.
+
+BBMenu will attempt to find an icon file for each entry in the menu. It
+does this by searching in common directories for a .png file that
+matches the program name. For example, if your menu has an entry for
+the c<foobar> program, BBMenu will look for a file called I<foobar.png>.
+ If you want to specify an icon to use for a program, you can do so by
+placing a copy of the image (or a symbolic link to it) in
+C<$HOME/.perlpanel/icon-files>.
 
 =head2 IconBar
 
@@ -184,6 +190,12 @@ The LoadMonitor applet shows the current CPU load on your system, as a
 percentage. You can click on the widget and bring up a dialog to change
 the update interval. By default, this is 100ms.
 
+=head2 BatteryMonitor
+
+The LoadMonitor applet shows the current charge on your laptop's battery.
+You can click on the widget and bring up a dialog to change the update
+interval. By default, this is 100ms.
+
 =head2 Configurator
 
 Clicking on the Configurator icon brings up a dialog that you can use to
@@ -210,6 +222,22 @@ credits, version number and license for PerlPanel.
 =head2 Quit
 
 Clicking this icon closes the panel.
+
+=head2 NautilusBookmarks
+
+This applet provides an easy way to launch your bookmarked locations
+in the Nautilus file browser.
+
+=head2 PanelPet
+
+The PanelPet applet shows an animation of a fish in a bowl. You can
+use any file you like. By default, PanelPet uses an animation from
+GNOME's Fish applet. Right-click on the applet to configure it.
+
+=head2 ShowDesktop
+
+This applet provides a button that minimises/restores all the
+applications that are visible, so you can see your desktop.
 
 =head1 Writing Applets
 
