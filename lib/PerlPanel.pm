@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.123 2004/10/20 13:39:30 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.124 2004/10/26 16:16:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -335,12 +335,14 @@ sub load_applets {
 	my $self = shift;
 
 	# this is some munging for when the config gets confused when being serialized to/from XML:
-	if (ref($self->{config}{applets}) ne 'ARRAY') {
-		$self->{config}{applets} = [ $self->{config}{applets} ];
+	if (ref($self->{config}->{applets}) ne 'ARRAY') {
+		$self->{config}->{applets} = [ $self->{config}->{applets} ];
 	}
 
-	for (my $i = 0 ; $i < scalar(@{$self->{config}{applets}}) ; $i++) {
-		$self->load_applet(@{$self->{config}{applets}}[$i], $i);
+	@{$self->{config}->{applets}} = grep { defined } @{$self->{config}->{applets}};
+
+	for (my $i = 0 ; $i < scalar(@{$self->{config}->{applets}}) ; $i++) {
+		$self->load_applet(@{$self->{config}->{applets}}[$i], $i);
 	}
 
 	return 1;
@@ -369,7 +371,7 @@ sub load_applet {
 
 	if (defined($multi) && $id eq '') {
 		$id = $self->new_applet_id;
-		@{$self->{config}{applets}}[$position] = sprintf('%s::%s', $appletname, $id);
+		@{$self->{config}->{applets}}[$position] = sprintf('%s::%s', $appletname, $id);
 		save_config();
 	}
 
@@ -940,7 +942,7 @@ sub has_applet {
 	my ($self, $applet);
 	$self = $OBJECT_REF;
 	$applet = shift;
-	foreach my $appletname (@{$self->{config}{applets}}) {
+	foreach my $appletname (@{$self->{config}->{applets}}) {
 		return 1 if ($appletname =~ /^$applet/);
 	}
 	return undef;
