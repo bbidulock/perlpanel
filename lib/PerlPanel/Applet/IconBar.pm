@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.8 2003/06/05 12:50:21 jodrell Exp $
+# $Id: IconBar.pm,v 1.9 2003/06/05 12:56:07 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -139,12 +139,14 @@ sub build {
 				# record the desktop file's mod time:
 				my $mtime = (stat($self->{filename}))[9];
 				# run the editor:
-				system("$menueditor $self->{filename} rm -f $lockfile &");
+				$self->{widget}->set_sensitive(0);
+				system("$menueditor $self->{filename} && rm -f $lockfile &");
 				# wait for the lockfile to be removed:
 				while (-e $lockfile) {
 					Gtk2->main_iteration while (Gtk2->events_pending);
 				}
 				# reload if the file changed:
+				$self->{widget}->set_sensitive(1);
 				my $newmtime = (stat($self->{filename}))[9];
 				if ($newmtime > $mtime) {
 					$PerlPanel::OBJECT_REF->reload;
