@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.3 2004/09/17 15:53:31 jodrell Exp $
+# $Id: Launcher.pm,v 1.4 2004/09/18 00:03:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -76,7 +76,7 @@ sub init {
 			PerlPanel::tips->set_tip($self->widget, ($comment ne '' ? sprintf("%s\n%s", $name, $comment) : $name));
 			$self->widget->signal_connect('button_release_event', sub {
 				if ($_[1]->button == 1) {
-					system("$program &");
+					PerlPanel::launch($program, 1);
 				} elsif ($_[1]->button == 3) {
 					my $menu = Gtk2::Menu->new;
 					my $edit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');

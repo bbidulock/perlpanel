@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.59 2004/09/17 15:57:03 jodrell Exp $
+# $Id: Configurator.pm,v 1.60 2004/09/18 00:03:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -271,9 +271,7 @@ sub setup_custom_settings {
 		$PerlPanel::DEFAULT_THEME => 1,
 	);
 	foreach my $dir (@dirs) {
-		if (!opendir(DIR, $dir)) {
-			print STDERR "*** Error opening '$dir' for reading: $!\n";
-		} else {
+		if (opendir(DIR, $dir)) {
 			map { $themes{$_}++ if (-e "$dir/$_/index.theme") } readdir(DIR);
 			closedir(DIR);
 		}

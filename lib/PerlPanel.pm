@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.107 2004/09/17 16:02:37 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.108 2004/09/18 00:03:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -23,6 +23,7 @@ use Gtk2;
 use Gtk2::Helper;
 use Gtk2::GladeXML;
 use Gtk2::SimpleList;
+use Gnome2::Wnck;
 use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use POSIX qw(setlocale);
@@ -194,6 +195,8 @@ sub init {
 	foreach my $signal (qw(ABRT ALRM HUP INT KILL QUIT SEGV STOP TERM __DIE__)) {
 		$SIG{$signal} = $sub;
 	}
+
+	$self->setup_launch_feedback;
 
 	Gtk2->main;
 
@@ -533,6 +536,66 @@ sub move {
 		$bottom,
 	);
 
+	return 1;
+}
+
+#
+# here's how this works: the launch() function sets the DESKTOP_STARTUP_ID
+# environment variable when it runs an external program - compliant apps will
+# take note of this variable and broadcast their startup state when they run.
+# It also provides the user with some visible feedback (eg, a "busy" cursor).
+# The panel keeps a Gnome2::Wnck::Screen instance, and when a new application
+# starts, a signal is emitted which we capture. If the startup ID is one we
+# recognise, then we reset the root window cursor and remove the ID from the
+# list of IDs we're tracking. launch() also sets a timeout to clean up after
+# 1500ms for those apps that don't support startup notification.
+#
+# clear as mud, what?
+#
+sub setup_launch_feedback {
+	my $self = shift;
+	$self->{cursors}->{normal}	= Gtk2::Gdk::Cursor->new('left_ptr');
+	$self->{cursors}->{busy}	= Gtk2::Gdk::Cursor->new('watch');
+	$self->{wnckscreen} = Gnome2::Wnck::Screen->get_default;
+	$self->{wnckscreen}->force_update;
+	$self->{wnckscreen}->signal_connect('application-opened', sub {
+		$self->launch_manager($_[1]->get_startup_id);
+	});
+	$self->{wnckscreen}->signal_connect('window-opened', sub {
+		$self->launch_manager($_[1]->get_application->get_startup_id);
+	});
+	$self->{startup_ids} = {};
+	return 1;
+}
+
+sub launch_manager {
+	my ($self, $id) = @_;
+	return undef if ($id eq '');
+	if (!defined($self->{startup_ids}->{$id})) {
+		return undef;
+	} else {
+		undef($self->{startup_ids}->{$id});
+		$self->panel->get_root_window->set_cursor($self->{cursors}->{normal});
+	}
+	return 1;
+}
+
+sub launch {
+	my ($cmd, $startup) = @_;
+	if (defined($startup)) {
+		my $id = sprintf('%s_%s', $NAME, new_applet_id());
+		$cmd = sprintf('DESKTOP_STARTUP_ID=%s %s &', $id, $cmd);
+		$OBJECT_REF->{startup_ids}->{$id} = $cmd;
+		$OBJECT_REF->panel->get_root_window->set_cursor($OBJECT_REF->{cursors}->{busy});
+		Glib::Timeout->add(1500, sub {
+			if (defined($OBJECT_REF->{startup_ids}->{$id})) {
+				undef($OBJECT_REF->{startup_ids}->{$id});
+				$OBJECT_REF->panel->get_root_window->set_cursor($OBJECT_REF->{cursors}->{normal});
+			}
+			return undef;
+		});
+	}
+	system($cmd);
 	return 1;
 }
 
