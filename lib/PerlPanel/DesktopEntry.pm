@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.3 2004/09/24 14:49:13 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.4 2004/09/26 13:04:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ This module provides an object-oriented interface to files that comply with the
 Freedesktop.org desktop entry specification. You can query the file for
 available values and also get locale information as well.
 
-=head1 PREQUISITES
+=head1 PREREQUISITES
 
 You need the L<Gnome2::VFS> module to use this module.
 
