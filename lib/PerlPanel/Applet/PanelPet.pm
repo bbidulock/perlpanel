@@ -1,8 +1,8 @@
-# $Id: PanelPet.pm,v 1.9 2004/11/04 16:12:01 jodrell Exp $
+# $Id: PanelPet.pm,v 1.10 2005/01/06 15:11:58 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
-$PerlPanel::Applet::PanelPet::VERSION = "0.20";
+$PerlPanel::Applet::PanelPet::VERSION = "0.25";
 
 # Applet Constructor
 sub new {
@@ -92,101 +92,62 @@ sub _button_click {
 
 sub _right_click_menu {
     my $self = shift;
-    $self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
-    $self->{factory}->create_items(
-                        [
-                            '/',
-                            undef,
-                            undef,
-                            undef,
-                            '<Branch>',
-                        ],
+    my $menu = Gtk2::Menu->new;
 
-                        [
-                            "/"._('Preferences'),
-                            undef,
-                            sub { $self->_preferences },
-                            undef,
-                            "<StockItem>",
-                            "gtk-preferences",
-                        ],
-                        [
-                            "/"._('About'),
-                            undef,
-                            sub { $self->_about },
-                            undef,
-                            "<StockItem>",
-                            "gtk-dialog-info",
-                        ],
-                        [
-                            "/Separator",
-                            undef,
-                            undef,
-                            undef,
-                            '<Separator>',
-                        ],
-                        [
-                            "/"._('Remove From Panel'),
-                            undef,
-                            sub { $self->_remove },
-                            undef,
-                            "<StockItem>",
-                            "gtk-remove",
-                        ],
-    );
-    $self->{menu} = $self->{factory}->get_widget('<main>');
-    $self->{menu}->popup(
-                undef, undef,
-                sub { return $self->_popup_position(@_) },
-                0, $self->{widget}, undef,
-    );
+    my $preferences = Gtk2::ImageMenuItem->new_from_stock('gtk-preferences');
+    $preferences->signal_connect('activate', sub { $self->_preferences });
+
+    my $about = Gtk2::ImageMenuItem->new_from_stock('gtk-dialog-info');
+    $about->signal_connect('activate', sub { $self->_about });
+
+    $menu->add($preferences);
+    $menu->add($about);
+    $menu->show_all;
+    $menu->popup(undef, undef,
+	 	 sub { return $self->_popup_position($menu) },
+		 undef, 3, undef
+		);
 
     return 1;
 }
 
-# Location for the right-click menu
 sub _popup_position {
-    my $self = shift;
-    my $x0 = $_[1];
-    if (PerlPanel::position eq 'top') {
-        return ($x0, PerlPanel::panel->allocation->height);
-    }
-    else {
-        $self->{menu}->realize;
-        $self->{menu}->show_all;
-        return (
-            $x0,
-            PerlPanel::screen_height -
-            $self->{menu}->allocation->height     -
-            PerlPanel::panel->allocation->height,
-        );
-    }
+        my ($self, $menu) = @_;
+        my ($x, undef) = PerlPanel::get_widget_position($self->widget);
+        $x = 0 if ($x < 5);
+        if (PerlPanel::position eq 'top') {
+                return ($x, PerlPanel::panel->allocation->height);
+        } else {
+                $menu->realize;
+                return ($x, PerlPanel::screen_height() - $menu->allocation->height - PerlPanel::panel->allocation->height);
+        }
 }
+
 
 # Do this when the PanelPet is left-clicked
 sub _panel_pet {
     my $self = shift;
     my $text = _("Just a hello from your Panel Pet!\n\nBark Bark");
 
-    $self->{window} = Gtk2::Window->new('toplevel');
-    $self->{window}->set_position('center');
-    $self->{window}->set_border_width(15);
-    $self->{window}->set_title(_('Panel Pet: Hello'));
-    $self->{window}->set_icon(PerlPanel::icon);
-    $self->{vbox} = Gtk2::VBox->new;
-    $self->{vbox}->set_spacing(15);
-    $self->{label} = Gtk2::Label->new();
-    $self->{label}->set_justify('center');
-    $self->{label}->set_markup($text);
-    $self->{vbox}->pack_start($self->{label}, 1, 1, 0);
-    $self->{button} = Gtk2::Button->new_from_stock('gtk-ok');
-    $self->{button}->signal_connect(
+    my $window = Gtk2::Window->new('toplevel');
+    $window->set_position('center');
+    $window->set_border_width(15);
+    $window->set_title(_('Panel Pet: Hello'));
+    $window->set_icon(PerlPanel::icon);
+    my $vbox = Gtk2::VBox->new;
+    $vbox->set_spacing(15);
+    my $label = Gtk2::Label->new();
+    $label->set_justify('center');
+    $label->set_markup($text);
+    $vbox->pack_start($label, 1, 1, 0);
+    my $button = Gtk2::Button->new_from_stock('gtk-ok');
+    $button->signal_connect(
             'clicked',
-            sub { $self->{window}->destroy },
+            sub { $window->destroy },
     );
-    $self->{vbox}->pack_start($self->{button}, 0, 0, 0);
-    $self->{window}->add($self->{vbox});
-    $self->{window}->show_all;
+    $vbox->pack_start($button, 0, 0, 0);
+    $window->add($vbox);
+    $window->show_all;
 
     return 1;
 }
@@ -207,7 +168,7 @@ Author:
 Eric Andreychek &lt;eric\@openthought.net&gt;
 
 <span size="small">
-  Copyright 2003 Eric Andreychek
+  Copyright 2003-2005 Eric Andreychek
 
   This program is Free Software.
   You may use it under the terms
@@ -415,19 +376,20 @@ sub _choose_panelpet_image {
             'gtk-ok' => 'ok'
         );
     }
+
     $selector->set_filename($self->{config}{image});
-    $selector->ok_button->signal_connect('clicked', sub {
-        $self->{controls}{selector}{filename} = $selector->get_filename;
-        my $new_image = Gtk2::Image->new_from_file($self->{controls}{selector}{filename});
-        $new_image->show;
-        $self->{controls}{image}->remove($self->{controls}{image}->child);
-        $self->{controls}{image}->add($new_image);
-        $selector->destroy;
-    });
-    $selector->cancel_button->signal_connect('clicked', sub {
-        $selector->destroy;
+    $selector->signal_connect('response', sub {
+    	if ($_[1] eq 'ok') {
+	    $self->{controls}{selector}{filename} = $selector->get_filename;
+            my $new_image = Gtk2::Image->new_from_file($self->{controls}{selector}{filename});
+            $new_image->show;
+            $self->{controls}{image}->remove($self->{controls}{image}->child);
+            $self->{controls}{image}->add($new_image);
+    	}
+    	$selector->destroy;
     });
     $selector->show_all;
+
     return 1;
 }
 
