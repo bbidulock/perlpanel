@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.11 2004/06/30 19:02:02 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.12 2004/08/24 15:22:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,10 +20,7 @@
 package PerlPanel::Applet::GnomeMenu;
 use base 'PerlPanel::MenuBase';
 use Gnome2::VFS;
-use vars qw ($DESKTOP_NAMESPACE);
 use strict;
-
-our $DESKTOP_NAMESPACE = 'Desktop Entry';
 
 sub configure {
 	my $self = shift;
@@ -61,9 +58,6 @@ sub configure {
 
 	$self->widget->set_relief('none');
 	PerlPanel::tips->set_tip($self->widget, _('Menu'));
-
-	$self->{language} = $ENV{LANG} || 'en_US';
-	$self->{language} =~ s/\..*$//g;
 
 	$self->create_menu;
 
@@ -141,7 +135,7 @@ sub create_submenu_for {
 			if ($result eq 'ok') {
 				my $data = $self->get_file_contents($dfile);
 
-				my (undef, undef, $icon, undef) = $self->parse_desktopfile($data);
+				my (undef, undef, $icon, undef) = PerlPanel::parse_desktopfile($data);
 
 				if ($icon eq '') {
 					$menu_icon = PerlPanel::lookup_icon('gnome-fs-directory');
@@ -170,7 +164,7 @@ sub create_submenu_for {
 			my $file = $files{$filename};
 			my $path = sprintf('%s/%s', $uri, $file->{name});
 			my $data = $self->get_file_contents($path);
-			my ($name, $comment, $icon, $program) = $self->parse_desktopfile($data);
+			my ($name, $comment, $icon, $program) = PerlPanel::parse_desktopfile($data);
 			if ($name ne '' && $program ne '') {
 				my $item = $self->menu_item(
 					$name,
@@ -187,39 +181,6 @@ sub create_submenu_for {
 
 		return 1;
 	}
-}
-
-sub parse_desktopfile {
-	my ($self, $data) = @_;
-	my ($name, $comment, $icon, $program);
-	my $namespace;
-	my $params = {};
-	foreach my $line (split(/\n/, $data)) {
-		my ($name, $value) = split(/=/, $line, 2);
-		if ($name =~ /^\[($DESKTOP_NAMESPACE)\]/i) {
-			$namespace = $1;
-		} elsif ($namespace ne '') {
-			$params->{$namespace}->{$name} = $value;
-		} else {
-			$params->{orphans}->{$name} = $value;
-		}
-	}
-	$name    = ($params->{$DESKTOP_NAMESPACE}{"Name[$self->{language}]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Name[$self->{language}]"} : $params->{$DESKTOP_NAMESPACE}{Name});
-	$comment = ($params->{$DESKTOP_NAMESPACE}{"Comment[$self->{language}]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Comment[$self->{language}]"} : $params->{$DESKTOP_NAMESPACE}{Comment});
-	$program = $params->{$DESKTOP_NAMESPACE}{Exec};
-
-	if (-e $params->{$DESKTOP_NAMESPACE}{Icon}) {
-		$icon = $params->{$DESKTOP_NAMESPACE}{Icon};
-	} else {
-		$icon = PerlPanel::lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
-		if (! -e $icon) {
-			if (-e "/usr/share/pixmaps/$params->{$DESKTOP_NAMESPACE}{Icon}") {
-				$icon = PerlPanel::lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
-			}
-		}
-	}
-
-	return ($name, $comment, $icon, $program);
 }
 
 sub get_file_contents {

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.101 2004/08/24 12:45:04 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.102 2004/08/24 15:22:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
 		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES
-		$DEFAULT_THEME	$APPLET_ERROR_MARKUP);
+		$DEFAULT_THEME	$APPLET_ERROR_MARKUP		$DESKTOP_NAMESPACE);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -67,6 +67,9 @@ our %DEFAULTS = (
 	appletconf => {
 		null => {},
 	},
+	multi => {
+		null => {},
+	},
 	applets => [
 		'ActionMenu',
 		'IconBar',
@@ -97,6 +100,8 @@ our $DEFAULT_THEME = 'gnome';
 our $APPLET_ERROR_MARKUP = <<"END";
 <span weight="bold">%s</span>
 END
+
+our $DESKTOP_NAMESPACE	= 'Desktop Entry';
 
 Gtk2->init;
 
@@ -341,7 +346,7 @@ sub load_applets {
 	for (my $i = 0 ; $i < scalar(@{$self->{config}{applets}}) ; $i++) {
 
 		my $appletname = @{$self->{config}{applets}}[$i];
-	
+
 		my ($appletname, $id) = split(/::/, $appletname, 2);
 
 		my ($applet, $expr, $multi);
@@ -397,20 +402,20 @@ sub load_applets {
 		} else {
 
 			if ($id ne '') {
-				if (!defined($self->{config}{appletconf}{sprintf('%s::%s', $appletname, $id)})) {
+				if (!defined($self->{config}->{multi}->{sprintf('%s::%s', $appletname, $id)})) {
 					my $hashref;
 					eval {
 						$hashref = $applet->get_default_config;
 					};
-					$self->{config}{appletconf}{sprintf('%s::%s', $appletname, $id)} = $hashref if (defined($hashref));
+					$self->{config}->{multi}->{sprintf('%s::%s', $appletname, $id)} = $hashref if (defined($hashref));
 				}
 			} else {
-				if (!defined($self->{config}{appletconf}{$appletname})) {
+				if (!defined($self->{config}->{appletconf}->{$appletname})) {
 					my $hashref;
 					eval {
 						$hashref = $applet->get_default_config;
 					};
-					$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
+					$self->{config}->{appletconf}->{$appletname} = $hashref if (defined($hashref));
 				}
 			}
 
@@ -484,14 +489,13 @@ sub move {
 }
 
 sub shutdown {
-	my $self = shift || $OBJECT_REF;
-	$self->save_config;
+	$OBJECT_REF->save_config;
 	unlink($PIDFILE);
 	exit;
 }
 
 sub reload {
-	my $self = shift || $OBJECT_REF;
+	my $self = $OBJECT_REF;
 	$self->panel->set_sensitive(0);
 	$self->save_config;
 	foreach my $applet ($self->{hbox}->get_children) {
@@ -510,12 +514,8 @@ sub reload {
 
 sub request_string {
 	my ($self, $message, $callback, $visible);
-	if (scalar(@_) == 4) {
-		($self, $message, $callback, $visible) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $callback, $visible) = @_;
-	}
+	$self = $OBJECT_REF;
+	($message, $callback, $visible) = @_;
 
 	my $dialog = Gtk2::Dialog->new(
 		"$NAME: $message",
@@ -567,12 +567,8 @@ sub request_string {
 
 sub request_password {
 	my ($self, $message, $callback);
-	if (scalar(@_) == 3) {
-		($self, $message, $callback) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $callback) = @_;
-	}
+	$self = $OBJECT_REF;
+	($message, $callback) = @_;
 	$self->request_string($message, $callback, 1);
 }
 
@@ -580,12 +576,8 @@ sub request_password {
 # instead use one of the wrappers below:
 sub alert {
 	my ($self, $message, $ok_callback, $cancel_callback, $type);
-	if (scalar(@_) == 5) {
-		($self, $message, $ok_callback, $cancel_callback, $type) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $ok_callback, $cancel_callback, $type) = @_;
-	}
+	$self = $OBJECT_REF;
+	($message, $ok_callback, $cancel_callback, $type) = @_;
 
 	my $buttons = 'ok';
 	if (defined($ok_callback) && defined($cancel_callback)) {
@@ -615,78 +607,57 @@ sub alert {
 
 sub question {
 	my ($self, $message, $ok_callback, $cancel_callback);
-	if (scalar(@_) == 4) {
-		($self, $message, $ok_callback, $cancel_callback) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $ok_callback, $cancel_callback) = @_;
-	}
-	return $self->alert($message, $ok_callback, $cancel_callback, 'question');
+	$self = $OBJECT_REF;
+	($message, $ok_callback, $cancel_callback) = @_;
+	return alert($message, $ok_callback, $cancel_callback, 'question');
 }
 
 sub error {
 	my ($self, $message, $ok_callback);
-	if (scalar(@_) == 3) {
-		($self, $message, $ok_callback) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $ok_callback) = @_;
-	}
-	return $self->alert($message, (defined($ok_callback) ? $ok_callback : sub { $self->shutdown} ), undef, 'error');
+	$self = $OBJECT_REF;
+	($message, $ok_callback) = @_;
+	return alert($message, (defined($ok_callback) ? $ok_callback : sub { $self->shutdown} ), undef, 'error');
 }
 
 sub warning {
 	my ($self, $message, $ok_callback);
-	if (scalar(@_) == 3) {
-		($self, $message, $ok_callback) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $ok_callback) = @_;
-	}
-	return $self->alert($message, $ok_callback, undef, 'warning');
+	$self = $OBJECT_REF;
+	($message, $ok_callback) = @_;
+	return alert($message, $ok_callback, undef, 'warning');
 }
 
 sub notify {
 	my ($self, $message, $ok_callback);
-	if (scalar(@_) == 3) {
-		($self, $message, $ok_callback) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($message, $ok_callback) = @_;
-	}
-	return $self->alert($message, $ok_callback, undef, 'info');
+	$self = $OBJECT_REF;
+	($message, $ok_callback) = @_;
+	return alert($message, $ok_callback, undef, 'info');
 }
 
 sub tips {
-	my $self = shift || $OBJECT_REF;
-	return $self->{tips};
+	return $OBJECT_REF->{tips};
 }
 
 sub panel {
-	my $self = shift || $OBJECT_REF;
-	return $self->{panel};
+	return $OBJECT_REF->{panel};
 }
 
 sub icon {
-	my $self = shift || $OBJECT_REF;
-	return $self->{icon};
+	return $OBJECT_REF->{icon};
 }
 
 sub icon_size {
-	my $self = shift || $OBJECT_REF;
-	return @{$SIZE_MAP{$self->{config}{panel}{size}}}[0];
+	return @{$SIZE_MAP{$OBJECT_REF->{config}{panel}{size}}}[0];
 }
 
 sub icon_size_name {
-	my $self = shift || $OBJECT_REF;
-	return @{$SIZE_MAP{$self->{config}{panel}{size}}}[1];
+	return @{$SIZE_MAP{$OBJECT_REF->{config}{panel}{size}}}[1];
 }
 
 #
 # These do the same as the two subs above, but may do something else in the future:
 #
 sub menu_icon_size {
-	my $self = shift || $OBJECT_REF;
+	my $self = $OBJECT_REF;
 	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
 		return $self->icon_size;
 	} else {
@@ -694,7 +665,7 @@ sub menu_icon_size {
 	}
 }
 sub menu_icon_size_name {
-	my $self = shift || $OBJECT_REF;
+	my $self = $OBJECT_REF;
 	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
 		return $self->icon_size_name;
 	} else {
@@ -703,18 +674,15 @@ sub menu_icon_size_name {
 }
 
 sub screen_width {
-	my $self = shift || $OBJECT_REF;
-	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->{screen_width});
+	return (defined($OBJECT_REF->{screen}) ? $OBJECT_REF->{screen}->get_width : $OBJECT_REF->{screen_width});
 }
 
 sub screen_height {
-	my $self = shift || $OBJECT_REF;
-	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->{screen_height});
+	return (defined($OBJECT_REF->{screen}) ? $OBJECT_REF->{screen}->get_height : $OBJECT_REF->{screen_height});
 }
 
 sub position {
-	my $self = shift || $OBJECT_REF;
-	return $self->{config}{panel}{position};
+	return $OBJECT_REF->{config}{panel}{position};
 }
 
 sub autohide {
@@ -740,21 +708,21 @@ sub autoshow {
 #
 #0,0
 #   +----------------------------------+
-#   |				  |
-#   | Screen			   |
-#   |				  |
+#   |				       |
+#   | Screen			       |
+#   |				       |
 #   |   +-------------------------+    |
-#   |   |			 |    |
+#   |   |			  |    |
 #   |   | Window		  |    |
-#   |   |			 |    |
-#   |   |  +--------+	     |    |
-#   |   |  | Widget |	     |    |
-#   |   |  +--------+	     |    |
-#   |   |	      + - pointer|    |
-#   |   |			 |    |
+#   |   |			  |    |
+#   |   |  +--------+	          |    |
+#   |   |  | Widget |	          |    |
+#   |   |  +--------+	          |    |
+#   |   |	      + - pointer |    |
+#   |   |			  |    |
 #   |   +-------------------------+    |
-#   |				  |
-#   |				  |
+#   |				       |
+#   |				       |
 #   +----------------------------------+
 #
 # - $win_pos_x,$win_pos_y describes the position of the window relative to the screen
@@ -768,12 +736,8 @@ sub autoshow {
 
 sub get_widget_position {
 	my ($self, $widget);
-	if (scalar(@_) == 2) {
-		($self, $widget) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		$widget = shift;
-	}
+	$self = $OBJECT_REF;
+	$widget = shift;
 
 	my $window = $widget->get_toplevel;
 
@@ -791,19 +755,14 @@ sub get_widget_position {
 }
 
 sub get_mouse_pointer_position {
-	my $self = shift || $OBJECT_REF;
-	my (undef, $x, $y, undef) = $self->panel->get_root_window->get_pointer;
+	my (undef, $x, $y, undef) = $OBJECT_REF->panel->get_root_window->get_pointer;
 	return ($x, $y);
 }
 
 sub exec_wait {
 	my ($self, $command, $callback);
-	if (scalar(@_) == 3) {
-		($self, $command, $callback) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($command, $callback) = @_;
-	}
+	$self = $OBJECT_REF;
+	($command, $callback) = @_;
 
 	open(COMMAND, "$command|");
 	my $tag;
@@ -834,12 +793,8 @@ sub has_pager {
 
 sub has_applet {
 	my ($self, $applet);
-	if (scalar(@_) == 2) {
-		($self, $applet) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		$applet = shift;
-	}
+	$self = $OBJECT_REF;
+	$applet = shift;
 	foreach my $appletname (@{$self->{config}{applets}}) {
 		return 1 if ($appletname eq $applet);
 	}
@@ -850,35 +805,27 @@ sub has_applet {
 # more useful:
 sub get_applet_pbf_filename {
 	my ($self, $applet);
-	if (scalar(@_) == 2) {
-		($self, $applet) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		$applet = shift;
-	}
+	$self = $OBJECT_REF;
+	$applet = shift;
 	return lookup_icon(sprintf('%s-applet-%s', lc($NAME), lc($applet)));
 }
 
 sub get_applet_pbf {
 	my ($self, $applet, $size);
-	if (scalar(@_) == 3) {
-		($self, $applet, $size) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		($applet, $size) = @_;
-	}
+	$self = $OBJECT_REF;
+	($applet, $size) = @_;
 
 	$size = ($size > 0 ? $size : $APPLET_ICON_SIZE);
 
 	if (!defined($self->{pbfs}{$applet}{$size})) {
-		my $file = $self->get_applet_pbf_filename($applet);
+		my $file = get_applet_pbf_filename($applet);
 		if (-e $file) {
 			$self->{pbfs}{$applet}{$size} = Gtk2::Gdk::Pixbuf->new_from_file($file);
 			if ($self->{pbfs}{$applet}{$size}->get_height != $size) {
 				$self->{pbfs}{$applet}{$size} = $self->{pbfs}{$applet}{$size}->scale_simple($size, $size, 'bilinear');
 			}
 		} else {
-			$self->{pbfs}{$applet}{$size} = $self->get_applet_pbf('missing', $size);
+			$self->{pbfs}{$applet}{$size} = get_applet_pbf('missing', $size);
 		}
 	}
 	return $self->{pbfs}{$applet}{$size};
@@ -889,25 +836,18 @@ sub get_config {
 	$self = $OBJECT_REF;
 	($applet, $id) = @_;
 	if (defined($id)) {
-		return $self->{config}{appletconf}{sprintf('%s::%s', $applet, $id)};
+		return $self->{config}->{multi}->{sprintf('%s::%s', $applet, $id)};
 	} else {
-		return $self->{config}{appletconf}{$applet};
+		return $self->{config}->{appletconf}->{$applet};
 	}
 }
 
 sub spacing {
-	my $self = shift || $OBJECT_REF;
-	return $self->{config}{panel}{spacing};
+	return $OBJECT_REF->{config}{panel}{spacing};
 }
 
 sub load_glade {
-	my ($self, $gladefile);
-	if (scalar(@_) == 2) {
-		($self, $gladefile) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		$gladefile = shift;
-	}
+	my $gladefile = shift;
 	my $file = sprintf('%s/share/%s/glade/%s.glade', $PREFIX, lc($NAME), $gladefile);
 
 	return Gtk2::GladeXML->new($file);
@@ -928,12 +868,8 @@ sub _ {
 sub lookup_icon {
 
 	my ($self, $icon);
-	if (scalar(@_) == 2) {
-		($self, $icon) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		$icon = shift;
-	}
+	$self = $OBJECT_REF;
+	$icon = shift;
 
 	if (defined($self->{icon_theme})) {
 		$self->{icon_theme}->rescan_if_needed;
@@ -995,12 +931,8 @@ sub uniq {
 
 sub append_run_history {
 	my ($self, $command);
-	if (scalar(@_) == 2) {
-		($self, $command) = @_;
-	} else {
-		$self = $OBJECT_REF;
-		$command = shift;
-	}
+	$self = $OBJECT_REF;
+	$command = shift;
 	if (!open(HISTFILE, ">>$RUN_HISTORY_FILE")) {
 		print STDERR "*** error opening $RUN_HISTORY_FILE for appending: $!\n";
 		return undef;
@@ -1038,6 +970,43 @@ sub load_appletregistry {
 
 sub new_applet_id {
 	return md5_hex(join('|', $ENV{HOSTNAME}, lc((getpwuid($<))[0]), time(), $0, int(rand(99999))));
+}
+
+sub parse_desktopfile {
+	my $data = shift;
+	my ($name, $comment, $icon, $program);
+	my $namespace;
+	my $params = {};
+	foreach my $line (split(/\n/, $data)) {
+		my ($name, $value) = split(/=/, $line, 2);
+		if ($name =~ /^\[($DESKTOP_NAMESPACE)\]/i) {
+			$namespace = $1;
+		} elsif ($namespace ne '') {
+			$params->{$namespace}->{$name} = $value;
+		} else {
+			$params->{orphans}->{$name} = $value;
+		}
+	}
+
+	my $language = $ENV{LANG} || 'en_US';
+	$language =~ s/\..*$//g;
+
+	$name    = ($params->{$DESKTOP_NAMESPACE}{"Name[$language]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Name[$language]"} : $params->{$DESKTOP_NAMESPACE}{Name});
+	$comment = ($params->{$DESKTOP_NAMESPACE}{"Comment[$language]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Comment[$language]"} : $params->{$DESKTOP_NAMESPACE}{Comment});
+	$program = $params->{$DESKTOP_NAMESPACE}{Exec};
+
+	if (-e $params->{$DESKTOP_NAMESPACE}{Icon}) {
+		$icon = $params->{$DESKTOP_NAMESPACE}{Icon};
+	} else {
+		$icon = lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
+		if (! -e $icon) {
+			if (-e "/usr/share/pixmaps/$params->{$DESKTOP_NAMESPACE}{Icon}") {
+				$icon = lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
+			}
+		}
+	}
+
+	return ($name, $comment, $icon, $program);
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.40 2004/07/06 12:50:04 jodrell Exp $
+# $Id: IconBar.pm,v 1.41 2004/08/24 15:22:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,13 +18,13 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::IconBar;
-use vars qw($ICON_DIR $MENU_EDITOR $OBJECT_REF);
+use vars qw($ICON_DIR $LAUNCHER_EDITOR $OBJECT_REF);
 use Gtk2::SimpleList;
 use strict;
 
 our $ICON_DIR = sprintf('%s/share/pixmaps', $PerlPanel::PREFIX);
 
-chomp (our $MENU_EDITOR = `which perlpanel-item-edit 2> /dev/null`);
+chomp (our $LAUNCHER_EDITOR = `which perlpanel-item-edit 2> /dev/null`);
 
 sub new {
 	my $self		= {};
@@ -338,10 +338,10 @@ sub popup_position {
 
 sub edit {
 	my $self = shift;
-	if (-x $MENU_EDITOR) {
+	if (-x $LAUNCHER_EDITOR) {
 		my $mtime = (stat($self->{filename}))[9];
 		$self->widget->set_sensitive(0);
-		PerlPanel::exec_wait("$MENU_EDITOR $self->{filename}", sub {
+		PerlPanel::exec_wait("$LAUNCHER_EDITOR $self->{filename}", sub {
 			$self->widget->set_sensitive(1);
 
 			my $newmtime = (stat($self->{filename}))[9];
@@ -359,10 +359,10 @@ sub edit {
 sub add {
 	my $self = shift;
 	my $filename = sprintf('%s/.%s/icons/%d.desktop', $ENV{HOME}, lc($PerlPanel::NAME), time());
-	if (-x $MENU_EDITOR) {
+	if (-x $LAUNCHER_EDITOR) {
 		open(FILE, ">$filename") && close(FILE);
 		my $mtime = time();
-		PerlPanel::exec_wait("$MENU_EDITOR $filename", sub {
+		PerlPanel::exec_wait("$LAUNCHER_EDITOR $filename", sub {
 			my $newmtime = (stat($filename))[9];
 
 			if ($newmtime > $mtime) {

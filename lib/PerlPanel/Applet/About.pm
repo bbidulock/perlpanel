@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.17 2004/06/30 18:34:44 jodrell Exp $
+# $Id: About.pm,v 1.18 2004/08/24 15:22:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@ use strict;
 our $BORDER = 10;
 
 our $MARKUP_FMT = <<"END";
-<span foreground="#FFFFFF"><span size="large"><span weight="bold">%s</span>
+<span foreground="%%s"><span size="large"><span weight="bold">%s</span>
 
 %s</span>
 
@@ -90,12 +90,19 @@ sub about {
 	$self->{label}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER, -1);
 	$self->{label}->set_justify('center');
 	$self->{label}->set_line_wrap(1);
-	$self->{label}->set_markup($markup);
+	$self->{label}->set_markup(sprintf($markup, '#FFFFFF'));
+
+	$self->{slabel} = Gtk2::Label->new;
+	$self->{slabel}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER -1, -1);
+	$self->{slabel}->set_justify('center');
+	$self->{slabel}->set_line_wrap(1);
+	$self->{slabel}->set_markup(sprintf($markup, '#000000'));
 
 	$self->{fixed} = Gtk2::Fixed->new;
 
 	$self->{fixed}->add($self->{image});
 
+	$self->{fixed}->put($self->{slabel}, $BORDER+1, 115+1);
 	$self->{fixed}->put($self->{label}, $BORDER, 115);
 
 	$self->{box} = Gtk2::EventBox->new;

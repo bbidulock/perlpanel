@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.10 2004/06/30 18:30:14 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.11 2004/08/24 15:22:04 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -33,7 +33,7 @@ my $data = {};
 
 my $theme = Gtk2::IconTheme->get_default;
 
-$theme->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
+$theme->prepend_search_path(sprintf('%s/share/icons/hicolor/48x48/apps/', $PREFIX));
 
 my $file = $ARGV[0] or print STDERR "Usage: perlpanel-item-edit [FILE]\n" and exit 1;
 
@@ -212,7 +212,7 @@ sub choose_icon {
 		$selector->set_preview_widget(Gtk2::Image->new);
 		$selector->signal_connect('selection-changed', sub {
 			my $file = $selector->get_filename;
-			if ($file ne '') {
+			if (-f $file) {
 				$selector->get_preview_widget->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
 			}
 		});

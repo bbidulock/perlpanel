@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.16 2004/07/17 17:11:43 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.17 2004/08/24 15:22:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 package PerlPanel::Applet::NautilusBookmarks;
 use base 'PerlPanel::MenuBase';
 use XML::Simple;
+use Gnome2::VFS;
 use strict;
 
 sub configure {
