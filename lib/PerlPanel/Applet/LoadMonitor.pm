@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.1 2003/06/18 20:48:51 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.2 2003/06/19 15:57:03 jodrell Exp $
 package PerlPanel::Applet::LoadMonitor;
 use strict;
 
@@ -48,27 +48,31 @@ sub prefs {
 	my $adj = Gtk2::Adjustment->new($PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}, 0, 60000, 1, 1000, undef);
 	$self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
-	$self->{table}->attach_defaults(Gtk2::Label->new('Update interval (ms):'), 0, 1, 2, 3);
+	$self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
+	$self->{labels}{interval}->set_alignment(1, 0.5);
+	$self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
 	$self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
 
-	$self->{buttons}{ok} = Gtk2::Button->new_from_stock('gtk-ok');
-	$self->{buttons}{ok}->signal_connect('clicked', sub {
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}    = $self->{controls}{interval}->get_value_as_int;
-		$self->{widget}->set_sensitive(1);
-		$self->{window}->destroy;
-		$PerlPanel::OBJECT_REF->save_config;
-		$PerlPanel::OBJECT_REF->reload;
-	});
+	$self->{window}->add_buttons(
+		'gtk-cancel', 1,
+		'gtk-ok', 0,
+	);
 
-	$self->{buttons}{cancel} = Gtk2::Button->new_from_stock('gtk-cancel');
-	$self->{buttons}{cancel}->signal_connect('clicked', sub {
-		$self->{widget}->set_sensitive(1);
-		$self->{window}->destroy;
+	$self->{window}->signal_connect('response', sub {
+		if ($_[1] == 0) {
+			# 'ok' was clicked
+			$PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}    = $self->{controls}{interval}->get_value_as_int;
+			$self->{widget}->set_sensitive(1);
+			$self->{window}->destroy;
+			$PerlPanel::OBJECT_REF->save_config;
+			$PerlPanel::OBJECT_REF->reload;
+		} elsif ($_[1] == 1) {
+			$self->{widget}->set_sensitive(1);
+			$self->{window}->destroy;
+		}
 	});
 
 	$self->{window}->vbox->pack_start($self->{table}, 1, 1, 0);
-	$self->{window}->action_area->pack_end($self->{buttons}{cancel}, 0, 0, 0);
-	$self->{window}->action_area->pack_end($self->{buttons}{ok}, 0, 0, 0);
 
 	$self->{window}->show_all;
 

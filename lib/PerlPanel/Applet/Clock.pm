@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.9 2003/06/05 14:33:31 jodrell Exp $
+# $Id: Clock.pm,v 1.10 2003/06/19 15:57:03 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use POSIX qw(strftime);
 use strict;
@@ -50,35 +50,44 @@ sub prefs {
 	my $adj = Gtk2::Adjustment->new($PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{interval}, 0, 60000, 1, 1000, undef);
 	$self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
-	$self->{table}->attach_defaults(Gtk2::Label->new('Date format:'), 0, 1, 0, 1);
+	$self->{labels}{format} = Gtk2::Label->new('Date format:');
+	$self->{labels}{format}->set_alignment(1, 0.5);
+	$self->{table}->attach_defaults($self->{labels}{format}, 0, 1, 0, 1);
 	$self->{table}->attach_defaults($self->{controls}{format}, 1, 2, 0, 1);
 
-	$self->{table}->attach_defaults(Gtk2::Label->new('Tooltip format:'), 0, 1, 1, 2);
+	$self->{labels}{date_format} = Gtk2::Label->new('Tooltip format:');
+	$self->{labels}{date_format}->set_alignment(1, 0.5);
+	$self->{table}->attach_defaults($self->{labels}{date_format}, 0, 1, 1, 2);
 	$self->{table}->attach_defaults($self->{controls}{date_format}, 1, 2, 1, 2);
 
-	$self->{table}->attach_defaults(Gtk2::Label->new('Update interval (ms):'), 0, 1, 2, 3);
+	$self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
+	$self->{labels}{interval}->set_alignment(1, 0.5);
+	$self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
 	$self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
 
-	$self->{buttons}{ok} = Gtk2::Button->new_from_stock('gtk-ok');
-	$self->{buttons}{ok}->signal_connect('clicked', sub {
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{format}      = $self->{controls}{format}->get_text;
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{date_format} = $self->{controls}{date_format}->get_text;
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{interval}    = $self->{controls}{interval}->get_value_as_int;
-		$self->{widget}->set_sensitive(1);
-		$self->{window}->destroy;
-		$PerlPanel::OBJECT_REF->save_config;
-		$PerlPanel::OBJECT_REF->reload;
-	});
+	$self->{window}->add_buttons(
+		'gtk-cancel', 1,
+		'gtk-ok', 0,
+	);
 
-	$self->{buttons}{cancel} = Gtk2::Button->new_from_stock('gtk-cancel');
-	$self->{buttons}{cancel}->signal_connect('clicked', sub {
-		$self->{widget}->set_sensitive(1);
-		$self->{window}->destroy;
+	$self->{window}->signal_connect('response', sub {
+		if ($_[1] == 0) {
+			# 'ok' was clicked
+			$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{format}      = $self->{controls}{format}->get_text;
+			$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{date_format} = $self->{controls}{date_format}->get_text;
+			$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{interval}    = $self->{controls}{interval}->get_value_as_int;
+			$self->{widget}->set_sensitive(1);
+			$self->{window}->destroy;
+			$PerlPanel::OBJECT_REF->save_config;
+			$PerlPanel::OBJECT_REF->reload;
+		} elsif ($_[1] == 1) {
+			# 'cancel' was clicked
+			$self->{widget}->set_sensitive(1);
+			$self->{window}->destroy;
+		}
 	});
 
 	$self->{window}->vbox->pack_start($self->{table}, 1, 1, 0);
-	$self->{window}->action_area->pack_end($self->{buttons}{cancel}, 0, 0, 0);
-	$self->{window}->action_area->pack_end($self->{buttons}{ok}, 0, 0, 0);
 
 	$self->{window}->show_all;
 

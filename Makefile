@@ -1,5 +1,5 @@
 # Makefile for PerlPanel
-# $Id: Makefile,v 1.3 2003/06/13 15:43:33 jodrell Exp $
+# $Id: Makefile,v 1.4 2003/06/19 15:57:03 jodrell Exp $
 
 PREFIX=/usr
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -17,6 +17,7 @@ perlpanel:
 install:
 	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR)
 	install -m 0755 build/perlpanel $(BINDIR)/
+	install -m 0755 src/perlpanel-item-edit $(BINDIR)/
 	cp -Rvp lib/* $(LIBDIR)/
 	install -m 0755 build/perlpanel.1 $(MANDIR)/
 	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/

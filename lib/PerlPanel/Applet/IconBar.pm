@@ -1,6 +1,5 @@
-# $Id: IconBar.pm,v 1.18 2003/06/17 11:04:59 jodrell Exp $
+# $Id: IconBar.pm,v 1.19 2003/06/19 15:57:03 jodrell Exp $
 package PerlPanel::Applet::IconBar;
-use Image::Size;
 use vars qw($ICON_DIR);
 use strict;
 
@@ -88,8 +87,12 @@ sub parse {
 			$self->{icon} = $1;
 		} elsif (/^name=(.+)$/i) {
 			$self->{name} = $1;
-		} elsif (/^name\[en_(.+)\]=(.+)$/i) {
+		} elsif (/^name\[(.+)\]=(.+)$/i) {
 			$self->{name} = $2;
+		} elsif (/^comment\[(.+)\]=(.+)$/i) {
+			$self->{comment} = $2;
+		} elsif (/^comment=(.+)$/i) {
+			$self->{comment} = $1;
 		}
 	}
 	close(ENTRY);
@@ -108,7 +111,8 @@ sub build {
 	}
 	if (defined($self->{iconfile})) {
 		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
-		my ($x0, $y0) = Image::Size::imgsize($self->{iconfile});
+		my $x0 = $self->{pixbuf}->get_width;
+		my $y0 = $self->{pixbuf}->get_height;
 		if ($x0 != $PerlPanel::OBJECT_REF->icon_size || $y0 != $PerlPanel::OBJECT_REF->icon_size) {
 			my ($x1, $y1);
 			if ($x0 > $y0) {
@@ -129,7 +133,9 @@ sub build {
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	}
 	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $self->{name} || $self->{exec});
+	my $tip = $self->{name} || $self->{exec};
+	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $tip);
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
 	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) });
@@ -196,13 +202,13 @@ sub popup_position {
 	} else {
 		$self->{menu}->realize;
 		$self->{menu}->show_all;
-		return ($x0, $PerlPanel::OBJECT_REF->{config}{screen}{height} - $self->{menu}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return ($x0, $PerlPanel::OBJECT_REF->screen_height - $self->{menu}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	}
 }
 
 sub edit {
 	my $self = shift;
-	chomp (my $menueditor = `which gnome-desktop-item-edit`);
+	chomp (my $menueditor = `which perlpanel-item-edit`);
 	if (-x $menueditor) {
 		# create a lock file for the subshell to remove when the editor is done:
 		my $lockfile = "$self->{filename}.lock";
@@ -230,12 +236,14 @@ sub edit {
 
 sub add {
 	my $self = shift;
-	chomp (my $menueditor = `which gnome-desktop-item-edit`);
+	chomp (my $menueditor = `which perlpanel-item-edit`);
 	my $filename = sprintf('%s/.%s/icons/%d.desktop', $ENV{HOME}, lc($PerlPanel::NAME), time());
 	if (-x $menueditor) {
 		# create a lock file for the subshell to remove when the editor is done:
 		my $lockfile = "$filename.lock";
 		open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
+		# touch the file:
+		open(FILE, ">$filename") && close(FILE);
 		# record the desktop file's mod time:
 		my $mtime = (stat($filename))[9];
 		# run the editor:

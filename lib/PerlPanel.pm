@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.18 2003/06/18 13:16:16 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.19 2003/06/19 15:57:03 jodrell Exp $
 package PerlPanel;
 use Time::HiRes qw(time);
 use Gtk2;
@@ -37,7 +37,6 @@ our %DEFAULTS = (
 		'Clock',
 		'Configurator',
 		'Commander',
-		'Reload',
 		'About',
 		'Quit',
 	],
@@ -64,6 +63,7 @@ sub new {
 sub init {
 	my $self = shift;
 	$self->check_deps;
+	$self->get_screen;
 	$self->load_config;
 	$self->build_ui;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
@@ -83,6 +83,13 @@ sub check_deps {
 	} else {
 		return 1;
 	}
+}
+
+sub get_screen {
+	my $self = shift;
+	my $code = '$self->{screen} = Gtk2::Gdk::Screen->get_default';
+	eval $code;
+	return 1;
 }
 
 sub load_config {
@@ -109,7 +116,7 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->icon_size);
+	$self->{panel}->set_default_size($self->screen_width, $self->icon_size);
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{panel}->add($self->{hbox});
@@ -167,7 +174,7 @@ sub move {
 	if ($self->{config}{panel}{position} eq 'top') {
 		$self->{panel}->move(0, 0);
 	} elsif ($self->{config}{panel}{position} eq 'bottom') {
-		$self->{panel}->move(0, ($self->{config}{screen}{height} - $self->{panel}->allocation->height));
+		$self->{panel}->move(0, ($self->screen_height - $self->{panel}->allocation->height));
 	} else {
 		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
 	}
@@ -190,6 +197,112 @@ sub reload {
 	$panel->init;
 	return 1;
 }
+
+sub request_string {
+	my ($self, $message, $callback, $visible) = @_;
+
+	my $dialog = Gtk2::Dialog->new(
+		"$NAME: $message",
+		undef,
+		[],
+		'gtk-cancel'	=> 0,
+		'gtk-ok'	=> 1
+	);
+	$dialog->set_border_width(8);
+	$dialog->vbox->set_spacing(8);
+
+	my $entry = Gtk2::Entry->new;
+	# this is broken at the moment:
+	#if ($visible == 1) {
+	#	$entry->set_visible(1);
+	#}
+
+	my $table = Gtk2::Table->new(2, 2, 0);
+	$table->set_col_spacings(8);
+	$table->set_row_spacings(8);
+
+	$table->attach_defaults(Gtk2::Image->new_from_stock('gtk-dialog-question', 'dialog'), 0, 1, 0, 2);
+	$table->attach_defaults(Gtk2::Label->new($message), 1, 2, 0, 1);
+	$table->attach_defaults($entry, 1, 2, 1, 2);
+
+	$dialog->vbox->pack_start($table, 1, 1, 0);
+
+	$dialog->set_default_response(1);
+	$entry->set_activates_default(1);
+	$dialog->signal_connect(
+		'response',
+		sub {
+			if ($_[1] eq 1) {
+				# only destroy the window if the callback
+				# returns true.
+				return unless $callback->($entry->get_text);
+				$callback->($entry->get_text);
+			}
+			$dialog->destroy;
+		}
+	);
+
+	$dialog->show_all;
+
+	$entry->grab_focus;
+
+	return 1;
+}
+
+sub request_password {
+	my ($self, $message, $callback) = @_;
+	$self->request_string($message, $callback, 1);
+}
+
+# you shouldn't need to access this directly -
+# instead use one of the wrappers below:
+sub alert {
+	my ($self, $message, $ok_callback, $cancel_callback, $stock) = @_;
+
+	my $dialog = Gtk2::Dialog->new;
+	$dialog->set_title($NAME);
+	$dialog->set_border_width(8);
+	$dialog->vbox->set_spacing(8);
+
+	my $hbox = Gtk2::HBox->new;
+	$hbox->set_spacing(8);
+	$hbox->pack_start(Gtk2::Image->new_from_stock($stock, 'dialog'), 0, 0, 0);
+
+	my $width = 0;
+	map { chomp ; $width = length($_) if length($_) > $width } split(/[\r\n]/, $message);
+	if ($width > 50 || scalar(split(/[\r\n]/, $message)) > 10) {
+		$dialog->set_default_size(350, 150);
+		my $scrwin = Gtk2::ScrolledWindow->new;
+		$scrwin->set_policy('automatic', 'automatic');
+		$scrwin->add_with_viewport(Gtk2::Label->new($message));
+		$hbox->pack_start($scrwin, 1, 1, 0);
+	} else {
+		$hbox->pack_start(Gtk2::Label->new($message), 1, 1, 0);
+	}
+
+	$dialog->vbox->pack_start($hbox, 1, 1, 0);
+
+	$dialog->add_button('gtk-cancel', 0) if ($cancel_callback);
+	$dialog->add_button('gtk-ok', 1);
+	$dialog->set_default_response(1);
+	$dialog->signal_connect(
+		'response',
+		sub {
+			if (1 == $_[1]) {
+				$ok_callback->() if $ok_callback;
+			} else {
+				$cancel_callback->() if $cancel_callback;
+			}
+			$dialog->destroy;
+		}
+	);
+
+	$dialog->show_all;
+
+	return 1;
+}
+
+=pod
 
 sub request_string {
 	my ($self, $message, $callback, $visible) = @_;
@@ -286,6 +399,8 @@ sub alert {
 	return 1;
 }
 
+=cut
+
 sub question {
 	my ($self, $message, $ok_callback, $cancel_callback) = @_;
 	return $self->alert($message, $ok_callback, $cancel_callback, 'gtk-dialog-question');
@@ -312,6 +427,16 @@ sub icon_size {
 
 sub icon_size_name {
 	return @{$SIZE_MAP{$_[0]->{config}{panel}{size}}}[1];
+}
+
+sub screen_width {
+	my $self = shift;
+	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->screen_width);
+}
+
+sub screen_height {
+	my $self = shift;
+	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->screen_height);
 }
 
 1;

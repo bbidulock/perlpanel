@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.15 2003/06/18 20:24:22 jodrell Exp $
+# $Id: BBMenu.pm,v 1.16 2003/06/19 15:57:03 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -203,7 +203,7 @@ sub popup_position {
 	} else {
 		$self->{menu_widget}->realize;
 		$self->{menu_widget}->show_all;
-		return (0, $PerlPanel::OBJECT_REF->{config}{screen}{height} - $self->{menu_widget}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return (0, $PerlPanel::OBJECT_REF->screen_height - $self->{menu_widget}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	}
 }
 

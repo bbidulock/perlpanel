@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.5 2003/06/19 11:38:49 jodrell Exp $
+$Id: perlpanel.pod,v 1.6 2003/06/19 15:57:03 jodrell Exp $
 
 =head1 Introduction
 
@@ -30,8 +30,6 @@ What you will need is this:
 =item * Perl
 
 =item * The XML::Simple Perl module
-
-=item * The Image::Size Perl module
 
 =item * Gtk+ version 2 or higher
 
@@ -147,10 +145,12 @@ change various config settings. When you click the OK button the panel
 will reload.
 
 The Panel tab contains various positioning and padding options for the
-panel itself. The Screen tab contains controls for the display width and
-height. At the moment PerlPanel is unable to work these out for itself.
-This is because the required functionality is not present in the
-Gtk2-Perl libraries. When it becomes available this tab will disappear.
+panel itself.
+
+The Screen tab contains controls for the display width and height. The
+Screen tab is only visible if the version of Gtk+ on your system does
+not support for the C<GdkScreen> functions. If it does, PerlPanel will
+determine your screen resolution for itself.
 
 You can add, remove and re-order applets on the panel from the 'Applets'
 tab.

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.7 2003/06/10 13:30:05 jodrell Exp $
+# $Id: Configurator.pm,v 1.8 2003/06/19 15:57:03 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -47,32 +47,36 @@ sub build_ui {
 	$self->{pages}{panel}->set_col_spacings(8);
 	$self->{pages}{panel}->set_row_spacings(8);
 
-	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Panel position:'), 0, 1, 0, 1);
+	$self->{pages}{panel}->attach_defaults($self->control_label('Panel position:'), 0, 1, 0, 1);
 	$self->{controls}{position} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'position', 'enum', qw(top bottom));
 	$self->{pages}{panel}->attach($self->{controls}{position}, 1, 2, 0, 1, 'fill', 'expand', 0, 0);
 
-	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Panel spacing:'), 0, 1, 1, 2);
+	$self->{pages}{panel}->attach_defaults($self->control_label('Panel spacing:'), 0, 1, 1, 2);
 	$self->{controls}{spacing} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'spacing', 'int');
 	$self->{pages}{panel}->attach_defaults($self->{controls}{spacing}, 1, 2, 1, 2);
 
-	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Icon size:'), 0, 1, 2, 3);
+	$self->{pages}{panel}->attach_defaults($self->control_label('Icon size:'), 0, 1, 2, 3);
 	$self->{controls}{icon_size} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'size', 'enum', qw(tiny small medium large));
 	$self->{pages}{panel}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'fill', 'expand', 0, 0);
 
-	$self->{notebook}->append_page($self->{pages}{panel}, Gtk2::Label->new('Panel'));
+	$self->{notebook}->append_page($self->{pages}{panel}, $self->control_label('Panel'));
 
-	$self->{pages}{screen} = Gtk2::Table->new(2, 2, 0);
-	$self->{pages}{screen}->set_border_width(8);
-	$self->{pages}{screen}->set_col_spacings(8);
-	$self->{pages}{screen}->set_row_spacings(8);
+	if (!defined($PerlPanel::OBJECT_REF->{screen})) {
 
-	$self->{pages}{screen}->attach_defaults(Gtk2::Label->new('Screen width:'), 0, 1, 0, 1);
-	$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'width', 'int'), 1, 2, 0, 1);
+		$self->{pages}{screen} = Gtk2::Table->new(2, 2, 0);
+		$self->{pages}{screen}->set_border_width(8);
+		$self->{pages}{screen}->set_col_spacings(8);
+		$self->{pages}{screen}->set_row_spacings(8);
 
-	$self->{pages}{screen}->attach_defaults(Gtk2::Label->new('Screen height:'), 0, 1, 1, 2);
-	$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'height', , 'int'), 1, 2, 1, 2);
+		$self->{pages}{screen}->attach_defaults($self->control_label('Screen width:'), 0, 1, 0, 1);
+		$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'width', 'int'), 1, 2, 0, 1);
 
-	$self->{notebook}->append_page($self->{pages}{screen}, Gtk2::Label->new('Screen'));
+		$self->{pages}{screen}->attach_defaults($self->control_label('Screen height:'), 0, 1, 1, 2);
+		$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'height', , 'int'), 1, 2, 1, 2);
+
+		$self->{notebook}->append_page($self->{pages}{screen}, $self->control_label('Screen'));
+
+	}
 
 	$self->{store} = Gtk2::ListStore->new('Glib::String');
 
@@ -122,16 +126,25 @@ sub build_ui {
 	$self->{pages}{applets}->pack_start($self->{scrwin}, 1, 1, 0);
 	$self->{pages}{applets}->pack_start($self->{buttonbox}, 0, 0, 0);
 
-	$self->{notebook}->append_page($self->{pages}{applets}, Gtk2::Label->new('Applets'));
+	$self->{notebook}->append_page($self->{pages}{applets}, $self->control_label('Applets'));
 
-	$self->{buttons}{ok} = Gtk2::Button->new_from_stock('gtk-ok');
-	$self->{buttons}{ok}->signal_connect('clicked', sub { $self->{window}->destroy ; $PerlPanel::OBJECT_REF->save_config ; $PerlPanel::OBJECT_REF->reload });
+	$self->{window}->add_buttons(
+		'gtk-cancel', 1,
+		'gtk-ok', 0,
+	);
 
-	$self->{buttons}{cancel} = Gtk2::Button->new_from_stock('gtk-cancel');
-	$self->{buttons}{cancel}->signal_connect('clicked', sub { $self->{window}->destroy ; $self->discard });
-
-	$self->{window}->action_area->pack_end($self->{buttons}{cancel}, 0, 0, 0);
-	$self->{window}->action_area->pack_end($self->{buttons}{ok},     0, 0, 0);
+	$self->{window}->signal_connect(
+		'response',
+		sub {
+			$self->{window}->destroy;
+			if ($_[1] == 0) {
+				$PerlPanel::OBJECT_REF->save_config;
+				$PerlPanel::OBJECT_REF->reload;
+			} elsif ($_[1] == 1) {
+				$self->discard;
+			}
+		}
+	);
 
 	return 1;
 }
@@ -216,23 +229,27 @@ sub add_dialog {
 
 	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
 
-	my $ok_button = Gtk2::Button->new_from_stock('gtk-ok');
-	$ok_button->signal_connect('clicked', sub {
-		my ($iter, $blah) = $view->get_selection->get_selected;
-		return undef unless (defined($iter));
-		my $idx = ($model->get_path($iter)->get_indices)[0];
-		my ($appletname, undef) = split(/\./, $files[$idx], 2);
-		push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
-		my $newiter = $self->{store}->append;
-		$self->{store}->set($newiter, 0, $appletname);
-		$dialog->destroy;
+	$self->{window}->add_buttons(
+		'gtk-cancel', 1,
+		'gtk-ok', 0,
+	);
+
+	$self->{window}->signal_connect('response', sub {
+		if ($_[1] == 0) {
+			# 'ok' was clicked
+			my ($iter, $blah) = $view->get_selection->get_selected;
+			return undef unless (defined($iter));
+			my $idx = ($model->get_path($iter)->get_indices)[0];
+			my ($appletname, undef) = split(/\./, $files[$idx], 2);
+			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
+			my $newiter = $self->{store}->append;
+			$self->{store}->set($newiter, 0, $appletname);
+			$dialog->destroy;
+		} elsif ($_[1] == 1) {
+			# 'cancel' was clicked
+			$dialog->destroy;
+		}
 	});
-
-	my $cancel_button = Gtk2::Button->new_from_stock('gtk-cancel');
-	$cancel_button->signal_connect('clicked', sub { $dialog->destroy });
-
-	$dialog->action_area->pack_end($cancel_button, 0, 0, 0);
-	$dialog->action_area->pack_end($ok_button, 0, 0, 0);
 
 	$dialog->show_all;
 
@@ -250,6 +267,13 @@ sub move {
 	splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $newidx, 0, splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx, 1));
 	$self->populate_list;
 	return 1;
+}
+
+sub control_label {
+	my ($self, $message) = @_;
+	my $label = Gtk2::Label->new($message);
+	$label->set_alignment(1, 0.5);
+	return $label;
 }
 
 sub show_all {
