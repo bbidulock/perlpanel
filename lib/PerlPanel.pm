@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.50 2004/01/26 00:50:58 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.51 2004/01/26 15:22:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -249,10 +249,10 @@ sub move {
 	}
 
 	my ($top, $bottom);
-	if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'false') {
-		($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
-	} else {
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'true') {
 		($top, $bottom) = (0, 0);
+	} else {
+		($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
 	}
 
 	$self->{panel}->window->property_change(
