@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.14 2004/11/05 10:00:32 jodrell Exp $
+# $Id: Pager.pm,v 1.15 2004/11/07 19:02:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ sub configure {
 	$self->{screen}->force_update;
 
 	$self->{widget} = Gtk2::HBox->new;
-	$self->widget->set_border_width(Gtk2->CHECK_VERSION(2,4,0) ? 0 : 1);
+	$self->widget->set_border_width(0);
 	$self->widget->set_size_request(-1, PerlPanel::icon_size());
 	$self->widget->signal_connect('button_release_event', sub {
 		if ($_[1]->button == 3) {
@@ -60,7 +60,9 @@ sub configure {
 	$self->widget->add($self->{pager});
 
 	PerlPanel::tips->set_tip($self->widget, _('Workspace Pager'));
+
 	$self->widget->show_all;
+
 	return 1;
 }
 
