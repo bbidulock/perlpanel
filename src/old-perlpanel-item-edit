@@ -3,13 +3,15 @@
 # Copyright (c) 2003 Gavin Brown. All rights reserved. This program is free
 # software; you can redistribute it and/or modify it under the terms
 # of the GNU General Public License.
-# $Id: old-perlpanel-item-edit,v 1.1 2003/06/19 15:57:03 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.2 2003/06/25 18:50:26 jodrell Exp $
 use Gtk2;
 use strict;
 
 Gtk2->init;
 
 my $desktop_namespace = 'Desktop Entry';
+
+chomp(my $PREFIX = `gtk-config --prefix`);
 
 my $namespace = '';
 my $data = {};
@@ -101,8 +103,11 @@ $exec_button->signal_connect('clicked', \&choose_program);
 my $icon_label = Gtk2::Label->new('Icon:');
 $icon_label->set_alignment(1, 0);
 my $icon_image;
+my $pixmap_path = sprintf('%s/share/pixmaps/%s', $PREFIX, $data->{$desktop_namespace}{Icon});
 if (-e $data->{$desktop_namespace}{Icon}) {
 	$icon_image = Gtk2::Image->new_from_file($data->{$desktop_namespace}{Icon});
+} elsif (-e $pixmap_path) {
+	$icon_image = Gtk2::Image->new_from_file($pixmap_path);
 } else {
 	$icon_image = Gtk2::Image->new_from_stock('gtk-missing-image', 'dialog');
 }
@@ -135,7 +140,12 @@ Gtk2->main;
 
 sub choose_program {
 	my $selector = Gtk2::FileSelection->new('Choose program');
-	$selector->set_filename($data->{$desktop_namespace}{Exec});
+	chomp(my $path = `which $data->{$desktop_namespace}{Exec}`);
+	if (-e $path) {
+		$selector->set_filename($path);
+	} else {
+		$selector->set_filename($data->{$desktop_namespace}{Exec});
+	}
 	$selector->ok_button->signal_connect('clicked', sub {
 		$exec_entry->set_text($selector->get_filename);
 		$selector->destroy;
@@ -149,7 +159,12 @@ sub choose_program {
 
 sub choose_icon {
 	my $selector = Gtk2::FileSelection->new('Choose Icon');
-	$selector->set_filename($data->{$desktop_namespace}{Icon});
+	my $pixmap_path = sprintf('%s/share/pixmaps/%s', $PREFIX, $data->{$desktop_namespace}{Icon});
+	if (-e $pixmap_path) {
+		$selector->set_filename($pixmap_path);
+	} else {
+		$selector->set_filename($data->{$desktop_namespace}{Icon});
+	}
 	$selector->ok_button->signal_connect('clicked', sub {
 		$data->{$desktop_namespace}{Icon} = $selector->get_filename;
 		my $new_image = Gtk2::Image->new_from_file($data->{$desktop_namespace}{Icon});

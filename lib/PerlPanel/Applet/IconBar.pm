@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.20 2003/06/23 12:34:00 jodrell Exp $
+# $Id: IconBar.pm,v 1.21 2003/06/25 18:50:26 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use vars qw($ICON_DIR);
 use strict;
@@ -114,7 +114,6 @@ sub parse {
 
 sub build {
 	my $self = shift;
-	$self->{widget} = Gtk2::Button->new;
 	if (-e $self->{icon}) {
 		$self->{iconfile} = $self->{icon};
 	} elsif (-e "$ICON_DIR/$self->{icon}" && "$ICON_DIR/$self->{icon}" =~ /\.(png|gif|jpeg|jpg|xpm|bmp)$/) {
@@ -146,12 +145,16 @@ sub build {
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	}
 	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
-	my $tip = $self->{name} || $self->{exec};
-	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $tip);
+
+	$self->{widget} = Gtk2::Button->new;
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
 	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) });
+
+	my $tip = $self->{name} || $self->{exec};
+	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $tip);
+
 	return 1;
 }
 
@@ -161,6 +164,7 @@ sub widget {
 
 sub clicked {
 	my ($self, $button) = @_;
+	$self->{widget}->grab_focus;
 	if ($button == 1) {
 		system($self->{exec}.' &');
 	} elsif ($button == 3) {
