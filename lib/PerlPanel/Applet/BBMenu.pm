@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.29 2003/10/27 10:06:17 jodrell Exp $
+# $Id: BBMenu.pm,v 1.30 2003/11/03 14:10:15 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -102,6 +102,7 @@ sub configure {
 	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->widget->signal_connect('button_release_event', sub { $self->popup($_[1]->button) ; return 1});
+	$self->widget->grab_focus;
 	return 1;
 }
 
