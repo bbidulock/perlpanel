@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.54 2004/05/28 10:46:45 jodrell Exp $
+# $Id: BBMenu.pm,v 1.55 2004/06/07 09:19:36 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -50,7 +50,6 @@ sub configure {
 	my $self = shift;
 
 	$self->{widget}	= Gtk2::Button->new;
-	$self->{menu}	= Gtk2::Menu->new;
 	$self->{config} = PerlPanel::get_config('BBMenu');
 
 	$self->widget->set_relief($self->{config}->{relief} eq 'true' ? 'half' : 'none');
@@ -110,12 +109,21 @@ sub configure {
 
 	$self->widget->signal_connect('clicked', sub { $self->popup });
 
+	Glib::Timeout->add(1000, sub {
+		my $age = $self->file_age;
+		my $time = $self->{mtime};
+		$self->create_menu if ($age > $time);
+		return 1;
+	});
+
 	return 1;
 
 }
 
 sub create_menu {
 	my $self = shift;
+	$self->{menu}	= Gtk2::Menu->new;
+	$self->{mtime} = $self->file_age;
 	$self->parse_menufile;
 	if ($self->{config}->{show_control_items} eq 'true' && !PerlPanel::has_action_menu) {
 		$self->add_control_items(
@@ -138,12 +146,12 @@ sub parse_menufile {
 	foreach my $menufile (@menufiles) {
 		$menufile = sprintf($menufile, $ENV{HOME});
 		if (-e $menufile) {
-			$self->{menufile} = $menufile;
+			$self->{file} = $menufile;
 			last;
 		}
 	}
-	if (defined($self->{menufile})) {
-		open(MENU, $self->{menufile}) or PerlPanel::error(_('Error opening {file}: {error}', file => $self->{menufile}, error => $!)) and return undef;
+	if (defined($self->{file})) {
+		open(MENU, $self->{file}) or PerlPanel::error(_('Error opening {file}: {error}', file => $self->{file}, error => $!)) and return undef;
 		$self->{menudata} = [];
 		while (<MENU>) {
 			s/^\s*//g;
@@ -189,7 +197,7 @@ sub parse_menufile {
 			}
 
 			if (!defined($cmd)) {
-				PerlPanel::error(_('Parse error on line {line} of {file}', line => $line_no, file => $self->{menufile}));
+				PerlPanel::error(_('Parse error on line {line} of {file}', line => $line_no, file => $self->{file}));
 			} else {
 
 				if ($cmd eq 'submenu') {

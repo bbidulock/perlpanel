@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.20 2004/06/03 12:13:04 jodrell Exp $
+# $Id: MenuBase.pm,v 1.21 2004/06/07 09:19:36 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -366,6 +366,11 @@ sub run_menu_editor {
 		$dialog->destroy;
 		&{$callback}($data);
 	});
+}
+
+sub file_age {
+	my $self = shift;
+	return (stat($self->{file}))[9];
 }
 
 =pod

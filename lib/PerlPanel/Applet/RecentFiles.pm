@@ -1,4 +1,4 @@
-# $Id: RecentFiles.pm,v 1.2 2004/06/04 09:02:12 jodrell Exp $
+# $Id: RecentFiles.pm,v 1.3 2004/06/07 09:19:36 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -147,11 +147,6 @@ sub create_menu {
 			last if ($i == 20);
 		}
 	}
-}
-
-sub file_age {
-	my $self = shift;
-	return (stat($self->{file}))[9];
 }
 
 sub show_control_items {
