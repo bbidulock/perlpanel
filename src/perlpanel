@@ -15,17 +15,18 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: perlpanel,v 1.5 2004/01/06 16:13:13 jodrell Exp $
+# $Id: perlpanel,v 1.6 2004/01/06 16:31:40 jodrell Exp $
+
+#
+# are we installed or running in a sandbox?
+#
 use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
+
 use PerlPanel;
 
-# if you're running from a sandbox, you can get PerlPanel to run by symlinking
-# this file into a directory in your PATH, and symlinking the
-# lib/PerlPanel/Applet to ~/.perlpanel/applets. Then you can run perlpanel when
-# in the PerlPanel source directory, and work on PerlPanel without having to
-# install it, or hard-coding paths into the scripts.
-
 $PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
+
+push(@INC, "$ENV{PWD}/lib/$PerlPanel::NAME/Applet") if (!-e '@PREFIX@');
 
 my $panel = PerlPanel->new;
 

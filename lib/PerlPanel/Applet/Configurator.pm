@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.22 2004/01/05 13:19:32 jodrell Exp $
+# $Id: Configurator.pm,v 1.23 2004/01/06 16:31:40 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -293,7 +293,7 @@ sub add_dialog {
 	$view->append_column($desc_column);
 
 	my @files;
-	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME))) {
+	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME)), sprintf('%s/lib/%s/Applet', $ENV{PWD}, $PerlPanel::NAME)) {
 		opendir(DIR, $dir) or next;
 		push(@files, grep { /\.pm$/ } readdir(DIR));
 		closedir(DIR);

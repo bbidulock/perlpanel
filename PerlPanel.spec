@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: PerlPanel.spec,v 1.2 2004/01/06 12:55:02 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.3 2004/01/06 16:31:39 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -33,9 +33,6 @@ BuildRoot: %{_tmppath}/root-%{name}-%{version}
 Prefix: %{_prefix}
 
 AutoReq: no
-
-#define __find_provides /usr/lib/rpm/find-provides.perl
-#define __find_requires /usr/lib/rpm/find-requires.perl
 
 BuildRequires: perl >= 5.8.0
 Requires: perl >= 5.8.0, perl(Gtk2), perl(Gnome2::Wnck), perl(XML::Simple)
