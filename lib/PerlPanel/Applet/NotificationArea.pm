@@ -1,4 +1,4 @@
-# $Id: NotificationArea.pm,v 1.2 2004/09/10 13:01:14 jodrell Exp $
+# $Id: NotificationArea.pm,v 1.3 2004/09/10 16:24:11 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,12 +19,8 @@
 #
 package PerlPanel::Applet::NotificationArea;
 use Gtk2::TrayManager;
-use vars qw($DEFAULT_SCREEN $TRAY_MANAGER $CAN_MANAGE $SINGLETON);
+use vars qw($DEFAULT_SCREEN $TRAY_MANAGER $CAN_MANAGE);
 use strict;
-
-# this means that there can only be one of these in the panel
-# (not implemented yet):
-our $SINGLETON = 1;
 
 #
 # the notification area doesn't really like reloads of the panel.
@@ -55,11 +51,12 @@ sub configure {
 
 	$self->{config} = PerlPanel::get_config('NotificationArea');
 
-	$self->{widget} = Gtk2::Viewport->new;
-	$self->widget->set_shadow_type('etched_in');
-	$self->widget->set_border_width(1);
+	$self->{widget} = Gtk2::HBox->new;
 	$self->widget->set_size_request(-1, PerlPanel::icon_size());
-	$self->widget->add(Gtk2::HBox->new);
+
+	$self->{hbox} = Gtk2::HBox->new;
+	$self->{hbox}->set_border_width(0);
+	$self->{hbox}->set_spacing(1);
 
 	$self->{button} = Gtk2::Button->new;
 	$self->{button}->add(Gtk2::Arrow->new('right', 'none'));
@@ -79,12 +76,9 @@ sub configure {
 		$self->widget->set_size_request(-1, PerlPanel::icon_size());
 	});
 	PerlPanel::tips->set_tip($self->{button}, _('Hide icons'));
-	$self->widget->child->pack_start($self->{button}, 0, 0, 0);
 
-	$self->{hbox} = Gtk2::HBox->new;
-	$self->{hbox}->set_border_width(0);
-	$self->{hbox}->set_spacing(1);
-	$self->widget->child->pack_start($self->{hbox}, 1, 1, 0);
+	$self->widget->pack_start($self->{button}, 0, 0, 0);
+	$self->widget->pack_start($self->{hbox}, 1, 1, 0);
 
 	if ($CAN_MANAGE == 1) {
 		$TRAY_MANAGER->signal_connect('tray_icon_added', sub {
