@@ -5,10 +5,10 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.9 2004/07/02 10:26:39 jodrell Exp $
+# $Id: applet.registry,v 1.10 2004/07/04 13:01:18 jodrell Exp $
 
 About:A button to show an "About" dialog.:Actions
-ActionMenu:A menu containing useful actions.:Utilities
+ActionMenu:A menu containing useful actions.:Menus
 BatteryMonitor:Shows the status of your laptop's battery.:System
 BBMenu:A Blackbox-compatible program launcher.:Menus
 Clock:Shows the current time on the panel.:Utilities
