@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.21 2004/09/17 11:28:53 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.22 2004/09/17 16:01:46 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -296,12 +296,6 @@ This tells the panel to save its configuration data to the resource file.
 
 This tells the panel to save its config file to disk and exit.
 
-	PerlPanel::reload
-
-This tells the panel to destroy its current instance, and create a new
-one, having reloaded config data from disk. This is useful for when you've
-just changed a config variable and want to apply the change.
-
 	PerlPanel::request_string($message, $callback)
 
 This is a clone of the request_string method from the Gnome libs, so
@@ -386,12 +380,17 @@ This is a convenience function that wraps Gtk2::IconTheme. The C<$icon>
 argument is the name of a program or similar. This function will return
 a filename or C<undef> if unsuccessful.
 
+	PerlPanel::remove_applet($appletname, $id);
+
+This method is only useful to multi applets. It tells PerlPanel to remove
+the C<$id> instance of the C<$appletname> applet from the panel. This is
+useful for when you want to provide a "remove" option in a context menu.
+
 =head1 INTERNATIONALISATION SUPPORT
 
-PerlPanel doesn't yet (February 2004) have support for foreign
-languages, but support is expected to be implemented soon. To prepare
-for this support, PerlPanel provides a special function for retrieving a
-translation of a string:
+PerlPanel has support for foreign languages, using the C<Locale::gettext>
+module. PerlPanel provides a special function for retrieving a translation
+of a string:
 
 	$translated = _($original, %params);
 
@@ -405,12 +404,9 @@ the keys of C<%params> are replaced with their values, for example:
 		object	=> 'apples'
 	);
 
-Currently, all this function does is return the original string, with any
-parameters replaced by their values.
 
-When IL8N is properly implemented in PerlPanel it will use either gettext or
-Locale::TextDomain, which is gettext-compliant. In either case, the usage of
-this function is likely to change.
+Applet authors are encouraged to wrap all the strings they use in their applets
+in C<_()>.
 
 =head1 WRITING MENU APPLETS
 
