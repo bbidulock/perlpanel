@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.71 2004/04/04 13:51:25 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.72 2004/04/04 14:21:37 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -55,6 +55,7 @@ our %DEFAULTS = (
 		spacing		=> 0,
 		size		=> 'medium',
 		theme		=> 'default',
+		has_border	=> 'false',
 	},
 	appletconf => {
 		null => {},
@@ -211,7 +212,14 @@ sub build_ui {
 
 	$self->{panel} = Gtk2::Window->new;
 
-	$self->panel->add($self->{hbox});
+	if ($self->{config}{panel}{has_border} eq 'true') {
+		my $toolbar = Gtk2::Toolbar->new;
+		$self->{hbox}->set_size_request(PerlPanel::screen_width(), -1);
+		$toolbar->add($self->{hbox});
+		$self->panel->add($toolbar);
+	} else {
+		$self->panel->add($self->{hbox});
+	}
 
 	return 1;
 }
