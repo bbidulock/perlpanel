@@ -1,4 +1,4 @@
-# $Id: RecentFiles.pm,v 1.3 2004/06/07 09:19:36 jodrell Exp $
+# $Id: RecentFiles.pm,v 1.4 2004/07/07 13:27:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -78,28 +78,50 @@ sub create_menu {
 		$self->{mtime} = $self->file_age;
 
 		my $data = XMLin($self->{file});
-		my @files = @{$data->{RecentItem}};
+		my @entries = @{$data->{RecentItem}};
+
+		my %files_by_stamp;
+		foreach my $file (@entries) {
+			push(@{$files_by_stamp{$file->{Timestamp}}}, $file);
+		}
+		my @files;
+		foreach my $stamp (reverse sort(keys(%files_by_stamp))) {
+			foreach my $file (@{$files_by_stamp{$stamp}}) {
+				push(@files, $file);
+			}
+		}
+
 		my $i = 0;
 
-		foreach my $file (@files, 0, 20) {
+		foreach my $file (@files) {
 			if ($file->{URI} =~ /^file:/) {
 				my $filename = Gnome2::VFS->get_local_path_from_uri($file->{URI});
 				next unless (-e $filename);
 			}
 
 			$i++;
-			if (!defined($self->{types}->{$file->{'Mime-Type'}})) {
-				$self->{types}->{$file->{'Mime-Type'}} = Gnome2::VFS::Mime::Type->new($file->{'Mime-Type'});
-			}
+			my $mimetype = Gnome2::VFS::Mime::Type->new($file->{'Mime-Type'});
 
-			if (defined($self->{types}->{$file->{'Mime-Type'}})) {
+			if (defined($mimetype)) {
 				my $icon;
 
-				if (-d Gnome2::VFS->get_local_path_from_uri($file->{URI})) {
-					$icon = PerlPanel::lookup_icon('gnome-fs-directory');
+				#if (-d Gnome2::VFS->get_local_path_from_uri($file->{URI})) {
+				#	$icon = PerlPanel::lookup_icon('gnome-fs-directory');
 
-				} else {
-					$icon = $self->{types}->{$file->{'Mime-Type'}}->get_icon;
+				#} else {
+					$icon = $mimetype->get_icon;
+
+				#}
+
+				if (! -e $icon) {
+					$icon = PerlPanel::lookup_icon($icon);
+
+					if (! -e $icon) {
+						my $type = $file->{'Mime-Type'};
+						$type =~ s!/!-!;
+						$type = sprintf('gnome-mime-%s', lc($type));
+						$icon = PerlPanel::lookup_icon($type);
+					}
 				}
 
 				if (! -e $icon) {
@@ -116,24 +138,16 @@ sub create_menu {
 						$icon = PerlPanel::lookup_icon('gnome-fs-regular');
 
 					}
-
-					if ($icon eq '') {
-						$icon = PerlPanel::lookup_icon($icon);
-
-						if (! -e $icon) {
-							my $type = $file->{'Mime-Type'};
-							$type =~ s!/!-!;
-							$type = sprintf('gnome-mime-%s', $type);
-							$icon = PerlPanel::lookup_icon($type);
-						}
-					}
 				}
 
 				$self->menu->append($self->menu_item(
 					uri_unescape(basename($file->{URI})),
 					$icon,
 					sub {
-						my $launcher = $self->{types}->{$file->{'Mime-Type'}}->get_default_application;
+						my $launcher = $mimetype->get_default_application;
+						if (!defined($launcher)) {
+							$launcher = ($mimetype->get_all_applications)[0];
+						}
 						if (!defined($launcher)) {
 							PerlPanel::warning(_("Couldn't find a launcher for files of type '{type}'", type => $file->{'Mime-Type'}));
 
@@ -170,7 +184,9 @@ sub end {
 }
 
 sub get_default_config {
-	return undef;
+	return {
+		label => _('Files'),
+	};
 }
 
 1;
