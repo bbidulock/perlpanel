@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.7 2003/06/04 15:47:44 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.8 2003/06/04 23:18:19 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -7,7 +7,7 @@ use vars qw($NAME $VERSION $PREFIX $Y_OFFSET %DEFAULTS $TOOLTIP_REF $OBJECT_REF)
 use strict;
 
 our $NAME	= 'PerlPanel';
-our $VERSION	= '0.02';
+our $VERSION	= '0.0.2';
 
 chomp(our $PREFIX = `gtk-config --prefix`);
 
@@ -15,6 +15,7 @@ chomp(our $PREFIX = `gtk-config --prefix`);
 our $Y_OFFSET = 10;
 
 our %DEFAULTS = (
+	version	=> $VERSION,
 	screen	=> {
 		width		=> 1024,
 		height		=> 768,
@@ -65,6 +66,11 @@ sub init {
 sub load_config {
 	my $self = shift;
 	$self->{config} = (-e $self->{rcfile} ? XMLin($self->{rcfile}) : \%DEFAULTS);
+	if ($self->{config}{version} ne $VERSION) {
+		$self->error("Your config file is from an earlier\nversion ($self->{config}{version}). Please delete it and\nrestart $NAME.", sub { exit });
+		Gtk2->main;
+		return undef;
+	}
 	return 1;
 }
 
@@ -200,7 +206,18 @@ sub alert {
 	my $hbox = Gtk2::HBox->new;
 	$hbox->set_spacing(8);
 	$hbox->pack_start(Gtk2::Image->new_from_stock($stock, 'dialog'), 0, 0, 0);
-	$hbox->pack_start(Gtk2::Label->new($message), 1, 1, 0);
+
+	my $width = 0;
+	map { chomp ; $width = length($_) if length($_) > $width } split(/[\r\n]/, $message);
+	if ($width > 50 || scalar(split(/[\r\n]/, $message)) > 10) {
+		$dialog->set_default_size(350, 150);
+		my $scrwin = Gtk2::ScrolledWindow->new;
+		$scrwin->set_policy('automatic', 'automatic');
+		$scrwin->add_with_viewport(Gtk2::Label->new($message));
+		$hbox->pack_start($scrwin, 1, 1, 0);
+	} else {
+		$hbox->pack_start(Gtk2::Label->new($message), 1, 1, 0);
+	}
 
 	$dialog->vbox->pack_start($hbox, 1, 1, 0);
 

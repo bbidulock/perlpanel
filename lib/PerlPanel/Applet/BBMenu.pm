@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.5 2003/06/04 15:47:44 jodrell Exp $
+# $Id: BBMenu.pm,v 1.6 2003/06/04 23:18:19 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -119,7 +119,9 @@ sub parse_menufile {
 
 sub popup {
 	my $self = shift;
-	print Data::Dumper::Dumper($self->{menutree});
+	$Data::Dumper::Terse = 1;
+	$Data::Dumper::Indent = 1;
+	$PerlPanel::OBJECT_REF->notify("Menu tree looks like this:".Data::Dumper::Dumper($self->{menutree})."\nOne day it might even work!");
 	return 1;
 }
 

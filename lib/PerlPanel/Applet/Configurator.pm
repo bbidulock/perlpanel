@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.2 2003/06/04 15:47:44 jodrell Exp $
+# $Id: Configurator.pm,v 1.3 2003/06/04 23:18:19 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -11,6 +11,7 @@ sub new {
 
 sub configure {
 	my $self = shift;
+	$self->{backup} = $PerlPanel::OBJECT_REF->{config};
 	$self->{widget} = Gtk2::Button->new;
 	$self->{image} = Gtk2::Image->new_from_stock('gtk-preferences', $PerlPanel::OBJECT_REF->icon_size_name);
 	$self->{widget}->add($self->{image});
@@ -30,7 +31,7 @@ sub init {
 sub build_ui {
 	my $self = shift;
 	$self->{window} = Gtk2::Dialog->new;
-	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
+	$self->{window}->signal_connect('delete_event', sub { $self->discard });
 	$self->{window}->set_title('PerlPanel Configuration');
 	$self->{window}->set_position('center');
 	$self->{window}->set_border_width(8);
@@ -71,16 +72,19 @@ sub build_ui {
 	$self->{pages}{panel}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'icon_size_name', 'enum', ('menu', 'small-toolbar', 'large-toolbar', 'dialog')), 1, 2, 3, 4);
 
 	$self->{notebook}->append_page($self->{pages}{panel}, Gtk2::Label->new('Panel'));
+
+	$self->{notebook}->append_page(Gtk2::Label->new('Coming Soon'), Gtk2::Label->new('Paths'));
+	$self->{notebook}->append_page(Gtk2::Label->new('Coming Soon'), Gtk2::Label->new('Applets'));
 	#$self->{notebook}->append_page($self->{pages}{paths}, Gtk2::Label->new('Paths'));
 	#$self->{notebook}->append_page($self->{pages}{applets}, Gtk2::Label->new('Applets'));
 
 	$self->{buttons}{ok} = Gtk2::Button->new_from_stock('gtk-ok');
 	$self->{buttons}{ok}->signal_connect('clicked', sub { $self->{window}->destroy ; $PerlPanel::OBJECT_REF->save_config ; $PerlPanel::OBJECT_REF->reload });
 
-	$self->{buttons}{apply} = Gtk2::Button->new_from_stock('gtk-apply');
-	$self->{buttons}{apply}->signal_connect('clicked', sub { $PerlPanel::OBJECT_REF->save_config ; $PerlPanel::OBJECT_REF->reload });
+	$self->{buttons}{cancel} = Gtk2::Button->new_from_stock('gtk-cancel');
+	$self->{buttons}{cancel}->signal_connect('clicked', sub { $self->{window}->destroy ; $self->discard });
 
-	$self->{window}->action_area->pack_end($self->{buttons}{apply},  0, 0, 0);
+	$self->{window}->action_area->pack_end($self->{buttons}{cancel}, 0, 0, 0);
 	$self->{window}->action_area->pack_end($self->{buttons}{ok},     0, 0, 0);
 
 	return 1;
@@ -112,6 +116,12 @@ sub control {
 		$control->signal_connect('key_press_event', sub { $ref->{$name} = $control->get_text });
 	}
 	return $control;
+}
+
+sub discard {
+	my $self = shift;
+	$self->{widget}->set_sensitive(1);
+	$PerlPanel::OBJECT_REF->{config} = $self->{backup};
 }
 
 sub show_all {
