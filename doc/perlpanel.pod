@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.24 2004/06/25 09:56:12 jodrell Exp $
+$Id: perlpanel.pod,v 1.25 2004/07/05 14:35:37 jodrell Exp $
 
 =head1 Introduction
 
@@ -35,9 +35,6 @@ can specify a file as an argument, for example:
 	perlpanel ~/.perlpanelrc-2
 
 This allows you to run more than one panel at a time.
-
-You can also run the C<perlpaneld> program. Should PerlPanel ever crash,
-this script will restart it.
 
 =head1 Configuring PerlPanel
 

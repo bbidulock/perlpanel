@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.38 2004/06/28 22:18:35 jodrell Exp $
+# $Id: Makefile,v 1.39 2004/07/05 14:35:37 jodrell Exp $
 
 VERSION=0.5.0
 
@@ -67,7 +67,6 @@ install:
 	install -m 0755 build/perlpanel			$(DESTDIR)/$(BINDIR)/
 	install -m 0755 build/perlpanel-item-edit 	$(DESTDIR)/$(BINDIR)/
 	install -m 0755 build/perlpanel-run-dialog	$(DESTDIR)/$(BINDIR)/
-	install -m 0755 src/perlpaneld			$(DESTDIR)/$(BINDIR)/
 	install -m 0644 build/PerlPanel.pm		$(DESTDIR)/$(LIBDIR)/
 	install -m 0755 build/perlpanel.1		$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-applet-howto.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
@@ -82,7 +81,6 @@ clean:
 
 uninstall:
 	rm -rf	$(BINDIR)/perlpanel \
-		$(BINDIR)/perlpaneld \
 		$(BINDIR)/perlpanel-item-edit \
 		$(BINDIR)/perlpanel-run-dialog \
 		$(MANDIR)/$(MAN_SECTION)/perlpanel.1 \

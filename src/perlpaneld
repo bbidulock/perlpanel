@@ -1,6 +1,0 @@
-#!/usr/bin/perl
-# $Id: perlpaneld,v 1.1 2003/10/13 22:29:55 jodrell Exp $
-# Run this script instead of perlpanel and if it ever crashes (as if!)
-# then a new panel instance will be born.
-
-system('perlpanel') while (1);
