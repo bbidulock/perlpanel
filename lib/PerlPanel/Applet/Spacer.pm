@@ -1,4 +1,4 @@
-# $Id: Spacer.pm,v 1.2 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Spacer.pm,v 1.3 2004/06/03 12:42:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Spacer;
+use base 'PerlPanel::MenuBase';
 use strict;
 
 sub new {
@@ -29,9 +30,33 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gtk2::Label->new('');
+	$self->{widget} = Gtk2::EventBox->new;
+	$self->widget->add(Gtk2::Label->new(' '));
+	$self->widget->signal_connect('button_release_event', sub {
+		if ($_[1]->button == 3) {
+			$self->popup;
+		}
+	});
+	$self->create_menu;
 	return 1;
 
+}
+
+sub create_menu {
+	my $self = shift;
+	$self->{menu} = Gtk2::Menu->new;
+	$self->add_control_items;
+}
+
+sub popup_position {
+	my $self = shift;
+	my ($mouse_pos_x, undef) = PerlPanel::get_mouse_pointer_position;
+	if (PerlPanel::position eq 'top') {
+		return ($mouse_pos_x, PerlPanel::panel->allocation->height);
+	} else {
+		$self->menu->realize;
+		return ($mouse_pos_x, PerlPanel::screen_height() - $self->menu->allocation->height - PerlPanel::panel->allocation->height);
+	}
 }
 
 sub widget {

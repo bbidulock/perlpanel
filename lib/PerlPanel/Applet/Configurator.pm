@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.47 2004/06/03 12:13:04 jodrell Exp $
+# $Id: Configurator.pm,v 1.48 2004/06/03 12:42:40 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -455,7 +455,7 @@ sub setup_custom_settings {
 		return undef unless (defined($iter));
 		my $idx = ($self->{applet_list}->get_model->get_path($iter)->get_indices)[0];
 		$self->{applet_list}->get_model->remove($iter);
-		$self->{applet_list}->select($idx - 1);
+		$self->{applet_list}->select($idx - 1) if ($idx > 0);
 	});
 
 
