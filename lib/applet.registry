@@ -1,0 +1,21 @@
+# Plugin Registry file for PerlPanel
+# Format is very simple; AppletName=description.
+# As you may have noticed, lines with a # at the
+# beginning are comments.
+#
+# When writing the installer for your applet, have
+# it append an entry to this file.
+# $Id: applet.registry,v 1.1 2003/06/30 15:29:36 jodrell Exp $
+
+About=A button to show an "About" dialog.
+BBMenu=A Blackbox-compatible program launcher.
+Clock=Shows the current time on the panel.
+Commander=A button to show a command dialog.
+Configurator=A comprehensive configuration dialog.
+IconBar=Shows launcher icons on the panel.
+LoadMonitor=Shows the current CPU load.
+Quit=A button to close the panel.
+Reload=A button to reload the panel.
+Separator=A separator.
+Socket=A Gtk Socket applet.
+XMMS=An applet to control the XMMS media player.

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.13 2003/06/25 11:36:13 jodrell Exp $
+# $Id: Configurator.pm,v 1.14 2003/06/30 15:29:36 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -11,12 +11,30 @@ sub new {
 
 sub configure {
 	my $self = shift;
+	$self->load_appletregistry;
 	$self->{widget} = Gtk2::Button->new;
 	$self->{image} = Gtk2::Image->new_from_stock('gtk-preferences', $PerlPanel::OBJECT_REF->icon_size_name);
 	$self->{widget}->add($self->{image});
 	$self->{widget}->set_relief('none');
 	$self->{widget}->signal_connect('clicked', sub { $self->{widget}->set_sensitive(0) ; $self->init });
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'PerlPanel Configurator');
+	return 1;
+}
+
+sub load_appletregistry {
+	my $self = shift;
+	$self->{regfile} = sprintf('%s/lib/%s/applet.registry', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+	open(REGFILE, $self->{regfile}) or $PerlPanel::OBJECT_REF->warning("Couldn't open $self->{regfile}: $!") and return undef;
+	while (<REGFILE>) {
+		chomp;
+		s/^\s*//g;
+		s/\s*$//g;
+		next if (/^$/ or /^#/);
+		if (/^(\w+)=(.+)$/) {
+			$self->{registry}{$1} = $2;
+		}
+	}
+	close(REGFILE);
 	return 1;
 }
 
@@ -195,7 +213,7 @@ sub add_dialog {
 	$dialog->set_position('center');
 	$dialog->set_modal(1);
 	$dialog->set_border_width(8);
-	$dialog->set_default_size(200, 250);
+	$dialog->set_default_size(400, 250);
 	my $model = Gtk2::ListStore->new('Glib::String');
 	my $view = Gtk2::TreeView->new($model);
 	my $renderer = Gtk2::CellRendererText->new;
@@ -214,7 +232,7 @@ sub add_dialog {
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
 		my $iter = $model->append;
-		$model->set($iter, 0, $appletname);
+		$model->set($iter, 0, "$appletname: ".$self->{registry}{$appletname});
 	}
 
 	my $scrwin = Gtk2::ScrolledWindow->new;
@@ -249,23 +267,6 @@ sub add_dialog {
 
 	return 1;
 }
-
-=pod
-
-sub move {
-	my ($self, $move) = @_;
-	my ($iter, $blah) = $self->{view}->get_selection->get_selected;
-	return undef unless (defined($iter));
-	my $idx = ($self->{store}->get_path($iter)->get_indices)[0];
-	my $newidx = $idx + $move;
-	return undef if ($newidx < 0 || $newidx >= scalar(@{$PerlPanel::OBJECT_REF->{config}{applets}}));
-	$self->{store}->clear;
-	splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $newidx, 0, splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx, 1));
-	$self->populate_list;
-	return 1;
-}
-
-=cut
 
 sub control_label {
 	my ($self, $message) = @_;
