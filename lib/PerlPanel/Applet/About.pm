@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.2 2003/06/10 14:18:27 jodrell Exp $
+# $Id: About.pm,v 1.3 2003/06/25 11:36:13 jodrell Exp $
 package PerlPanel::Applet::About;
 use strict;
 
@@ -37,7 +37,8 @@ sub about {
 	$self->{window}->set_title("About $PerlPanel::NAME");
 	$self->{vbox} = Gtk2::VBox->new;
 	$self->{vbox}->set_spacing(15);
-	$self->{vbox}->pack_start(Gtk2::Image->new_from_stock('gtk-dialog-info', 'dialog'), 0, 0, 0);
+	#$self->{vbox}->pack_start(Gtk2::Image->new_from_stock('gtk-dialog-info', 'dialog'), 0, 0, 0);
+	$self->{vbox}->pack_start(Gtk2::Image->new_from_file("$PerlPanel::PREFIX/share/pixmaps/perlpanel.png"), 0, 0, 0);
 	$self->{label} = Gtk2::Label->new();
 	$self->{label}->set_justify('center');
 	$self->{label}->set_markup($text);

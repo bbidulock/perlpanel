@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.10 2003/06/19 15:57:03 jodrell Exp $
+# $Id: Clock.pm,v 1.11 2003/06/25 11:36:13 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use POSIX qw(strftime);
 use strict;
@@ -37,7 +37,7 @@ sub prefs {
 	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
 	$self->{window}->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
-	$self->{table} = Gtk2::Table->new(3, 2, 0);
+	$self->{table} = Gtk2::Table->new(2, 2, 0);
 	$self->{table}->set_col_spacings(8);
 	$self->{table}->set_row_spacings(8);
 
@@ -60,11 +60,6 @@ sub prefs {
 	$self->{table}->attach_defaults($self->{labels}{date_format}, 0, 1, 1, 2);
 	$self->{table}->attach_defaults($self->{controls}{date_format}, 1, 2, 1, 2);
 
-	$self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
-	$self->{labels}{interval}->set_alignment(1, 0.5);
-	$self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
-	$self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
-
 	$self->{window}->add_buttons(
 		'gtk-cancel', 1,
 		'gtk-ok', 0,
@@ -75,7 +70,6 @@ sub prefs {
 			# 'ok' was clicked
 			$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{format}      = $self->{controls}{format}->get_text;
 			$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{date_format} = $self->{controls}{date_format}->get_text;
-			$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{interval}    = $self->{controls}{interval}->get_value_as_int;
 			$self->{widget}->set_sensitive(1);
 			$self->{window}->destroy;
 			$PerlPanel::OBJECT_REF->save_config;

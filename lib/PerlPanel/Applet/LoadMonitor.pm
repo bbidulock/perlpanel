@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.2 2003/06/19 15:57:03 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.3 2003/06/25 11:36:13 jodrell Exp $
 package PerlPanel::Applet::LoadMonitor;
 use strict;
 
@@ -45,7 +45,7 @@ sub prefs {
 	$self->{table}->set_col_spacings(8);
 	$self->{table}->set_row_spacings(8);
 
-	my $adj = Gtk2::Adjustment->new($PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}, 0, 60000, 1, 1000, undef);
+	my $adj = Gtk2::Adjustment->new($PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}, 100, 60000, 1, 1000, undef);
 	$self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
 	$self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
@@ -96,7 +96,7 @@ sub end {
 }
 
 sub get_default_config {
-	return { interval => 100 }
+	return { interval => 1000 }
 }
 
 1;

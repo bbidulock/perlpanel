@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.12 2003/06/24 14:42:12 jodrell Exp $
+# $Id: Configurator.pm,v 1.13 2003/06/25 11:36:13 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -37,6 +37,7 @@ sub build_ui {
 	$self->{window}->set_title('PerlPanel Configuration');
 	$self->{window}->set_position('center');
 	$self->{window}->set_border_width(8);
+	$self->{window}->set_default_size(250, 350);
 	$self->{window}->vbox->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
 
