@@ -1,4 +1,4 @@
-# $Id: Spacer.pm,v 1.4 2004/09/17 11:28:53 jodrell Exp $
+# $Id: Spacer.pm,v 1.5 2004/11/07 16:25:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::EventBox->new;
-	$self->widget->add(Gtk2::Label->new(' '));
+	$self->widget->add(Gtk2::Label->new);
 	$self->widget->signal_connect('button_release_event', sub {
 		if ($_[1]->button == 3) {
 			$self->popup;
