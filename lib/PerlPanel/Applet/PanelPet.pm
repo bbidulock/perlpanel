@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.12 2005/01/13 22:22:39 jodrell Exp $
+# $Id: PanelPet.pm,v 1.13 2005/01/13 22:25:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -387,6 +387,7 @@ sub _preferences {
     $scrolled_window->add( $list );
 
     if ( $self->{fortune} ) {
+        $self->_get_fortune_databases();
         @{ $list->{data} } = $self->_fill_fortune_database_list;
     }
     else {
