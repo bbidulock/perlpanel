@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.9 2004/11/04 16:12:01 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.10 2005/01/05 12:34:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -15,12 +15,16 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #
-# Copyright: (C) 2003-2004 Eric Andreychek <eric@openthought.net>
+# Copyright: (C) 2003-2005 Eric Andreychek <eric@openthought.net>
 #
+# ACPI support originally written by Waider (www.waider.ie), modified to work
+# with PerlPanel/BatteryMonitor by Eric Andreychek.
+# 
+
 package PerlPanel::Applet::BatteryMonitor;
 use strict;
 
-$PerlPanel::Applet::BatteryMonitor::VERSION = 0.01;
+$PerlPanel::Applet::BatteryMonitor::VERSION = 0.05;
 
 sub new {
 	my $self			= {};
@@ -31,7 +35,10 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gtk2::EventBox->new;
+	#$self->{widget} = Gtk2::EventBox->new;
+	$self->{widget} = Gtk2::Button->new();
+	$self->widget->set_relief('none');
+
 	$self->{label}= Gtk2::Label->new();
 	$self->{widget}->add($self->{label});
 	$self->{config} = PerlPanel::get_config('BatteryMonitor');
@@ -47,10 +54,13 @@ sub update {
 		my ($apm, $charge);
 		my $ac_status = -1;
 		eval {
-			$apm = Sys::Apm->new;
+			$apm = Sys::Apm_ACPI->new;
 			if (defined($apm)) {
 				$ac_status = $apm->ac_status;
 				$charge = $apm->charge;
+			}
+			else {
+				return undef;
 			}
 		};
 		my $status_symbol;
@@ -101,7 +111,7 @@ sub get_default_config {
 
 1;
 
-package Sys::Apm;
+package Sys::Apm_ACPI;
 
 # Sys::Apm - Perl extension for APM
 
@@ -113,24 +123,32 @@ package Sys::Apm;
 use strict;
 use warnings;
 
-our $VERSION = 0.05;
+our $VERSION = 0.20;
 
 sub new {
-	my $cls = shift;
-	my $self = {proc=>'/proc/apm'};
-	unless (-f $self->{proc}) { return }
-	bless $self => $cls;
+	my $class = shift;
+	my $self = {};
+	bless ( $self, $class );
 	$self->fetch;
-	$self;
+	return $self;
 }
 
 sub fetch {
 	my $self = shift;
-	open(APM,$self->{proc})or return;
-	my $a = <APM>;
+
+	my $a;
+    	if ( open( APM, "/proc/apm" )) {
+        	$a = <APM>;
+        	close( APM );
+    	} elsif ( -d "/proc/acpi/battery" ) {
+        	$a = acpi_to_apm();
+	}
 	chomp($a);
-	close APM;
-	unless ($a) { return }
+
+	unless ($a) {
+		warn "Error: APM or ACPI support not detected";
+		return 0;
+	}
 	$self->parse($a);
 }
 
@@ -162,7 +180,8 @@ sub battery_status {
 
 sub charge {
 	my $self = shift;
-	$self->{data}[6];
+	substr($self->{data}[6],-1,1) eq "%" ? $self->{data}[6] :
+					       $self->{data}[6] . '%';
 }
 
 sub remaining {
@@ -173,6 +192,126 @@ sub remaining {
 sub units {
 	my $self = shift;
 	$self->{data}[8];
+}
+
+# This sub written by Waider
+#   Waider 26/09/2000
+#   http://www.waider.ie/hacks/workshop/perl/Monitor/APM.pm
+sub acpi_to_apm {
+    # Convert the info in /proc/acpi/battery/* into an APM string. Loses info, but screw that!
+    my $apm;
+    my ( $drvver, $biosver, $flags, $acstat, $btstat, $btflag, $btpercent, $bttime, $bttime_unit )
+      = ( "1.4", "1.1", 0, 0, 0, 0, -1, -1, "?" );
+
+    # here's the output for a battery:
+    # present:                 yes
+    # design capacity:         54719 mWh
+    # last full capacity:      53913 mWh
+    # battery technology:      rechargeable
+    # design voltage:          14399 mV
+    # design capacity warning: 5391 mWh
+    # design capacity low:     3235 mWh
+    # capacity granularity 1:  2 mWh
+    # capacity granularity 2:  2 mWh
+    # model number:            Primary
+    # serial number:           1FA50011
+    # battery type:            LIon
+    # OEM info:                 COMPAQ
+    # present:                 yes
+    # capacity state:          ok
+    # charging state:          unknown
+    # present rate:            0 mW
+    # remaining capacity:      52530 mWh
+    # present voltage:         16875 mV
+    #
+    # when not on mains, charging state => discharging and present rate => rate of discharge
+
+    # get the ac adapter state for acstat
+    if ( opendir( DIR, "/proc/acpi/ac_adapter" )) {
+        for my $dir ( grep !/^\.\.?$/, readdir( DIR )) {
+            if ( open( ACPI, "/proc/acpi/ac_adapter/$dir/state" )) {
+                my $state = <ACPI>;
+                $acstat |= 0x1 if $state =~ /on-line/;
+                close( ACPI );
+            } else {
+                warn "Error: Failed to get AC $dir state: $!\n";
+		return 0;
+            }
+        }
+    }
+
+    opendir( DIR, "/proc/acpi/battery" );
+    my @batteries = grep !/^\.\.?$/, readdir( DIR );
+    closedir( DIR );
+
+    my ( $max, $lev, $low, $crit, $rate ) = ( 0, 0, 0, 0, 0 );
+
+    for my $battery ( @batteries ) {
+        open( BATT, "/proc/acpi/battery/$battery/info" );
+        my @bits = <BATT>;
+        next unless $bits[0] =~ /yes/;
+
+        close( BATT );
+
+        open( BATT, "/proc/acpi/battery/$battery/state" );
+        push @bits, <BATT>;
+        close( BATT );
+
+        for my $bits ( @bits, @bits ) { # stupidity!
+            chomp( $bits );
+            my ( $field, $value ) = split( /:\s*/, $bits, 2 );
+            $value =~ s/\s+$//;
+            if ( $field eq "last full capacity" ) { #"design capacity" ) {
+                ( $max ) = $value =~ /(\d+)/;
+            } elsif ( $field eq "remaining capacity" ) {
+                ( $lev ) = $value =~ /(\d+)/;
+            } elsif ( $field eq "design capacity warning" ) {
+                ( $low ) = $value =~ /(\d+)/;
+            } elsif ( $field eq "design capacity low" ) {
+                ( $crit ) = $value =~ /(\d+)/;
+            } elsif ( $field eq "charging state" ) {
+                if ( $value eq "unknown" ) {
+                    $btstat = 0xff;
+                    $btflag = 0xff;
+                } elsif ( $value eq "discharging" ) {
+                    if ( $lev ) {
+                        if ( $lev > $low ) {
+                            $btflag = 0x00;
+                            $btstat |= 0x1;
+                        } elsif ( $lev > $crit ) {
+                            $btflag = 0x01;
+                            $btstat |= 0x2;
+                        } else {
+                            $btflag = 0x02;
+                            $btstat |= 0x4;
+                        }
+                    }
+                } elsif ( $value eq "charging" ) {
+                    $btstat = 0x03;
+                    $btflag |= 0x8;
+                    $acstat |= 0x1; # xxx check power_resource
+                } elsif ( $value eq "charged" ) {
+                    $btstat = 0x00;
+                    $btflag |= 0x1;
+                    $acstat |= 0x1;
+                }
+            } elsif ( $field eq "present rate" ) {
+                ( $rate ) = $value =~ /(\d+)/;
+            }
+        }
+        last;                   # XXX
+    }
+
+    $btpercent = sprintf( "%02d", $lev / $max * 100 ) if ( $max );
+
+    if ( $rate ) {
+        $bttime_unit = "min";
+        $bttime = ( $lev - $crit ) / $rate * 60;
+    }
+
+    $apm = sprintf( "%s %s 0x%02x 0x%02x 0x%02x 0x%02x %s %d %s",  $drvver, $biosver, $flags, $acstat, $btstat, $btflag, $btpercent, $bttime, $bttime_unit );
+
+    return $apm;
 }
 
 1;

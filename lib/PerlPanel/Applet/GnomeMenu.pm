@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.23 2004/11/26 11:50:57 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.24 2005/01/05 12:34:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -62,7 +62,7 @@ sub configure {
 		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
 	}
 
-	$self->widget->set_relief('none');
+	$self->widget->set_relief($self->{config}->{relief} eq 'true' ? 'half' : 'none');
 	PerlPanel::tips->set_tip($self->widget, _('Menu'));
 
 	$self->widget->show_all;
@@ -258,6 +258,7 @@ sub get_default_config {
 		show_control_items	=> 'true',
 		apps_in_submenu		=> 'true',
 		base			=> 'applications:',
+		relief 			=> 'none',
 	};
 }
 
