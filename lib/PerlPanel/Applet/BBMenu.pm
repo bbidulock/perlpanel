@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.9 2003/06/10 13:30:05 jodrell Exp $
+# $Id: BBMenu.pm,v 1.10 2003/06/12 16:07:58 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -29,7 +29,14 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	$self->parse_menufile;
-	$self->create_itemfactory($self->{menutree}, '');
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
+		$self->add_control_items;
+		$self->create_itemfactory($self->{menutree}, '');
+	} else {
+		$self->create_itemfactory($self->{menutree}, '');
+		$self->add_control_items;
+	}
+	$self->create_items;
 	$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
@@ -137,11 +144,11 @@ sub create_itemfactory {
 		} elsif (ref($twig) eq 'ARRAY') {
 			next if (scalar(@{@{$twig}[1]}) < 1);
 			my $item = [
-				"$path/".@{$twig}[0],
-				undef,
-				undef,
-				undef,
-				'<Branch>',
+			 "$path/".@{$twig}[0],
+			 undef,
+			 undef,
+			 undef,
+			 '<Branch>',
 			];
 			push(@{$self->{itemfactory}}, $item);
 			$self->create_itemfactory(@{$twig}[1], "$path/".@{$twig}[0]);
@@ -156,6 +163,71 @@ sub create_itemfactory {
 			push(@{$self->{itemfactory}}, $item);
 		}
 	}
+	return 1;
+}
+
+sub add_control_items {
+	my $self = shift;
+	push(@{$self->{itemfactory}}, [
+		'/'.$PerlPanel::NAME.'CtlSeparator',
+		undef,
+		undef,
+		undef,
+		'<Separator>',
+	]);
+	push(@{$self->{itemfactory}}, [
+		'/About...',
+		undef,
+		sub {
+			require('About.pm');
+			my $about = PerlPanel::Applet::About->new;
+			$about->configure;
+			$about->about;
+		},
+		undef,
+		'<StockItem>',
+		'gtk-dialog-info',
+	]);
+	eval "require('Configurator.pm');";
+	unless ($@) {
+		push(@{$self->{itemfactory}}, [
+			'/Configure...',
+			undef,
+			sub {
+				my $configurator = PerlPanel::Applet::Configurator->new;
+				$configurator->configure;
+				$configurator->init;
+			},
+			undef,
+			'<StockItem>',
+			'gtk-preferences',
+		]);
+	}
+	push(@{$self->{itemfactory}}, [
+		'/Reload',
+		undef,
+		sub {
+			$PerlPanel::OBJECT_REF->reload;
+		},
+		undef,
+		'<StockItem>',
+		'gtk-refresh',
+	]);
+	push(@{$self->{itemfactory}}, [
+		'/Quit',
+		undef,
+		sub {
+			$PerlPanel::OBJECT_REF->shutdown;
+		},
+		undef,
+		'<StockItem>',
+		'gtk-quit',
+	]);
+	return 1;
+}
+
+sub create_items {
+	my $self = shift;
 	$self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
 	$self->{factory}->create_items(@{$self->{itemfactory}});
 	return 1;
@@ -166,24 +238,24 @@ sub popup {
 	if (!defined($self->{menu_widget})) {
 		$self->{menu_widget} = $self->{factory}->get_widget('<main>');
 	}
+
 	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_); }, 0, $self->{widget}, undef);
 	return 1;
 }
 
 sub popup_position {
 	my $self = shift;
-	my ($x0, $y0) = splice(@_, 1, 2);
 	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
-		return ($x0, $y0);
+		return (0, (@{$PerlPanel::SIZE_MAP{$PerlPanel::OBJECT_REF->{config}{panel}{size}}})[0]);
 	} else {
-		my $toplevel_items = 0;
+		my $toplevel_items = 4; # includes the control items:
 		foreach my $itemref (@{$self->{itemfactory}}) {
 			my @item = @{$itemref};
 			if ($item[0] =~ /^\/([^\/]+)$/) {
 				$toplevel_items++;
 			}
 		}
-		return ($x0, $y0 - (20 * $toplevel_items));
+		return (0, ($PerlPanel::OBJECT_REF->{config}{screen}{height} - (17 * $toplevel_items) - (@{$PerlPanel::SIZE_MAP{$PerlPanel::OBJECT_REF->{config}{panel}{size}}})[0]));
 	}
 }
 

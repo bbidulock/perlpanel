@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.14 2003/06/10 14:18:27 jodrell Exp $
+# $Id: IconBar.pm,v 1.15 2003/06/12 16:07:58 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use MIME::Base64;
@@ -146,40 +146,47 @@ sub clicked {
 	if ($button == 1) {
 		system($self->{exec}.' &');
 	} elsif ($button == 3) {
+		if (!defined($self->{menu})) {
+			$self->{boxes}{add} = Gtk2::HBox->new;
+			$self->{boxes}{add}->pack_start(Gtk2::Image->new_from_stock('gtk-add', 'menu'), 0, 0, 0);
+			$self->{boxes}{add}->pack_start(Gtk2::Label->new('Add...'), 1, 1, 0);
 
-		$self->{boxes}{add} = Gtk2::HBox->new;
-		$self->{boxes}{add}->pack_start(Gtk2::Image->new_from_stock('gtk-add', 'menu'), 0, 0, 0);
-		$self->{boxes}{add}->pack_start(Gtk2::Label->new('Add...'), 1, 1, 0);
+			$self->{items}{add} = Gtk2::MenuItem->new;
+			$self->{items}{add}->add($self->{boxes}{add});
+			$self->{items}{add}->signal_connect('activate', sub { $self->add });
 
-		$self->{items}{add} = Gtk2::MenuItem->new;
-		$self->{items}{add}->add($self->{boxes}{add});
-		$self->{items}{add}->signal_connect('activate', sub { $self->add });
+			$self->{boxes}{edit} = Gtk2::HBox->new;
+			$self->{boxes}{edit}->pack_start(Gtk2::Image->new_from_stock('gtk-preferences', 'menu'), 0, 0, 0);
+			$self->{boxes}{edit}->pack_start(Gtk2::Label->new('Edit...'), 1, 1, 0);
 
-		$self->{boxes}{edit} = Gtk2::HBox->new;
-		$self->{boxes}{edit}->pack_start(Gtk2::Image->new_from_stock('gtk-preferences', 'menu'), 0, 0, 0);
-		$self->{boxes}{edit}->pack_start(Gtk2::Label->new('Edit...'), 1, 1, 0);
+			$self->{items}{edit} = Gtk2::MenuItem->new;
+			$self->{items}{edit}->add($self->{boxes}{edit});
+			$self->{items}{edit}->signal_connect('activate', sub { $self->edit });
 
-		$self->{items}{edit} = Gtk2::MenuItem->new;
-		$self->{items}{edit}->add($self->{boxes}{edit});
-		$self->{items}{edit}->signal_connect('activate', sub { $self->edit });
+			$self->{boxes}{delete} = Gtk2::HBox->new;
+			$self->{boxes}{delete}->pack_start(Gtk2::Image->new_from_stock('gtk-remove', 'menu'), 0, 0, 0);
+			$self->{boxes}{delete}->pack_start(Gtk2::Label->new('Delete'), 1, 1, 0);
 
-		$self->{boxes}{delete} = Gtk2::HBox->new;
-		$self->{boxes}{delete}->pack_start(Gtk2::Image->new_from_stock('gtk-remove', 'menu'), 0, 0, 0);
-		$self->{boxes}{delete}->pack_start(Gtk2::Label->new('Delete'), 1, 1, 0);
+			$self->{items}{delete} = Gtk2::MenuItem->new;
+			$self->{items}{delete}->add($self->{boxes}{delete});
+			$self->{items}{delete}->signal_connect('activate', sub { $self->delete });
 
-		$self->{items}{delete} = Gtk2::MenuItem->new;
-		$self->{items}{delete}->add($self->{boxes}{delete});
-		$self->{items}{delete}->signal_connect('activate', sub { $self->delete });
-
-		$self->{menu} = Gtk2::Menu->new;
-		$self->{menu}->append($self->{items}{add});
-		$self->{menu}->append($self->{items}{edit});
-		$self->{menu}->append($self->{items}{delete});
-		$self->{menu}->show_all;
-		$self->{menu}->popup(undef, undef, sub { return ($_[1], $_[2] - (20 * scalar(keys(%{$self->{items}})))) }, 0, $self->{widget}, undef);
-		#$self->exec;
+			$self->{menu} = Gtk2::Menu->new;
+			$self->{menu}->append($self->{items}{add});
+			$self->{menu}->append($self->{items}{edit});
+			$self->{menu}->append($self->{items}{delete});
+			$self->{menu}->show_all;
+		}
+		$self->{menu}->popup(undef, undef, sub { return $self->position_function(@_) }, 0, $self->{widget}, undef);
 	}
 	return 1;
+}
+
+sub position_function {
+	my $self = shift;
+	my @args = @_;
+	my ($x, $y) = splice(@args, 1, 2);
+	return ($x, $y - 60);
 }
 
 sub edit {

@@ -1,13 +1,12 @@
-# $Id: PerlPanel.pm,v 1.15 2003/06/10 14:18:27 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.16 2003/06/12 16:07:58 jodrell Exp $
 package PerlPanel;
-use XML::Simple;
 use Gtk2;
 use Data::Dumper;
 use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX $Y_OFFSET %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.0.2';
+our $VERSION		= '0.0.3';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @AUTHORS		= (
 	'Gavin Brown &lt;gavin.brown@uk.com&gt;',
@@ -65,6 +64,7 @@ sub new {
 
 sub init {
 	my $self = shift;
+	$self->check_deps;
 	$self->load_config;
 	$self->build_ui;
 	$self->show_all;
@@ -73,6 +73,17 @@ sub init {
 	$self->show_all;
 	Gtk2->main;
 	return 1;
+}
+
+sub check_deps {
+	my $self = shift;
+	eval 'use XML::Simple;';
+	if ($@) {
+		$self->error("Couldn't load the XML::Simple module!", sub { exit });
+		Gtk2->main();
+	} else {
+		return 1;
+	}
 }
 
 sub load_config {
@@ -134,8 +145,8 @@ sub load_applets {
 				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
 			}
 			$applet->configure;
-			$applet->widget->show_all;
 			$self->add($applet->widget, $applet->expand, $applet->fill, $applet->end);
+			$applet->widget->show_all;
 		}
 	}
 	return 1;
