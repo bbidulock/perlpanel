@@ -1,4 +1,4 @@
-# $Id: Timer.pm,v 1.4 2005/01/21 12:54:58 jodrell Exp $
+# $Id: Timer.pm,v 1.5 2005/01/21 18:10:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,7 +18,10 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Timer;
+use vars qw($OGGPLAYER);
 use strict;
+
+chomp(our $OGGPLAYER = `which ogg123`);
 
 sub new {
 	my $self		= {};
@@ -135,7 +138,16 @@ sub alert {
 }
 
 sub alarm {
-	print "*** Need to play a sound here!\n";
+	my $self = shift;
+	if (!-x $OGGPLAYER) {
+		PerlPanel::warning(_('Cannot find sound player command'));
+
+	} else {
+		my $alarm = sprintf('%s/share/%s/applets/timer/alarm.ogg', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+		my $cmd = join(' ', $OGGPLAYER, '--quiet', $alarm, $alarm, $alarm).' &';
+		system($cmd);
+
+	}
 	return 1;
 }
 
