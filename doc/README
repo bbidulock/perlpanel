@@ -1,0 +1,55 @@
+README
+======
+
+PerlPanel is an attempt to build a useable, lean panel program (like Gnome's
+gnome-panel and KDE's Kicker) in Perl, using Gtk2. There are several reasons for
+this:
+
+	1. I really enjoy programming with Gtk and Perl. It's neat.
+	2. Using a popular language like Perl lowers the barrier to entry,
+	   so a lot more people can contribute.
+	3. It makes C purists go a funny shade of purple.
+	4. Because there's nothing like it at the moment.
+	5. Perl's built-in garbage collection and optimisation means that
+	   it may well perform better on low-end systems than similar programs.
+
+A few tenets:
+
+	1. Everything is OO.
+	2. Gnome is neat, but not everyone likes Gnome. So we avoid using it
+	   and stick to pure Gtk.
+	3. All config is stored in XML. See points 5 and 6 in the section below.
+	4. Sane defaults. Not everyone wants a CPU/eth meter by default.
+	5. Everything is subject to debate. If something is broken in the
+	   panel/applet/config systems, then we can fix it. I can't imagine
+	   a normal user will want to use PerlPanel for a long time, so breaking
+	   compatability between versions is no problem.
+
+A few wahs, or, TODO:
+
+	1. There's no NetWM bindings for Perl, so we can't talk to the window
+	   manager. This sucks. But it would take greater skills than mine to
+	   create them.
+	2. I can't think of a way to find out screen size from the X server,
+	   so the dimensions of the panel have to be manually entered. I know
+	   That the Tk modules have some X11 bits in them, but implementing them
+	   is not something I know how to do.
+	3. At the moment the Panel is nothing more than a packing box in a popup
+	   window that's been warped into a rectangle. This will probably raise
+	   havoc with a lot of things. There's probably a way to do it "properly"
+	   using Gdk but that's beyond my experience. Feel free to correct this
+	   with a patch.
+	4. The IconBar applet uses Image::Magick to rescale icons. This is
+	   probably a silly way to do things. Again, something involving
+	   Gdk::pixbuf is almost certainly the way forward.
+	5. No GUI configuration.
+	6. Currently there's no separation between panel config and applet
+	   config. A way to separate them is probably really easy, and will
+	   come soon. Maybe.
+	7. No IL8N yet.
+
+Any flames, praise, patches, offers of money or sexual favours to
+jodrell@spod.uk.net.
+
+--
+$Id: README,v 1.1 2003/06/02 13:17:06 jodrell Exp $

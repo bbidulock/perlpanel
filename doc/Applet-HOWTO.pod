@@ -10,15 +10,70 @@ This document explains how to write applets for the PerlPanel
 
 =head1 TAG
 
-	$Id: Applet-HOWTO.pod,v 1.1 2003/05/27 16:00:32 jodrell Exp $
+	$Id: Applet-HOWTO.pod,v 1.2 2003/06/02 13:17:06 jodrell Exp $
+
+=head1 EXAMPLE
+
+	# declare our package:
+	package PerlPanel::Applet::HelloWorld;
+
+	# constructor:
+	sub new {
+		my $self		= {};
+		$self->{package}	= shift;
+		bless($self, $self->{package});
+		return $self;
+	}
+
+	# build the widget:
+	sub configure {
+		my $self = shift;
+		$self->{widget} = Gtk2::Button->new('Click Me!');
+		$self->{widget}->signal_connect(
+			'clicked',
+			sub {
+				$PerlPanel::OBJECT_REF->alert('Hello World!');
+			}
+		);
+	}
+
+	# return the widget;
+	sub widget {
+		return $_[0]->{widget};
+	}
+
+	# return the expand (1 or 0) for packing:
+	sub expand {
+		return 0;
+	}
+
+	# return the fill (1 or 0) for packing:
+	sub fill {
+		return 0;
+	}
+
+	# return 'start' or 'end':
+	sub end {
+		return 'start';
+	}
+
+	1;
 
 =head1 INTRODUCTION
 
 It is very easy to write applets for the PerlPanel. Applets are simple Perl
 objects, and are allowed to do anything that a normal Gtk-Perl program might do.
 
-However, in order to work properly with the PerlPanel, they need to have an
-interface the PerlPanel can understand.
+The package name for the applet must be of the form
+
+	PerlPanel::Applet::AppletName
+	
+and should have the filename
+
+	AppletName.pm
+
+In order to work properly with the PerlPanel, they need to have an interface the
+PerlPanel can understand.
 
 When it loads a module, PerlPanel will create a new instance of the applet. It
 will then call various methods of the object in order to work out what to do with
@@ -53,5 +108,78 @@ pack_start() or pack_end().
 
 This method returns either 'start' (in which case pack_start() is used to add the
 widget to the panel) or 'end' (which will PerlPanel to use pack_end()).
+
+=head1 USEFUL VARIABLES
+
+You can access the following variables in your code that give you access to the
+internal guts of the panel:
+
+	$PerlPanel::OBJECT_REF
+
+This is a reference to the main panel object. A number of methods are available
+for your use, they're explained below.
+
+	$PerlPanel::TOOLTIP_REF
+
+This a reference to the Gtk2::Tooltips object. You can use it to give your applet
+widgets tooltips.
+
+	$PerlPanel::ICON_SIZE
+
+The size of icons on the panel, in pixels. You should use this to scale things so
+that everything fits nicely together.
+
+	$PerlPanel::ICON_SIZE_NAME
+
+The name of the Gtk stock icon size, eg 'large-toolbar' or 'menu'. Again, use this
+to correctly scale things in your applet.
+
+=head1 Useful Methods
+
+	$PerlPanel::OBJECT_REF->save_config
+
+This tells the panel to save its config to the resource file.
+
+	$PerlPanel::OBJECT_REF->shutdown
+
+This tells the panel to save its config file to disk and exit.
+
+	$PerlPanel::OBJECT_REF->reload
+
+This tells the panel to destroy its current instance, and create a new one, having
+loaded config data from disk. This is useful for when you've just change a config
+variable and want to apply the change.
+
+	$PerlPanel::OBJECT_REF->request_string($message, $callback)
+
+This is clone of the request_string method from the Gnome libs, so that PerlPanel
+isn't dependent on Gnome being installed. It prompts the user for a string using
+$message, and executes $callback when the user presses 'Ok' or hits the Enter key.
+The callback's $_[0] will contain the supplied string.
+
+	$PerlPanel::OBJECT_REF->request_password($message, $callback)
+
+As above, except the entry widget will not show the entered characters.
+
+	$PerlPanel::OBJECT_REF->question($message, $ok_callback, $cancel_callback)
+
+This prompts the user to answer a Yes/No type question. $ok_callback is executed
+when the user hits 'Ok'. What happens when the user hits 'Cancel' is left as an
+exercise for the reader.
+
+	$PerlPanel::OBJECT_REF->error($message, $ok_callback)
+
+This pops up a dialog with an error icon and the given message. $ok_callback is
+executed if the user hits the 'Ok' button.
+
+	$PerlPanel::OBJECT_REF->warning($message, $ok_callback)
+
+This pops up a dialog with a warning icon (less severe than an error) and the
+given message. $ok_callback is executed if the user hits the 'Ok' button.
+
+	$PerlPanel::OBJECT_REF->notify($message, $ok_callback)
+
+This pops up a dialog with a information icon and the given message. $ok_callback
+is executed if the user hits the 'Ok' button.
 
 =cut

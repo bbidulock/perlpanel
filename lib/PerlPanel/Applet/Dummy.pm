@@ -1,4 +1,4 @@
-# $Id: Dummy.pm,v 1.1 2003/05/29 12:36:00 jodrell Exp $
+# $Id: Dummy.pm,v 1.2 2003/06/02 13:17:06 jodrell Exp $
 package PerlPanel::Applet::Dummy;
 use strict;
 
@@ -12,9 +12,12 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new('Click Me!');
-	$self->{widget}->signal_connect('clicked', sub {
-		print Data::Dumper::Dumper(\@_);
-	});
+	$self->{widget}->signal_connect(
+		'clicked',
+		sub {
+			$PerlPanel::OBJECT_REF->alert('Hello World!');
+		}
+	);
 }
 
 sub widget {

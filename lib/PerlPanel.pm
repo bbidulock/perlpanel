@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.3 2003/05/29 12:32:18 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.4 2003/06/02 13:17:06 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -174,6 +174,8 @@ sub request_password {
 	$self->request_string($message, $callback, 1);
 }
 
+# you shouldn't need to access this directly -
+# instead use one of the wrappers below:
 sub alert {
 	my ($self, $message, $ok_callback, $cancel_callback, $stock) = @_;
 
@@ -187,13 +189,21 @@ sub alert {
 	$hbox->pack_start(Gtk2::Label->new($message), 1, 1, 0);
 
 	$dialog->vbox->pack_start($hbox, 1, 1, 0);
-	my $cancel_button = Gtk2::Button->new_from_stock('gtk-cancel');
-	$cancel_button->signal_connect('clicked', sub { $dialog->destroy ; &$cancel_callback() });
+
+	# only display if $cancel_callback is defined:
+	if (defined($cancel_callback)) {
+		my $cancel_button = Gtk2::Button->new_from_stock('gtk-cancel');
+		$cancel_button->signal_connect('clicked', sub { $dialog->destroy, &$cancel_callback() });
+		$dialog->action_area->pack_start($cancel_button, 0, 1, 0);
+	}
 
 	my $ok_button = Gtk2::Button->new_from_stock('gtk-ok');
-	$ok_button->signal_connect('clicked', sub { $dialog->destroy ; &$ok_callback() });
+	$ok_button->signal_connect('clicked', sub { $dialog->destroy });
+	# only add callback if $ok_callback is defined:
+	if (defined($cancel_callback)) {
+		$ok_button->signal_connect('clicked', sub { &$ok_callback() });
+	}
 
-	$dialog->action_area->pack_start($cancel_button, 0, 1, 0);
 	$dialog->action_area->pack_end($ok_button, 0, 1, 0);
 
 	$dialog->show_all;
@@ -207,18 +217,18 @@ sub question {
 }
 
 sub error {
-	my ($self, $message, $ok_callback, $cancel_callback) = @_;
-	return $self->alert($message, $ok_callback, $cancel_callback, 'gtk-dialog-error');
-}
-
-sub notify {
-	my ($self, $message, $ok_callback, $cancel_callback) = @_;
-	return $self->alert($message, $ok_callback, $cancel_callback, 'gtk-dialog-info');
+	my ($self, $message, $ok_callback) = @_;
+	return $self->alert($message, $ok_callback, undef, 'gtk-dialog-error');
 }
 
 sub warning {
-	my ($self, $message, $ok_callback, $cancel_callback) = @_;
-	return $self->alert($message, $ok_callback, $cancel_callback, 'gtk-dialog-warning');
+	my ($self, $message, $ok_callback) = @_;
+	return $self->alert($message, $ok_callback, undef, 'gtk-dialog-warning');
+}
+
+sub notify {
+	my ($self, $message, $ok_callback) = @_;
+	return $self->alert($message, $ok_callback, undef, 'gtk-dialog-info');
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.1 2003/05/29 12:32:18 jodrell Exp $
+# $Id: BBMenu.pm,v 1.2 2003/06/02 13:17:06 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use strict;
 
@@ -16,6 +16,10 @@ sub configure {
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->{widget}->set_relief('none');
+	$self->{widget}->signal_connect(
+		'clicked',
+		sub { $PerlPanel::OBJECT_REF->notify("Come back later and\nmaybe this will work!") }
+	);
 	#
 	# menu code goes here :-)
 	#
