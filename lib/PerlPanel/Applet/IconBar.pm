@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.31 2004/01/16 22:46:33 jodrell Exp $
+# $Id: IconBar.pm,v 1.32 2004/01/17 00:56:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,6 +17,7 @@
 #
 package PerlPanel::Applet::IconBar;
 use vars qw($ICON_DIR $MENU_EDITOR $OBJECT_REF);
+use Gtk2::SimpleList;
 use strict;
 
 our $ICON_DIR = sprintf('%s/share/pixmaps', $PerlPanel::PREFIX);
@@ -111,7 +112,7 @@ sub reorder_window {
 	$list->set_reorderable(1);
 	my $scrwin = Gtk2::ScrolledWindow->new;
 	$scrwin->set_policy('never', 'automatic');
-	$scrwin->set_shadow_type('in');
+	$scrwin->set_shadow_type('etched_in');
 	$scrwin->add($list);
 	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
 	$dialog->signal_connect('response', sub {

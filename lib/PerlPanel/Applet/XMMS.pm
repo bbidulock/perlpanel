@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.6 2004/01/14 21:51:59 jodrell Exp $
+# $Id: XMMS.pm,v 1.7 2004/01/17 00:56:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -69,6 +69,9 @@ sub configure {
 	$self->{widget} = Gtk2::HBox->new;
 	$self->{controller} = Xmms::Remote->new;
 	$self->{pbfs}{pause} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, 'pause'));
+	if ($self->{pbfs}{pause}->get_height > $PerlPanel::OBJECT_REF->icon_size) {
+		$self->{pbfs}{pause} = $self->{pbfs}{pause}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
+	}
 	foreach my $name (qw(prev play stop next volume)) {
 		$self->{buttons}{$name} = $self->create_button($name);
 		my $func = $CALLBACKS{$name};
@@ -124,6 +127,9 @@ sub configure {
 sub create_button {
 	my ($self, $id) = @_;
 	$self->{pbfs}{$id} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, $id));
+	if ($self->{pbfs}{$id}->get_height > $PerlPanel::OBJECT_REF->icon_size) {
+		$self->{pbfs}{$id} = $self->{pbfs}{$id}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
+	}
 	my $button;
 	if ($id eq 'volume') {
 		$button = Gtk2::ToggleButton->new;

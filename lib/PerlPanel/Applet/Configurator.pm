@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.27 2004/01/16 17:08:52 jodrell Exp $
+# $Id: Configurator.pm,v 1.28 2004/01/17 00:56:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -162,8 +162,9 @@ sub build_ui {
 	$self->create_list;
 
 	$self->{scrwin} = Gtk2::ScrolledWindow->new;
+	$self->{scrwin}->set_shadow_type('etched_in');
 	$self->{scrwin}->set_policy('automatic', 'automatic');
-	$self->{scrwin}->add_with_viewport($self->{view});
+	$self->{scrwin}->add($self->{view});
 
 	$self->{buttonbox} = Gtk2::HButtonBox->new;
 
@@ -309,8 +310,9 @@ sub add_dialog {
 	}
 
 	my $scrwin = Gtk2::ScrolledWindow->new;
+	$scrwin->set_shadow_type('etched_in');
 	$scrwin->set_policy('automatic', 'automatic');
-	$scrwin->add_with_viewport($view);
+	$scrwin->add($view);
 
 	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
 

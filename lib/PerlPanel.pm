@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.44 2004/01/16 17:08:52 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.45 2004/01/17 00:56:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,6 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel;
+
 use Gtk2;
 use Data::Dumper;
 use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
@@ -160,13 +161,14 @@ sub build_ui {
 	$self->{panel}->get_root_window->set_cursor($self->{busy_cursor});
 
 	$self->{panel}->set_type_hint('dock');
-	$self->{panel}->stick;
+	$self->{panel}->stick; # needed for some window managers
 
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{port} = Gtk2::Viewport->new;
 	$self->{port}->add($self->{hbox});
 	$self->{panel}->add($self->{port});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+
 	return 1;
 }
 
@@ -235,31 +237,27 @@ sub show_all {
 
 sub move {
 	my $self = shift;
+	my $panel_height = $self->{panel}->allocation->height;
 	if ($self->position eq 'top') {
 		$self->{panel}->move(0, 0);
 	} elsif ($self->position eq 'bottom') {
 		my $screen_height= $self->screen_height;
-		my $panel_height = $self->{panel}->allocation->height;
 		$self->{panel}->move(0, ($screen_height - $panel_height));
 	} else {
 		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
 	}
 
-	# This is strangely broken:
-	#
-	#$self->{panel}->window->property_change(
-	#	Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
-	#	Gtk2::Gdk::Atom->intern('CARDINAL', undef),
-	#	32,
-	#	'replace',
-	#	[
-	#		0,
-	#		0,
-	#		($self->position eq 'top'    ? $self->{panel}->allocation->height : 0),
-	#		($self->position eq 'bottom' ? $self->{panel}->allocation->height : 0),
-	#	],
-	#	4
-	#);
+	my ($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
+	$self->{panel}->window->property_change(
+		Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
+		Gtk2::Gdk::Atom->intern('CARDINAL', undef),
+		32,
+		'replace',
+		0,
+		0,
+		$top,
+		$bottom,
+	);
 
 	return 1;
 }
