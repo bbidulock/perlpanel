@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.19 2003/10/08 13:05:56 jodrell Exp $
+# $Id: Configurator.pm,v 1.20 2003/10/09 11:47:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -79,7 +79,7 @@ sub build_ui {
 	$self->{notebook} = Gtk2::Notebook->new;
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 
-	$self->{pages}{panel} = Gtk2::Table->new(4, 2, 0);
+	$self->{pages}{panel} = Gtk2::Table->new(6, 2, 0);
 	$self->{pages}{panel}->set_border_width(8);
 	$self->{pages}{panel}->set_col_spacings(8);
 	$self->{pages}{panel}->set_row_spacings(8);
@@ -88,13 +88,20 @@ sub build_ui {
 	$self->{controls}{position} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'position', 'enum', qw(top bottom));
 	$self->{pages}{panel}->attach($self->{controls}{position}, 1, 2, 0, 1, 'fill', 'expand', 0, 0);
 
-	$self->{pages}{panel}->attach_defaults($self->control_label('Panel spacing:'), 0, 1, 1, 2);
+	$self->{pages}{panel}->attach_defaults($self->control_label('Applet spacing:'), 0, 1, 1, 2);
 	$self->{controls}{spacing} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'spacing', 'int');
 	$self->{pages}{panel}->attach_defaults($self->{controls}{spacing}, 1, 2, 1, 2);
 
 	$self->{pages}{panel}->attach_defaults($self->control_label('Icon size:'), 0, 1, 2, 3);
 	$self->{controls}{icon_size} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'size', 'enum', qw(tiny small medium large));
 	$self->{pages}{panel}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'fill', 'expand', 0, 0);
+
+	$self->{pages}{panel}->attach_defaults($self->control_label('Auto-hide panel:'), 0, 1, 3, 4);
+	$self->{controls}{autohide} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'autohide', 'boolean');
+	$self->{pages}{panel}->attach_defaults($self->{controls}{autohide}, 1, 2, 3, 4);
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'true') {
+		$self->{pages}{panel}->attach_defaults(Gtk2::Label->new("NB: if you change this,\nyou must restart the panel."), 1, 2, 4, 5);
+	}
 
 	$self->{notebook}->append_page($self->{pages}{panel}, $self->control_label('Panel'));
 

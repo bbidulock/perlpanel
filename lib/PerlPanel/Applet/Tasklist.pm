@@ -1,4 +1,4 @@
-# $Id: Tasklist.pm,v 1.1 2003/10/08 13:05:57 jodrell Exp $
+# $Id: Tasklist.pm,v 1.2 2003/10/09 11:47:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,7 +32,7 @@ sub configure {
 	$self->{screen}->force_update;
 	$self->{widget} = Gnome2::Wnck::Tasklist->new($self->{screen});
 	$self->widget->set_minimum_width(50);
-	$self->widget->set_size_request(undef, $PerlPanel::OBJECT_REF->icon_size);
+	$self->widget->set_size_request(50, $PerlPanel::OBJECT_REF->icon_size);
 	return 1;
 }
 

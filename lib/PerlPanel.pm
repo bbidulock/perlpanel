@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.30 2003/10/08 13:05:56 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.31 2003/10/09 11:47:33 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -86,7 +86,11 @@ sub init {
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->show_all;
-	$self->move;
+	if ($self->{config}{panel}{autohide} eq 'true') {
+		$self->autohide;
+	} else {
+		$self->move;
+	}
 	Gtk2->main;
 	return 1;
 }
@@ -159,7 +163,12 @@ sub configure {
 	my $self = shift;
 	$self->{panel}->set_default_size($self->screen_width, 0);
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
+	$self->{hbox}->set_border_width(0);
 	$self->{port}->set_shadow_type('out');
+	if ($self->{config}{panel}{autohide} eq 'true') {
+		$self->{leave_connect_id} = $self->{panel}->signal_connect('leave_notify_event', sub { $self->autohide; });
+		$self->{enter_connect_id} = $self->{panel}->signal_connect('enter_notify_event', sub { $self->autoshow; });
+	}
 	return 1;
 }
 
@@ -375,6 +384,22 @@ sub screen_height {
 sub position {
 	my $self = shift;
 	return $self->{config}{panel}{position};
+}
+
+sub autohide {
+	my $self = shift;
+	if ($self->position eq 'top') {
+		$self->{panel}->move(0, 0 - $self->{panel}->allocation->height + 2);
+	} elsif ($self->position eq 'bottom') {
+		$self->{panel}->move(0, $self->screen_height - 2);
+	} else {
+		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
+	}
+	return 1;
+}
+
+sub autoshow {
+	$_[0]->move;
 }
 
 1;
