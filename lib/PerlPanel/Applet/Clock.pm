@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.25 2004/10/11 11:55:00 jodrell Exp $
+# $Id: Clock.pm,v 1.26 2004/10/11 14:03:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,10 +20,19 @@
 package PerlPanel::Applet::Clock;
 use Gtk2::SimpleList;
 use POSIX qw(strftime);
-use vars qw($MULTI);
+use vars qw($MULTI %REMINDERS);
 use strict;
 
 our $MULTI = 1;
+
+our %REMINDERS = (
+	-1	=> _('No reminder'),
+	5	=> _('{mins} minutes before', mins => 5),
+	15	=> _('{mins} minutes before', mins => 15),
+	30	=> _('{mins} minutes before', mins => 30),
+	60	=> _('1 hour before'),
+	120	=> _('2 hours before'),
+);
 
 sub new {
 	my $self		= {};
@@ -35,6 +44,7 @@ sub new {
 
 sub configure {
 	my $self = shift;
+	$self->{config} = PerlPanel::get_config('Clock', $self->{id});
 	$self->{label} = Gtk2::Label->new;
 	$self->{widget} = Gtk2::ToggleButton->new;
 	$self->widget->set_relief('none');
@@ -43,11 +53,11 @@ sub configure {
 	$self->widget->signal_connect('clicked', sub {
 		if ($self->widget->get_active) {
 			$self->show_calendar;
+			$self->show_events($self->{calendar}->get_date);
 		} else {
 			$self->hide_calendar;
 		}
 	});
-	$self->{config} = PerlPanel::get_config('Clock', $self->{id});
 	$self->update;
 	Glib::Timeout->add(1000, sub { $self->update });
 	$self->widget->show_all;
@@ -103,6 +113,8 @@ sub make_calendar {
 	$self->{calendar}->select_month($month, $year);
 	$self->{calendar}->select_day($day);
 
+	$self->show_events($year, $month, $day);
+
 	$self->{events} = Gtk2::SimpleList->new_from_treeview(
 		$self->{glade}->get_widget('event_list'),
 		'date'	=> 'text',
@@ -113,6 +125,21 @@ sub make_calendar {
 
 	$self->{window}->child->show_all;
 	$self->{window}->realize;
+
+	$self->{model} = Gtk2::ListStore->new(qw(Glib::String Glib::String));
+	foreach my $mins (sort keys %REMINDERS) {
+		$self->{model}->set($self->{model}->append, 0, $mins, 1, $REMINDERS{$mins});
+	}
+
+	$self->{combo} = Gtk2::ComboBox->new;
+
+	$self->{glade}->get_widget('reminder_combo_placeholder')->add($self->{combo});
+
+	$self->{combo}->set_model($self->{model});
+
+	my $renderer = Gtk2::CellRendererText->new;
+	$self->{combo}->pack_start($renderer, undef);
+	$self->{combo}->set_attributes($renderer, 'text' => 1);
 
 	return 1;
 }
@@ -143,7 +170,19 @@ sub hide_calendar {
 
 sub show_events {
 	my ($self, $year, $month, $day) = @_;
-	my $date = sprintf("%04d-%02d-%02d\n", $year, $month, $day);
+	my $date = sprintf("%04d-%02d-%02d", $year, $month, $day);
+	@{$self->{events}->{data}} = ();
+	my %events;
+	foreach my $event (@{$self->{config}->{events}}) {
+		if ($event->{date} eq $date) {
+			push(@{$events{$event->{time}}}, $event);
+		}
+	}
+	foreach my $time (sort keys %events) {
+		foreach my $event (@{$events{$time}}) {
+			push(@{$self->{events}->{data}}, [ $time, $event->{notes} ]);
+		}
+	}
 	return 1;
 }
 
@@ -151,12 +190,65 @@ sub add_event_dialog {
 	my $self = shift;
 	my ($year, $month, $day) = $self->{calendar}->get_date;
 	my ($mins, $hours) = (localtime())[1,2];
+	$self->{add_event_date} = sprintf('%04d-%02d-%02d', $year, $month, $day);
 	$self->{glade}->get_widget('add_dialog_date_label')->set_markup(sprintf(_('<span weight="bold" size="large">Add Event for %04d-%02d-%02d:</span>'), $year, $month+1, $day));
 	$self->{glade}->get_widget('hour_spin')->set_value($hours);
 	$self->{glade}->get_widget('min_spin')->set_value($mins);
-	$self->{glade}->get_widget('reminder_combo')->set_active(0);
+	$self->{glade}->get_widget('notes_entry')->get_buffer->set_text('');
+	$self->{combo}->set_active(0);
 	$self->{glade}->get_widget('add_event_dialog')->set_position('center');
+	$self->{glade}->get_widget('add_event_dialog')->set_modal(1);
 	$self->{glade}->get_widget('add_event_dialog')->show_all;
+	$self->setup_add_event_dialog_callbacks;
+
+	return 1;
+}
+
+sub setup_add_event_dialog_callbacks {
+	my $self = shift;
+
+	if (!defined($self->{callback_ids}->{delete_event})) {
+		$self->{callback_ids}->{delete_event} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
+			'delete_event',
+			sub {
+				$self->{glade}->get_widget('add_event_dialog')->hide_all;
+				return 1;
+			}
+		);
+	}
+
+	if (!defined($self->{callback_ids}->{response})) {
+		$self->{callback_ids}->{response} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
+			'response',
+			sub {
+				if ($_[1] eq 'ok') {
+					my $hours	= $self->{glade}->get_widget('hour_spin')->get_value;
+					my $mins	= $self->{glade}->get_widget('min_spin')->get_value;
+					my $notes	= $self->{glade}->get_widget('notes_entry')->get_buffer->get_text(
+						$self->{glade}->get_widget('notes_entry')->get_buffer->get_start_iter,
+						$self->{glade}->get_widget('notes_entry')->get_buffer->get_end_iter,
+						1,
+					);
+					my $reminder	= $self->{combo}->get_model->get($self->{combo}->get_active_iter, 0);
+
+					if (ref($self->{config}->{events}) ne 'ARRAY') {
+						$self->{config}->{events} = [ $self->{config}->{events} ];
+					}
+					push(@{$self->{config}->{events}}, {
+						date		=> $self->{add_event_date},
+						time		=> sprintf('%02d:%02d', $hours, $mins),
+						reminder	=> $reminder,
+						notes		=> $notes,
+					});
+					$self->show_events($self->{calendar}->get_date);
+					PerlPanel::save_config;
+				}
+				$self->{glade}->get_widget('add_event_dialog')->hide_all;
+				return 1;
+			}
+		);
+	}
+
 	return 1;
 }
 

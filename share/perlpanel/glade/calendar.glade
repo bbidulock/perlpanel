@@ -574,14 +574,14 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkComboBox" id="reminder_combo">
+			<widget class="GtkHBox" id="reminder_combo_placeholder">
 			  <property name="visible">True</property>
-			  <property name="items" translatable="yes">No reminder
-5 minutes before
-15 minutes before
-30 minutes before
-1 hour before
-2 hours before</property>
+			  <property name="homogeneous">False</property>
+			  <property name="spacing">0</property>
+
+			  <child>
+			    <placeholder/>
+			  </child>
 			</widget>
 			<packing>
 			  <property name="left_attach">1</property>

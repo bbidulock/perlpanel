@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.121 2004/10/09 11:49:28 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.122 2004/10/11 14:03:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -355,12 +355,14 @@ sub load_applet {
 
 	eval(sprintf('require "%s.pm"', ucfirst($appletname)));
 	if ($@) {
+		print STDERR $@;
 		$self->applet_error($appletname, $@);
 		return undef;
 	}
 
 	eval(sprintf('$multi = $%s::Applet::%s::MULTI', $self->{package}, ucfirst($appletname)));
 	if ($@) {
+		print STDERR $@;
 		$self->applet_error($appletname, $@);
 		return undef;
 	}
@@ -389,6 +391,7 @@ sub load_applet {
 	eval($expr);
 
 	if ($@ || !defined($applet)) {
+		print STDERR $@;
 		$self->applet_error($appletname, $@);
 		return undef;
 	}
