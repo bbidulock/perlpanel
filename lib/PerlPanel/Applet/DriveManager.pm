@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.4 2004/10/31 10:25:45 jodrell Exp $
+# $Id: DriveManager.pm,v 1.5 2004/10/31 17:34:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,24 +18,30 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::DriveManager;
-use vars qw($MULTI $NULL_DEVICE %TYPES $DEFAULT_TYPE $MOUNT $UMOUNT $EJECT);
+use vars qw($MULTI %TYPES %DEVICES %EJECTABLE $DEFAULT_POINT $DEFAULT_TYPE $MOUNT $UMOUNT $EJECT $NAUTILUS $FSTAB);
 use base 'PerlPanel::MenuBase';
 use strict;
 
 our $MULTI		= 1;
-our $NULL_DEVICE	= '/dev/null';
 our $DEFAULT_TYPE	= 'drive';
 our %TYPES = (
-	cdrom		=> _('CD ROM'),
+	cdrom		=> _('CD/DVD ROM'),
 	drive		=> _('Hard Disk'),
 	flash		=> _('Flash or Smart Media Card'),
 	ipod		=> _('iPod'),
 	removable	=> _('Removable Drive (Floppy, Zip or Jaz)'),
 	usb		=> _('USB Device (Camera, external HD)'),
 );
+our %EJECTABLE		= (
+	cdrom		=> 1,
+	removable	=> 1,
+);
+our $DEFAULT_POINT	= '/mnt/non-existent-mountpoint';
+our $FSTAB		= '/etc/fstab';
 chomp(our $MOUNT	= `which mount`);
 chomp(our $UMOUNT	= `which umount`);
 chomp(our $EJECT	= `which eject`);
+chomp(our $NAUTILUS	= `which nautilus`);
 
 sub configure {
 	my $self = shift;
@@ -48,6 +54,8 @@ sub configure {
 
 	$self->{config}->{type} = $DEFAULT_TYPE if ($TYPES{$self->{config}->{type}} eq '');
 
+	our %DEVICES = $self->get_devices;
+
 	if (!-x $MOUNT) {
 		PerlPanel::error(_("DriveManager cannot find the '{cmd}' program, please check your PATH", cmd => 'mount'));
 
@@ -56,6 +64,12 @@ sub configure {
 
 	} elsif (!-x $EJECT) {
 		PerlPanel::error(_("DriveManager cannot find the '{cmd}' program, please check your PATH", cmd => 'eject'));
+
+	} elsif (!defined($DEVICES{$self->{config}->{point}}) && $self->{config}->{point} ne $DEFAULT_POINT) {
+		PerlPanel::warning(
+			_("Your system's {fstab} has changed, cannot determine device for {point}", fstab => $FSTAB, point => $self->{config}->{point}),
+			sub { $self->config_dialog }
+		);
 
 	} else {
 		$self->init;
@@ -110,8 +124,7 @@ sub end {
 
 sub get_default_config {
 	return {
-		device	=> $NULL_DEVICE,
-		point	=> $NULL_DEVICE,
+		point	=> $DEFAULT_POINT,
 		type	=> $DEFAULT_TYPE,
 	}
 }
@@ -124,9 +137,7 @@ sub mounted {
 	} else {
 		my $mounted = 0;
 		while (<MOUNT>) {
-			Gtk2->main_iteration while (Gtk2->events_pending);
-			my ($device, undef) = split(/\s+/, $_, 2);
-			$mounted++ if ($device eq $self->{config}->{device});
+			$mounted++ if (/on $self->{config}->{point}/);
 		}
 		close(MOUNT);
 		return ($mounted > 0 ? 1 : undef);
@@ -141,10 +152,10 @@ sub update {
 		PerlPanel::tips->set_tip($self->widget, _('Click to configure.'));
 
 	} elsif ($self->mounted) {
-		PerlPanel::tips->set_tip($self->widget, _('{device} is mounted', device => $self->{config}->{device}));
+		PerlPanel::tips->set_tip($self->widget, _('{device} is mounted', device => $self->{config}->{point}));
 
 	} else {
-		PerlPanel::tips->set_tip($self->widget, _('{device} is not mounted', device => $self->{config}->{device}));
+		PerlPanel::tips->set_tip($self->widget, _('{device} is not mounted', device => $self->{config}->{point}));
 
 	}
 
@@ -153,7 +164,7 @@ sub update {
 
 sub configured {
 	my $self = shift;
-	return ($self->{config}->{device} ne $NULL_DEVICE);
+	return ($self->{config}->{point} ne $DEFAULT_POINT);
 }
 
 sub clicked {
@@ -174,39 +185,55 @@ sub create_menu {
 	$self->{menu} = Gtk2::Menu->new;
 
 	if ($self->mounted) {
-		$self->menu->append($self->menu_item(
+		my $browse_item = $self->menu_item(
 			_('Browse...'),
 			'gtk-open',
 			sub { $self->browse },
-		));
-		$self->menu->append($self->menu_item(
-			_('Eject'),
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
-				PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
-			),
-			sub { $self->unmount && $self->eject },
-		));
+		);
+		$browse_item->set_sensitive(-x $NAUTILUS);
+		$self->menu->append($browse_item);
+
+		if (defined($EJECTABLE{$self->{config}->{type}})) {
+			$self->menu->append($self->menu_item(
+				_('Eject'),
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
+					PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
+				),
+				sub { $self->unmount && $self->eject },
+			));
+
+		} else {
+			$self->menu->append($self->menu_item(
+				_('Unmount'),
+				'gtk-execute',
+				sub { $self->unmount },
+			));
+
+		}
+
 	} else {
-		$self->menu->append($self->menu_item(
-			_('Close Tray'),
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
-				PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
-			),
-			sub { $self->close },
-		));
-		$self->menu->append($self->menu_item(
-			_('Eject'),
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
-				PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
-			),
-			sub { $self->eject },
-		));
+		if (defined($EJECTABLE{$self->{config}->{type}})) {
+			$self->menu->append($self->menu_item(
+				_('Open Tray'),
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
+					PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
+				),
+				sub { $self->eject },
+			));
+			$self->menu->append($self->menu_item(
+				_('Close Tray'),
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					PerlPanel::lookup_icon(sprintf('%s-applet-drivemanager-eject', lc($PerlPanel::NAME))),
+					PerlPanel::menu_icon_size, PerlPanel::menu_icon_size,
+				),
+				sub { $self->close },
+			));
+		}
 		$self->menu->append($self->menu_item(
 			_('Mount'),
-			'gtk-go-forward',
+			'gtk-execute',
 			sub { $self->mount },
 		));
 	}
@@ -232,21 +259,38 @@ sub create_menu {
 sub config_dialog {
 	my $self = shift;
 
-	my $combo = Gtk2::ComboBox->new;
-	$combo->set_model($self->{type_model});
+	my $point_combo = Gtk2::ComboBox->new_text;
+	foreach my $point (sort(keys(%DEVICES))) {
+		$point_combo->append_text($point);
+	}
+
+	my $type_combo = Gtk2::ComboBox->new;
+	$type_combo->set_model($self->{type_model});
 
 	my $renderer = Gtk2::CellRendererPixbuf->new;
-	$combo->pack_start($renderer, undef);
-	$combo->set_attributes($renderer, 'pixbuf' => 0);
+	$type_combo->pack_start($renderer, undef);
+	$type_combo->set_attributes($renderer, 'pixbuf' => 0);
 
 	my $renderer = Gtk2::CellRendererText->new;
-	$combo->pack_start($renderer, undef);
-	$combo->set_attributes($renderer, 'text' => 1);
+	$type_combo->pack_start($renderer, undef);
+	$type_combo->set_attributes($renderer, 'text' => 1);
 
 	my $i = 0;
 	foreach my $type (sort keys %TYPES) {
 		if ($type eq $self->{config}->{type}) {
-			$combo->set_active($i);
+			$type_combo->set_active($i);
+			last;
+
+		} else {
+			$i++;
+
+		}
+	}
+
+	my $i = 0;
+	foreach my $type (sort keys %DEVICES) {
+		if ($type eq $self->{config}->{point}) {
+			$point_combo->set_active($i);
 			last;
 
 		} else {
@@ -257,55 +301,13 @@ sub config_dialog {
 
 	my $glade = PerlPanel::load_glade('drivemanager');
 
-	$glade->get_widget('device_entry')->set_text($self->{config}->{device});
-	$glade->get_widget('mountpoint_entry')->set_text($self->{config}->{point});
-
-	$glade->get_widget('device_browse_button')->signal_connect('clicked', sub {
-		my $dialog = Gtk2::FileChooserDialog->new(
-			_('Choose Device'),
-			undef,
-			'open',
-			'gtk-cancel'	=> 'cancel',
-			'gtk-ok'	=> 'ok',
-		);
-		$dialog->set_modal(1);
-		$dialog->signal_connect('response', sub {
-			if ($_[1] eq 'ok') {
-				$glade->get_widget('device_entry')->set_text($dialog->get_filename);
-			}
-			$dialog->destroy;
-		});
-		$dialog->show_all;
-		# this can take ages, cos gnomevfs takes ages to read the /dev directory:
-		$dialog->set_filename($glade->get_widget('device_entry')->get_text);
-	});
-	$glade->get_widget('mountpoint_browse_button')->signal_connect('clicked', sub {
-		my $dialog = Gtk2::FileChooserDialog->new(
-			_('Choose Mount Point'),
-			undef,
-			'select-folder',
-			'gtk-cancel'	=> 'cancel',
-			'gtk-ok'	=> 'ok',
-		);
-		$dialog->set_modal(1);
-		$dialog->signal_connect('response', sub {
-			if ($_[1] eq 'ok') {
-				$glade->get_widget('mountpoint_entry')->set_text($dialog->get_current_folder);
-			}
-			$dialog->destroy;
-		});
-		$dialog->show_all;
-		# this can take ages, cos gnomevfs takes ages to read the /dev directory:
-		$dialog->set_current_folder($glade->get_widget('mountpoint_entry')->get_text);
-	});
-
-	$glade->get_widget('type_combo_placeholder')->pack_start($combo, 1, 1, 0);
+	$glade->get_widget('point_combo_placeholder')->pack_start($point_combo,	1, 1, 0);
+	$glade->get_widget('type_combo_placeholder')->pack_start($type_combo,	1, 1, 0);
 
 	$glade->get_widget('config_dialog')->signal_connect('response', sub {
 		if ($_[1] eq 'ok') {
-			$self->{config}->{device}	= $glade->get_widget('device_entry')->get_text;
-			$self->{config}->{point}	= $glade->get_widget('mountpoint_entry')->get_text;
-			$self->{config}->{type}		= (sort(keys(%TYPES)))[$combo->get_active];
+			$self->{config}->{point} = (sort(keys(%DEVICES)))[$point_combo->get_active];
+			$self->{config}->{type} = (sort(keys(%TYPES)))[$type_combo->get_active];
 			PerlPanel::save_config;
 			$self->init;
 		}
@@ -320,22 +322,29 @@ sub config_dialog {
 
 sub mount {
 	my $self = shift;
-	$self->wait_command(sprintf('%s %s %s', $MOUNT, $self->{config}->{device}, $self->{config}->{point}));
+	return $self->wait_command(sprintf('%s "%s"', $MOUNT, $self->{config}->{point}));
 }
 
 sub unmount {
 	my $self = shift;
-	$self->wait_command(sprintf('%s %s', $UMOUNT, $self->{config}->{point}));
+	return $self->wait_command(sprintf('%s "%s"', $UMOUNT, $self->{config}->{point}));
 }
 
 sub eject {
 	my $self = shift;
-	$self->wait_command(sprintf('%s %s', $EJECT, $self->{config}->{device}));
+	return $self->wait_command(sprintf('%s "%s"', $EJECT, $DEVICES{$self->{config}->{point}}));
 }
 
 sub close {
 	my $self = shift;
-	$self->wait_command(sprintf('%s -t %s', $EJECT, $self->{config}->{device}));
+	return $self->wait_command(sprintf('%s -t "%s"', $EJECT, $DEVICES{$self->{config}->{point}}));
+}
+
+sub browse {
+	my $self = shift;
+	my $cmd = sprintf('%s --no-desktop "%s" &', $NAUTILUS, $self->{config}->{point});
+	system($cmd);
+	return 1;
 }
 
 sub wait_command {
@@ -351,6 +360,25 @@ sub wait_command {
 		}
 	});
 	return ($? > 0 ? undef : 1);
+}
+
+sub get_devices {
+	my $self = shift;
+	my %DEVICES;
+	if (!open(FSTAB, $FSTAB)) {
+		PerlPanel::error(_("Cannot read '{fstab}': {error}", fstab => $FSTAB, error => $!));
+
+	} else {
+		while (<FSTAB>) {
+			chomp;
+			my ($device, $point, undef, $opts, undef) = split(/[\t\s]+/, $_, 5);
+			if ($opts =~ /user|owner/) {
+				$DEVICES{$point} = $device;
+			}
+		}
+		close(FSTAB);
+		return %DEVICES;
+	}
 }
 
 1;
