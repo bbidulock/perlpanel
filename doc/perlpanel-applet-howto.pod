@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.5 2003/06/23 12:34:00 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.6 2003/06/24 14:42:12 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -175,7 +175,7 @@ Again, use this to correctly scale things in your applet.
 These two methods return the width and height (in pixels) of the default
 display. PerlPanel attempts to work this out if the system's Gtk+ is
 recent enough (ie later than 2.2.0), otherwise it will take them from the
-user's config file.
+output of the C<xdpyinfo(1)> program.
 
 	$PerlPanel::OBJECT_REF->position
 

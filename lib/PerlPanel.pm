@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.23 2003/06/23 12:36:32 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.24 2003/06/24 14:42:12 jodrell Exp $
 package PerlPanel;
 use Gtk2;
 use Data::Dumper;
@@ -6,7 +6,7 @@ use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX 
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.0.3';
+our $VERSION		= '0.0.4';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @AUTHORS		= (
 	'Gavin Brown &lt;gavin.brown@uk.com&gt;',
@@ -19,11 +19,6 @@ chomp(our $PREFIX = `gtk-config --prefix`);
 
 our %DEFAULTS = (
 	version	=> $VERSION,
-	screen => {
-		note => "this data is only used if you Gtk+ doesn't support GdkScreen",
-		width => 1024,
-		height => 768,
-	},
 	panel => {
 		position => 'bottom',
 		spacing => 2,
@@ -63,7 +58,7 @@ sub init {
 	my $self = shift;
 	$self->check_deps;
 	$self->load_config;
-	$self->get_screen;
+	$self->get_screen || $self->parse_xdpyinfo;
 	$self->build_ui;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
@@ -88,6 +83,20 @@ sub get_screen {
 	my $self = shift;
 	my $code = '$self->{screen} = Gtk2::Gdk::Screen->get_screen';
 	return eval($code);
+}
+
+sub parse_xdpyinfo {
+	my $self = shift;
+	chomp($self->{xdpyinfo} = `which xdpyinfo`);
+	open(XDPYINFO, "$self->{xdpyinfo} -display $ENV{DISPLAY} |") or $self->error("Can't open pipe from '$self->{xdpyinfo}': $!", sub { exit });
+	while (<XDPYINFO>) {
+		if (/dimensions:\s+(\d+)x(\d+)\s+pixels/i) {
+			$self->{screen_width}  = $1;
+			$self->{screen_height} = $2;
+		}
+	}
+	close(XDPYINFO);
+	return 1;
 }
 
 sub load_config {
@@ -332,12 +341,12 @@ sub icon_size_name {
 
 sub screen_width {
 	my $self = shift;
-	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->{config}{screen}{width});
+	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->{screen_width});
 }
 
 sub screen_height {
 	my $self = shift;
-	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->{config}{screen}{height});
+	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->{screen_height});
 }
 
 sub position {

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.11 2003/06/20 13:48:31 jodrell Exp $
+# $Id: Configurator.pm,v 1.12 2003/06/24 14:42:12 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -37,7 +37,6 @@ sub build_ui {
 	$self->{window}->set_title('PerlPanel Configuration');
 	$self->{window}->set_position('center');
 	$self->{window}->set_border_width(8);
-	$self->{window}->set_default_size(275, 325);
 	$self->{window}->vbox->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
 
@@ -63,28 +62,15 @@ sub build_ui {
 
 	$self->{notebook}->append_page($self->{pages}{panel}, $self->control_label('Panel'));
 
-	if (!defined($PerlPanel::OBJECT_REF->{screen})) {
-
-		$self->{pages}{screen} = Gtk2::Table->new(2, 2, 0);
-		$self->{pages}{screen}->set_border_width(8);
-		$self->{pages}{screen}->set_col_spacings(8);
-		$self->{pages}{screen}->set_row_spacings(8);
-
-		$self->{pages}{screen}->attach_defaults($self->control_label('Screen width:'), 0, 1, 0, 1);
-		$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'width', 'int'), 1, 2, 0, 1);
-
-		$self->{pages}{screen}->attach_defaults($self->control_label('Screen height:'), 0, 1, 1, 2);
-		$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'height', , 'int'), 1, 2, 1, 2);
-
-		$self->{notebook}->append_page($self->{pages}{screen}, $self->control_label('Screen'));
-
-	}
-
 	$self->{store} = Gtk2::ListStore->new('Glib::String');
 
-	$self->{view} = Gtk2::TreeView->new($self->{store});
 	$self->{renderer} = Gtk2::CellRendererText->new;
+
 	$self->{column} = Gtk2::TreeViewColumn->new_with_attributes('Applet', $self->{renderer}, text => 0);
+
+	$self->{view} = Gtk2::TreeView->new($self->{store});
+	$self->{view}->set_reorderable(1);
+
 	$self->{view}->append_column($self->{column});
 
 	$self->populate_list;
@@ -93,21 +79,13 @@ sub build_ui {
 	$self->{scrwin}->set_policy('automatic', 'automatic');
 	$self->{scrwin}->add_with_viewport($self->{view});
 
-	$self->{buttonbox} = Gtk2::VButtonBox->new;
-
-	$self->{buttons}{up} = Gtk2::Button->new_from_stock('gtk-go-up');
-	$self->{buttons}{up}->set_relief('none');
-	$self->{buttons}{up}->signal_connect('clicked', sub { $self->move(-1) });
-
-	$self->{buttons}{down} = Gtk2::Button->new_from_stock('gtk-go-down');
-	$self->{buttons}{down}->set_relief('none');
-	$self->{buttons}{down}->signal_connect('clicked', sub { $self->move(1) });
+	$self->{buttonbox} = Gtk2::HButtonBox->new;
 
 	$self->{buttons}{add} = Gtk2::Button->new_from_stock('gtk-add');
 	$self->{buttons}{add}->set_relief('none');
 	$self->{buttons}{add}->signal_connect('clicked', sub { $self->add_dialog });
 
-	$self->{buttons}{delete} = Gtk2::Button->new_from_stock('gtk-delete');
+	$self->{buttons}{delete} = Gtk2::Button->new_from_stock('gtk-remove');
 	$self->{buttons}{delete}->set_relief('none');
 	$self->{buttons}{delete}->signal_connect('clicked', sub {
 		my ($iter, undef) = $self->{view}->get_selection->get_selected;
@@ -117,15 +95,14 @@ sub build_ui {
 		splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx, 1);
 	});
 
-	$self->{buttonbox}->add($self->{buttons}{up});
-	$self->{buttonbox}->add($self->{buttons}{down});
 	$self->{buttonbox}->add($self->{buttons}{add});
 	$self->{buttonbox}->add($self->{buttons}{delete});
 
-	$self->{pages}{applets} = Gtk2::HBox->new;
+	$self->{pages}{applets} = Gtk2::VBox->new;
 	$self->{pages}{applets}->set_spacing(8);
 	$self->{pages}{applets}->set_border_width(8);
 	$self->{pages}{applets}->pack_start($self->{scrwin}, 1, 1, 0);
+	$self->{pages}{applets}->pack_start(Gtk2::Label->new('Drag and drop items in the list to move them.'), 0, 0, 0);
 	$self->{pages}{applets}->pack_start($self->{buttonbox}, 0, 0, 0);
 
 	$self->{notebook}->append_page($self->{pages}{applets}, $self->control_label('Applets'));
@@ -140,6 +117,7 @@ sub build_ui {
 		sub {
 			$self->{window}->destroy;
 			if ($_[1] == 0) {
+				$self->rebuild_appletlist;
 				$PerlPanel::OBJECT_REF->save_config;
 				$PerlPanel::OBJECT_REF->reload;
 			} elsif ($_[1] == 1) {
@@ -185,6 +163,19 @@ sub populate_list {
 		my $iter = $self->{store}->append;
 		$self->{store}->set($iter, 0, $appletname);
 	}
+	return 1;
+}
+
+sub rebuild_appletlist {
+	my $self = shift;
+	$PerlPanel::OBJECT_REF->{config}{applets} = [];
+	$self->{view}->get_model->foreach(
+		sub {
+			my $iter = $_[2];
+			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $self->{view}->get_model->get_value($iter, 0));
+			return undef
+		}
+	);
 	return 1;
 }
 
@@ -258,6 +249,8 @@ sub add_dialog {
 	return 1;
 }
 
+=pod
+
 sub move {
 	my ($self, $move) = @_;
 	my ($iter, $blah) = $self->{view}->get_selection->get_selected;
@@ -270,6 +263,8 @@ sub move {
 	$self->populate_list;
 	return 1;
 }
+
+=cut
 
 sub control_label {
 	my ($self, $message) = @_;

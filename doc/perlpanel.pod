@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.7 2003/06/23 12:34:00 jodrell Exp $
+$Id: perlpanel.pod,v 1.8 2003/06/24 14:42:12 jodrell Exp $
 
 =head1 Introduction
 
@@ -154,11 +154,6 @@ will reload.
 The Panel tab contains various positioning and padding options for the
 panel itself.
 
-The Screen tab contains controls for the display width and height. The
-Screen tab is only visible if the version of Gtk+ (2.2.0 or higher) on
-your system does not support for the C<GdkScreen> functions. If it does,
-PerlPanel will determine your screen resolution for itself.
-
 You can add, remove and re-order applets on the panel from the 'Applets'
 tab.
 
@@ -187,6 +182,8 @@ want to learn how to write applets, consult L<perlpanel-applet-howto>.
 =over
 
 =item * L<perl(1)>
+
+=item * L<xdpyinfo(1)>
 
 =item * L<Gtk2>
 
