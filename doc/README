@@ -18,7 +18,7 @@ A few tenets:
 	1. Everything is OO.
 	2. Gnome is neat, but not everyone likes Gnome. So we avoid using it
 	   and stick to pure Gtk.
-	3. All config is stored in XML. See points 5 and 6 in the section below.
+	3. All config is stored in XML.
 	4. Sane defaults. Not everyone wants a CPU/eth meter by default.
 	5. Everything is subject to debate. If something is broken in the
 	   panel/applet/config systems, then we can fix it. I can't imagine
@@ -30,21 +30,12 @@ A few wahs, or, TODO:
 	1. There's no NetWM bindings for Perl, so we can't talk to the window
 	   manager. This sucks. But it would take greater skills than mine to
 	   create them.
-	2. It is possible to work out the screen dimensions, using GdkScreen.
-	   Unfortunately, there isn't yet a release of Gtk2-Perl that supports
-	   GdkScreen objects, so we can't use it. The next release should have
-	   support, so when that comes out, PerlPanel will be updated and the
-	   "screen" section of the config file will be deprecated.
-	3. At the moment the Panel is nothing more than a packing box in a popup
+	2. At the moment the Panel is nothing more than a packing box in a popup
 	   window that's been warped into a rectangle. This will probably raise
 	   havoc with a lot of things. There's probably a way to do it
 	   "properly" using Gdk but that's beyond my experience. Feel free to
 	   correct this with a patch :-)
-	4. No I18N yet.
-	5. Currently Perl spits out loads of errors about uninitialized values
-	   in Gtk2.pm, attempts to free unreferenced scalar, and so on. As far
-	   as I can tell this is a problem with the Gtk2 libs themselves. I
-	   suspect they will fix themselves in time.
+	3. No I18N yet.
 
 --
-$Id: README,v 1.5 2003/06/13 15:43:33 jodrell Exp $
+$Id: README,v 1.6 2003/06/19 16:29:43 jodrell Exp $

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.8 2003/06/19 15:57:03 jodrell Exp $
+# $Id: Configurator.pm,v 1.9 2003/06/19 16:29:43 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -22,6 +22,8 @@ sub configure {
 
 sub init {
 	my $self = shift;
+	# oh man, is this a kludge. but no matter how much i tried i couldn't dereference the ref
+	# in order to make a copy of the hash:
 	$self->{backup} = XML::Simple::XMLin(XML::Simple::XMLout($PerlPanel::OBJECT_REF->{config}));
 	$self->build_ui;
 	$self->show_all;

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.19 2003/06/19 15:57:03 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.20 2003/06/19 16:29:43 jodrell Exp $
 package PerlPanel;
 use Time::HiRes qw(time);
 use Gtk2;
@@ -11,6 +11,7 @@ our $VERSION		= '0.0.3';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @AUTHORS		= (
 	'Gavin Brown &lt;gavin.brown@uk.com&gt;',
+	'<span size="small">Scott Arrington &lt;muppet@asofyet.org&gt;</span>',
 );
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 our $LICENSE		= "This program is Free Software. You may use it\nunder the terms of the GNU General Public License.";
@@ -20,6 +21,7 @@ chomp(our $PREFIX = `gtk-config --prefix`);
 our %DEFAULTS = (
 	version	=> $VERSION,
 	screen => {
+		note => "this data is only used if you Gtk+ doesn't support GdkScreen",
 		width => 1024,
 		height => 768,
 	},
@@ -63,8 +65,8 @@ sub new {
 sub init {
 	my $self = shift;
 	$self->check_deps;
-	$self->get_screen;
 	$self->load_config;
+	$self->get_screen;
 	$self->build_ui;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
@@ -116,7 +118,7 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->screen_width, $self->icon_size);
+	$self->{panel}->set_default_size($self->screen_width, 0);
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{panel}->add($self->{hbox});
@@ -165,7 +167,7 @@ sub add {
 }
 
 sub show_all {
-	$_[0]->{panel}->show_all();
+	$_[0]->{panel}->show_all;
 	return 1;
 }
 
@@ -174,7 +176,9 @@ sub move {
 	if ($self->{config}{panel}{position} eq 'top') {
 		$self->{panel}->move(0, 0);
 	} elsif ($self->{config}{panel}{position} eq 'bottom') {
-		$self->{panel}->move(0, ($self->screen_height - $self->{panel}->allocation->height));
+		my $screen_height= $self->screen_height;
+		my $panel_height = $self->{panel}->allocation->height;
+		$self->{panel}->move(0, ($screen_height - $panel_height));
 	} else {
 		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
 	}
@@ -431,12 +435,12 @@ sub icon_size_name {
 
 sub screen_width {
 	my $self = shift;
-	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->screen_width);
+	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->{config}{screen}{width});
 }
 
 sub screen_height {
 	my $self = shift;
-	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->screen_height);
+	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->{config}{screen}{height});
 }
 
 1;
