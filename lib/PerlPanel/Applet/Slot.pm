@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.4 2003/10/12 16:22:17 jodrell Exp $
+# $Id: Slot.pm,v 1.1 2004/01/06 12:27:55 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -15,7 +15,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-package PerlPanel::Applet::Socket;
+package PerlPanel::Applet::Slot;
 use strict;
 
 sub new {
@@ -27,14 +27,28 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gtk2::Socket->new;
-	$self->{id} = $self->{widget}->get_id;
-	$self->{socketfile} = sprintf('%s/.$s/socketid', $ENV{HOME}, lc($PerlPanel::NAME));
-	open(SOCKETFILE, ">$self->{socketfile}") or $PerlPanel::OBJECT_REF->error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
-	print SOCKETFILE $self->{id};
-	close(SOCKETFILE);
-	return 1;
 
+	$self->{widget} = Gtk2::ScrolledWindow->new;
+
+	my $socket = Gtk2::Socket->new;
+
+	$self->widget->add_with_viewport($socket);
+
+	$self->widget->set_policy('never', 'never');
+	$self->widget->set_border_width(0);
+	$self->widget->child->set_border_width(0);
+	$self->widget->child->set_shadow_type('in');
+
+
+	$self->{socketfile} = sprintf('%s/.%s/socketid', $ENV{HOME}, lc($PerlPanel::NAME));
+
+	$socket->signal_connect('realize', sub {
+		open(SOCKETFILE, ">$self->{socketfile}") or $PerlPanel::OBJECT_REF->error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
+		print SOCKETFILE $socket->get_id;
+		close(SOCKETFILE);
+	});
+
+	return 1;
 }
 
 sub widget {

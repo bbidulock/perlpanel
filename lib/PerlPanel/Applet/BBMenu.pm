@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.33 2004/01/05 14:56:59 jodrell Exp $
+# $Id: BBMenu.pm,v 1.34 2004/01/06 12:27:55 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -202,16 +202,16 @@ sub parse_menufile {
 
 sub add_control_items {
 	my $self = shift;
-	chomp(my $xscreensaver = `which xscreensaver-command`);
 	push(@{$self->{items}},
 		[
-			'/CtrlSeparator',
+			'/CtrlSeparator0',
 			undef,
 			undef,
 			undef,
 			'<Separator>',
 		],
 	);
+	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
 		push(@{$self->{items}},
 			[
@@ -226,20 +226,27 @@ sub add_control_items {
 	}
 	push(@{$self->{items}}, (
 		[
-			"/About $PerlPanel::NAME...",
+			'/Run Program...',
 			undef,
 			sub {
-				require('About.pm');
-				my $about = PerlPanel::Applet::About->new;
-				$about->configure;
-				$about->about;
+				require('Commander.pm');
+				my $commander = PerlPanel::Applet::Commander->new;
+				$commander->configure;
+				$commander->run;
 			},
 			undef,
 			'<StockItem>',
-			'gtk-dialog-info',
+			'gtk-execute',
 		],
 		[
-			'/Configure Panel...',
+			'/CtrlSeparator1',
+			undef,
+			undef,
+			undef,
+			'<Separator>',
+		],
+		[
+			"/Configure $PerlPanel::NAME...",
 			undef,
 			sub {
 				require('Configurator.pm');
@@ -252,7 +259,7 @@ sub add_control_items {
 			'gtk-preferences',
 		],
 		[
-			'/Reload Panel',
+			"/Reload $PerlPanel::NAME",
 			undef,
 			sub {
 				$PerlPanel::OBJECT_REF->reload;
@@ -261,6 +268,27 @@ sub add_control_items {
 			'<StockItem>',
 			'gtk-refresh',
 		],
+		[
+			'/CtrlSeparator2',
+			undef,
+			undef,
+			undef,
+			'<Separator>',
+		],
+		[
+			"/About $PerlPanel::NAME...",
+			undef,
+			sub {
+				require('About.pm');
+				my $about = PerlPanel::Applet::About->new;
+				$about->configure;
+				$about->about;
+			},
+			undef,
+			'<StockItem>',
+			'gtk-dialog-info',
+		],
+
 	));
 	return 1;
 }
@@ -307,10 +335,8 @@ sub apply_icons {
 		my $icon;
 		if (-e $icon_file) {
 			$icon = $self->generate_icon($icon_file);
-		} else {
-			$icon = Gtk2::Image->new_from_pixbuf($self->widget->render_icon('gtk-execute', @{$PerlPanel::SIZE_MAP{tiny}}[1]));
+			$item->set_image($icon);
 		}
-		$item->set_image($icon);
 	}
 	return 1;
 }

@@ -2,41 +2,51 @@ README
 ======
 
 PerlPanel is an attempt to build a useable, lean panel program (like
-Gnome's gnome-panel and KDE's Kicker) in Perl, using Gtk2. There are
+GNOME's gnome-panel and KDE's Kicker) in Perl, using Gtk2. There are
 several reasons for this:
 
-	1. I really enjoy programming with Gtk and Perl. It's neat.
-	2. Using a popular language like Perl lowers the barrier to entry,
-	   so a lot more people can contribute.
+	1. I really enjoy programming with Gtk+ and Perl. It's neat.
+	2. Using a popular language like Perl lowers the barrier to
+	   entry, so a lot more people can contribute.
 	3. It makes C purists go a funny shade of purple.
 	4. Because there's nothing like it at the moment.
-	5. Perl's built-in garbage collection and optimisation means that
-	   it may well perform better on low-end systems than similar programs.
+	5. Perl's built-in garbage collection and optimisation means
+	   that it may well perform better on low-end systems than
+	   similar programs.
 
 A few tenets:
 
 	1. Everything is OO.
-	2. Gnome is neat, but not everyone likes Gnome. So we avoid using it
-	   and stick to pure Gtk¹.
+	2. GNOME rocks, but not everyone likes or can use GNOME. So we
+	   avoid using it and stick to pure Gtk*.
 	3. All config is stored in XML.
 	4. Sane defaults. Not everyone wants a CPU/eth meter by default.
-	5. Everything is subject to debate. If something is broken in the
-	   panel/applet/config systems, then we can fix it. I can't imagine
-	   a normal user will want to use PerlPanel for a long time, so
-	   breaking compatability between versions is no problem.
+	5. Everything (apart from these tenets) is subject to debate. If
+	   something is broken in the panel/applet/config systems, then
+	   we can fix it. I can't imagine a normal user will want to use
+	   PerlPanel for a long time, so breaking compatability between
+	   versions is no problem.
 
 A few wahs, or, TODO:
 
 	1. At the moment the Panel is nothing more than a packing box in
-	   a popup window that's been warped into a rectangle. This will
-	   probably raise havoc with a lot of things. There's probably a
-	   way to do it "properly" using Gdk but that's beyond my
-	   experience. Feel free to correct this with a patch :-)
+	   an undecorated window that's been warped into a rectangle.
+	   This is a bit of a kludge, and there may be a better way to
+	   do it.
 	2. No I18N yet.
+	3. Drag-and-drop sorting of applets and icons in the IconBar would
+	   be nice.
+	4. Support for multiheaded systems - there is a way to kludge this
+	   but a "proper" solution is more desirable.
+	5. One day, all applets will be widgets in their own right, and
+	   will inherit from a base class that will let us do neat things
+	   like having standard pop-ups. Maybe the Panel will also be a
+	   widget as well.
 
-¹: We use the Gnome2::Wnck library for the tasklist, show desktop
+*: We use the Gnome2::Wnck library for the tasklist, show desktop
 button and pager. However this module doesn't require the rest of the
-Gnome2 bundle - it's just named that way because it's a Gnome package.
+Gnome2 modules - it's just named that way because it's maintained by the
+GNOME developers.
 
 --
-$Id: README,v 1.7 2003/10/12 16:22:17 jodrell Exp $
+$Id: README,v 1.8 2004/01/06 12:27:55 jodrell Exp $

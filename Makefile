@@ -1,4 +1,3 @@
-# Makefile for PerlPanel
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -15,13 +14,16 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.13 2003/10/12 16:22:17 jodrell Exp $
+# $Id: Makefile,v 1.14 2004/01/06 12:27:55 jodrell Exp $
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
 BINDIR=$(PREFIX)/bin
-MANDIR=$(PREFIX)/share/man/man1
-IMGDIR=$(PREFIX)/share/pixmaps
+DATADIR=$(PREFIX)/share
+MANDIR=$(DATADIR)/man/
+IMGDIR=$(DATADIR)/pixmaps
+
+MAN_SECTION=man1
 
 all: perlpanel
 
@@ -32,13 +34,13 @@ perlpanel:
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
 
 install:
-	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR) $(IMGDIR)
+	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR)/$(MAN_SECTION) $(IMGDIR)
 	install -m 0755 build/perlpanel $(BINDIR)/
 	install -m 0755 src/perlpaneld $(BINDIR)/
 	install -m 0755 src/perlpanel-item-edit $(BINDIR)/
 	cp -Rvp lib/* $(LIBDIR)/
-	install -m 0755 build/perlpanel.1 $(MANDIR)/
-	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/
+	install -m 0755 build/perlpanel.1 $(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_SECTION)/
 	install -m 0644 share/perlpanel.png $(IMGDIR)/
 	install -m 0644 share/perlpanel-menu-icon.png $(IMGDIR)/
 	install -m 0644 share/perlpanel-lock-screen.png $(IMGDIR)/
@@ -48,4 +50,4 @@ clean:
 	rm -rf build
 
 uninstall:
-	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(LIBDIR) $(MANDIR)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
+	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
