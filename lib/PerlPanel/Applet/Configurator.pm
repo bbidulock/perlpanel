@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.16 2003/07/14 11:31:39 jodrell Exp $
+# $Id: Configurator.pm,v 1.17 2003/07/21 09:21:29 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -139,7 +139,7 @@ sub build_ui {
 	$self->{buttons}{delete} = Gtk2::Button->new_from_stock('gtk-remove');
 	$self->{buttons}{delete}->set_relief('none');
 	$self->{buttons}{delete}->signal_connect('clicked', sub {
-		my ($iter, undef) = $self->{view}->get_selection->get_selected;
+		my (undef, $iter) = $self->{view}->get_selection->get_selected;
 		return undef unless (defined($iter));
 		my $idx = ($self->{store}->get_path($iter)->get_indices)[0];
 		$self->{store}->remove($iter);
@@ -291,7 +291,7 @@ sub add_dialog {
 			# 'ok' was clicked
 			my $seln = $view->get_selection;
 			return unless (defined($seln));
-			my ($iter, $blah) = $seln->get_selected;
+			my ($blah, $iter) = $seln->get_selected;
 			return undef unless (defined($iter));
 			my $idx = ($model->get_path($iter)->get_indices)[0];
 			my ($appletname, undef) = split(/\./, $files[$idx], 2);
