@@ -1,10 +1,10 @@
 # Makefile for PerlPanel
-# $Id: Makefile,v 1.4 2003/06/19 15:57:03 jodrell Exp $
+# $Id: Makefile,v 1.5 2003/06/23 12:30:24 jodrell Exp $
 
 PREFIX=/usr
 LIBDIR=$(PREFIX)/lib/perlpanel
 BINDIR=$(PREFIX)/bin
-MANDIR=$(PREFIX)/man1
+MANDIR=$(PREFIX)/share/man/man1
 
 all: perlpanel
 
