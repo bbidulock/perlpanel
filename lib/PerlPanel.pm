@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.135 2004/11/26 12:48:16 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.136 2004/11/26 16:27:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -68,6 +68,7 @@ our %DEFAULTS = (
 		has_border		=> 'true',
 		menu_size		=> 'medium',
 		expand			=> 'true',
+		use_struts		=> 'true',
 	},
 	appletconf => {
 		null => {},
@@ -90,17 +91,14 @@ our %SIZE_MAP = (
 	large	=> ['48', 'dialog'],
 );
 
-our $APPLET_ICON_SIZE = 48;
-
+our $APPLET_ICON_SIZE	= 48;
 our $RUN_COMMAND_FILE	= sprintf('%s/.%s/run-command', $ENV{HOME}, lc($NAME));
 our $PIDFILE		= sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
 our $RUN_HISTORY_FILE	= sprintf('%s/.perlpanel/run-history', $ENV{HOME});
 our $RUN_HISTORY_LENGTH	= 15;
 our $HIDE_OFFSET	= 2;
-
-our @APPLET_CATEGORIES = qw(Actions System Utilities Launchers Menus);
-
-our $DEFAULT_THEME = 'gnome';
+our @APPLET_CATEGORIES	= qw(Actions System Utilities Launchers Menus);
+our $DEFAULT_THEME	= 'gnome';
 
 our $APPLET_ERROR_MARKUP = <<"END";
 <span weight="bold">%s</span>

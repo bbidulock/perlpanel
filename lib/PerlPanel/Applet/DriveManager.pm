@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.8 2004/11/07 17:04:24 jodrell Exp $
+# $Id: DriveManager.pm,v 1.9 2004/11/26 16:27:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -378,7 +378,7 @@ sub get_devices {
 		while (<FSTAB>) {
 			chomp;
 			my ($device, $point, undef, $opts, undef) = split(/[\t\s]+/, $_, 5);
-			if ($opts =~ /user|owner/) {
+			if ($opts =~ /user|owner|pamconsole|managed/) {
 				$DEVICES{$point} = $device;
 			}
 		}
