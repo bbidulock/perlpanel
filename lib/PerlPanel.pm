@@ -1,8 +1,9 @@
-# $Id: PerlPanel.pm,v 1.16 2003/06/12 16:07:58 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.17 2003/06/13 15:43:33 jodrell Exp $
 package PerlPanel;
+use Time::HiRes qw(time);
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX $Y_OFFSET %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
+use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
 our $NAME		= 'PerlPanel';
@@ -15,9 +16,6 @@ our $URL		= 'http://jodrell.net/projects/perlpanel';
 our $LICENSE		= "This program is Free Software. You may use it\nunder the terms of the GNU General Public License.";
 
 chomp(our $PREFIX = `gtk-config --prefix`);
-
-# this is a fudge factor for the repositioning of the panel:
-our $Y_OFFSET = 10;
 
 our %DEFAULTS = (
 	version	=> $VERSION,
@@ -34,6 +32,7 @@ our %DEFAULTS = (
 		null => {},
 	},
 	applets => [
+		'BBMenu',
 		'IconBar',
 		'Clock',
 		'Configurator',
@@ -67,10 +66,10 @@ sub init {
 	$self->check_deps;
 	$self->load_config;
 	$self->build_ui;
-	$self->show_all;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->show_all;
+	$self->move;
 	Gtk2->main;
 	return 1;
 }
@@ -110,14 +109,7 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->icon_size + $Y_OFFSET);
-	if ($self->{config}{panel}{position} eq 'top') {
-		$self->{panel}->move(0, 0);
-	} elsif ($self->{config}{panel}{position} eq 'bottom') {
-		$self->{panel}->move(0, ($self->{config}{screen}{height} - $self->icon_size - $Y_OFFSET));
-	} else {
-		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
-	}
+	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->icon_size);
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{panel}->add($self->{hbox});
@@ -164,6 +156,19 @@ sub add {
 
 sub show_all {
 	$_[0]->{panel}->show_all();
+	return 1;
+}
+
+sub move {
+	my $self = shift;
+	if ($self->{config}{panel}{position} eq 'top') {
+		$self->{panel}->move(0, 0);
+	} elsif ($self->{config}{panel}{position} eq 'bottom') {
+		$self->{panel}->move(0, ($self->{config}{screen}{height} - $self->{panel}->allocation->height));
+	} else {
+		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
+	}
+	return 1;
 }
 
 sub shutdown {

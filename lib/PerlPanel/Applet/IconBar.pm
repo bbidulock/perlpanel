@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.16 2003/06/12 22:30:33 jodrell Exp $
+# $Id: IconBar.pm,v 1.17 2003/06/13 15:43:33 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -155,12 +155,12 @@ sub clicked {
 					'<Branch>',
 				],
 				[
-					'/Add...',
+					'/Delete...',
 					undef,
-					sub { $self->add },
+					sub { $self->delete },
 					undef,
 					'<StockItem>',
-					'gtk-add',
+					'gtk-remove',
 				],
 				[
 					'/Edit...',
@@ -171,12 +171,12 @@ sub clicked {
 					'gtk-preferences',
 				],
 				[
-					'/Delete...',
+					'/Add...',
 					undef,
-					sub { $self->delete },
+					sub { $self->add },
 					undef,
 					'<StockItem>',
-					'gtk-remove',
+					'gtk-add',
 				],
 
 			];
@@ -184,9 +184,21 @@ sub clicked {
 			$self->{factory}->create_items(@{$self->{itemfactory}});
 			$self->{menu} = $self->{factory}->get_widget('<main>');
 		}
-		$self->{menu}->popup(undef, undef, undef, 0, $self->{widget}, undef);
+		$self->{menu}->popup(undef, undef, sub { return $self->popup_position(@_) }, 0, $self->{widget}, undef);
 	}
 	return 1;
+}
+
+sub popup_position {
+	my $self = shift;
+	my $x0 = $_[1];
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
+		return ($x0, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	} else {
+		$self->{menu}->realize;
+		$self->{menu}->show_all;
+		return ($x0, $PerlPanel::OBJECT_REF->{config}{screen}{height} - $self->{menu}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	}
 }
 
 sub edit {

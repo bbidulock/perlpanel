@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.11 2003/06/12 22:30:33 jodrell Exp $
+# $Id: BBMenu.pm,v 1.12 2003/06/13 15:43:33 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -246,21 +246,18 @@ sub popup {
 	if (!defined($self->{menu_widget})) {
 		$self->{menu_widget} = $self->{factory}->get_widget('<main>');
 	}
-
-	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_); }, 0, $self->{widget}, undef);
+	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_) }, 0, $self->{widget}, undef);
 	return 1;
 }
 
 sub popup_position {
 	my $self = shift;
 	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
-		return (0, $PerlPanel::OBJECT_REF->icon_size);
+		return (0, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	} else {
-		my $toplevel_menu_items = 3.5;
-		foreach my $item (@{$self->{itemfactory}}) {
-			$toplevel_menu_items++ if (@{$item}[0] =~ /^\/([^\/]+)$/);
-		}
-		return (0, $PerlPanel::OBJECT_REF->{config}{screen}{height} - (16 * $toplevel_menu_items));
+		$self->{menu_widget}->realize;
+		$self->{menu_widget}->show_all;
+		return (0, $PerlPanel::OBJECT_REF->{config}{screen}{height} - $self->{menu_widget}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	}
 }
 

@@ -1,0 +1,170 @@
+=pod
+
+=for comment
+$Id: perlpanel.pod,v 1.1 2003/06/13 15:43:33 jodrell Exp $
+
+=head1 Introduction
+
+PerlPanel draws a small taskbar on your screen to display some useful widgets
+like a programs menu, some shortcut icons, a clock and so on. It's similar to
+the Windows Taskbar, the Gnome Panel, and KDE's Kicker.
+
+However, those programs are designed to be tightly integrated into the
+environment they are part of. For example, Kicker's not much use without KDE.
+
+This kind of flies in the face of the Unix tradition of having lots of
+small, simple programs that don't depend on each other. Such is the
+price of user-friendliness. So users of minimalist window managers miss
+out on the useful bits of panel programs because they won't, or can't,
+run a heavy desktop environment on their systems.
+
+This is where PerlPanel comes in. It is a panel program much in the vein
+of the Gnome Panel and Kicker, but is completely independent of any
+particular environment. So you can use it with Blackbox, for example, or
+WindowMaker.
+
+What you will need is this:
+
+=over
+
+=item Perl
+
+=item The XML::Simple Perl module
+
+=item Gtk+ version 2 or higher
+
+=item The Gtk2-Perl libraries
+
+=back
+
+=head1 Installation
+
+Installing PerlPanel is a simple matter of downloading the source
+tarball, extracting it, and then running the following commands:
+
+	[user@host]$ make
+	[user@host]$ su
+	Enter password:
+	[root@host]# make install
+
+By default, PerlPanel will install into the /usr directory. If you want
+to change this, you can either edit the PREFIX variable in the Makefile,
+or add "PREFIX=/path/to/directory" as an argument to the "make" calls
+above.
+
+=head1 Running PerlPanel
+
+Running PerlPanel is as simple as typing "perlpanel" into your terminal.
+However you might wish to add this to your .xinitrc file or any other
+scripts that start when your X session begins. =cut
+
+=head1 Configuring PerlPanel
+
+All configuration is done in the resource file, located in
+$HOME/.perlpanelrc. This is an XML file and so it should be fairly easy
+to edit as you need. However most parts of it can be changed using the
+Configurator applet.
+
+=head1 Applets
+
+The PerlPanel is really just a container for components called applets.
+If you've used Gnome or KDE you should be familiar with applets -
+they're small widgets that perform a particular task. PerlPanel comes
+with a number of useful applets that are enabled by default. They are
+explained in brief below.
+
+=head2 BBMenu
+
+The BBMenu applet is a program launcher menu, like the Windows Start
+Menu. It can understand any Blackbox-compatible menu file, and will look
+for them on your system. It tries the following locations, in this
+order:
+
+	$HOME/.perlpanel/menu
+	$HOME/.blackbox/menu
+	$HOME/.fluxbox/menu
+	$HOME/.openbox/menu
+	$HOME/.waimea/menu
+	/usr/local/share/blackbox/menu
+	/usr/share/blackbox/menu
+	/usr/local/share/fluxbox/menu
+	/usr/share/fluxbox/menu
+	/usr/local/share/openbox/menu
+	/usr/share/openbox/menu
+	/usr/local/share/waimea/menu
+	/usr/share/waimea/menu
+
+The BBMenu isn't (yet) clever enough to recognise submenus that contain
+special Blackbox commands, so you might find that there are empty
+submenus and extra separators in the menu. If you copy your menu file
+into $HOME/.perlpanel and remove the Blackbox-specific elements,
+PerlPanel will automatically detect it and use it instead.
+
+=head2 IconBar
+
+The IconBar places a number of launcher icons on your panel. When
+clicked, these launcher run the program for that icon.
+
+IconBar uses the contents of $HOME/.perlpanel/icons to generate these
+icons. The files in this directory should be standard .desktop format
+files, compatible with KDE and Gnome. At the bare minimum, they should
+contain the following:
+
+	[Desktop Entry]
+	Name=name of the program
+	Exec=command to run
+	Icon=path/to/icon/file.png
+
+The Icon value may either be an absolute path to a file, or may be
+relative to $PREFIX/share/pixmaps.
+
+Right-clicking on an icon brings up a context menu. This allows you to
+add a new icon, or edit or delete the selected icon. Both the "Add" and
+"Edit" options require that the gnome-desktop-item-edit program be
+available. It is expected that PerlPanel will have its own version of
+this program sometime in the future.
+
+=head2 Clock
+
+The Clock applet shows the current time in a text form. Clicking on the
+applet will bring up a configuration dialog that lets you change the
+format used to render the time. The format used is that of the POSIX
+C<strftime()> function. Consult the L<strftime> manpage for an
+explanation of the formatting characters.
+
+=head2 Configurator
+
+Clicking on the Configurator icon brings up a dialog that you can use to
+change various config settings. When you click the OK button the panel
+will reload.
+
+The Panel tab contains various positioning and padding options for the
+panel itself. The Screen tab contains controls for the display width and
+height. At the moment PerlPanel is unable to work these out for itself.
+This is because the required functionality is not present in the
+Gtk2-Perl libraries. When it becomes available this tab will disappear.
+
+You can add, remove and re-order applets on the panel from the "Applets"
+tab.
+
+=head2 Reload
+
+Clicking on this icon causes the panel to reload itself. If you have
+manually changed the contents of the resource file or one of the icons,
+clicking this will activate the changes.
+
+=head2 About
+
+Clicking this icon brings up a little dialog box that contains the
+credits, version number and license for PerlPanel.
+
+=head2 Quit
+
+Clicking this icon closes the panel.
+
+=head1 Writing Applets
+
+Applets are very easy to write - they're simple Perl scripts. If you
+want to learn how to write applets, consult L<perlpanel-applet-howto>.
+
+=cut
