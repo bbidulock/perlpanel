@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.38 2004/05/27 16:29:53 jodrell Exp $
+# $Id: IconBar.pm,v 1.39 2004/06/26 23:18:07 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -227,8 +227,8 @@ sub build {
 		if (
 			$mouse_pos_x <= $widget_size_x &&
 			$mouse_pos_y <= $widget_size_y &&
-			$mouse_pos_x > 0 &&
-			$mouse_pos_y > 0
+			$mouse_pos_x > -1 &&
+			$mouse_pos_y > -1	
 
 		) {
 			$self->clicked($_[1]->button);
