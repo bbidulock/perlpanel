@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.29 2004/09/29 14:11:48 jodrell Exp $
+$Id: perlpanel.pod,v 1.30 2005/01/11 11:23:07 jodrell Exp $
 
 =head1 Introduction
 
@@ -63,11 +63,6 @@ of the Action Menu, or the "Install Applet" button on the "Add Applet"
 dialog of the Configurator. Each of these will display a dialog that
 will prompt you for the filename of the applet to be installed. Then you
 can add the Applet to your panel.
-
-=head2 The 'About' Applet
-
-Clicking this icon brings up a little dialog box that contains the
-credits, version number and license for PerlPanel.
 
 =head2 The 'ActionMenu' Applet
 
@@ -143,6 +138,12 @@ This applet displays the reported temperature of your computer's CPU. You
 need to have a supported motherboard, and the C<mbmon> program installed.
 The temperature can be displayed in Celsius, Fahrenheit or Kelvin.
 
+=head2 The 'DriveManager' Applet
+
+This applet lets you control removable storage media. When you click on
+the applet you will be shown a menu that lets you mount, unmount and
+eject any removable media that is attached to your computer.
+
 =head2 The 'GnomeMenu Applet
 
 This applet gives you access to the standard Gnome applications menu.
@@ -181,6 +182,12 @@ The Notification Area applet displays icons from various applications
 to indicate activity in the application. For example, a mail client
 might place an icon in the applet to denote unread mail.
 
+=head2 The 'OpenBoxMenu' Applet
+
+This OpenBox menu applet shows your OpenBox root menu on the panel.
+B<Note:> the OpenBoxMenu applet is not finished, and you may experience
+problems. Use with caution.
+
 =head2 The 'Pager' Applet
 
 The Pager allows you to switch between virtual desktops, and drag
@@ -192,21 +199,11 @@ The PanelPet applet shows an animation of a fish in a bowl. You can
 use any file you like. By default, PanelPet uses an animation from
 GNOME's Fish applet. Right-click on the applet to configure it.
 
-=head2 The 'Quit' Applet
-
-Clicking this icon closes the panel.
-
 =head2 The 'RecentFiles' Applet
 
 Click on this icon brings up a menu containing files you've recently
 opened. When you select the file from the menu, it will be launched in
 the default program for that file type.
-
-=head2 The 'Reload' Applet
-
-Clicking on this icon causes the panel to reload itself. If you have
-manually changed the contents of the resource file or one of the icons,
-clicking this will activate the changes.
 
 =head2 The 'RunMe' Applet
 
@@ -245,17 +242,6 @@ the applet's configuration.
 This applet provides a button that minimises/restores all the
 applications that are visible, so you can see your desktop.
 
-=head2 The 'Slot' Applet
-
-The Slot applet implements the 'socket' side of the XEMBED protocol.
-This is a cross-platform protocol that lets applications of any
-kind embed widgets into other applications. When loaded, the applet
-writes the ID of its socket to the file C<$HOME/.perlpanel/socketid>.
-This ID can then be passed to the embedding application.
-
-This applet exists mainly for those who want to create applets for
-PerlPanel but don't want to use Perl.
-
 =head2 The 'Spacer' Applet
 
 The spacer applet creates a flexible space in the panel, expanding
@@ -267,6 +253,21 @@ The Tasklist shows you all the programs currently visible on your
 desktop. You can click on the entries for each program to raise them
 to the top of the stack. You can right-click on them to bring up a
 context menu for maximising, minimising, shading and so on.
+
+=head2 The 'Trash' Applet
+
+This applet makes it easy to delete files and folders. Just drag an icon
+onto the applet widget and it will be moved to the Trash folder.
+
+=head2 The 'Volume' Applet
+
+The Volume applet lets you control the volume of your computer's
+speakers. Clicking on the button shows a popup window with a slider - as
+you move the slider, the volume will change.
+
+=head2 The 'WiFiMonitor' Applet
+
+This applet shows the signal strength of you wireless connection.
 
 =head2 The 'WindowMenu' Applet
 
