@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.72 2004/04/04 14:21:37 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.73 2004/04/14 13:13:47 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -660,7 +660,9 @@ sub exec_wait {
 		if (eof(COMMAND)) {
 			close(COMMAND);
 			Gtk2::Helper->remove_watch($tag);
-			&$callback();
+			if (defined($callback)) {
+				&$callback();
+			}
 		}
 	});
 	return 1;
