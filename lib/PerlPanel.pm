@@ -1,13 +1,19 @@
-# $Id: PerlPanel.pm,v 1.8 2003/06/04 23:18:19 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.9 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $PREFIX $Y_OFFSET %DEFAULTS $TOOLTIP_REF $OBJECT_REF);
+use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX $Y_OFFSET %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
-our $NAME	= 'PerlPanel';
-our $VERSION	= '0.0.2';
+our $NAME		= 'PerlPanel';
+our $VERSION		= '0.0.2';
+our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
+our @AUTHORS		= (
+	'Gavin Brown &lt;gavin.brown@uk.com&gt;',
+);
+our $URL		= 'http://jodrell.net/projects/perlpanel';
+our $LICENSE		= "This program is Free Software. You may use it\nunder the terms of the GNU General Public License.";
 
 chomp(our $PREFIX = `gtk-config --prefix`);
 
@@ -23,8 +29,7 @@ our %DEFAULTS = (
 	panel => {
 		position	=> 'bottom',
 		spacing		=> 2,
-		icon_size	=> 24,
-		icon_size_name	=> 'large-toolbar',
+		size		=> 'medium',
 	},
 	appletsdirs => [
 		sprintf('%s/share/%s/applets', $PREFIX, lc($NAME)),
@@ -37,8 +42,16 @@ our %DEFAULTS = (
 		'Configurator',
 		'Commander',
 		'Reload',
+		'About',
 		'Quit',
 	],
+);
+
+our %SIZE_MAP = (
+	tiny	=> ['16', 'menu'],
+	small	=> ['18', 'small-toolbar'],
+	medium	=> ['24', 'large-toolbar'],
+	large	=> ['48', 'dialog'],
 );
 
 Gtk2->init;
@@ -87,11 +100,11 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->{config}{panel}{icon_size});
+	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->icon_size);
 	if ($self->{config}{panel}{position} eq 'top') {
 		$self->{panel}->move(0, 0);
 	} elsif ($self->{config}{panel}{position} eq 'bottom') {
-		$self->{panel}->move(0, ($self->{config}{screen}{height} - $self->{config}{panel}{icon_size} - $Y_OFFSET));
+		$self->{panel}->move(0, ($self->{config}{screen}{height} - $self->icon_size - $Y_OFFSET));
 	} else {
 		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
 	}
@@ -116,6 +129,11 @@ sub load_applets {
 			$self->error($message, sub { $self->shutdown });
 			return undef;
 		} else {
+			if (!defined($self->{config}{appletconf}{$appletname})) {
+				my $hashref;
+				eval '$hashref = $applet->get_default_config';
+				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
+			}
 			$applet->configure;
 			$self->add($applet->widget, $applet->expand, $applet->fill, $applet->end);
 		}
@@ -154,6 +172,7 @@ sub request_string {
 	my ($self, $message, $callback, $visible) = @_;
 
 	my $dialog = Gtk2::Dialog->new;
+	$dialog->set_title("$NAME: $message");
 	$dialog->set_border_width(8);
 	$dialog->vbox->set_spacing(8);
 
@@ -200,6 +219,7 @@ sub alert {
 	my ($self, $message, $ok_callback, $cancel_callback, $stock) = @_;
 
 	my $dialog = Gtk2::Dialog->new;
+	$dialog->set_title($NAME);
 	$dialog->set_border_width(8);
 	$dialog->vbox->set_spacing(8);
 
@@ -264,11 +284,11 @@ sub notify {
 }
 
 sub icon_size {
-	return ($_[0]->{config}{panel}{icon_size} || $DEFAULTS{panel}{icon_size});
+	return @{$SIZE_MAP{$_[0]->{config}{panel}{size}}}[0];
 }
 
 sub icon_size_name {
-	return ($_[0]->{config}{panel}{icon_size_name} || $DEFAULTS{panel}{icon_size_name});
+	return @{$SIZE_MAP{$_[0]->{config}{panel}{size}}}[1];
 }
 
 1;

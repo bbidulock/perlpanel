@@ -1,0 +1,21 @@
+INSTALL
+=======
+
+PerlPanel comes with a Makefile. To install it, simply do the following:
+
+	$ make
+	$ su
+	Enter password:
+	# make install
+
+By default, PerlPanel installs into /usr. To change that, look for this line
+in Makefile:
+
+	PREFIX=/usr
+
+And change it to something else.
+
+To uninstall PerlPanel, simply run 'make uninstall' as root.
+
+--
+$Id: INSTALL,v 1.1 2003/06/05 11:32:10 jodrell Exp $

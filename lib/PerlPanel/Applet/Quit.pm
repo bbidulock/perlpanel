@@ -1,4 +1,4 @@
-# $Id: Quit.pm,v 1.4 2003/06/03 16:10:21 jodrell Exp $
+# $Id: Quit.pm,v 1.5 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::Quit;
 use strict;
 
@@ -34,6 +34,10 @@ sub fill {
 
 sub end {
 	return 'start';
+}
+
+sub get_default_config {
+	return undef;
 }
 
 1;

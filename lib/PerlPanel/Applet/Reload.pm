@@ -1,4 +1,4 @@
-# $Id: Reload.pm,v 1.2 2003/06/03 16:10:21 jodrell Exp $
+# $Id: Reload.pm,v 1.3 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::Reload;
 use strict;
 
@@ -37,6 +37,10 @@ sub fill {
 
 sub end {
 	return 'end';
+}
+
+sub get_default_config {
+	return undef;
 }
 
 1;

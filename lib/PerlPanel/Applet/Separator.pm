@@ -1,4 +1,4 @@
-# $Id: Separator.pm,v 1.1 2003/05/29 12:32:18 jodrell Exp $
+# $Id: Separator.pm,v 1.2 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::Separator;
 use strict;
 
@@ -29,6 +29,10 @@ sub fill {
 
 sub end {
 	return 'start';
+}
+
+sub get_default_config {
+	return undef;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.5 2003/06/04 15:47:44 jodrell Exp $
+# $Id: Commander.pm,v 1.6 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::Commander;
 use strict;
 
@@ -54,6 +54,10 @@ sub fill {
 
 sub end {
 	return 'end';
+}
+
+sub get_default_config {
+	return undef;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.6 2003/06/04 23:18:19 jodrell Exp $
+# $Id: BBMenu.pm,v 1.7 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -123,6 +123,10 @@ sub popup {
 	$Data::Dumper::Indent = 1;
 	$PerlPanel::OBJECT_REF->notify("Menu tree looks like this:".Data::Dumper::Dumper($self->{menutree})."\nOne day it might even work!");
 	return 1;
+}
+
+sub get_default_config {
+	return undef;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.6 2003/06/03 22:57:54 jodrell Exp $
+# $Id: IconBar.pm,v 1.7 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -52,6 +52,10 @@ sub fill {
 
 sub end {
 	return 'start';
+}
+
+sub get_default_config {
+	return undef;
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;

@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+# $Id: perlpanel,v 1.1 2003/06/05 11:32:10 jodrell Exp $
+
+use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
+
+use PerlPanel;
+
+$PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $PerlPanel::PREFIX);
+
+# if you're running from a sandbox, copy this file somewhere and uncomment
+# this code:
+#
+# push(
+#	@{$PerlPanel::DEFAULTS{appletsdirs}},
+#	'/path/to/sandbox/lib/PerlPanel/Applet/'
+# );
+#
+# then you can run PerlPanel from your shell without worrying too much about
+# library paths.
+
+my $panel = PerlPanel->new;
+
+$panel->init;
+
+exit;

@@ -36,17 +36,13 @@ A few wahs, or, TODO:
 	   is not something I know how to do.
 	3. At the moment the Panel is nothing more than a packing box in a popup
 	   window that's been warped into a rectangle. This will probably raise
-	   havoc with a lot of things. There's probably a way to do it "properly"
-	   using Gdk but that's beyond my experience. Feel free to correct this
-	   with a patch.
-	4. No GUI configuration.
-	5. Currently there's no separation between panel config and applet
-	   config. A way to separate them is probably really easy, and will
-	   come soon. Maybe.
-	6. No I18N yet.
+	   havoc with a lot of things. There's probably a way to do it
+	   "properly" using Gdk but that's beyond my experience. Feel free to
+	   correct this with a patch :-)
+	4. No I18N yet.
 
 Any flames, praise, patches, offers of money or sexual favours to
 jodrell@spod.uk.net.
 
 --
-$Id: README,v 1.3 2003/06/03 16:10:21 jodrell Exp $
+$Id: README,v 1.4 2003/06/05 11:32:10 jodrell Exp $

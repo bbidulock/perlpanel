@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.3 2003/06/04 23:18:19 jodrell Exp $
+# $Id: Configurator.pm,v 1.4 2003/06/05 11:32:10 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -41,19 +41,6 @@ sub build_ui {
 	$self->{notebook} = Gtk2::Notebook->new;
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 
-	$self->{pages}{screen} = Gtk2::Table->new(2, 2, 0);
-	$self->{pages}{screen}->set_border_width(8);
-	$self->{pages}{screen}->set_col_spacings(8);
-	$self->{pages}{screen}->set_row_spacings(8);
-
-	$self->{pages}{screen}->attach_defaults(Gtk2::Label->new('Screen width:'), 0, 1, 0, 1);
-	$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'width', 'int'), 1, 2, 0, 1);
-
-	$self->{pages}{screen}->attach_defaults(Gtk2::Label->new('Screen height:'), 0, 1, 1, 2);
-	$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'height', , 'int'), 1, 2, 1, 2);
-
-	$self->{notebook}->append_page($self->{pages}{screen}, Gtk2::Label->new('Screen'));
-
 	$self->{pages}{panel} = Gtk2::Table->new(4, 2, 0);
 	$self->{pages}{panel}->set_border_width(8);
 	$self->{pages}{panel}->set_col_spacings(8);
@@ -66,12 +53,22 @@ sub build_ui {
 	$self->{pages}{panel}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'spacing', 'int'), 1, 2, 1, 2);
 
 	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Icon size:'), 0, 1, 2, 3);
-	$self->{pages}{panel}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'icon_size', 'int'), 1, 2, 2, 3);
-
-	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Stock size:'), 0, 1, 3, 4);
-	$self->{pages}{panel}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'icon_size_name', 'enum', ('menu', 'small-toolbar', 'large-toolbar', 'dialog')), 1, 2, 3, 4);
+	$self->{pages}{panel}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'size', 'enum', qw(tiny small medium large)), 1, 2, 2, 3);
 
 	$self->{notebook}->append_page($self->{pages}{panel}, Gtk2::Label->new('Panel'));
+
+	$self->{pages}{screen} = Gtk2::Table->new(2, 2, 0);
+	$self->{pages}{screen}->set_border_width(8);
+	$self->{pages}{screen}->set_col_spacings(8);
+	$self->{pages}{screen}->set_row_spacings(8);
+
+	$self->{pages}{screen}->attach_defaults(Gtk2::Label->new('Screen width:'), 0, 1, 0, 1);
+	$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'width', 'int'), 1, 2, 0, 1);
+
+	$self->{pages}{screen}->attach_defaults(Gtk2::Label->new('Screen height:'), 0, 1, 1, 2);
+	$self->{pages}{screen}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{screen}, 'height', , 'int'), 1, 2, 1, 2);
+
+	$self->{notebook}->append_page($self->{pages}{screen}, Gtk2::Label->new('Screen'));
 
 	$self->{notebook}->append_page(Gtk2::Label->new('Coming Soon'), Gtk2::Label->new('Paths'));
 	$self->{notebook}->append_page(Gtk2::Label->new('Coming Soon'), Gtk2::Label->new('Applets'));
@@ -144,6 +141,10 @@ sub fill {
 
 sub end {
 	return 'end';
+}
+
+sub get_default_config {
+	return undef;
 }
 
 1;
