@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.9 2004/01/11 23:07:45 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.10 2004/01/14 23:17:53 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -68,7 +68,7 @@ This document explains how to write applets for the PerlPanel.
 =head1 INTRODUCTION
 
 It is very easy to write applets for the PerlPanel. Applets are simple
-Perl objects, and are allowed to do anything that a normal Gtk-Perl
+Perl objects, and are allowed to do anything that a normal Gtk2-Perl
 program might do.
 
 The package name for the applet must be of the form
@@ -108,7 +108,7 @@ textual description of each available applet, for example:
 
 Finally, you should place a 48x48 icon representing your applet into
 C<$PREFIX/share/pixmaps/perlpanel/applets>. This icon will be used in
-the icon selector.
+the applet selector.
 
 =head1 REQUIRED METHODS
 
@@ -255,7 +255,7 @@ C<$ok_callback> is executed if the user hits the 'Ok' button.
 	$PerlPanel::OBJECT_REF->get_widget_position($widget)
 
 This returns two numbers corresponding to the position on-screen of the
-top-left corner of $widget. This means that $widget must be visible on
+top-left corner of $widget. This means that C<$widget> must be visible on
 screen.
 
 	$PerlPanel::OBJECT_REF->get_mouse_pointer
@@ -268,10 +268,12 @@ mouse pointer.
 This function allows you to execute a command and wait for it to finish,
 without interrupting the Gtk main loop, and without inducing unneeded
 CPU load with a custom C<while()> loop. The command contained in C<$cmd>
-is opened as a filehandle to be read from - so calling applications
-which detach from STDOUT are not recommended. C<exec_wait> creates a Glib
-handler and waits for C<eof> from the handle. Then it executes the function
-in C<$callback>.
+is opened as a filehandle - so calling applications which detach from
+STDOUT are not recommended. C<exec_wait> creates a Glib handler and
+waits for C<eof> from the handle. Then it executes the function in
+C<$callback>.
 
-This function exists mainly because of C<IconBar.pm>.
+This function exists mainly because the 'IconBar' applet needs a way to
+wait for the desktop entry editor to close.
+
 =cut
