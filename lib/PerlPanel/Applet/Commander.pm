@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.9 2004/01/21 10:23:20 jodrell Exp $
+# $Id: Commander.pm,v 1.10 2004/01/24 14:42:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@ sub configure {
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->set_relief('none');
 	$self->widget->add(Gtk2::Image->new_from_stock('gtk-execute', $PerlPanel::OBJECT_REF->icon_size_name));
-	$self->widget->signal_connect('clicked', sub { system('perlpanel-run-command &') });
+	$self->widget->signal_connect('clicked', sub { system('perlpanel-run-dialog &') });
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Run Command');
 	return 1;
 }

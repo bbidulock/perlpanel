@@ -16,7 +16,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: perlpanel-run-command,v 1.2 2004/01/22 16:45:41 jodrell Exp $
+# $Id: perlpanel-run-dialog,v 1.1 2004/01/24 14:42:01 jodrell Exp $
 
 use Gtk2 -init;
 
@@ -69,6 +69,8 @@ $dialog->set_title('Run Command');
 $dialog->set_resizable(0);
 $dialog->set_border_width(5);
 $dialog->set_has_separator(0);
+$dialog->set_skip_pager_hint(1);
+$dialog->set_skip_taskbar_hint(1);
 $dialog->set_icon($icon->get_pixbuf);
 $dialog->add_buttons('gtk-cancel' => 'cancel', 'gtk-execute' => 'ok');
 $dialog->action_area->set_layout('end');

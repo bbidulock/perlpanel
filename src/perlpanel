@@ -15,7 +15,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: perlpanel,v 1.6 2004/01/06 16:31:40 jodrell Exp $
+# $Id: perlpanel,v 1.7 2004/01/24 14:42:01 jodrell Exp $
 
 #
 # are we installed or running in a sandbox?
@@ -27,6 +27,7 @@ use PerlPanel;
 $PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 
 push(@INC, "$ENV{PWD}/lib/$PerlPanel::NAME/Applet") if (!-e '@PREFIX@');
+$ENV{PATH} = $ENV{PATH}.':'.$ENV{PWD}.'/src' if (!-e '@PREFIX@');
 
 my $panel = PerlPanel->new;
 
