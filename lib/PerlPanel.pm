@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.141 2005/01/10 11:54:44 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.142 2005/01/10 14:35:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -296,8 +296,9 @@ sub build_panel {
 	$self->{vbox}->set_border_width(0);
 	$self->{vbox}->set_spacing(0);
 
-	$self->{border} = Gtk2::HSeparator->new;
+	$self->{border} = Gtk2::DrawingArea->new;
 	$self->{border}->set_size_request(-1, 1);
+	$self->{border}->signal_connect('expose_event', sub { $self->draw_border });
 
 	$self->{panel}->add($self->{vbox});
 
@@ -312,10 +313,27 @@ sub arrange_border {
 	if ($self->position eq 'top') {
 		$self->{vbox}->pack_start($self->{hbox},	1, 1, 0);
 		$self->{vbox}->pack_start($self->{border},	0, 0, 0);
+
 	} else {
 		$self->{vbox}->pack_start($self->{border},	0, 0, 0);
 		$self->{vbox}->pack_start($self->{hbox},	1, 1, 0);
+
 	}
+	return 1;
+}
+
+sub draw_border {
+	my $self = shift;
+	# paint an hline with a vertical offset that shows a hilight or a shadow depending on the panel's
+	# position on screen
+	$self->{border}->style->paint_hline(
+		$self->{border}->window,
+		'normal',
+		Gtk2::Gdk::Rectangle->new(0, 0, $self->{border}->allocation->width, 1),
+		$self->{border},
+		'foo',
+		0, $self->{border}->allocation->width, ($self->{config}->{panel}->{position} eq 'top' ? 0 : -1),
+	);
 	return 1;
 }
 
