@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.11 2005/01/12 14:16:59 jodrell Exp $
+# $Id: PanelPet.pm,v 1.12 2005/01/13 22:22:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -15,13 +15,13 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# Copyright: (C) 2005 Eric Andreychek (eric@openthought.net)
+# Copyright: (C) 2005 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::PanelPet;
 use vars qw($VERSION);
 use strict;
 
-$VERSION = '0.51';
+$VERSION = "0.60";
 
 # Applet Constructor
 sub new {
@@ -44,12 +44,6 @@ sub configure {
 
     $self->{config} = PerlPanel::get_config('PanelPet');
 
-    unless ( -f $self->{config}{image} ) {
-        if ( -f "$PerlPanel::PREFIX/share/pixmaps/fish/oldwanda.png" ) {
-            $self->{config}{image} = "$PerlPanel::PREFIX/share/pixmaps/fish/oldwanda.png";
-        }
-    }
-
     $self->{widget} = Gtk2::Button->new;
     $self->{widget}->set_relief('none');
 
@@ -58,20 +52,18 @@ sub configure {
             'button_release_event',
             sub { $self->_button_click ($_[1]->button) ; return undef });
 
-    # Set the tooltip for the applet
-    PerlPanel::tips->set_tip($self->{widget}, _("Hi, I'm your Panel Pet!"));
-    $self->{current_frame} = 1;
-    $self->_update;
+    my $tip;
+    unless ( -f $self->{config}{image} ) {
+        $self->_no_pet;
+    }
+    else {
+        $self->_got_pet;
 
-    PerlPanel::add_timeout(
-        $self->{config}{interval},
-        sub { $self->_update },
-    );
+    }
 
     $self->widget->show_all;
 
     return 1;
-
 }
 
 # Return the widget
@@ -96,16 +88,50 @@ sub end {
 
 # Build and return the default config values for this applet
 sub get_default_config {
-    return { image      => "$PerlPanel::PREFIX/share/pixmaps/fish/oldwanda.png",
+    my $image_dir = sprintf('%s/share/%s/panelpet', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+    return { image      => "$image_dir/oldwanda.png",
              frames     => 3,
              interval   => 2000,
-             fortune   => "ALL",
+             fortune    => "ALL",
            };
 }
 
 ##########################################################################
 # Private Functions
 ##########################################################################
+
+sub _no_pet {
+    my $self = shift;
+    PerlPanel::notify(_("You don't seem to have a pet!  Go into the PanelPet preferences, and choose an image for your pet."), sub { $self->_preferences } );
+    my $pbf =
+        $PerlPanel::OBJECT_REF->panel->render_icon('gtk-missing-image',
+        'dialog')->scale_simple(
+        PerlPanel::icon_size,
+        PerlPanel::icon_size,
+        'bilinear'
+    );
+    $self->{icon} = Gtk2::Image->new_from_pixbuf($pbf);
+    $self->widget->add($self->{icon});
+    PerlPanel::tips->set_tip($self->widget, _("This could be your Panel Pet if you were to choose an image"));
+    $self->{has_pet} = 0;
+}
+
+sub _got_pet {
+    my $self = shift;
+
+    $self->{has_pet} = 1;
+
+    # Set the tooltip for the applet
+    $self->{current_frame} = 1;
+    $self->_update;
+
+    PerlPanel::add_timeout(
+        $self->{config}{interval},
+        sub { $self->_update },
+    );
+
+    PerlPanel::tips->set_tip($self->widget, _("Hi, I'm your Panel Pet!"));
+}
 
 # Button click handler -- call the appropriate function based on the button the
 # user pressed
@@ -168,14 +194,15 @@ sub _panel_pet {
     my $text;
 
     if ( $self->{fortune} ) {
-        $text = _("Hello, I'm your Panel Pet!  I retrieved the following fortune:\n\n") . $self->_get_fortune;
+        $text = _("Hello, I'm your Panel Pet!  I retrieved the following fortune:");
     }
     else {
-        $text= _("Just a hello from your Panel Pet!\n\nBark Bark\n\n(If you install the 'fortune' program, I'd consider giving you a fortune instead of barking)");
+        $text= _("Just a hello from your Panel Pet!");
     }
 
     if ( $self->{pet_window} ) {
-        $self->{pet_label}->set_text($text);
+        my $fortune_text = $self->_get_fortune;
+        $self->{fortune_textview}->get_buffer->set_text( $fortune_text );
     }
     else {
         $self->{pet_window} = Gtk2::Dialog->new;
@@ -184,12 +211,27 @@ sub _panel_pet {
         $self->{pet_window}->set_title(_('Panel Pet: Hello'));
         $self->{pet_window}->set_icon(PerlPanel::icon);
 
-        #my $vbox = Gtk2::VBox->new;
+        my $scrolled_window = Gtk2::ScrolledWindow->new;
+        $scrolled_window->set_policy(qw/automatic automatic/);
+        $scrolled_window->set_shadow_type('in');
+
+        $self->{fortune_textview} = Gtk2::TextView->new;
+        $self->{fortune_textview}->set_left_margin(10);
+        $self->{fortune_textview}->set_right_margin(10);
+        $self->{fortune_textview}->set_editable(0);
+        $self->{fortune_textview}->set_cursor_visible(0);
+        my $fortune_text = $self->_get_fortune;
+        $self->{fortune_textview}->get_buffer->set_text( $fortune_text );
+        $scrolled_window->add( $self->{fortune_textview} );
+
+        my $vbox = Gtk2::VBox->new;
         $self->{pet_window}->vbox->set_spacing(15);
-        $self->{pet_label} = Gtk2::Label->new();
-        $self->{pet_label}->set_justify('left');
-        $self->{pet_label}->set_text($text);
-        $self->{pet_window}->vbox->pack_start($self->{pet_label}, 1, 1, 0);
+        my $label = Gtk2::Label->new();
+        $label->set_justify('center');
+        $label->set_text($text);
+
+        $self->{pet_window}->vbox->pack_start($label, 0, 0, 0);
+        $self->{pet_window}->vbox->pack_start($scrolled_window, 1, 1, 1);
 
         #my $button = Gtk2::Button->new_from_stock('gtk-ok');
         $self->{pet_window}->add_buttons(
@@ -205,6 +247,7 @@ sub _panel_pet {
 
         #$window->vbox->pack_start($button, 0, 0, 0);
         #$self->{pet_window}->add($vbox);
+        $self->{pet_window}->set_default_size(600,350);
         $self->{pet_window}->show_all;
     }
 
@@ -290,7 +333,7 @@ sub _preferences {
     );
     $self->{controls}{interval} = Gtk2::SpinButton->new($adj_interval, 1, 0);
 
-    $self->{labels}{interval} = Gtk2::Label->new(_('Update interval (ms):'));
+    $self->{labels}{interval} = Gtk2::Label->new(_(' Update interval (ms):'));
     $self->{labels}{interval}->set_alignment(1, 0.5);
     $table->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
     $table->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
@@ -302,7 +345,7 @@ sub _preferences {
     );
     $self->{controls}{frames} = Gtk2::SpinButton->new($adj_frames, 1, 0);
 
-    $self->{labels}{frames} = Gtk2::Label->new(_('Frames in animation:'));
+    $self->{labels}{frames} = Gtk2::Label->new(_(' Frames in animation:'));
     $self->{labels}{frames}->set_alignment(1, 0.5);
     $table->attach_defaults($self->{labels}{frames}, 0, 1, 3, 4);
     $table->attach_defaults($self->{controls}{frames}, 1, 2, 3, 4);
@@ -391,10 +434,14 @@ sub _preferences {
 
             }
 
-
             $self->{widget}->set_sensitive(1);
             $window->destroy;
             PerlPanel::save_config;
+
+            # If we didn't have a pet before, we need to plug in the aquarium
+            unless ( $self->{has_pet} ) {
+                $self->_got_pet;
+            }
 
         }
         elsif ($_[1] == 1) {
@@ -444,12 +491,18 @@ sub _get_fortune_database_by_id {
 sub _get_fortune {
     my $self = shift;
 
-    if ( $self->{config}{fortune} eq "ALL" ) {
+    if ( $self->{fortune} ) {
+
+        if ( $self->{config}{fortune} eq "ALL" ) {
             return `fortune`;
+        }
+        else {
+            my @databases = join " ", $self->_selected_fortune_databases;
+            return `fortune @databases`;
+        }
     }
     else {
-        my @databases = join " ", $self->_selected_fortune_databases;
-        return `fortune @databases`;
+        return "Bark Bark\n\n(If you install the 'fortune' program, I'd consider giving you a fortune instead of barking)";
     }
 }
 
