@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.12 2005/01/06 16:25:52 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.13 2005/04/02 17:15:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -49,18 +49,31 @@ sub configure {
 
 sub update {
 	my $self = shift;
-		my ($apm, $charge);
-		my $ac_status = -1;
-		eval {
-			$apm = Sys::Apm_ACPI->new;
-			if (defined($apm)) {
-				$ac_status = $apm->ac_status;
-				$charge = $apm->charge;
+		my ($ac_status, $charge) = (-1);
+		if (-r "/proc/pmu/info") {
+			my $bat_count;
+			($bat_count, $ac_status) = parse_pmu_info();
+			for my $cur_bat_num (0 .. ($bat_count-1)) {
+				my $bat_status = parse_pmu_bat($cur_bat_num);
+				my $bat_charge = $bat_status->{charge} / $bat_status->{max_charge} * 100;
+				$bat_charge = int ($bat_charge + 0.5);
+				$charge = ($charge || 0) + $bat_charge/$bat_count;
 			}
-			else {
-				return undef;
-			}
-		};
+
+			$charge .= "%";
+		} else {
+			eval {
+				my $apm = Sys::Apm_ACPI->new;
+				if (defined($apm)) {
+					$ac_status = $apm->ac_status;
+					$charge = $apm->charge;
+				}
+				else {
+					return undef;
+				}
+			};
+		}
+		
 		my $status_symbol;
 		if ( $ac_status == 1 ) {
 			$status_symbol = " | ";
@@ -108,6 +121,37 @@ sub get_default_config {
 }
 
 1;
+
+sub parse_pmu_info {
+	my ($bat_num, $on_ac);
+	
+	open (INFO, "<", "/proc/pmu/info") || die ("Couldn't open /proc/pmu/info: $!");
+	while (<INFO>) {
+		$bat_num = $1 if (/^Battery count\s*:\s*(\d+)\s*$/i);
+		$on_ac   = $1 if (/^AC Power\s*:\s*(\d+)\s*$/i);
+	}
+	close INFO;
+
+	$on_ac = "?" if not defined($on_ac);
+
+	return ($bat_num || 0, $on_ac);
+}
+
+sub parse_pmu_bat {
+	my $bat_num = shift;
+	my $file    = "/proc/pmu/battery_$bat_num";
+	my %status;
+
+	open (FILE, "<", $file) || die ("Couldn't open $file: $!");
+	while (<FILE>) {
+		if (/^(\S+)\s*:\s*(.+)$/) {
+			$status{lc($1)} = $2;
+		}
+	}
+	close FILE;
+
+	return \%status;
+}
 
 package Sys::Apm_ACPI;
 
