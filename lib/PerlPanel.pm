@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.68 2004/04/02 12:18:08 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.69 2004/04/02 12:34:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@ package PerlPanel;
 
 use Gtk2;
 use Gtk2::GladeXML;
+use Gtk2::SimpleList;
 use Data::Dumper;
 use POSIX qw(setlocale);
 use Locale::gettext;

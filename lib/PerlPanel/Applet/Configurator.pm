@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.42 2004/03/25 00:16:43 jodrell Exp $
+# $Id: Configurator.pm,v 1.43 2004/04/02 12:34:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 #
 package PerlPanel::Applet::Configurator;
 use vars qw(%SETTINGS_MAP);
+use Gtk2::SimpleList;
 use strict;
 
 #
@@ -254,6 +255,10 @@ sub apply_settings {
 
 sub setup_custom_settings {
 	my $self = shift;
+
+	unless (PerlPanel::has_pager()) {
+		$self->app->get_widget('notebook')->remove_page(2);
+	}
 
 	#
 	# menu stuff:
