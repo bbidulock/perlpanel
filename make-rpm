@@ -4,7 +4,7 @@
 # NB: make sure cvs2cl will work, and that your user has
 # write permissions on RPM's build directory.
 #
-# $Id: make-rpm,v 1.5 2004/02/20 14:46:00 jodrell Exp $
+# $Id: make-rpm,v 1.6 2004/02/20 17:13:05 jodrell Exp $
 
 CWD=$PWD
 VERSION=$1
@@ -15,6 +15,9 @@ echo Creating temporary copy of package:
 rm -rf /tmp/$DIR-$VERSION
 cp -Rp --no-dereference $PWD /tmp/$DIR-$VERSION
 cd /tmp/$DIR-$VERSION
+
+echo Fixing permissions on pixmaps:
+find share/ -name '*png' -exec chmod 644 \{\} \;
 
 echo Stripping CVS files:
 find -print | grep CVS | xargs rm -rf
