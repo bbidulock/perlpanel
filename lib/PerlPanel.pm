@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.88 2004/06/30 18:17:23 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.89 2004/06/30 18:30:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -238,7 +238,7 @@ sub build_panel {
 	$self->{tips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tips};
 
-	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(PerlPanel::lookup_icon('perlpanel'));
 
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{hbox}->set_border_width(0);

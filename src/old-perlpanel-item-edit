@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.9 2004/05/27 16:29:54 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.10 2004/06/30 18:30:14 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -30,6 +30,10 @@ my $PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 
 my $namespace = '';
 my $data = {};
+
+my $theme = Gtk2::IconTheme->get_default;
+
+$theme->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
 
 my $file = $ARGV[0] or print STDERR "Usage: perlpanel-item-edit [FILE]\n" and exit 1;
 
@@ -77,7 +81,7 @@ my $pristine = {
 	Exec	=> $data->{$desktop_namespace}{Exec},
 };
 
-my $icon = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/perlpanel-icon.png', $PREFIX));
+my $icon = $theme->load_icon('perlpanel', 48, 'use-builtin');
 
 my $window = Gtk2::Dialog->new;
 $window->signal_connect('delete_event', \&save);
