@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.122 2004/10/11 14:03:56 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.123 2004/10/20 13:39:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -1141,7 +1141,12 @@ sub install_applet_dialog {
 		my $file = $glade->get_widget('file_entry')->get_text;
 		$glade->get_widget('install_applet_dialog')->destroy;
 		if ($_[1] eq 'ok') {
-			my ($code, $error) = install_applet($file);
+			my ($code, $error) = install_applet(
+				$file,
+				datadir	=> sprintf('%s/.local', $ENV{HOME}),
+				libdir	=> sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),
+				regfile	=> sprintf('%s/.%s/applet.registry', $ENV{HOME}, lc($NAME)),
+			);
 			if ($code == 1) {
 				warning(_("Error installing '{file}': {error}", file => $file, error => $error));
 
@@ -1157,7 +1162,7 @@ sub install_applet_dialog {
 			_('Choose File'),
 			undef,
 			'open',
-			'gtk-cancel'	=> 'cancel',
+			'gtk-cancel' => 'cancel',
 			'gtk-ok' => 'ok'
 		);
 		$chooser->signal_connect('response', sub {
@@ -1190,6 +1195,7 @@ sub install_applet_dialog {
 
 sub install_applet {
 	my $file = shift;
+	my %params = @_;
 	my ($name, $version);
 	if (basename($file) =~ /^(\w+)-(.+)\.tar\.gz/) {
 		$name		= $1;
@@ -1214,17 +1220,17 @@ sub install_applet {
 
 	# append the applet description:
 
-	my $regfile = sprintf('%s/.%s/applet.registry', $ENV{HOME}, lc($NAME));
-	# put the > at the front of $regfile so we append:
-	tar_extract($file, 'applet.info', ">$regfile") or exit(256);
+	# put the > at the front of $params{regfile} so we append:
+	mkpath(dirname($params{regfile}));
+	tar_extract($file, 'applet.info', ">$params{regfile}") or exit(256);
 
-	mkpath(sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
-	my $appletfile = sprintf('%s/.%s/applets/%s.pm', $ENV{HOME}, lc($NAME), $name);
+	mkpath($params{libdir});
+	my $appletfile = sprintf('%s/%s.pm', $params{libdir}, $name);
 	tar_extract($file, "applets/$name.pm", $appletfile) or exit(256);
 
 	my @share = grep { ! /\/$/ } grep { /^share\/(icons|perlpanel\/glade)\// } keys(%files);
 	foreach my $share_file (@share) {
-		my $dest = sprintf('%s/.local/%s', $ENV{HOME}, $share_file);
+		my $dest = sprintf('%s/%s', $params{datadir}, $share_file);
 		mkpath(dirname($dest));
 		tar_extract($file, $share_file, $dest) or exit(256);
 	}
@@ -1234,6 +1240,7 @@ sub install_applet {
 
 sub tar_extract {
 	my ($tarball, $source, $dest) = @_;
+	printf("%s => %s\n", $source, $dest);
 	if (!open(SRC, sprintf('tar zxvf "%s" "%s" -O |', $tarball, $source))) {
 		print STDERR "Cannot pipe from '$tarball': $!\n";
 		return undef;
