@@ -1,4 +1,4 @@
-# $Id: RunMe.pm,v 1.2 2004/06/07 09:17:54 jodrell Exp $
+# $Id: RunMe.pm,v 1.3 2004/07/07 14:03:55 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,6 +34,14 @@ sub configure {
 
 	my @history = PerlPanel::get_run_history;
 
+	$self->{store} = $self->create_store;
+
+	my $completion = Gtk2::EntryCompletion->new;
+	$completion->set_model($self->{store});
+	$completion->set_text_column(0);
+	$completion->set_minimum_key_length(2);
+	$self->{widget}->entry->set_completion($completion);
+
 	$self->{widget}->set_popdown_strings('', @history);
 	$self->{widget}->set_use_arrows(1);
 	$self->{widget}->set_value_in_list(0, 1);
@@ -66,6 +74,28 @@ sub expand {
 
 sub fill {
 	return 0;
+}
+
+sub create_store {
+	my $self = shift;
+	my $store = Gtk2::ListStore->new(Glib::String::);
+
+	my %executables;
+	foreach my $dir (split(/:/, $ENV{PATH})) {
+		if (!opendir(DH, $dir)) {
+			next;
+		} else {
+			my @files = grep { -x "$dir/$_" } grep { ! /^\.{1,2}$/ } readdir(DH);
+			closedir(DH);
+			map { $executables{$_}++ } @files;
+		}
+	}
+
+	foreach my $program (sort keys %executables) {
+		$store->set($store->append, 0, $program);
+	}
+
+	return $store;
 }
 
 1;
