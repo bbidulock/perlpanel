@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.3 2003/06/13 16:00:22 jodrell Exp $
+$Id: perlpanel.pod,v 1.4 2003/06/13 16:06:26 jodrell Exp $
 
 =head1 Introduction
 
@@ -47,21 +47,21 @@ tarball, extracting it, and then running the following commands:
 	Enter password:
 	[root@host]# make install
 
-By default, PerlPanel will install into the /usr directory. If you want
-to change this, you can either edit the PREFIX variable in the Makefile,
-or add "PREFIX=/path/to/directory" as an argument to the "make" calls
-above.
+By default, PerlPanel will install into the C</usr> directory. If you
+want to change this, you can either edit the C<PREFIX> variable in the
+Makefile, or add 'C<PREFIX=/path/to/directory>' as an argument to the
+'make' calls above.
 
 =head1 Running PerlPanel
 
-Running PerlPanel is as simple as typing "perlpanel" into your terminal.
-However you might wish to add this to your .xinitrc file or any other
+Running PerlPanel is as simple as typing 'perlpanel' into your terminal.
+However you might wish to add this to your C<.xinitrc> file or any other
 scripts that start when your X session begins.
 
 =head1 Configuring PerlPanel
 
 All configuration is done in the resource file, located in
-$HOME/.perlpanelrc. This is an XML file and so it should be fairly easy
+C<$HOME/.perlpanelrc>. This is an XML file and so it should be fairly easy
 to edit as you need. However most parts of it can be changed using the
 Configurator applet.
 
@@ -97,7 +97,7 @@ order:
 The BBMenu isn't (yet) clever enough to recognise submenus that contain
 special Blackbox commands, so you might find that there are empty
 submenus and extra separators in the menu. If you copy your menu file
-into $HOME/.perlpanel and remove the Blackbox-specific elements,
+into C<$HOME/.perlpanel> and remove the Blackbox-specific elements,
 PerlPanel will automatically detect it and use it instead.
 
 =head2 IconBar
@@ -105,7 +105,7 @@ PerlPanel will automatically detect it and use it instead.
 The IconBar places a number of launcher icons on your panel. When
 clicked, these launcher run the program for that icon.
 
-IconBar uses the contents of $HOME/.perlpanel/icons to generate these
+IconBar uses the contents of C<$HOME/.perlpanel/icons> to generate these
 icons. The files in this directory should be standard .desktop format
 files, compatible with KDE and Gnome. At the bare minimum, they should
 contain the following:
@@ -116,11 +116,11 @@ contain the following:
 	Icon=path/to/icon/file.png
 
 The Icon value may either be an absolute path to a file, or may be
-relative to $PREFIX/share/pixmaps.
+relative to C<$PREFIX/share/pixmaps>.
 
 Right-clicking on an icon brings up a context menu. This allows you to
-add a new icon, or edit or delete the selected icon. Both the "Add" and
-"Edit" options require that the gnome-desktop-item-edit program be
+add a new icon, or edit or delete the selected icon. Both the 'Add' and
+'Edit' options require that the C<gnome-desktop-item-edit> program be
 available. It is expected that PerlPanel will have its own version of
 this program sometime in the future.
 
@@ -144,7 +144,7 @@ height. At the moment PerlPanel is unable to work these out for itself.
 This is because the required functionality is not present in the
 Gtk2-Perl libraries. When it becomes available this tab will disappear.
 
-You can add, remove and re-order applets on the panel from the "Applets"
+You can add, remove and re-order applets on the panel from the 'Applets'
 tab.
 
 =head2 Reload
