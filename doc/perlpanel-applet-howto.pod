@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.22 2004/09/17 16:01:46 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.23 2004/09/19 15:57:43 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -385,6 +385,14 @@ a filename or C<undef> if unsuccessful.
 This method is only useful to multi applets. It tells PerlPanel to remove
 the C<$id> instance of the C<$appletname> applet from the panel. This is
 useful for when you want to provide a "remove" option in a context menu.
+
+	PerlPanel::launch($command, $notification);
+
+This command provides a wrapper to the C<system()> function, with additional
+support for the Startup Notification specification. When C<$notification> is
+defined, then the user is given visible feedback that the application is being
+launched. Once the application has started (and identified itself to the
+panel), or a certain period of time has elapsed, the feedback is cancelled.
 
 =head1 INTERNATIONALISATION SUPPORT
 
