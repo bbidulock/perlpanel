@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.115 2004/09/27 09:52:17 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.116 2004/09/27 12:27:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -641,7 +641,7 @@ sub reload {
 		$applet->destroy;
 	}
 	$self->{vbox}->remove($self->{hbox});
-	$self->{vbox}->remove($self->{separator});
+	$self->{vbox}->remove($self->{border});
 	$self->load_icon_theme;
 	$self->arrange_border;
 	$self->load_applets;
