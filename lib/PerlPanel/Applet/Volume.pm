@@ -1,4 +1,4 @@
-# $Id: Volume.pm,v 1.3 2005/01/10 10:25:19 jodrell Exp $
+# $Id: Volume.pm,v 1.4 2005/01/12 13:41:44 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,8 +18,10 @@
 # Copyright: (C) 2005 Eric Andreychek <eric@openthought.net>
 #
 package PerlPanel::Applet::Volume;
-$PerlPanel::Applet::Volume::VERSION = '0.16';
+use vars qw($VERSION);
 use strict;
+
+$VERSION = '0.17';
 
 sub new {
 	my $self		= {};
@@ -170,8 +172,9 @@ sub _mix {
 		return 0;
 	});
 
-	$self->{window}->show_all;
+	$self->{window}->realize;
 	$self->{window}->move($self->_popup_position);
+	$self->{window}->show_all;
 
 	# Grab the focus and pointer so we learn about all button events
 	Gtk2->grab_add($self->{window});
