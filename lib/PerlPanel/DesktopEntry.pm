@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.10 2005/01/01 20:28:59 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.11 2005/01/03 14:14:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,7 +37,7 @@ sub new {
 
 	my $self = X11::FreeDesktop::DesktopEntry->new_from_data($data);
 
-	if (defined($self)) {
+	if (!defined($self)) {
 		return undef;
 
 	} else {
