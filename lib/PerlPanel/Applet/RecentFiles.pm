@@ -1,4 +1,4 @@
-# $Id: RecentFiles.pm,v 1.1 2004/06/03 12:03:41 jodrell Exp $
+# $Id: RecentFiles.pm,v 1.2 2004/06/04 09:02:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,6 +28,8 @@ use strict;
 sub configure {
 	my $self = shift;
 
+	Gnome2::VFS->init;
+
 	$self->{file} = sprintf('%s/.recently-used', $ENV{HOME});
 	$self->{widget}	= Gtk2::Button->new;
 	$self->{config} = PerlPanel::get_config('RecentFiles');
@@ -49,9 +51,14 @@ sub configure {
 
 	PerlPanel::tips->set_tip($self->{widget}, _('Recent Files'));
 
+	$self->widget->signal_connect('clicked', sub { $self->clicked });
+
 	$self->create_menu;
 
-	$self->widget->signal_connect('clicked', sub { $self->popup });
+	Glib::Timeout->add(1000, sub {
+		$self->create_menu if ($self->file_age > $self->{mtime});
+		return 1;
+	});
 
 	return 1;
 
@@ -59,15 +66,17 @@ sub configure {
 
 sub clicked {
 	my $self = shift;
-	$self->create_menu;
 	$self->popup;
 }
 
 sub create_menu {
 	my $self = shift;
+
 	$self->{menu} = Gtk2::Menu->new;
 
 	if (-e $self->{file}) {
+		$self->{mtime} = $self->file_age;
+
 		my $data = XMLin($self->{file});
 		my @files = @{$data->{RecentItem}};
 		my $i = 0;
@@ -84,17 +93,39 @@ sub create_menu {
 			}
 
 			if (defined($self->{types}->{$file->{'Mime-Type'}})) {
-				my $icon = $self->{types}->{$file->{'Mime-Type'}}->get_icon;
+				my $icon;
 
-				if ($icon eq '') {
-					$icon = PerlPanel::lookup_icon('gnome-fs-regular');
+				if (-d Gnome2::VFS->get_local_path_from_uri($file->{URI})) {
+					$icon = PerlPanel::lookup_icon('gnome-fs-directory');
 
-				} elsif (! -e $icon) {
-					$icon = PerlPanel::lookup_icon($icon);
+				} else {
+					$icon = $self->{types}->{$file->{'Mime-Type'}}->get_icon;
+				}
 
-					if (! -e $icon) {
+				if (! -e $icon) {
+					if ($file->{'Mime-Type'} =~ /^text/) {
+						$icon = PerlPanel::lookup_icon('gnome-mime-text');
+
+					} elsif ($file->{'Mime-Type'} =~ /^image/) {
+						$icon = PerlPanel::lookup_icon('gnome-mime-image');
+
+					} elsif ($file->{'Mime-Type'} =~ /^video/) {
+						$icon = PerlPanel::lookup_icon('gnome-mime-video');
+
+					} else {
 						$icon = PerlPanel::lookup_icon('gnome-fs-regular');
 
+					}
+
+					if ($icon eq '') {
+						$icon = PerlPanel::lookup_icon($icon);
+
+						if (! -e $icon) {
+							my $type = $file->{'Mime-Type'};
+							$type =~ s!/!-!;
+							$type = sprintf('gnome-mime-%s', $type);
+							$icon = PerlPanel::lookup_icon($type);
+						}
 					}
 				}
 
@@ -102,13 +133,25 @@ sub create_menu {
 					uri_unescape(basename($file->{URI})),
 					$icon,
 					sub {
-						$self->{types}->{$file->{'Mime-Type'}}->get_default_application->launch($file->{URI});
+						my $launcher = $self->{types}->{$file->{'Mime-Type'}}->get_default_application;
+						if (!defined($launcher)) {
+							PerlPanel::warning(_("Couldn't find a launcher for files of type '{type}'", type => $file->{'Mime-Type'}));
+
+						} else {
+							$launcher->launch($file->{URI});
+
+						}
 					},
 				));
 			}
 			last if ($i == 20);
 		}
 	}
+}
+
+sub file_age {
+	my $self = shift;
+	return (stat($self->{file}))[9];
 }
 
 sub show_control_items {

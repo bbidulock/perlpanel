@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.13 2004/06/03 12:13:05 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.14 2004/06/04 09:02:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -40,6 +40,12 @@ sub configure {
 	}
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	PerlPanel::tips->set_tip($self->widget, _('Nautilus Bookmarks'));
+
+	Glib::Timeout->add(1000, sub {
+		$self->create_menu if ($self->file_age > $self->{mtime});
+		return 1;
+	});
+
 	return 1;
 }
 
@@ -52,16 +58,23 @@ sub clicked {
 sub create_menu {
 	my $self = shift;
 	$self->{menu} = Gtk2::Menu->new;
+
+	$self->{mtime} = $self->file_age;
+
 	my $bookmarks = XMLin($self->{file});
 	foreach my $name (sort keys %{$bookmarks->{bookmark}}) {
-		my $icon = PerlPanel::lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name});
 		$self->menu->append($self->menu_item(
 			$name,
-			$icon,
+			PerlPanel::lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name}),
 			sub { system("nautilus --no-desktop \"$bookmarks->{bookmark}->{$name}->{uri}\" &") },
 		));
 	}
 	return 1;
+}
+
+sub file_age {
+	my $self = shift;
+	return (stat($self->{file}))[9];
 }
 
 sub get_default_config {

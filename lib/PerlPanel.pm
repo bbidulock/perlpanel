@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.83 2004/06/03 12:13:04 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.84 2004/06/04 09:02:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -166,7 +166,7 @@ sub init {
 
 	my $sub = sub {
 		my $error = shift;
-		print STDERR $error;
+		print STDERR $error unless ($error =~ /^[A-Z]{3}$/);
 		unlink($PIDFILE);
 		exit;
 	};
