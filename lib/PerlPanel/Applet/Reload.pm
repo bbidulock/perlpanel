@@ -1,4 +1,4 @@
-# $Id: Reload.pm,v 1.9 2004/09/17 11:28:53 jodrell Exp $
+# $Id: Reload.pm,v 1.10 2005/01/03 14:13:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ sub configure {
 	PerlPanel::tips->set_tip($self->{widget}, _('Reload'));
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub {
-		PerlPanel::reload;
+		PerlPanel::notify(_('The Reload applet is now deprecated, this button does nothing!'));
 	});
 	$self->widget->show_all;
 	return 1;
