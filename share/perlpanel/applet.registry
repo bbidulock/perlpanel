@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.17 2005/01/08 14:03:27 jodrell Exp $
+# $Id: applet.registry,v 1.18 2005/01/10 11:26:37 jodrell Exp $
 
 # DEPRECATED IN 0.8.0: About:A button to show an "About" dialog.:Actions
 ActionMenu:A menu containing useful actions.:Menus
@@ -38,6 +38,7 @@ ShowDesktop:Show or hide all the programs on screen.:Actions
 # DEPRECATED IN 0.8.0: Slot:A socket for applications which support the XEMBED protocol.:Utilities
 Spacer:A spacer.:Utilities
 Tasklist:Lists the programs currently running.:Utilities
+Trash:An icon that can be used to trash files.:Utilities
 Volume:Controls speaker volume.:System
 WiFiMonitor:An applet that shows your current wireless signal strength.:System
 WindowMenu:A menu containing currently opened windows.:Utilities
