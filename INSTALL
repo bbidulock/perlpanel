@@ -3,33 +3,46 @@ INSTALL
 
 What you will need is this:
 
-    * Perl 5.8.0 or higher
+    * Perl 5.8.0 or higher (5.8.3 recommended)
     * Gtk+ version 2.4.0 or higher
+    * libglade
     * The XML::Simple Perl module
     * The XML::Parser Perl module
-    * The Gtk2-Perl libraries
+    * The Date::Manip Perl module
+    * The following libraries from Gtk2-Perl:
+      - Glib
+      - Gtk2
+      - Gtk2::GladeXML
+      - Gnome2::Wnck
+      - Gnome2::VFS
 
 Some of the applets also require additional modules, for example:
 
-    * The Gnome2::Wnck Perl module for the tasklist, pager and window
-      menu applets
+    * URI::Escape for the RecentFiles applet
     * Xmms::Remote for the XMMS applet
-    * Gnome2::VFS for the SetiAtHome and GnomeMenu applets
+
+Your Perl package should include the following modules, but if it's an
+older version you may need to install them yourself:
+
+    * Digest::MD5
+    * File::Basename
+    * Locale::gettext
 
 Perl and Gtk+ should have been installed with your operating system. If
 you don't have Gtk+ 2 or higher, then you might want to try a Gnome
 distribution such as Ximian Desktop or Dropline. Alternatively you can
 download source code from http://www.gtk.org/.
 
-The XML::Simple is available on CPAN. The Gtk2-Perl and Gnome2::Wnck
-libraries can be found on the Sourceforge page at
+The XML::Simple is available on CPAN. The Gtk2-Perl libraries can be
+found on the Sourceforge page at
 
     http://sourceforge.net/projects/gtk2-perl.
 
-Gnome2::Wnck is the Perl bindings for libwnck, the Window Navigation
-Construction Kit. You do not need the Gnome2 libraries in order to use
-this module - it has the Gnome2:: prefix because it's maintained by the
-GNOME developers.
+Gnome2::Wnck is the Perl binding for libwnck, the Window Navigation
+Construction Kit. Gnome2::VFS is the Perl binding for the GNOME VFS
+system. You do not need a full GNOME distribution in order to use
+these modules - they have the Gnome2:: prefix because they're
+maintained by the GNOME developers.
 
 Note about XML::Simple
 ======================
@@ -82,4 +95,4 @@ Users of Debian GNU/Linux can install PerlPanel by running the command
 Users of the Gentoo operating system can find ebuilds via the project website.
 
 --
-$Id: INSTALL,v 1.5 2004/05/28 10:46:23 jodrell Exp $
+$Id: INSTALL,v 1.6 2004/10/21 15:51:39 jodrell Exp $
