@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.10 2004/01/14 23:17:53 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.11 2004/02/02 12:45:47 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -275,5 +275,10 @@ C<$callback>.
 
 This function exists mainly because the 'IconBar' applet needs a way to
 wait for the desktop entry editor to close.
+
+=head1 WRITING MENU APPLETS
+
+PerlPanel provides an easy-to-use base menu class for creating menu applets.
+Consult L<PerlPanel::MenuBase> for more information.
 
 =cut
