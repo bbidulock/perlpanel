@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.59 2004/02/20 12:35:07 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.60 2004/02/20 17:01:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -86,7 +86,7 @@ sub new {
 
 	our @APPLET_DIRS = (
 		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),	# user-installed applets
-		sprintf('%s/%s/Applet', $LIBDIR, $NAME, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
+		sprintf('%s/%s/Applet', $LIBDIR, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
 	);								# determined at runtime)
 
 	return $self;
