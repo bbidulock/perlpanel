@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.6 2003/06/19 15:57:03 jodrell Exp $
+$Id: perlpanel.pod,v 1.7 2003/06/23 12:34:00 jodrell Exp $
 
 =head1 Introduction
 
@@ -29,13 +29,22 @@ What you will need is this:
 
 =item * Perl
 
-=item * The XML::Simple Perl module
-
 =item * Gtk+ version 2 or higher
+
+=item * The XML::Simple Perl module
 
 =item * The Gtk2-Perl libraries
 
 =back
+
+Perl and Gtk+ should have been installed with your operating system. If
+you don't have Gtk+ 2 or higher, then you might want to try a Gnome
+distribution such as Ximian Desktop or Dropline. Alternatively you can
+download source code from L<http://www.gtk.org/>.
+
+The XML::Simple is available on CPAN. The Gtk2-Perl libraries can be
+found on the Sourceforge page at
+L<http://sourceforge.net/projects/gtk2-perl>.
 
 =head1 Installation
 
@@ -103,7 +112,7 @@ PerlPanel will automatically detect it and use it instead.
 =head2 IconBar
 
 The IconBar places a number of launcher icons on your panel. When
-clicked, these launcher run the program for that icon.
+clicked, the launchers run the program for that icon.
 
 IconBar uses the contents of C<$HOME/.perlpanel/icons> to generate these
 icons. The files in this directory should be standard .desktop format
@@ -120,9 +129,7 @@ relative to C<$PREFIX/share/pixmaps>.
 
 Right-clicking on an icon brings up a context menu. This allows you to
 add a new icon, or edit or delete the selected icon. Both the 'Add' and
-'Edit' options require that the C<gnome-desktop-item-edit> program be
-available. It is expected that PerlPanel will have its own version of
-this program sometime in the future.
+'Edit' options use an external program called C<perlpanel-item-edit>.
 
 =head2 Clock
 
@@ -148,9 +155,9 @@ The Panel tab contains various positioning and padding options for the
 panel itself.
 
 The Screen tab contains controls for the display width and height. The
-Screen tab is only visible if the version of Gtk+ on your system does
-not support for the C<GdkScreen> functions. If it does, PerlPanel will
-determine your screen resolution for itself.
+Screen tab is only visible if the version of Gtk+ (2.2.0 or higher) on
+your system does not support for the C<GdkScreen> functions. If it does,
+PerlPanel will determine your screen resolution for itself.
 
 You can add, remove and re-order applets on the panel from the 'Applets'
 tab.
@@ -174,5 +181,17 @@ Clicking this icon closes the panel.
 
 Applets are very easy to write - they're simple Perl scripts. If you
 want to learn how to write applets, consult L<perlpanel-applet-howto>.
+
+=head1 See Also
+
+=over
+
+=item * L<perl(1)>
+
+=item * L<Gtk2>
+
+=item * L<XML::Simple>
+
+=back
 
 =cut

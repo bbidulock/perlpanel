@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.21 2003/06/20 13:31:51 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.22 2003/06/23 12:34:00 jodrell Exp $
 package PerlPanel;
 use Gtk2;
 use Data::Dumper;
@@ -88,9 +88,8 @@ sub check_deps {
 
 sub get_screen {
 	my $self = shift;
-	my $code = '$self->{screen} = Gtk2::Gdk::Screen->get_default';
-	eval $code;
-	return 1;
+	my $code = '$self->{screen} = Gtk2::Gdk::Screen->get_screen';
+	return eval($code);
 }
 
 sub load_config {
@@ -172,14 +171,14 @@ sub show_all {
 
 sub move {
 	my $self = shift;
-	if ($self->{config}{panel}{position} eq 'top') {
+	if ($self->position eq 'top') {
 		$self->{panel}->move(0, 0);
-	} elsif ($self->{config}{panel}{position} eq 'bottom') {
+	} elsif ($self->position eq 'bottom') {
 		my $screen_height= $self->screen_height;
 		my $panel_height = $self->{panel}->allocation->height;
 		$self->{panel}->move(0, ($screen_height - $panel_height));
 	} else {
-		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
+		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
 	}
 	return 1;
 }
@@ -305,105 +304,6 @@ sub alert {
 	return 1;
 }
 
-=pod
-
-sub request_string {
-	my ($self, $message, $callback, $visible) = @_;
-
-	my $dialog = Gtk2::Dialog->new;
-	$dialog->set_title("$NAME: $message");
-	$dialog->set_border_width(8);
-	$dialog->vbox->set_spacing(8);
-
-	my $entry = Gtk2::Entry->new;
-	#if ($visible == 1) {
-	#	$entry->set_visible(1);
-	#}
-	$entry->signal_connect('activate', sub { $dialog->destroy ; &$callback($entry->get_text) });
-
-	my $table = Gtk2::Table->new(2, 2, 0);
-	$table->set_col_spacings(8);
-	$table->set_row_spacings(8);
-
-	$table->attach_defaults(Gtk2::Image->new_from_stock('gtk-dialog-question', 'dialog'), 0, 1, 0, 2);
-	$table->attach_defaults(Gtk2::Label->new($message), 1, 2, 0, 1);
-	$table->attach_defaults($entry, 1, 2, 1, 2);
-
-	$dialog->vbox->pack_start($table, 1, 1, 0);
-
-	my $cancel_button = Gtk2::Button->new_from_stock('gtk-cancel');
-	$cancel_button->signal_connect('clicked', sub { $dialog->destroy });
-
-	my $ok_button = Gtk2::Button->new_from_stock('gtk-ok');
-	$ok_button->signal_connect('clicked', sub { $dialog->destroy ; &$callback($entry->get_text) });
-
-	$dialog->action_area->pack_start($cancel_button, 0, 1, 0);
-	$dialog->action_area->pack_end($ok_button, 0, 1, 0);
-
-	$dialog->show_all;
-
-	$entry->grab_focus;
-
-	return 1;
-}
-
-sub request_password {
-	my ($self, $message, $callback) = @_;
-	$self->request_string($message, $callback, 1);
-}
-
-# you shouldn't need to access this directly -
-# instead use one of the wrappers below:
-sub alert {
-	my ($self, $message, $ok_callback, $cancel_callback, $stock) = @_;
-
-	my $dialog = Gtk2::Dialog->new;
-	$dialog->set_title($NAME);
-	$dialog->set_border_width(8);
-	$dialog->vbox->set_spacing(8);
-
-	my $hbox = Gtk2::HBox->new;
-	$hbox->set_spacing(8);
-	$hbox->pack_start(Gtk2::Image->new_from_stock($stock, 'dialog'), 0, 0, 0);
-
-	my $width = 0;
-	map { chomp ; $width = length($_) if length($_) > $width } split(/[\r\n]/, $message);
-	if ($width > 50 || scalar(split(/[\r\n]/, $message)) > 10) {
-		$dialog->set_default_size(350, 150);
-		my $scrwin = Gtk2::ScrolledWindow->new;
-		$scrwin->set_policy('automatic', 'automatic');
-		$scrwin->add_with_viewport(Gtk2::Label->new($message));
-		$hbox->pack_start($scrwin, 1, 1, 0);
-	} else {
-		$hbox->pack_start(Gtk2::Label->new($message), 1, 1, 0);
-	}
-
-	$dialog->vbox->pack_start($hbox, 1, 1, 0);
-
-	# only display if $cancel_callback is defined:
-	if (defined($cancel_callback)) {
-		my $cancel_button = Gtk2::Button->new_from_stock('gtk-cancel');
-		$cancel_button->signal_connect('clicked', sub { $dialog->destroy, &$cancel_callback() });
-		$dialog->action_area->pack_start($cancel_button, 0, 1, 0);
-	}
-
-	my $ok_button = Gtk2::Button->new_from_stock('gtk-ok');
-
-	if (defined($ok_callback)) {
-		$ok_button->signal_connect('clicked', sub { $dialog->destroy ; &$ok_callback() });
-	} else {
-		$ok_button->signal_connect('clicked', sub { $dialog->destroy });
-	}
-
-	$dialog->action_area->pack_end($ok_button, 0, 1, 0);
-
-	$dialog->show_all;
-
-	return 1;
-}
-
-=cut
-
 sub question {
 	my ($self, $message, $ok_callback, $cancel_callback) = @_;
 	return $self->alert($message, $ok_callback, $cancel_callback, 'gtk-dialog-question');
@@ -440,6 +340,11 @@ sub screen_width {
 sub screen_height {
 	my $self = shift;
 	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->{config}{screen}{height});
+}
+
+sub position {
+	my $self = shift;
+	return $self->{config}{panel}{position};
 }
 
 1;

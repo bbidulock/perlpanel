@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.4 2003/06/19 16:03:00 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.5 2003/06/23 12:34:00 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -174,11 +174,19 @@ Again, use this to correctly scale things in your applet.
 
 These two methods return the width and height (in pixels) of the default
 display. PerlPanel attempts to work this out if the system's Gtk+ is
-recent enough, otherwise it will take them from the user's config file.
+recent enough (ie later than 2.2.0), otherwise it will take them from the
+user's config file.
+
+	$PerlPanel::OBJECT_REF->position
+
+This returns the panel's physical position on-screen, either C<'top'> or
+C<'bottom'>. This is useful for when you want to show popup menus from
+your applets (for an example, see the BBMenu applet), and need to know
+the position of the panel.
 
 	$PerlPanel::OBJECT_REF->save_config
 
-This tells the panel to save its config to the resource file.
+This tells the panel to save its configuration data to the resource file.
 
 	$PerlPanel::OBJECT_REF->shutdown
 
@@ -187,7 +195,7 @@ This tells the panel to save its config file to disk and exit.
 	$PerlPanel::OBJECT_REF->reload
 
 This tells the panel to destroy its current instance, and create a new
-one, having loaded config data from disk. This is useful for when you've
+one, having reloaded config data from disk. This is useful for when you've
 just changed a config variable and want to apply the change.
 
 	$PerlPanel::OBJECT_REF->request_string($message, $callback)

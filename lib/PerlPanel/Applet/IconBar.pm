@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.19 2003/06/19 15:57:03 jodrell Exp $
+# $Id: IconBar.pm,v 1.20 2003/06/23 12:34:00 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use vars qw($ICON_DIR);
 use strict;
@@ -28,9 +28,20 @@ sub configure {
 	my @icons = grep { /\.desktop$/i } readdir(DIR);
 	closedir(DIR);
 
-	foreach my $file (sort @icons) {
-		my $filename = sprintf("%s/%s", $self->{icondir}, $file);
-		$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
+	if (scalar(@icons) < 1) {
+		my $dummy = PerlPanel::Applet::IconBar::DesktopEntry->new('dummy');
+		my $icon = Gtk2::Image->new_from_stock('gtk-add', $PerlPanel::OBJECT_REF->icon_size_name);
+		my $button = Gtk2::Button->new;
+		$button->set_relief('none');
+		$button->signal_connect('clicked', sub { $dummy->add });
+		$button->add($icon);
+		$PerlPanel::TOOLTIP_REF->set_tip($button, 'Add Icon');
+		$self->{widget}->pack_start($button, 0, 0, 0);
+	} else {
+		foreach my $file (sort @icons) {
+			my $filename = sprintf("%s/%s", $self->{icondir}, $file);
+			$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
+		}
 	}
 
 	return 1;
@@ -69,8 +80,10 @@ sub new {
 	my $self		= {};
 	$self->{package}	= shift;
 	$self->{filename}	= shift;
+	$self->{icondir}	= sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));
+	chomp($self->{nautilus}	= `which nautilus`);
 	bless($self, $self->{package});
-	$self->parse;
+	$self->parse unless ($self->{filename} eq 'dummy');
 	$self->build;
 	return $self;
 }
@@ -185,6 +198,26 @@ sub clicked {
 					'gtk-add',
 				],
 			];
+			if (-x $self->{nautilus}) {
+				push(
+					@{$self->{itemfactory}},
+					[
+						'/Separator',
+						undef,
+						undef,
+						undef,
+						'<Separator>',
+					],
+					[
+						'/View Icon Directory',
+						undef,
+						sub { system("$self->{nautilus} $self->{icondir} &") },
+						undef,
+						'<StockItem>',
+						'gtk-open'
+					],
+				);
+			}
 			$self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
 			$self->{factory}->create_items(@{$self->{itemfactory}});
 			$self->{menu} = $self->{factory}->get_widget('<main>');
@@ -197,7 +230,7 @@ sub clicked {
 sub popup_position {
 	my $self = shift;
 	my $x0 = $_[1];
-	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
+	if ($PerlPanel::OBJECT_REF->position eq 'top') {
 		return ($x0, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	} else {
 		$self->{menu}->realize;

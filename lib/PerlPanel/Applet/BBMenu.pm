@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.17 2003/06/20 14:36:43 jodrell Exp $
+# $Id: BBMenu.pm,v 1.18 2003/06/23 12:34:00 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -114,8 +114,7 @@ sub parse_menufile {
 					push(@{$self->{items}}, [ $path, undef, undef, undef, '<Separator>' ]);
 				} elsif ($cmd eq 'exec') {
 					my $path = join('/', @{$self->{paths}}, $name);
-					my $code = sprintf('system("%s &")', $val);
-					push(@{$self->{items}}, [ $path, undef, sub { eval $code }, undef, '<StockItem>', 'gtk-execute' ]);
+					push(@{$self->{items}}, [ $path, undef, sub { system(sprintf('%s &', $val)) }, undef, '<StockItem>', 'gtk-execute' ]);
 				}
 			}
 		}
@@ -200,7 +199,7 @@ sub popup {
 
 sub popup_position {
 	my $self = shift;
-	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
+	if ($PerlPanel::OBJECT_REF->position eq 'top') {
 		return (0, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	} else {
 		$self->{menu_widget}->realize;
