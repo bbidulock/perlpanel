@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.11 2004/02/24 17:07:18 jodrell Exp $
+# $Id: MenuBase.pm,v 1.12 2004/02/25 16:05:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -129,6 +129,7 @@ menu. The menu will subsequently look like this:
 	| ----------------------------- |
 	| Lock Screen			|
 	| Run Program...		|
+	| Take Screenshot...		|
 	| ----------------------------- |
 	| Configure...			|
 	| Reload			|
@@ -150,6 +151,12 @@ sub add_control_items {
 	$self->menu->append($self->menu_item(_('Run Program...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('commander'), sub {
 		require('Commander.pm');
 		PerlPanel::Applet::Commander->run;
+	}));
+	$self->menu->append($self->menu_item(_('Take Screenshot...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('screenshot'), sub {
+		require('ScreenShot.pm');
+		my $screenshot = PerlPanel::Applet::ScreenShot->new;
+		$screenshot->configure;
+		$screenshot->prompt;
 	}));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	$self->menu->append($self->menu_item(_('Configure...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('configurator'), sub {
