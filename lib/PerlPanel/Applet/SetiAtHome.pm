@@ -1,4 +1,4 @@
-# $Id: SetiAtHome.pm,v 1.4 2004/05/27 16:29:53 jodrell Exp $
+# $Id: SetiAtHome.pm,v 1.5 2004/09/10 13:01:14 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -72,7 +72,7 @@ sub configuration_dialog {
 				$self->{config}->{remote} = 'false';
 			}
 			$self->{app}->get_widget('config_dialog')->destroy;
-			PerlPanel::reload();
+			PerlPanel::save_config();
 		} else {
 			$self->{app}->get_widget('config_dialog')->destroy;
 		}

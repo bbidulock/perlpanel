@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.12 2004/09/09 16:19:37 jodrell Exp $
+# $Id: applet.registry,v 1.13 2004/09/10 13:01:14 jodrell Exp $
 
 About:A button to show an "About" dialog.:Actions
 ActionMenu:A menu containing useful actions.:Menus
@@ -16,7 +16,7 @@ Commander:A button to show a command dialog.:Launchers
 Configurator:A comprehensive configuration dialog.:Utilitiies
 CPUTemp:Shows the temperature of your computer's CPU.:System
 GnomeMenu:Your GNOME Menu.:Menus
-IconBar:Shows launcher icons on the panel.:Launchers
+# DEPRECATED IN 0.8.0: IconBar:Shows launcher icons on the panel.:Launchers
 Launcher:Shows a single launcher icon on the panel.:Launchers
 LoadMonitor:Shows the current CPU load.:System
 Lock:Locks the screen.:Actions
@@ -25,16 +25,16 @@ NotificationArea:Shows notification icons on your panel.:Utilities
 OpenBoxMenu:Your OpenBox Menu.:Menus
 Pager:Displays your current workspaces.:Utilities
 PanelPet:A friendly creature to keep you company.
-Quit:A button to close the panel.:Actions
+# DEPRECATED IN 0.8.0: Quit:A button to close the panel.:Actions
 RecentFiles:A button that shows files you've recently opened.:Launchers
-Reload:A button to reload the panel.:Actions
+# DEPRECATED IN 0.8.0: Reload:A button to reload the panel.:Actions
 RunMe:A simple command line.:Launchers
 ScreenShot:Capture images of your desktop.:Actions
 Separator:A separator.:Utilities
 SetiAtHome:A Seti@Home status monitor.:System
 ShellManager:A simple launcher for SSH sessions.:Launchers
 ShowDesktop:Show or hide all the programs on screen.:Actions
-Slot:A socket for applications which support the XEMBED protocol.:Utilities
+# DEPRECATED IN 0.8.0: Slot:A socket for applications which support the XEMBED protocol.:Utilities
 Spacer:A spacer.:Utilities
 Tasklist:Lists the programs currently running.:Utilities
 WiFiMonitor:An applet that shows your current wireless signal strength.:System

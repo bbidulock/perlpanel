@@ -1,4 +1,4 @@
-# $Id: NotificationArea.pm,v 1.1 2004/09/09 16:19:37 jodrell Exp $
+# $Id: NotificationArea.pm,v 1.2 2004/09/10 13:01:14 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -53,6 +53,8 @@ sub new {
 sub configure {
 	my $self = shift;
 
+	$self->{config} = PerlPanel::get_config('NotificationArea');
+
 	$self->{widget} = Gtk2::Viewport->new;
 	$self->widget->set_shadow_type('etched_in');
 	$self->widget->set_border_width(1);
@@ -77,15 +79,17 @@ sub configure {
 		$self->widget->set_size_request(-1, PerlPanel::icon_size());
 	});
 	PerlPanel::tips->set_tip($self->{button}, _('Hide icons'));
+	$self->widget->child->pack_start($self->{button}, 0, 0, 0);
 
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{hbox}->set_border_width(0);
 	$self->{hbox}->set_spacing(1);
-	$self->widget->child->add($self->{button});
-	$self->widget->child->add($self->{hbox});
+	$self->widget->child->pack_start($self->{hbox}, 1, 1, 0);
 
 	if ($CAN_MANAGE == 1) {
 		$TRAY_MANAGER->signal_connect('tray_icon_added', sub {
+			# put the socket inside a viewport so the panel doesn't get stretched if the
+			# icon is too large:
 			my $port = Gtk2::Viewport->new;
 			$port->set_border_width(0);
 			$port->set_size_request(-1, (PerlPanel::icon_size() - 2));
@@ -100,7 +104,7 @@ sub configure {
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
 
 			$self->{hbox}->show;
-			$self->{button}->child->set('right', 'none');
+			$self->{button}->child->set('right', 'none') if (defined($self->{button}->child));
 			$self->{state} = 'shown';
 			PerlPanel::tips->set_tip($self->{button}, _('Hide icons'));
 		});

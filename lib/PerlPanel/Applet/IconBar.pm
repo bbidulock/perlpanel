@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.41 2004/08/24 15:22:04 jodrell Exp $
+# $Id: IconBar.pm,v 1.42 2004/09/10 13:01:14 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -45,9 +45,19 @@ sub configure {
 		mkdir($self->{icondir});
 	}
 
+	$self->load_icons;
+
+	return 1;
+}
+
+sub load_icons {
+	my $self = shift;
+
 	opendir(DIR, $self->{icondir});
 	my @icons = grep { /\.desktop$/i } readdir(DIR);
 	closedir(DIR);
+
+	@{$self->{icons}} = ();
 
 	if (scalar(@icons) < 1) {
 		my $dummy = PerlPanel::Applet::IconBar::DesktopEntry->new('dummy');
@@ -64,6 +74,8 @@ sub configure {
 			$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
 		}
 	}
+
+	$self->widget->show_all;
 
 	return 1;
 }
@@ -130,7 +142,8 @@ sub reorder_window {
 		}
 		$dialog->destroy;
 		if ($_[1] eq 'ok') {
-			PerlPanel::reload;
+			map { $self->widget->remove($_) } $self->widget->get_children;
+			$self->load_icons;
 		}
 	});
 	$dialog->show_all;
@@ -149,7 +162,33 @@ sub new {
 	chomp($self->{nautilus}	= `which nautilus 2> /dev/null`);
 	bless($self, $self->{package});
 	$self->parse unless ($self->{filename} eq 'dummy');
+
+	$self->{widget} = Gtk2::Button->new;
+	$self->widget->set_border_width(0);
+	$self->widget->set_relief('none');
+
 	$self->build;
+
+	$self->widget->signal_connect('button_release_event', sub {
+		# this mess reconciles the behaviour of 'button_release_event' with the expected behaviour, which
+		# should be that of 'clicked'. The clicked() method is only called if the mouse pointer is within
+		# the widget (get_pointer() returns the co-ords of the pointer relative to the top left corner of
+		# the widget):
+		my ($mouse_pos_x, $mouse_pos_y) = $self->widget->get_pointer;
+		my $widget_size_x = $self->widget->size_request->width;
+		my $widget_size_y = $self->widget->size_request->height;
+		if (
+			$mouse_pos_x <= $widget_size_x &&
+			$mouse_pos_y <= $widget_size_y &&
+			$mouse_pos_x > -1 &&
+			$mouse_pos_y > -1	
+
+		) {
+			$self->clicked($_[1]->button);
+		}
+		return undef;
+	});
+
 	return $self;
 }
 
@@ -211,30 +250,8 @@ sub build {
 	}
 	$self->{pixmap}->set_size_request(PerlPanel::icon_size, PerlPanel::icon_size);
 
-	$self->{widget} = Gtk2::Button->new;
-	$self->widget->set_border_width(0);
 	$self->widget->add($self->{pixmap});
-	$self->widget->set_relief('none');
-
-	$self->widget->signal_connect('button_release_event', sub {
-		# this mess reconciles the behaviour of 'button_release_event' with the expected behaviour, which
-		# should be that of 'clicked'. The clicked() method is only called if the mouse pointer is within
-		# the widget (get_pointer() returns the co-ords of the pointer relative to the top left corner of
-		# the widget):
-		my ($mouse_pos_x, $mouse_pos_y) = $self->widget->get_pointer;
-		my $widget_size_x = $self->widget->size_request->width;
-		my $widget_size_y = $self->widget->size_request->height;
-		if (
-			$mouse_pos_x <= $widget_size_x &&
-			$mouse_pos_y <= $widget_size_y &&
-			$mouse_pos_x > -1 &&
-			$mouse_pos_y > -1	
-
-		) {
-			$self->clicked($_[1]->button);
-		}
-		return undef;
-	});
+	$self->widget->show_all;
 
 	my $tip = $self->{name} || $self->{exec};
 	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');
@@ -347,7 +364,10 @@ sub edit {
 			my $newmtime = (stat($self->{filename}))[9];
 
 			if ($newmtime > $mtime) {
-				PerlPanel::reload;
+				$self->parse;
+				$self->widget->remove($self->widget->child);
+				$self->build;
+				PerlPanel::save_config;
 			}
 		});
 	} else {
@@ -366,8 +386,11 @@ sub add {
 			my $newmtime = (stat($filename))[9];
 
 			if ($newmtime > $mtime) {
-				# the editor modified the file, so reload:
-				PerlPanel::reload;
+				my $widget = PerlPanel::Applet::IconBar::DesktopEntry->new($filename)->widget;
+				$widget->show_all;
+				$self->widget->parent->pack_start($widget, 0, 0, 0);
+				PerlPanel::save_config;
+
 			} else {
 				# nothing changed - delete the file:
 				unlink($filename);
@@ -382,7 +405,8 @@ sub add {
 sub delete {
 	my $self = shift;
 	unlink($self->{filename});
-	PerlPanel::reload;
+	$self->widget->parent->remove($self->widget);
+	return 1;
 }
 
 1;

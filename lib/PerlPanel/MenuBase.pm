@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.26 2004/07/06 12:47:16 jodrell Exp $
+# $Id: MenuBase.pm,v 1.27 2004/09/10 13:01:14 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -417,8 +417,9 @@ sub add_applet_dialog {
 		$idx++;
 	}
 	if ($idx >= 0) {
+		$PerlPanel::OBJECT_REF->load_applet($applet, $idx+1);
 		splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx+1, 0, $applet);
-		PerlPanel::reload;
+		PerlPanel::save_config();
 	}
 	return 1;
 }

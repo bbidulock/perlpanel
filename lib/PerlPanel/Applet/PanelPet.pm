@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.6 2004/05/27 16:29:53 jodrell Exp $
+# $Id: PanelPet.pm,v 1.7 2004/09/10 13:01:14 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -315,7 +315,6 @@ sub _preferences {
             $self->{widget}->set_sensitive(1);
             $self->{window}->destroy;
             PerlPanel::save_config;
-            PerlPanel::reload;
 
         }
         elsif ($_[1] == 1) {
@@ -440,7 +439,7 @@ sub _remove {
     }
 
     PerlPanel::save_config;
-    PerlPanel::reload;
+    $self->widget->parent->remove($self->widget);
 }
 
 1;

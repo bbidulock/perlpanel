@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.103 2004/08/26 14:58:34 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.104 2004/09/10 13:01:14 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -350,103 +350,123 @@ sub load_applets {
 	}
 
 	for (my $i = 0 ; $i < scalar(@{$self->{config}{applets}}) ; $i++) {
-
-		my $appletname = @{$self->{config}{applets}}[$i];
-
-		my ($appletname, $id) = split(/::/, $appletname, 2);
-
-		my ($applet, $expr, $multi);
-
-		eval(sprintf('require "%s.pm"', ucfirst($appletname)));
-
-		eval(sprintf('$multi = $%s::Applet::%s::MULTI', $self->{package}, ucfirst($appletname)));
-
-		if (defined($multi) && $id eq '') {
-			$id = $self->new_applet_id;
-			 @{$self->{config}{applets}}[$i] = sprintf('%s::%s', $appletname, $id);
-		}
-
-		if ($id ne '') {
-			$expr = sprintf(
-				'$applet = %s::Applet::%s->new("%s")',
-				$self->{package},
-				ucfirst($appletname),
-				$id,
-			);
-		} else {
-			$expr = sprintf(
-				'$applet = %s::Applet::%s->new',
-				$self->{package},
-				ucfirst($appletname),
-			);
-		}
-
-		eval($expr);
-
-		if ($@ || !defined($applet)) {
-			my $message = _("Error loading {applet} applet.\n", applet => $appletname);
-			my $toplevel = (split(/::/, $appletname))[0];
-			if ($@ =~ /can\'t locate $toplevel/i) {
-				$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
-			}
-
-			my $glade = $self->load_glade('applet-error');
-			$glade->get_widget('error_label')->set_markup(sprintf($APPLET_ERROR_MARKUP, $message));
-			$glade->get_widget('error_text')->get_buffer->set_text($@);
-			$glade->get_widget('error_dialog')->signal_connect('response', sub {
-				$_[0]->destroy;
-				require('Configurator.pm');
-				my $configurator = PerlPanel::Applet::Configurator->new;
-				$configurator->configure;
-				$configurator->init;
-				$configurator->app->get_widget('notebook')->set_current_page(3);
-			});
-			$glade->get_widget('error_dialog')->set_position('center');
-			$glade->get_widget('error_dialog')->set_icon($self->icon);
-			$glade->get_widget('error_dialog')->show_all;
-
-		} else {
-
-			if ($id ne '') {
-				if (!defined($self->{config}->{multi}->{sprintf('%s::%s', $appletname, $id)})) {
-					my $hashref;
-					eval {
-						$hashref = $applet->get_default_config;
-					};
-					$self->{config}->{multi}->{sprintf('%s::%s', $appletname, $id)} = $hashref if (defined($hashref));
-				}
-			} else {
-				if (!defined($self->{config}->{appletconf}->{$appletname})) {
-					my $hashref;
-					eval {
-						$hashref = $applet->get_default_config;
-					};
-					$self->{config}->{appletconf}->{$appletname} = $hashref if (defined($hashref));
-				}
-			}
-
-			my $widget;
-			eval {
-				$applet->configure;
-				$widget = $applet->widget;
-			};
-			if ($@ || !defined($widget)) {
-				print STDERR "Error configuring '$appletname' applet: $@\n";
-
-			} else {
-				$self->add($applet->widget, $applet->expand, $applet->fill);
-				$applet->widget->show_all;
-
-			}
-		}
+		$self->load_applet(@{$self->{config}{applets}}[$i]);
 	}
 
 	return 1;
 }
 
-sub add {
-	my ($self, $widget, $expand, $fill) = @_;
+sub load_applet {
+	my ($self, $raw, $position) = @_;
+
+	my ($appletname, $id) = split(/::/, $raw, 2);
+
+	my ($applet, $expr, $multi);
+
+	eval(sprintf('require "%s.pm"', ucfirst($appletname)));
+	if ($@) {
+		$self->applet_error($appletname, $@);
+		return undef;
+	}
+
+	eval(sprintf('$multi = $%s::Applet::%s::MULTI', $self->{package}, ucfirst($appletname)));
+	if ($@) {
+		$self->applet_error($appletname, $@);
+		return undef;
+	}
+
+	if (defined($multi) && $id eq '') {
+		$id = $self->new_applet_id;
+		@{$self->{config}{applets}}[$position] = sprintf('%s::%s', $appletname, $id);
+	}
+
+	if ($id ne '') {
+		$expr = sprintf(
+			'$applet = %s::Applet::%s->new("%s")',
+			$self->{package},
+			ucfirst($appletname),
+			$id,
+		);
+	} else {
+		$expr = sprintf(
+			'$applet = %s::Applet::%s->new',
+			$self->{package},
+			ucfirst($appletname),
+		);
+	}
+
+	eval($expr);
+
+	if ($@ || !defined($applet)) {
+		$self->applet_error($appletname, $@);
+		return undef;
+	}
+
+	if ($id ne '') {
+		if (!defined($self->{config}->{multi}->{sprintf('%s::%s', $appletname, $id)})) {
+			my $hashref;
+			eval {
+				$hashref = $applet->get_default_config;
+			};
+			$self->{config}->{multi}->{sprintf('%s::%s', $appletname, $id)} = $hashref if (defined($hashref));
+		}
+	} else {
+		if (!defined($self->{config}->{appletconf}->{$appletname})) {
+			my $hashref;
+			eval {
+				$hashref = $applet->get_default_config;
+			};
+			$self->{config}->{appletconf}->{$appletname} = $hashref if (defined($hashref));
+		}
+	}
+
+	my $widget;
+	eval {
+		$applet->configure;
+		$widget = $applet->widget;
+	};
+	if ($@ || !defined($widget)) {
+		print STDERR "Error configuring '$appletname' applet: $@\n";
+
+	} else {
+		$self->append($applet->widget, $applet->expand, $applet->fill, $position);
+		$applet->widget->show_all;
+	}
+
+	return 1;
+}
+
+sub applet_error {
+	my ($self, $appletname, $error) = @_;
+	my $message = _("Error loading {applet} applet.\n", applet => $appletname);
+	my $toplevel = (split(/::/, $appletname))[0];
+	if ($error =~ /can\'t locate $toplevel/i) {
+		$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
+	}
+
+	my $glade = PerlPanel::load_glade('applet-error');
+	$glade->get_widget('error_label')->set_markup(sprintf($APPLET_ERROR_MARKUP, $message));
+	$glade->get_widget('error_text')->get_buffer->set_text($error);
+	$glade->get_widget('error_dialog')->signal_connect('response', sub {
+		$_[0]->destroy;
+		require('Configurator.pm');
+		my $configurator = PerlPanel::Applet::Configurator->new;
+		$configurator->configure;
+		$configurator->init;
+		$configurator->app->get_widget('notebook')->set_current_page(3);
+	});
+	$glade->get_widget('error_dialog')->set_position('center');
+	$glade->get_widget('error_dialog')->set_icon($self->icon);
+	$glade->get_widget('error_dialog')->show_all;
+	return 1;
+}
+
+sub append {
+	my ($self, $widget, $expand, $fill, $position) = @_;
 	$self->{hbox}->pack_start($widget, $expand, $fill, 0);
+	if (defined($position)) {
+		$self->{hbox}->reorder_child($widget, $position);
+	}
 	return 1;
 }
 
@@ -856,7 +876,7 @@ sub load_glade {
 	my $gladefile = shift;
 	my $file = sprintf('%s/share/%s/glade/%s.glade', $PREFIX, lc($NAME), $gladefile);
 
-	return Gtk2::GladeXML->new($file);
+	return (-r $file ? Gtk2::GladeXML->new($file) : undef);
 }
 
 sub _ {
