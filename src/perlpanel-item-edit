@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.3 2005/01/03 19:05:13 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.4 2005/01/06 15:55:15 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -76,7 +76,12 @@ $glade->get_widget('launcher_name')->set_text($entry->Name($LOCALE));
 $glade->get_widget('launcher_comment')->set_text($entry->Comment($LOCALE));
 
 $PROGRAM = $entry->Exec;
-$glade->get_widget('launcher_program')->set_text(basename($PROGRAM));
+if (-r $PROGRAM) {
+	$glade->get_widget('launcher_program')->set_text(basename($PROGRAM));
+
+} else {
+	$glade->get_widget('launcher_program')->set_text('');
+}
 
 $ICON = $entry->Icon;
 
@@ -84,7 +89,10 @@ if (-r $ICON) {
 	$glade->get_widget('launcher_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($ICON, 48, 48));
 
 } else {
-	my $icon = $theme->load_icon($ICON, 48, 'force-svg');
+	my $icon;
+	if ($ICON ne '') {
+		$icon = $theme->load_icon($ICON, 48, 'force-svg');
+	}
 
 	if (defined($icon)) {
 		$glade->get_widget('launcher_icon')->set_from_pixbuf($icon);
@@ -137,8 +145,11 @@ sub on_icon_button_clicked {
 		$selector->set_filename($ICON);
 
 	} else {
+		my $icon;
+		if ($ICON ne '') {
+			$icon = $theme->lookup_icon($ICON, 48, 'force-svg');
+		}
 
-		my $icon = $theme->lookup_icon($ICON, 48, 'force-svg');
 		if (defined($icon)) {
 			$selector->set_filename($icon->get_filename);
 
@@ -171,10 +182,11 @@ sub on_icon_button_clicked {
 #
 sub on_item_edit_dialog_response {
 	if ($_[1] eq 'ok') {
-		$entry->set_value('Name',	$glade->get_widget('launcher_name')->get_text, $LOCALE);
-		$entry->set_value('Comment',	$glade->get_widget('launcher_comment')->get_text, $LOCALE);
-		$entry->set_value('Exec',	$PROGRAM);
-		$entry->set_value('Icon',	$ICON);
+		$entry->set_value('Name',		$glade->get_widget('launcher_name')->get_text, $LOCALE);
+		$entry->set_value('Comment',		$glade->get_widget('launcher_comment')->get_text, $LOCALE);
+		$entry->set_value('Exec',		$PROGRAM);
+		$entry->set_value('Icon',		$ICON);
+		$entry->set_value('StartupNotify',	($glade->get_widget('launcher_feedback')->get_active ? 'true' : 'false'));
 
 		my $data = $entry->as_string;
 
@@ -209,13 +221,16 @@ sub on_program_browse_button_clicked {
 		'gtk-ok'	=> 'ok'
 	);
 
-	my $cmd = sprintf('which "%s"', $PROGRAM);
+	my $cmd = sprintf('which "%s" 2>/dev/null', $PROGRAM);
 	chomp(my $path = `$cmd`);
 	if (-x $path) {
 		$selector->set_filename($path);
 		
-	} else {
+	} elsif ($PROGRAM ne '') {
 		$selector->set_filename($PROGRAM);
+
+	} else {
+		$selector->set_current_folder(Glib::get_home_dir);
 
 	}
 
