@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.24 2004/10/09 17:56:38 jodrell Exp $
+# $Id: Clock.pm,v 1.25 2004/10/11 11:55:00 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,12 +18,17 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Clock;
+use Gtk2::SimpleList;
 use POSIX qw(strftime);
+use vars qw($MULTI);
 use strict;
+
+our $MULTI = 1;
 
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
+	$self->{id}		= shift;
 	bless($self,		$self->{package});
 	return			$self;
 }
@@ -42,7 +47,7 @@ sub configure {
 			$self->hide_calendar;
 		}
 	});
-	$self->{config} = PerlPanel::get_config('Clock');
+	$self->{config} = PerlPanel::get_config('Clock', $self->{id});
 	$self->update;
 	Glib::Timeout->add(1000, sub { $self->update });
 	$self->widget->show_all;
@@ -77,40 +82,82 @@ sub get_default_config {
 
 sub make_calendar {
 	my $self = shift;
-	my $glade = PerlPanel::load_glade('calendar');
-	$self->{calendar} = $glade->get_widget('calendar_window');
-	$self->{calendar}->set_icon(PerlPanel::icon);
-	$self->{calendar}->set_title(_('Calendar'));
-	$self->{calendar}->set_skip_pager_hint(1);
-	$self->{calendar}->set_skip_taskbar_hint(1);
-	$self->{calendar}->set_decorated(undef);
-	$self->{calendar}->set_type_hint('dialog');
-	$self->{calendar}->child->show_all;
-	$self->{calendar}->realize;
+	$self->{glade} = PerlPanel::load_glade('calendar');
+	$self->{window} = $self->{glade}->get_widget('calendar_window');
+	$self->{window}->set_icon(PerlPanel::icon);
+	$self->{window}->set_title(_('Calendar'));
+	$self->{window}->set_skip_pager_hint(1);
+	$self->{window}->set_skip_taskbar_hint(1);
+	$self->{window}->set_decorated(undef);
+	$self->{window}->set_type_hint('dialog');
+
+	$self->{calendar} = $self->{glade}->get_widget('calendar');
+	$self->{calendar}->signal_connect('day-selected', sub {
+		my ($year, $month, $day) = $self->{calendar}->get_date;
+		$self->{glade}->get_widget('date_label')->set_markup(sprintf(_('<span weight="bold">Events for %04d-%02d-%02d:</span>'), $year, $month+1, $day));
+		$self->show_events($year, $month, $day);
+	});
+
+	my ($day, $month, $year) = (localtime())[3,4,5];
+	$year+= 1900;
+	$self->{calendar}->select_month($month, $year);
+	$self->{calendar}->select_day($day);
+
+	$self->{events} = Gtk2::SimpleList->new_from_treeview(
+		$self->{glade}->get_widget('event_list'),
+		'date'	=> 'text',
+		'text'	=> 'text',
+	);
+
+	$self->{glade}->get_widget('add_button')->signal_connect('clicked', sub { $self->add_event_dialog });
+
+	$self->{window}->child->show_all;
+	$self->{window}->realize;
+
+	return 1;
 }
 
 sub show_calendar {
 	my $self = shift;
 	my ($x, $y);
 	my $x0 = (PerlPanel::get_widget_position($self->widget))[0];
-	if ($x0 + $self->{calendar}->allocation->width > PerlPanel::screen_width) {
-		$x = PerlPanel::screen_width() - $self->{calendar}->allocation->width;
+	if ($x0 + $self->{window}->allocation->width > PerlPanel::screen_width) {
+		$x = PerlPanel::screen_width() - $self->{window}->allocation->width;
 	} else {
 		$x = $x0;
 	}
 	if (PerlPanel::position eq 'top') {
 		$y = PerlPanel::panel->allocation->height;
 	} else {
-		$y = PerlPanel::screen_height() - $self->{calendar}->allocation->height - PerlPanel::panel->allocation->height;
+		$y = PerlPanel::screen_height() - $self->{window}->allocation->height - PerlPanel::panel->allocation->height;
 	}
-	$self->{calendar}->move($x, $y);
-	$self->{calendar}->show_all;
+	$self->{window}->move($x, $y);
+	$self->{window}->show_all;
 	return 1;
 }
 
 sub hide_calendar {
 	my $self = shift;
-	$self->{calendar}->hide;
+	$self->{window}->hide;
+}
+
+sub show_events {
+	my ($self, $year, $month, $day) = @_;
+	my $date = sprintf("%04d-%02d-%02d\n", $year, $month, $day);
+	return 1;
+}
+
+sub add_event_dialog {
+	my $self = shift;
+	my ($year, $month, $day) = $self->{calendar}->get_date;
+	my ($mins, $hours) = (localtime())[1,2];
+	$self->{glade}->get_widget('add_dialog_date_label')->set_markup(sprintf(_('<span weight="bold" size="large">Add Event for %04d-%02d-%02d:</span>'), $year, $month+1, $day));
+	$self->{glade}->get_widget('hour_spin')->set_value($hours);
+	$self->{glade}->get_widget('min_spin')->set_value($mins);
+	$self->{glade}->get_widget('reminder_combo')->set_active(0);
+	$self->{glade}->get_widget('add_event_dialog')->set_position('center');
+	$self->{glade}->get_widget('add_event_dialog')->show_all;
+	return 1;
 }
 
 1;
