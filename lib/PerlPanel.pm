@@ -1,9 +1,9 @@
-# $Id: PerlPanel.pm,v 1.5 2003/06/03 16:10:21 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.6 2003/06/03 22:57:54 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $PREFIX %DEFAULTS $TOOLTIP_REF $OBJECT_REF);
+use vars qw($NAME $VERSION $PREFIX $Y_OFFSET %DEFAULTS $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
 our $NAME	= 'PerlPanel';
@@ -11,13 +11,17 @@ our $VERSION	= '0.02';
 
 chomp(our $PREFIX = `gtk-config --prefix`);
 
+# this is a fudge factor for the repositioning of the panel:
+our $Y_OFFSET = 10;
+
 our %DEFAULTS = (
-	panel => {
+	screen	=> {
 		width		=> 1024,
-		height		=> 24,
-		x		=> 736,
-		y		=> 0,
-		spacing		=> 0,
+		height		=> 768,
+	},
+	panel => {
+		position	=> 'bottom',
+		spacing		=> 2,
 		icon_size	=> 24,
 		icon_size_name	=> 'large-toolbar',
 	},
@@ -29,13 +33,11 @@ our %DEFAULTS = (
 		'BBMenu',
 		'IconBar',
 		'Clock',
+		'Configurator',
 		'Commander',
 		'Reload',
 		'Quit',
 	],
-	applet => {
-		padding	=> 3,
-	},
 );
 
 Gtk2->init;
@@ -79,10 +81,16 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->{config}{panel}{width}, $self->{config}{panel}{height});
-	$self->{panel}->move($self->{config}{panel}{y}, $self->{config}{panel}{x});
+	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->{config}{panel}{icon_size});
+	if ($self->{config}{panel}{position} eq 'top') {
+		$self->{panel}->move(0, 0);
+	} elsif ($self->{config}{panel}{position} eq 'bottom') {
+		$self->{panel}->move(0, ($self->{config}{screen}{height} - $self->{config}{panel}{icon_size} - $Y_OFFSET));
+	} else {
+		$self->error("Invalid panel position '$self->{config}{panel}{position}'.", sub { $self->shutdown });
+	}
 	$self->{hbox} = Gtk2::HBox->new;
-	$self->{hbox}->set_spacing($self->{config}{applet}{padding});
+	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{panel}->add($self->{hbox});
 	return 1;
 }
@@ -93,14 +101,20 @@ sub load_applets {
 		my $applet;
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
 		eval($expr);
+		print STDERR $@;
 		if ($@) {
-			print STDERR $@;
-			exit 1;
+			my $message = "Error loading $appletname applet.\n";
+			if ($@ =~ /can't locate/i) {
+				$message = "Error: couldn't load applet file $appletname.pm in\n\n\t".join("\n\t", @INC)."\n\nYou can add extra directories to this list using the <appletsdir>\ntag in your rcfile.";
+			}
+			$self->error($message, sub { $self->shutdown });
+			return undef;
 		} else {
 			$applet->configure;
 			$self->add($applet->widget, $applet->expand, $applet->fill, $applet->end);
 		}
 	}
+	return 1;
 }
 
 sub add {
@@ -198,10 +212,11 @@ sub alert {
 	}
 
 	my $ok_button = Gtk2::Button->new_from_stock('gtk-ok');
-	$ok_button->signal_connect('clicked', sub { $dialog->destroy });
-	# only add callback if $ok_callback is defined:
-	if (defined($cancel_callback)) {
-		$ok_button->signal_connect('clicked', sub { &$ok_callback() });
+
+	if (defined($ok_callback)) {
+		$ok_button->signal_connect('clicked', sub { $dialog->destroy ; &$ok_callback() });
+	} else {
+		$ok_button->signal_connect('clicked', sub { $dialog->destroy });
 	}
 
 	$dialog->action_area->pack_end($ok_button, 0, 1, 0);

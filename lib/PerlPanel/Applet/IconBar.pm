@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.5 2003/06/03 16:10:21 jodrell Exp $
+# $Id: IconBar.pm,v 1.6 2003/06/03 22:57:54 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -16,18 +16,19 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
-	$self->{widget}->set_spacing($PerlPanel::OBJECT_REF->{config}{applet}{padding});
+	$self->{widget}->set_spacing($PerlPanel::OBJECT_REF->{config}{panel}{spacing});
 	$self->{icondir} = sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));
-	opendir(DIR, $self->{icondir}) or print STDERR "Error opening $self->{icondir}: $!\n" and return undef;
+	unless (-e $self->{icondir}) {
+		mkdir(sprintf('%s/.%s', $ENV{HOME}, lc($PerlPanel::NAME)));
+		mkdir($self->{icondir});
+		return undef;
+	}
+	opendir(DIR, $self->{icondir});
 	my @icons = grep { /\.desktop$/i } readdir(DIR);
 	closedir(DIR);
-	if (scalar(@icons) < 1) {
-		print STDERR "Error: no .desktop files found in $self->{icondir}\n" and exit;
-	} else {
-		foreach my $file (sort @icons) {
-			my $filename = sprintf("%s/%s", $self->{icondir}, $file);
-			$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
-		}
+	foreach my $file (sort @icons) {
+		my $filename = sprintf("%s/%s", $self->{icondir}, $file);
+		$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
 	}
 }
 
@@ -89,15 +90,15 @@ sub build {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	if (-e $self->{icon}) {
-		$self->{filename} = $self->{icon};
+		$self->{iconfile} = $self->{icon};
 	} elsif (-e "$ICON_DIR/$self->{icon}") {
-		$self->{filename} = "$ICON_DIR/$self->{icon}";
+		$self->{iconfile} = "$ICON_DIR/$self->{icon}";
 	} else {
 		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', $PerlPanel::OBJECT_REF->icon_size_name);
 	}
-	if (defined($self->{filename})) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{filename});
-		my ($x0, $y0) = Image::Size::imgsize($self->{filename});
+	if (defined($self->{iconfile})) {
+		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
+		my ($x0, $y0) = Image::Size::imgsize($self->{iconfile});
 		if ($x0 != $PerlPanel::OBJECT_REF->icon_size || $y0 != $PerlPanel::OBJECT_REF->icon_size) {
 			my ($x1, $y1);
 			if ($x0 > $y0) {
