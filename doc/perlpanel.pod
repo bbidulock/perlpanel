@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.23 2004/06/03 12:03:41 jodrell Exp $
+$Id: perlpanel.pod,v 1.24 2004/06/25 09:56:12 jodrell Exp $
 
 =head1 Introduction
 
@@ -127,7 +127,13 @@ panel itself.
 You can add, remove and re-order applets on the panel from the 'Applets'
 tab.
 
-=head2 The 'GnomeMenu Applet'
+=head2 The 'CPUTemp' Applet
+
+This applet displays the reported temperature of your computer's CPU. You
+need to have a supported motherboard, and the C<mbmon> program installed.
+The temperature can be displayed in Celsius, Fahrenheit or Kelvin.
+
+=head2 The 'GnomeMenu Applet
 
 This applet gives you access to the standard Gnome applications menu.
 

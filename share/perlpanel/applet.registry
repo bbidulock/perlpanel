@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.6 2004/06/03 12:03:41 jodrell Exp $
+# $Id: applet.registry,v 1.7 2004/06/25 09:56:12 jodrell Exp $
 
 About=A button to show an "About" dialog.
 ActionMenu=A menu containing useful actions.
@@ -14,6 +14,7 @@ BBMenu=A Blackbox-compatible program launcher.
 Clock=Shows the current time on the panel.
 Commander=A button to show a command dialog.
 Configurator=A comprehensive configuration dialog.
+CPUTemp=Shows the temperature of your computer's CPU.
 GnomeMenu=Your GNOME Menu.
 IconBar=Shows launcher icons on the panel.
 LoadMonitor=Shows the current CPU load.
