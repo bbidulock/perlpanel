@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.44 2004/09/27 10:39:19 jodrell Exp $
+# $Id: Makefile,v 1.45 2004/09/30 10:09:18 jodrell Exp $
 
 VERSION=0.8.0
 
@@ -88,8 +88,8 @@ install:
 	install -m 0755 build/perlpanel-run-dialog.1.gz		$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/PerlPanel::MenuBase.3.gz		$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
 	install -m 0755 build/PerlPanel::DesktopEntry.3.gz	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
-	install -m 0644 build/locale/en/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/en/$(LC_CATEGORY)/
-	install -m 0644 build/locale/de/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/de/$(LC_CATEGORY)/
+	install -m 0644 build/locale/en/$(LC_CATEGORY)/perlpanel.mo $(DESTDIR)/$(LOCALEDIR)/en/$(LC_CATEGORY)/
+	install -m 0644 build/locale/de/$(LC_CATEGORY)/perlpanel.mo $(DESTDIR)/$(LOCALEDIR)/de/$(LC_CATEGORY)/
 
 	@echo Installing default rcfile:
 	@if [ -e $(DESTDIR)/$(CONFDIR)/perlpanelrc ] ; then \
