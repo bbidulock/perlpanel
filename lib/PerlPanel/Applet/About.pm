@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.12 2004/02/24 17:07:18 jodrell Exp $
+# $Id: About.pm,v 1.13 2004/05/27 16:29:52 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -40,18 +40,19 @@ sub configure {
 
 sub about {
 	my $self = shift;
-	my $lead_authors = join("\n", @PerlPanel::LEAD_AUTHORS);
+	my $lead_authors = join(", ", @PerlPanel::LEAD_AUTHORS);
 	$lead_authors =~ s/</&lt;/g;
 	$lead_authors =~ s/>/&gt;/g;
-	my $co_authors = join("\n", @PerlPanel::CO_AUTHORS);
+	my $co_authors = join(", ", @PerlPanel::CO_AUTHORS);
 	$co_authors =~ s/</&lt;/g;
 	$co_authors =~ s/>/&gt;/g;
-	my $text = sprintf(
-		"<span size=\"small\">%s</span>\n\n%s\n\n%s\n%s\n\n<span size=\"small\">With:\n%s</span>\n\n%s\n\n<span size=\"small\">%s\n\n%s</span>",
+	my $markup = sprintf(
+		"<span foreground=\"#FFFFFF\">%s\n\n%s\n\n%s %s\n\n<span size=\"small\">%s %s</span>\n\n%s\n\n<span size=\"small\">%s\n\n%s</span></span>",
 		($PerlPanel::VERSION eq '@VERSION@' ? _('Sandbox Mode') : _('Version {version}', version => $PerlPanel::VERSION)),
 		$PerlPanel::DESCRIPTION,
 		_('Author:'),
 		$lead_authors,
+		_('With:'),
 		$co_authors,
 		$PerlPanel::URL,
 		$PerlPanel::LICENSE,
@@ -62,24 +63,32 @@ sub about {
 			gtk2_ver	=> $Gtk2::VERSION,
 		),
 	);
-	$self->{window} = Gtk2::Window->new('toplevel');
-	$self->{window}->set_position('center');
-	$self->{window}->set_border_width(15);
-	$self->{window}->set_title(_('About {name}', name => $PerlPanel::NAME));
-	$self->{window}->set_icon(PerlPanel::icon);
-	$self->{vbox} = Gtk2::VBox->new;
-	$self->{vbox}->set_spacing(15);
-	$self->{vbox}->pack_start(Gtk2::Image->new_from_file(sprintf('%s/share/pixmaps/%s-logo.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME))), 0, 0, 0);
-	$self->{label} = Gtk2::Label->new();
-	$self->{label}->set_justify('center');
-	$self->{label}->set_line_wrap(1);
-	$self->{label}->set_markup($text);
-	$self->{vbox}->pack_start($self->{label}, 1, 1, 0);
-	$self->{button} = Gtk2::Button->new_from_stock('gtk-ok');
-	$self->{button}->signal_connect('clicked', sub { $self->{window}->destroy });
-	$self->{vbox}->pack_start($self->{button}, 0, 0, 0);
-	$self->{window}->add($self->{vbox});
-	$self->{window}->show_all;
+
+	my $i = Gtk2::Image->new_from_file(sprintf('%s/share/pixmaps/%s-about.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+
+	my $l = Gtk2::Label->new;
+	$l->set_size_request($i->get_pixbuf->get_width, -1);
+	$l->set_justify('center');
+	$l->set_line_wrap(1);
+	$l->set_markup($markup);
+
+	my $f = Gtk2::Fixed->new;
+
+	$f->add($i);
+
+	$f->put($l, 0, 115);
+
+	my $e = Gtk2::EventBox->new;
+	$e->signal_connect('button_release_event', sub { exit });
+	$e->add($f);
+
+	my $w = Gtk2::Window->new;
+	$w->set_decorated(0);
+	$w->set_modal(1);
+	$w->set_position('center');
+	$w->add($e);
+	$w->show_all;
+
 	return 1;
 }
 

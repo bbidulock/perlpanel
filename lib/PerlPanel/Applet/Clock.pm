@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.19 2004/02/24 17:07:18 jodrell Exp $
+# $Id: Clock.pm,v 1.20 2004/05/27 16:29:52 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -104,7 +104,6 @@ sub prefs {
 			$self->{window}->destroy;
 
 			PerlPanel::save_config;
-			PerlPanel::reload;
 		} elsif ($_[1] == 1) {
 			# 'cancel' was clicked
 			$self->{widget}->set_sensitive(1);

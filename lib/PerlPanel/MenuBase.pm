@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.17 2004/05/03 17:27:28 jodrell Exp $
+# $Id: MenuBase.pm,v 1.18 2004/05/27 16:29:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -270,15 +270,17 @@ sub menu_item {
 	my ($self, $label, $icon, $callback) = @_;
 	my $item = Gtk2::ImageMenuItem->new_with_label($label);
 	my $pbf;
-	if (-e $icon) {
+	if (-f $icon) {
 		# it's a file:
 		$pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon);
 	} elsif (ref($icon) eq 'Gtk2::Gdk::Pixbuf') {
 		# it's a pixbuf:
 		$pbf = $icon;
-	} else {
+	} elsif ($icon =~ /^gtk-/) {
 		# assume it's a stock ID:
 		$pbf = $self->widget->render_icon($icon, PerlPanel::menu_icon_size_name);
+	} else {
+		$pbf = $self->widget->render_icon('gtk-missing', PerlPanel::menu_icon_size_name);
 	}
 	if (ref($pbf) ne 'Gtk2::Gdk::Pixbuf') {
 		$pbf = Gtk2::Gdk::Pixbuf->new('rgb', 1, 8, PerlPanel::menu_icon_size, PerlPanel::menu_icon_size);

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.78 2004/05/25 15:03:03 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.79 2004/05/27 16:29:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 package PerlPanel;
 
 use Gtk2;
+use Gtk2::Helper;
 use Gtk2::GladeXML;
 use Gtk2::SimpleList;
 use Data::Dumper;
@@ -38,13 +39,13 @@ our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
 our $NAME		= 'PerlPanel';
 our $VERSION		= '@VERSION@'; # this is replaced at build time.
 our @LEAD_AUTHORS	= (
-	'Gavin Brown <gavin.brown@uk.com>',
+	'Gavin Brown',
 );
 our @CO_AUTHORS		= (
-	'Eric Andreychek <eric@openthought.net> (Applet development)',
-	'Scott Arrington <muppet@asofyet.org> (Bug fixes)',
-	'Torsten Schoenfeld <kaffeetisch@web.de> (libwnck libraries)',
-	'Marc Brockschmidt <marc@dch-faq.de> (Debian packages)',
+	'Eric Andreychek',
+	'Scott Arrington',
+	'Torsten Schoenfeld',
+	'Marc Brockschmidt',
 );
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 
@@ -297,7 +298,7 @@ sub load_applets {
 
 			my $message = _("Error loading {applet} applet.\n", applet => $appletname);
 			my $toplevel = (split(/::/, $appletname))[0];
-			if ($@ =~ /can't locate $toplevel/i) {
+			if ($@ =~ /can\'t locate $toplevel/i) {
 				$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
 			}
 
@@ -322,6 +323,7 @@ sub load_applets {
 			$applet->widget->show_all;
 		}
 	}
+
 	return 1;
 }
 

@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.5 2004/05/17 13:33:28 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.6 2004/05/27 16:29:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,10 +28,11 @@ our $DESKTOP_NAMESPACE = 'Desktop Entry';
 
 sub configure {
 	my $self = shift;
+
 	Gnome2::VFS->init;
 
 	$self->{theme} = Gnome2::IconTheme->new;
-	$self->{theme}->set_custom_theme('lush');
+	$self->{theme}->set_custom_theme('Gnome');
 
 	$self->{widget} = Gtk2::Button->new;
 
@@ -167,6 +168,7 @@ sub create_submenu_for {
 		}
 
 		foreach my $filename (sort keys %files) {
+
 			my $file = $files{$filename};
 			my $path = sprintf('%s/%s', $uri, $file->{name});
 			my $data = $self->get_file_contents($path);
@@ -178,11 +180,14 @@ sub create_submenu_for {
 					(-e $icon ? $icon : 'gtk-execute'),
 					sub { system("$program &") },
 				);
-				PerlPanel::tips->set_tip($item, $comment);
-				$menu->append($item);
-
+				if ($name ne 'KBattleship') {
+					PerlPanel::tips->set_tip($item, $comment);
+					$menu->append($item);
+				}
 			}
+
 		}
+
 		return 1;
 	}
 }
@@ -222,7 +227,7 @@ sub parse_desktopfile {
 
 sub lookup_icon {
 	my ($self, $icon) = @_;
-	return ($self->{theme}->lookup_icon($icon, 'foo'))[0];
+	return ($self->{theme}->lookup_icon($icon, PerlPanel::icon_size_name))[0];
 }
 
 sub get_file_contents {

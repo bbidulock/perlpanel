@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.9 2004/05/06 10:30:38 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.10 2004/05/27 16:29:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -27,8 +27,6 @@ sub configure {
 	$self->{file} = sprintf('%s/.nautilus/bookmarks.xml', $ENV{HOME});
 	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('nautilusbookmarks', PerlPanel::icon_size));
 	$self->{widget} = Gtk2::Button->new;
-	$self->{use_gnome} = 0;
-	eval 'use Gnome2 ; $self->{use_gnome} = 1';
 	$self->widget->set_relief('none');
 	$self->widget->add($self->{icon});
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
@@ -47,19 +45,10 @@ sub create_menu {
 	$self->{menu} = Gtk2::Menu->new;
 	my $bookmarks = XMLin($self->{file});
 	$self->{mtime} = (stat($bookmarks))[9];
-	if ($self->{use_gnome} == 1) {
-		$self->{theme} = Gnome2::IconTheme->new;
-	}
 	foreach my $name (sort keys %{$bookmarks->{bookmark}}) {
-		my $icon;
-		if ($self->{use_gnome} == 1) {
-			($icon, undef) = $self->{theme}->lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name}, PerlPanel::icon_size);
-		} else {
-			$icon = 'gtk-jump-to',
-		}
 		$self->menu->append($self->menu_item(
 			$name,
-			$icon,
+			'gtk-open', # when (Gtk2|Gnome2)::IconTheme is fixed, we can use the proper icon here
 			sub { system("nautilus --no-desktop \"$bookmarks->{bookmark}->{$name}->{uri}\" &") },
 		));
 	}

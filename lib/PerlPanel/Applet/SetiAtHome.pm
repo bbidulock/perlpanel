@@ -1,4 +1,4 @@
-# $Id: SetiAtHome.pm,v 1.3 2004/05/21 10:22:51 jodrell Exp $
+# $Id: SetiAtHome.pm,v 1.4 2004/05/27 16:29:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -50,8 +50,8 @@ sub configure {
 
 	unless (defined($TIMEOUT)) {
 		our $TIMEOUT = Glib::Timeout->add(1000 * $self->{config}->{interval}, sub { $self->refresh; return 1 });
+		Glib::Timeout->add(1000, sub { $self->refresh; return undef });
 	}
-	$self->refresh;
 	return 1;
 
 }
@@ -68,6 +68,8 @@ sub configuration_dialog {
 				$self->{config}->{remote} = 'true';
 				$self->{config}->{user} = $self->{app}->get_widget('user_entry')->get_text;
 				$self->{config}->{host} = $self->{app}->get_widget('host_entry')->get_text;
+			} else {
+				$self->{config}->{remote} = 'false';
 			}
 			$self->{app}->get_widget('config_dialog')->destroy;
 			PerlPanel::reload();
@@ -101,8 +103,8 @@ sub configuration_dialog {
 				} elsif (-d dirname($file)) {
 					$self->{app}->get_widget('directory_entry')->set_text(dirname($file));
 				}
-				$dialog->destroy;
 			}
+			$dialog->destroy;
 		});
 		$dialog->show_all;
 	});

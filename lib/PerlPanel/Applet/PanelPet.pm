@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.5 2004/05/21 10:22:50 jodrell Exp $
+# $Id: PanelPet.pm,v 1.6 2004/05/27 16:29:53 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -21,20 +21,13 @@ sub configure {
     $self->{widget} = Gtk2::Button->new;
     $self->{widget}->set_relief('none');
 
-    # Handle left mouse click events
-    $self->{widget}->signal_connect(
-            'clicked',
-            sub { $self->_button_click( $_[1]->button) }
-    );
-
     # Handle right mouse click events
     $self->{widget}->signal_connect(
             'button_release_event',
             sub { $self->_button_click ($_[1]->button) ; return undef });
 
     # Set the tooltip for the applet
-    PerlPanel::tips->set_tip($self->{widget},
-                                     _("Hi, I'm your Panel Pet!"));
+    PerlPanel::tips->set_tip($self->{widget}, _("Hi, I'm your Panel Pet!"));
     $self->{current_frame} = 1;
     $self->_update;
 
@@ -84,12 +77,15 @@ sub get_default_config {
 sub _button_click {
     my ( $self, $button ) = @_;
 
-    if ( $button == 1 ) {
+    if ($button == 1) {
         $self->_panel_pet;
-    }
-    elsif ( $button == 3 ) {
+
+    } elsif ($button == 3) {
         $self->_right_click_menu;
+
     }
+
+    return 1;
 }
 
 sub _right_click_menu {

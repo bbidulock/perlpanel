@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.37 2004/03/22 21:43:06 jodrell Exp $
+# $Id: IconBar.pm,v 1.38 2004/05/27 16:29:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -111,7 +111,7 @@ sub reorder_window {
 	foreach my $icon (@{$self->{icons}}) {
 		push(@{$list->{data}}, [$icon->{pixbuf}, $icon->{name}, $icon->{filename}]);
 	}
-	$list->set_headers_visible(0);
+	$list->set_headers_visible(1);
 	$list->set_reorderable(1);
 	my $scrwin = Gtk2::ScrolledWindow->new;
 	$scrwin->set_policy('never', 'automatic');
@@ -134,7 +134,6 @@ sub reorder_window {
 		}
 	});
 	$dialog->show_all;
-	$dialog->run;
 	return 1;
 }
 

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.45 2004/05/07 14:31:40 jodrell Exp $
+# $Id: Configurator.pm,v 1.46 2004/05/27 16:29:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -314,7 +314,26 @@ sub setup_custom_settings {
 		$self->{tmp_config}{BBMenu}{icon} = $file;
 
 		$self->app->get_widget('menu_icon_button')->signal_connect('clicked', sub {
-			my $dialog = Gtk2::FileSelection->new('Select icon');
+
+			my $dialog;
+			if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
+				$dialog = Gtk2::FileSelection->new(_('Choose File'));
+			} else {
+				$dialog = Gtk2::FileChooserDialog->new(
+					_('Choose File'),
+					undef,
+					'open',
+					'gtk-cancel'	=> 'cancel',
+					'gtk-ok' => 'ok'
+				);
+				$dialog->set_preview_widget(Gtk2::Image->new);
+				$dialog->signal_connect('selection-changed', sub {
+					my $file = $dialog->get_filename;
+					if ($file ne '') {
+						$dialog->get_preview_widget->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
+					}
+				});
+			}
 			$dialog->set_modal(1);
 			$dialog->set_icon(PerlPanel::icon());
 			$dialog->set_filename($file);
@@ -351,7 +370,25 @@ sub setup_custom_settings {
 		$self->{tmp_config}{ActionMenu}{icon} = $file;
 
 		$self->app->get_widget('action_menu_icon_button')->signal_connect('clicked', sub {
-			my $dialog = Gtk2::FileSelection->new('Select icon');
+			my $dialog;
+			if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
+				$dialog = Gtk2::FileSelection->new(_('Choose File'));
+			} else {
+				$dialog = Gtk2::FileChooserDialog->new(
+					_('Choose File'),
+					undef,
+					'open',
+					'gtk-cancel'	=> 'cancel',
+					'gtk-ok' => 'ok'
+				);
+				$dialog->set_preview_widget(Gtk2::Image->new);
+				$dialog->signal_connect('selection-changed', sub {
+					my $file = $dialog->get_filename;
+					if ($file ne '') {
+						$dialog->get_preview_widget->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
+					}
+				});
+			}
 			$dialog->set_modal(1);
 			$dialog->set_icon(PerlPanel::icon());
 			$dialog->set_filename($file);
@@ -399,6 +436,18 @@ sub setup_custom_settings {
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
 		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 32), $appletname]);
 	}
+	$self->{applet_list}->set_reorderable(1);
+
+	$self->app->get_widget('add_applet_button')->signal_connect('clicked', sub { $self->run_add_applet_dialog });
+
+	$self->app->get_widget('remove_applet_button')->signal_connect('clicked', sub {
+		my (undef, $iter) = $self->{applet_list}->get_selection->get_selected;
+		return undef unless (defined($iter));
+		my $idx = ($self->{applet_list}->get_model->get_path($iter)->get_indices)[0];
+		$self->{applet_list}->get_model->remove($iter);
+		$self->{applet_list}->select($idx - 1);
+	});
+
 
 	$self->{add_applet_list} = Gtk2::SimpleList->new_from_treeview(
 		$self->app->get_widget('applet_info_list'),
@@ -423,15 +472,6 @@ sub setup_custom_settings {
 			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}{$appletname} ne '' ? $self->{registry}{$appletname} : _('No description available.'))),
 		]);
 	}
-
-	$self->app->get_widget('add_applet_button')->signal_connect('clicked', sub { $self->run_add_applet_dialog });
-
-	$self->app->get_widget('remove_applet_button')->signal_connect('clicked', sub {
-		my (undef, $iter) = $self->{applet_list}->get_selection->get_selected;
-		return undef unless (defined($iter));
-		my $idx = ($self->{applet_list}->get_model->get_path($iter)->get_indices)[0];
-		$self->{applet_list}->get_model->remove($iter);
-	});
 
 	return 1;
 }
