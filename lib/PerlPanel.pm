@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.117 2004/09/27 14:40:50 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.118 2004/09/28 20:19:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ use Digest::MD5 qw(md5_hex);
 use POSIX qw(setlocale);
 use Locale::gettext;
 use base 'Exporter';
-use File::Basename qw(basename fileparse dirname);
+use File::Basename qw(basename dirname);
 use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
@@ -62,7 +62,7 @@ our %DEFAULTS = (
 		position		=> 'bottom',
 		spacing			=> 0,
 		size			=> 'medium',
-		has_border		=> 'false',
+		has_border		=> 'true',
 		menu_size_as_panel	=> 'true',
 		menu_size		=> 'medium',
 	},
