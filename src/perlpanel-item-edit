@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.6 2005/01/21 18:09:10 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.7 2005/01/22 13:52:36 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@ if (-r $RCFILE) {
 }
 $ICON_THEME = 'gnome' if ($ICON_THEME eq '');
 
-my ($PROGRAM, $ICON);
+my ($ICON);
 
 Gnome2::VFS->init;
 
@@ -75,8 +75,7 @@ my $glade = Gtk2::GladeXML->new($GLADE);
 $glade->get_widget('launcher_name')->set_text($entry->Name($LOCALE));
 $glade->get_widget('launcher_comment')->set_text($entry->Comment($LOCALE));
 
-$PROGRAM = $entry->Exec;
-$glade->get_widget('launcher_exec')->set_text($PROGRAM);
+$glade->get_widget('launcher_exec')->set_text($entry->Exec);
 
 $ICON = $entry->Icon;
 
@@ -179,7 +178,7 @@ sub on_item_edit_dialog_response {
 	if ($_[1] eq 'ok') {
 		$entry->set_value('Name',		$glade->get_widget('launcher_name')->get_text, $LOCALE);
 		$entry->set_value('Comment',		$glade->get_widget('launcher_comment')->get_text, $LOCALE);
-		$entry->set_value('Exec',		$PROGRAM);
+		$entry->set_value('Exec',		$glade->get_widget('launcher_exec')->get_text);
 		$entry->set_value('Icon',		$ICON);
 		$entry->set_value('StartupNotify',	($glade->get_widget('launcher_feedback')->get_active ? 'true' : 'false'));
 
