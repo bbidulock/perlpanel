@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.15 2003/07/03 16:07:39 jodrell Exp $
+# $Id: Configurator.pm,v 1.16 2003/07/14 11:31:39 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -92,7 +92,7 @@ sub build_ui {
 
 		$self->{iconfile}{hbox} = Gtk2::HBox->new;
 		$self->{iconfile}{hbox}->set_spacing(8);
-		$self->{iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile});
+		$self->{iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
 		$self->{controls}{iconfile} = Gtk2::Button->new;
 		$self->{controls}{iconfile}->add($self->{iconfile}{icon});
 		$self->{controls}{iconfile}->set_relief('none');
@@ -343,10 +343,10 @@ sub get_default_config {
 sub choose_menu_icon {
 	my $self = shift;
 	my $selector = Gtk2::FileSelection->new('Choose Icon');
-	$selector->set_filename($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile});
+	$selector->set_filename($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
 	$selector->ok_button->signal_connect('clicked', sub {
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile} = $selector->get_filename;
-		my $new_image = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile});
+		$PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon} = $selector->get_filename;
+		my $new_image = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
 		$new_image->show;
 		$self->{controls}{iconfile}->remove($self->{controls}{iconfile}->child);
 		$self->{controls}{iconfile}->add($new_image);

@@ -1,11 +1,11 @@
-# $Id: Lock.pm,v 1.1 2003/07/12 12:05:26 jodrell Exp $
+# $Id: Lock.pm,v 1.2 2003/07/14 11:31:39 jodrell Exp $
 package PerlPanel::Applet::Lock;
-use vars qw($DEFAULT_LOCK_PROGRAM, $DEFAULT_ARGS $LOCK_ICON);
+use vars qw($DEFAULT_LOCK_PROGRAM, $DEFAULT_ARGS $DEFAULT_LOCK_ICON);
 use strict;
 
 chomp(our $DEFAULT_LOCK_PROGRAM = `which xscreensaver-command`);
 our $DEFAULT_ARGS = '-lock';
-our $LOCK_ICON = sprintf('%s/share/pixmaps/gnome-lockscreen.png', $PerlPanel::PREFIX);
+our $DEFAULT_LOCK_ICON = sprintf('%s/share/pixmaps/perlpanel-lock-screen.png', $PerlPanel::PREFIX);
 
 sub new {
 	my $self		= {};
@@ -17,8 +17,8 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	if (-e $LOCK_ICON) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($LOCK_ICON);
+	if (-e $PerlPanel::OBJECT_REF->{config}{appletconf}{Lock}{icon}) {
+		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{Lock}{icon});
 		$self->{pixbuf} = $self->{pixbuf}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	} else {
@@ -50,6 +50,7 @@ sub get_default_config {
 	return {
 		program => $DEFAULT_LOCK_PROGRAM,
 		args	=> $DEFAULT_ARGS,
+		icon	=> $DEFAULT_LOCK_ICON,
 	};
 }
 

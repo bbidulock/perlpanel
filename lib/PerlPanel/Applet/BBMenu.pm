@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.21 2003/07/03 20:44:06 jodrell Exp $
+# $Id: BBMenu.pm,v 1.22 2003/07/14 11:31:39 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -32,7 +32,7 @@ sub configure {
 	$self->parse_menufile;
 	$self->add_control_items if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{show_control_items} eq 'true');
 	$self->create_menu;
-	$self->{iconfile} = $PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile};
+	$self->{iconfile} = $PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon};
 	if (-e $self->{iconfile}) {
 		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
 		my $x0 = $self->{pixbuf}->get_width;
@@ -83,7 +83,7 @@ sub end {
 
 sub get_default_config {
 	return {
-		iconfile => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
+		icon => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
 		show_control_items => 'true',
 	};
 }
