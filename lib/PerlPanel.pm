@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.17 2003/06/13 15:43:33 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.18 2003/06/18 13:16:16 jodrell Exp $
 package PerlPanel;
 use Time::HiRes qw(time);
 use Gtk2;
@@ -118,6 +118,9 @@ sub build_ui {
 
 sub load_applets {
 	my $self = shift;
+	if (ref($self->{config}{applets}) ne 'ARRAY') {
+		$self->{config}{applets} = [ $self->{config}{applets} ];
+	}
 	foreach my $appletname (@{$self->{config}{applets}}) {
 		my $applet;
 		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
