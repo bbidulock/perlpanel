@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.19 2004/07/07 13:44:53 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.20 2004/08/24 12:45:04 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -121,12 +121,57 @@ The "appletname" part should be in all lower case.
 If your applet uses any Glade files, they should be installed into
 C<$PREFIX/share/perlpanel/glade>.
 
+=head1 APPLET TYPES
+
+Since Version 0.7.0, PerlPanel has supported two applet types: I<single>
+and I<multi>. I<Single> applets are just like applets developed for
+older versions of PerlPanel - if more than one instance of the applet
+was on the panel, then those instances would all use the same set of
+configuration data.
+
+I<Multi> applets are different. A multi applet can appear several times
+on the panel, and each instance can have its own configuration settings.
+
+=head2 CREATING A MULTI APPLET
+
+The first thing you have to do is create a package variable called
+C<$MULTI>:
+
+	package PerlPanel::Applet::FooBar;
+	use vars qw($MULTI);
+
+	$MULTI = 1;
+
+The value of C<$MULTI> must be a true value (1 is the simplest).
+
+When PerlPanel loads the applet, it checks the value of this variable
+and if it's true, then it supplies an B<ID> argument to the applet
+constructor. See below for details.
+
+Finally, when you are querying for a configuration hashref, you must
+supply the ID mentioned above in your call to
+C<PerlPanel::get_config()>. See below for more details.
+
 =head1 REQUIRED METHODS
 
 	$applet->new
 
-The constructor. This is pretty obvious. It can accept arguments but
-PerlPanel won't send it any.
+The constructor. The arguments supplied to the constructor vary,
+depending on whether the applet has been defined as a I<multi> applet or
+not.
+
+If the C<$MULTI> variable has not been set, then C<@_> will look like this:
+
+	@_ = ($package);
+
+where C<$package> is a scalar containing the package name of the applet,
+eg C<PerlPanel::Applet:FooBar>. If the C<$MULTI> variable is true, then
+C<@_> will look like this:
+
+	@_ = ($package, $id);
+
+where C<$id> is a scalar containing the ID of the instance. You must
+store this ID and use it when you request config data.
 
 	$applet->configure
 
@@ -171,8 +216,7 @@ As of version 0.4.0, the syntax is
 
 	PerlPanel::function_name
 
-For he purposes of backwards compatibility, the older form will continue to
-work, but all new code should use the new syntax.
+Compatibility with the old syntax was removed in version 0.7.0.
 
 =head1 USEFUL VARIABLES
 
@@ -192,11 +236,15 @@ and C<$HOME/.perlpanel/applets>.
 
 =head1 USEFUL FUNCTIONS
 
-	PerlPanel::get_config($appletname)
+	PerlPanel::get_config($appletname, [$id])
 
 This function returns a reference containing the configuration data for
 the applet. The structure of the data will be that defined by the
 C<get_default_config> function.
+
+If you supply the second C<$id> argument, then the function will return
+the appropriate config data for the instance of the applet defined by
+C<$id>.
 
 	PerlPanel::tips()
 

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.55 2004/07/05 15:03:48 jodrell Exp $
+# $Id: Configurator.pm,v 1.56 2004/08/24 12:45:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -321,10 +321,12 @@ sub setup_custom_settings {
 		$self->app->get_widget('applet_list'),
 		'Icon'	=> 'pixbuf',
 		'Name'	=> 'text',
+		'id'	=> 'text',
 	);
+	$self->{applet_list}->get_column(2)->set_visible(0);
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 32), $appletname]);
+		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 32), split(/::/, $appletname, 2)]);
 	}
 	$self->{applet_list}->set_reorderable(1);
 
@@ -412,7 +414,11 @@ sub apply_custom_settings {
 	my $self = shift;
 	my @applets;
 	foreach my $rowref (@{$self->{applet_list}->{data}}) {
-		push(@applets, @{$rowref}[1]);
+		if (@{$rowref}[2] ne '') {
+			push(@applets, @{$rowref}[1].'::'.@{$rowref}[2]);
+		} else {
+			push(@applets, @{$rowref}[1]);
+		}
 	}
 	@{$PerlPanel::OBJECT_REF->{config}{applets}} = @applets;
 

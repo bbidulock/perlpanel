@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.100 2004/08/02 13:51:28 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.101 2004/08/24 12:45:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -24,6 +24,7 @@ use Gtk2::Helper;
 use Gtk2::GladeXML;
 use Gtk2::SimpleList;
 use Data::Dumper;
+use Digest::MD5 qw(md5_hex);
 use POSIX qw(setlocale);
 use Locale::gettext;
 use base 'Exporter';
@@ -337,13 +338,38 @@ sub load_applets {
 		$self->{config}{applets} = [ $self->{config}{applets} ];
 	}
 
-	foreach my $appletname (@{$self->{config}{applets}}) {
+	for (my $i = 0 ; $i < scalar(@{$self->{config}{applets}}) ; $i++) {
 
-		my $applet;
+		my $appletname = @{$self->{config}{applets}}[$i];
+	
+		my ($appletname, $id) = split(/::/, $appletname, 2);
 
-		my $expr = sprintf('require("%s.pm") ; $applet = %s::Applet::%s->new', ucfirst($appletname), $self->{package}, ucfirst($appletname));
+		my ($applet, $expr, $multi);
 
-		undef($@);
+		eval(sprintf('require "%s.pm"', ucfirst($appletname)));
+
+		eval(sprintf('$multi = $%s::Applet::%s::MULTI', $self->{package}, ucfirst($appletname)));
+
+		if (defined($multi) && $id eq '') {
+			$id = $self->new_applet_id;
+			 @{$self->{config}{applets}}[$i] = sprintf('%s::%s', $appletname, $id);
+		}
+
+		if ($id ne '') {
+			$expr = sprintf(
+				'$applet = %s::Applet::%s->new("%s")',
+				$self->{package},
+				ucfirst($appletname),
+				$id,
+			);
+		} else {
+			$expr = sprintf(
+				'$applet = %s::Applet::%s->new',
+				$self->{package},
+				ucfirst($appletname),
+			);
+		}
+
 		eval($expr);
 
 		if ($@ || !defined($applet)) {
@@ -370,12 +396,22 @@ sub load_applets {
 
 		} else {
 
-			if (!defined($self->{config}{appletconf}{$appletname})) {
-				my $hashref;
-				eval {
-					$hashref = $applet->get_default_config;
-				};
-				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
+			if ($id ne '') {
+				if (!defined($self->{config}{appletconf}{sprintf('%s::%s', $appletname, $id)})) {
+					my $hashref;
+					eval {
+						$hashref = $applet->get_default_config;
+					};
+					$self->{config}{appletconf}{sprintf('%s::%s', $appletname, $id)} = $hashref if (defined($hashref));
+				}
+			} else {
+				if (!defined($self->{config}{appletconf}{$appletname})) {
+					my $hashref;
+					eval {
+						$hashref = $applet->get_default_config;
+					};
+					$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
+				}
 			}
 
 			my $widget;
@@ -849,14 +885,14 @@ sub get_applet_pbf {
 }
 
 sub get_config {
-	my ($self, $applet);
-	if (scalar(@_) == 2) {
-		($self, $applet) = @_;
+	my ($self, $applet, $id);
+	$self = $OBJECT_REF;
+	($applet, $id) = @_;
+	if (defined($id)) {
+		return $self->{config}{appletconf}{sprintf('%s::%s', $applet, $id)};
 	} else {
-		$self = $OBJECT_REF;
-		$applet = shift;
+		return $self->{config}{appletconf}{$applet};
 	}
-	return $self->{config}{appletconf}{$applet};
 }
 
 sub spacing {
@@ -998,6 +1034,10 @@ sub load_appletregistry {
 		close(REGFILE);
 	}
 	return $registry;
+}
+
+sub new_applet_id {
+	return md5_hex(join('|', $ENV{HOSTNAME}, lc((getpwuid($<))[0]), time(), $0, int(rand(99999))));
 }
 
 1;
