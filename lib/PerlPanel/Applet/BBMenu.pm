@@ -1,5 +1,5 @@
-# $Id: BBMenu.pm,v 1.13 2003/06/18 13:16:16 jodrell Exp $
-package PerlPanel::Applet::NewMenu;
+# $Id: BBMenu.pm,v 1.14 2003/06/18 15:18:03 jodrell Exp $
+package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
 
