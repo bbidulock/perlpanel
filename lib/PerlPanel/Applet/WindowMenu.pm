@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.6 2004/02/22 23:49:54 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.7 2004/02/23 17:29:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,15 +18,9 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::WindowMenu;
+use base 'PerlPanel::MenuBase';
 use Gnome2::Wnck;
 use strict;
-
-sub new {
-	my $self		= {};
-	$self->{package}	= shift;
-	bless($self, $self->{package});
-	return $self;
-}
 
 sub configure {
 	my $self = shift;
@@ -36,7 +30,6 @@ sub configure {
 	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('windowmenu', PerlPanel::icon_size));
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->set_relief('none');
-	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	if ($self->{config}->{label} ne '') {
 		$self->widget->add(Gtk2::HBox->new);
 		$self->widget->child->set_border_width(0);
@@ -46,11 +39,18 @@ sub configure {
 	} else {
 		$self->widget->add($self->{icon});
 	}
+	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	PerlPanel::tips->set_tip($self->widget, 'Window List');
 	return 1;
 }
 
 sub clicked {
+	my $self = shift;
+	$self->create_menu;
+	$self->popup;
+}
+
+sub create_menu {
 	my $self = shift;
 	$self->{menu} = Gtk2::Menu->new;
 	my $workspace = $self->{screen}->get_active_workspace;
@@ -63,73 +63,39 @@ sub clicked {
 	if (scalar(@windows) < 1) {
 		my $item = Gtk2::MenuItem->new_with_label('No Windows Open');
 		$item->set_sensitive(0);
-		$self->{menu}->append($item);
+		$self->menu->append($item);
 	} else {
 		foreach my $window (@windows) {
 			my $pbf = $window->get_icon;
 			my $x0 = $pbf->get_width;
 			my $y0 = $pbf->get_height;
-			if ($x0 != 16 || $y0 != 16) {
+			if ($x0 != PerlPanel::icon_size || $y0 != PerlPanel::icon_size) {
 				my ($x1, $y1);
 				if ($x0 > $y0) {
 					# image is landscape:
-					$x1 = 16;
-					$y1 = int(($y0 / $x0) * 16);
+					$x1 = PerlPanel::icon_size;
+					$y1 = int(($y0 / $x0) * PerlPanel::icon_size);
 				} elsif ($x0 == $y0) {
 					# image is square:
-					$x1 = 16;
-					$y1 = 16;
+					$x1 = PerlPanel::icon_size;
+					$y1 = PerlPanel::icon_size;
 				} else {
 					# image is portrait:
-					$x1 = int(($x0 / $y0) * 16);
-					$y1 = 16;
+					$x1 = int(($x0 / $y0) * PerlPanel::icon_size);
+					$y1 = PerlPanel::icon_size;
 				}
 				$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
 			}
 			my $label = $window->get_name;
 			$label = (length($label) < 25 ? $label : substr($label, 0, 22).'...');
-			my $item = Gtk2::ImageMenuItem->new_with_label($label);
-			$item->set_image(Gtk2::Image->new_from_pixbuf($pbf));
-			$item->signal_connect('activate', sub { $window->activate });
-			$self->{menu}->append($item);
+			$self->menu->append($self->menu_item(
+				$label,
+				$pbf,
+				sub { $window->activate },
+			));
 		}
 	}
-	$self->{menu}->show_all;
-	$self->{menu}->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, undef, undef);
 	return 1;
-}
-
-sub popup_position {
-	my $self = shift;
-	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
-	$x = 0 if ($x < 5);
-	if (PerlPanel::position eq 'top') {
-		return ($x, PerlPanel::panel->allocation->height);
-	} else {
-		$self->{menu}->realize;
-		$self->{menu}->show_all;
-		return ($x, PerlPanel::screen_height() - $self->{menu}->allocation->height - PerlPanel::panel->allocation->height);
-	}
-}
-
-sub widget {
-	return $_[0]->{widget};
-}
-
-sub button {
-	return $_[0]->{button};
-}
-
-sub expand {
-	return 0;
-}
-
-sub fill {
-	return 0;
-}
-
-sub end {
-	return 'start';
 }
 
 sub get_default_config {

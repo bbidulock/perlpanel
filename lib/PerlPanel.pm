@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.61 2004/02/22 23:49:54 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.62 2004/02/23 17:29:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -23,9 +23,10 @@ use Gtk2;
 use Gtk2::GladeXML;
 use Data::Dumper;
 use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX $LIBDIR %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE @APPLET_DIRS);
+use base 'Exporter';
 use strict;
 
-use vars qw();
+our @EXPORT_OK = qw(_);
 
 our $NAME		= 'PerlPanel';
 our $VERSION		= '@VERSION@'; # this is replaced at build time.
@@ -102,16 +103,17 @@ sub init {
 	$self->load_applets;
 	$self->show_all;
 
-	Gtk2::Style::paint_shadow(
-		$self->panel->get_style,
+	$self->panel->get_style->paint_shadow(
 		$self->panel->window,
 		'normal',
 		'out',
 		Gtk2::Gdk::Rectangle->new(0, 1, 1000, 1),
 		$self->panel,
-		'foo',
-		0, 1000,
-		1000, 1
+		'detail',
+		10,
+		10,
+		10,
+		10,
 	);
 
 	if ($self->{config}{panel}{autohide} eq 'true') {
@@ -178,6 +180,7 @@ sub parse_xdpyinfo {
 
 sub load_config {
 	my $self = shift;
+	$self->{config_backend} = 'new';
 	$self->{config} = (-e $self->{rcfile} ? XMLin($self->{rcfile}) : \%DEFAULTS);
 	if ($self->{config}{version} ne $VERSION) {
 		print STDERR "Warning: Your config file is from an earlier version, strange things may happen!\n";
@@ -697,6 +700,12 @@ sub load_glade {
 	my $file = sprintf('%s/share/%s/glade/%s.glade', $PREFIX, lc($NAME), $gladefile);
 
 	return Gtk2::GladeXML->new($file);
+}
+
+# stub for future il8n support:
+sub _ {
+	my $str = shift;
+	return $str;
 }
 
 1;
