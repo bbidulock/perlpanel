@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.8 2003/06/05 12:13:12 jodrell Exp $
+# $Id: Clock.pm,v 1.9 2003/06/05 14:33:31 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use POSIX qw(strftime);
 use strict;
@@ -63,7 +63,7 @@ sub prefs {
 	$self->{buttons}{ok}->signal_connect('clicked', sub {
 		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{format}      = $self->{controls}{format}->get_text;
 		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{date_format} = $self->{controls}{date_format}->get_text;
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{interval}    = $self->{controls}{date_format}->get_value_as_int;
+		$PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{interval}    = $self->{controls}{interval}->get_value_as_int;
 		$self->{widget}->set_sensitive(1);
 		$self->{window}->destroy;
 		$PerlPanel::OBJECT_REF->save_config;
