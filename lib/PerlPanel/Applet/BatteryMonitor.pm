@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.4 2004/02/17 12:30:31 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.5 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -46,28 +46,28 @@ sub configure {
 
 sub update {
     my $self = shift;
-        my $apm = Sys::Apm->new or PerlPanel::error("No APM support in kernel", sub { exit }) and return undef;
+        my $apm = Sys::Apm->new or PerlPanel::error(_("No APM support in kernel"), sub { exit }) and return undef;
         my $ac_status = $apm->ac_status;
         my $status_symbol;
         if ( $ac_status == 1 ) {
             $status_symbol = " | ";
             PerlPanel::tips->set_tip($self->{widget},
-                                    'The system is running on AC power');
+                                    _('The system is running on AC power'));
         }
         elsif ( $ac_status == 0 ) {
             $status_symbol = " * ";
             PerlPanel::tips->set_tip($self->{widget},
-                                    'The system is running on battery power');
+                                    _('The system is running on battery power'));
         }
         elsif ( $ac_status == 2 ) {
             $status_symbol = " - ";
             PerlPanel::tips->set_tip($self->{widget},
-                                    'The system is running on backup power');
+                                    _('The system is running on backup power'));
         }
         else {
             $status_symbol = " ? ";
             PerlPanel::tips->set_tip($self->{widget},
-                                    'Unknown status');
+                                    _('Unknown status'));
         }
 
     $self->{label}->set_text( $apm->charge . $status_symbol );
@@ -78,7 +78,7 @@ sub prefs {
     my $self = shift;
     $self->{widget}->set_sensitive(0);
     $self->{window} = Gtk2::Dialog->new;
-    $self->{window}->set_title("$PerlPanel::NAME: BatteryMonitor Configuration");
+    $self->{window}->set_title(_("BatteryMonitor Configuration"));
     $self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
     $self->{window}->set_border_width(8);
     $self->{window}->vbox->set_spacing(8);
@@ -90,7 +90,7 @@ sub prefs {
     my $adj = Gtk2::Adjustment->new($self->{config}->{interval}, 100, 60000, 1, 1000, undef);
     $self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
-    $self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
+    $self->{labels}{interval} = Gtk2::Label->new(_('Update interval (ms):'));
     $self->{labels}{interval}->set_alignment(1, 0.5);
     $self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
     $self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);

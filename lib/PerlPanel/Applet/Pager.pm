@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.7 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Pager.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ sub configure {
 
 	$self->widget->set_size_request(-1, PerlPanel::icon_size);
 
-	PerlPanel::tips->set_tip($self->widget, 'Workspace Pager');
+	PerlPanel::tips->set_tip($self->widget, _('Workspace Pager'));
 	return 1;
 }
 

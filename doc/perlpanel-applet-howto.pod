@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.15 2004/02/18 19:27:16 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.16 2004/02/24 17:07:18 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -322,6 +322,32 @@ Returns a true value if an ActionMenu applet is in the user's applet list.
 	PerlPanel::has_pager
 
 Returns a true value if an Pager applet is in the user's applet list.
+
+=head1 INTERNATIONALISATION SUPPORT
+
+PerlPanel doesn't yet (February 2004) have support for foreign
+languages, but support is expected to be implemented soon. To prepare
+for this support, PerlPanel provides a special function for retrieving a
+translation of a string:
+
+	$translated = _($original, %params);
+
+C<$original> is the original, presumably English, string. Any occurances of
+the keys of C<%params> are replaced with their values, for example:
+
+	$translated = _(
+		"there are {number} {type} {object}",
+		number	=> 6,
+		type	=> 'red',
+		object	=> 'apples'
+	);
+
+Currently, all this function does is return the original string, with any
+parameters replaced by their values.
+
+When IL8N is properly implemented in PerlPanel it will use either gettext or
+Locale::TextDomain, which is gettext-compliant. In either case, the usage of
+this function is likely to change.
 
 =head1 WRITING MENU APPLETS
 

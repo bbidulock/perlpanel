@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.7 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Lock.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ sub configure {
 	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('lock', PerlPanel::icon_size)));
 	$self->widget->signal_connect('clicked', sub { $self->lock });
 	$self->widget->set_relief('none');
-	PerlPanel::tips->set_tip($self->widget, 'Lock the Screen');
+	PerlPanel::tips->set_tip($self->widget, _('Lock the Screen'));
 }
 
 sub widget {

@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.2 2004/02/11 17:04:09 jodrell Exp $
+# $Id: PanelPet.pm,v 1.3 2004/02/24 17:07:18 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -34,7 +34,7 @@ sub configure {
 
     # Set the tooltip for the applet
     PerlPanel::tips->set_tip($self->{widget},
-                                     "Hi, I'm your Panel Pet!");
+                                     _("Hi, I'm your Panel Pet!"));
     $self->{current_frame} = 1;
     $self->_update;
 
@@ -105,7 +105,7 @@ sub _right_click_menu {
                         ],
 
                         [
-                            "/Preferences",
+                            "/"._("Preferences"),
                             undef,
                             sub { $self->_preferences },
                             undef,
@@ -113,7 +113,7 @@ sub _right_click_menu {
                             "gtk-preferences",
                         ],
                         [
-                            "/About",
+                            "/"._("About"),
                             undef,
                             sub { $self->_about },
                             undef,
@@ -128,7 +128,7 @@ sub _right_click_menu {
                             '<Separator>',
                         ],
                         [
-                            "/Remove From Panel",
+                            "/"._("Remove From Panel"),
                             undef,
                             sub { $self->_remove },
                             undef,
@@ -168,12 +168,12 @@ sub _popup_position {
 # Do this when the PanelPet is left-clicked
 sub _panel_pet {
     my $self = shift;
-    my $text = "Just a hello from your Panel Pet!\n\nBark Bark";
+    my $text = _("Just a hello from your Panel Pet!\n\nBark Bark");
 
     $self->{window} = Gtk2::Window->new('toplevel');
     $self->{window}->set_position('center');
     $self->{window}->set_border_width(15);
-    $self->{window}->set_title("Panel Pet: Hello");
+    $self->{window}->set_title(_("Panel Pet: Hello"));
     $self->{window}->set_icon(PerlPanel::icon);
     $self->{vbox} = Gtk2::VBox->new;
     $self->{vbox}->set_spacing(15);
@@ -220,7 +220,7 @@ EOF
     $self->{window} = Gtk2::Window->new('toplevel');
     $self->{window}->set_position('center');
     $self->{window}->set_border_width(15);
-    $self->{window}->set_title("PanelPet: About");
+    $self->{window}->set_title(_("About"));
     $self->{window}->set_icon(PerlPanel::icon);
     $self->{vbox} = Gtk2::VBox->new;
     $self->{vbox}->set_spacing(15);
@@ -247,7 +247,7 @@ sub _preferences {
     my $self = shift;
     $self->{widget}->set_sensitive(0);
     $self->{window} = Gtk2::Dialog->new;
-    $self->{window}->set_title("$PerlPanel::NAME: PanelPet Configuration");
+    $self->{window}->set_title(_("Configuration"));
     $self->{window}->signal_connect(
             'delete_event',
             sub { $self->{widget}->set_sensitive(1) }
@@ -267,7 +267,7 @@ sub _preferences {
 
     $self->{controls}{interval} = Gtk2::SpinButton->new($adj_interval, 1, 0);
 
-    $self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
+    $self->{labels}{interval} = Gtk2::Label->new(_('Update interval (ms):'));
     $self->{labels}{interval}->set_alignment(1, 0.5);
     $self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
     $self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
@@ -279,7 +279,7 @@ sub _preferences {
 
     $self->{controls}{frames} = Gtk2::SpinButton->new($adj_frames, 1, 0);
 
-    $self->{labels}{frames} = Gtk2::Label->new('Frames in animation:');
+    $self->{labels}{frames} = Gtk2::Label->new(_('Frames in animation:'));
     $self->{labels}{frames}->set_alignment(1, 0.5);
     $self->{table}->attach_defaults($self->{labels}{frames}, 0, 1, 3, 4);
     $self->{table}->attach_defaults($self->{controls}{frames}, 1, 2, 3, 4);
@@ -295,7 +295,7 @@ sub _preferences {
             'clicked', sub { $self->_choose_panelpet_image }
     );
 
-    $self->{labels}{image} = Gtk2::Label->new('PanelPet Imagefile:');
+    $self->{labels}{image} = Gtk2::Label->new(_('PanelPet Imagefile:'));
     $self->{labels}{image}->set_alignment(1, 0.5);
     $self->{table}->attach_defaults($self->{labels}{image}, 0, 1, 4, 5);
     $self->{table}->attach_defaults($self->{controls}{image}, 1, 2, 4, 5);
@@ -406,7 +406,7 @@ sub _update {
 
 sub _choose_panelpet_image {
     my $self = shift;
-    my $selector = Gtk2::FileSelection->new('Choose PanelPet Image');
+    my $selector = Gtk2::FileSelection->new(_('Choose PanelPet Image'));
     $selector->set_filename($self->{config}{image});
     $selector->ok_button->signal_connect('clicked', sub {
         $self->{controls}{selector}{filename} = $selector->get_filename;

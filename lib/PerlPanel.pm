@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.62 2004/02/23 17:29:12 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.63 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,7 +30,6 @@ our @EXPORT_OK = qw(_);
 
 our $NAME		= 'PerlPanel';
 our $VERSION		= '@VERSION@'; # this is replaced at build time.
-our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',
 );
@@ -42,7 +41,6 @@ our @CO_AUTHORS		= (
 );
 
 our $URL		= 'http://jodrell.net/projects/perlpanel';
-our $LICENSE		= "This program is Free Software. You may use it\nunder the terms of the GNU General Public License.";
 
 our %DEFAULTS = (
 	version	=> $VERSION,
@@ -90,6 +88,10 @@ sub new {
 		sprintf('%s/%s/Applet', $LIBDIR, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
 	);								# determined at runtime)
 
+	# these are here cos we need a valid prefix before we can do the translation:
+	our $DESCRIPTION	= _('A lean, mean panel program written in Perl.');
+	our $LICENSE		= _("This program is Free Software. You may use it under the terms of the GNU General Public License.");
+
 	return $self;
 }
 
@@ -102,19 +104,6 @@ sub init {
 	$self->configure;
 	$self->load_applets;
 	$self->show_all;
-
-	$self->panel->get_style->paint_shadow(
-		$self->panel->window,
-		'normal',
-		'out',
-		Gtk2::Gdk::Rectangle->new(0, 1, 1000, 1),
-		$self->panel,
-		'detail',
-		10,
-		10,
-		10,
-		10,
-	);
 
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->autohide;
@@ -149,7 +138,7 @@ sub check_deps {
 	my $self = shift;
 	eval 'use XML::Simple;';
 	if ($@) {
-		$self->error("Couldn't load the XML::Simple module!", sub { exit });
+		$self->error(_("Couldn't load the XML::Simple module!"), sub { exit });
 		Gtk2->main;
 	} else {
 		$XML::Simple::PREFERRED_PARSER = 'XML::Parser';
@@ -167,7 +156,7 @@ sub parse_xdpyinfo {
 	my $self = shift;
 	print STDERR "*** using xdpyinfo to get screen dimenions, upgrading to gtk+ > 2.2.0 is recommended!\n";
 	chomp($self->{xdpyinfo} = `which xdpyinfo`);
-	open(XDPYINFO, "$self->{xdpyinfo} -display $ENV{DISPLAY} |") or $self->error("Can't open pipe from '$self->{xdpyinfo}': $!", sub { exit });
+	open(XDPYINFO, "$self->{xdpyinfo} -display $ENV{DISPLAY} |") or $self->error(_("Can't open pipe from {prog}: {error}", prog => $self->{xdpyinfo}, error => $!), sub { exit });
 	while (<XDPYINFO>) {
 		if (/dimensions:\s+(\d+)x(\d+)\s+pixels/i) {
 			$self->{screen_width}  = $1;
@@ -234,10 +223,10 @@ sub load_applets {
 		eval($expr);
 		if ($@) {
 			print STDERR $@;
-			my $message = "Error loading $appletname applet.\n";
+			my $message = _("Error loading {applet} applet.\n", applet => $appletname);
 			my $toplevel = (split(/::/, $appletname))[0];
 			if ($@ =~ /can't locate $toplevel/i) {
-				$message = "Error: couldn't find applet file $appletname.pm in\n\n\t".join("\n\t", @INC);
+				$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
 			}
 			$self->error($message, sub { $self->shutdown });
 			return undef;
@@ -278,7 +267,7 @@ sub move {
 		my $screen_height= $self->screen_height;
 		$self->panel->move(0, ($screen_height - $panel_height));
 	} else {
-		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
+		$self->error(_("Invalid panel position '{position}'.", position => $self->position), sub { $self->shutdown });
 	}
 
 	my ($top, $bottom);
@@ -705,6 +694,12 @@ sub load_glade {
 # stub for future il8n support:
 sub _ {
 	my $str = shift;
+	my %params = @_;
+	if (scalar(keys(%params)) > 0) {
+		foreach my $key (keys %params) {
+			$str =~ s/\{$key\}/$params{$key}/g;
+		}
+	}
 	return $str;
 }
 

@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.7 2004/02/17 12:30:31 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -35,7 +35,7 @@ sub configure {
 	$self->{label}= Gtk2::Label->new();
 	$self->{widget}->add($self->{label});
 	$self->{widget}->signal_connect('clicked', sub { $self->prefs });
-	PerlPanel::tips->set_tip($self->{widget}, 'CPU Usage');
+	PerlPanel::tips->set_tip($self->{widget}, _('CPU Usage'));
 	$self->update;
 	Glib::Timeout->add($self->{config}->{interval}, sub { $self->update });
 	return 1;
@@ -44,7 +44,7 @@ sub configure {
 
 sub update {
 	my $self = shift;
-	open(LOADAVG, '/proc/loadavg') or PerlPanel::error("Couldn't open '/proc/loadavg': $!", sub { exit }) and return undef;
+	open(LOADAVG, '/proc/loadavg') or PerlPanel::error(_("Couldn't open '/proc/loadavg': {error}", error => $!), sub { exit }) and return undef;
 	chomp(my $data = <LOADAVG>);
 	close(LOADAVG);
 	my $load = (split(/\s+/, $data, 5))[0];
@@ -56,7 +56,7 @@ sub prefs {
 	my $self = shift;
 	$self->{widget}->set_sensitive(0);
 	$self->{window} = Gtk2::Dialog->new;
-	$self->{window}->set_title("$PerlPanel::NAME: LoadMonitor Configuration");
+	$self->{window}->set_title(_('Configuration'));
 	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
 	$self->{window}->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
@@ -68,7 +68,7 @@ sub prefs {
 	my $adj = Gtk2::Adjustment->new($self->{config}->{interval}, 100, 60000, 1, 1000, undef);
 	$self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
-	$self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
+	$self->{labels}{interval} = Gtk2::Label->new(_('Update interval (ms):'));
 	$self->{labels}{interval}->set_alignment(1, 0.5);
 	$self->{table}->attach_defaults($self->{labels}{interval}, 0, 1, 2, 3);
 	$self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);

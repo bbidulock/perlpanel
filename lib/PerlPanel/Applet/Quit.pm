@@ -1,4 +1,4 @@
-# $Id: Quit.pm,v 1.10 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Quit.pm,v 1.11 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ sub configure {
 	my $code = '$PerlPanel::OBJECT_REF->shutdown';
 	$self->widget->signal_connect('clicked', sub { eval $code ; if ($@) { print STDERR "Error shutting down: $@\n" ; exit 1 } });
 	$self->widget->set_relief('none');
-	PerlPanel::tips->set_tip($self->widget, "Close $PerlPanel::NAME");
+	PerlPanel::tips->set_tip($self->widget, _('Close {name}', name => $PerlPanel::NAME));
 }
 
 sub widget {

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.40 2004/02/18 23:56:42 jodrell Exp $
+# $Id: Configurator.pm,v 1.41 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -356,7 +356,7 @@ sub setup_custom_settings {
 		my ($appletname, undef) = split(/\./, $file, 2);
 		push(@{$self->{add_applet_list}->{data}}, [
 			PerlPanel::get_applet_pbf($appletname),
-			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}{$appletname} ne '' ? $self->{registry}{$appletname} : 'No description available.')),
+			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}{$appletname} ne '' ? $self->{registry}{$appletname} : _('No description available.'))),
 		]);
 	}
 

@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.16 2004/02/19 12:08:57 jodrell Exp $
+# $Id: Commander.pm,v 1.17 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ sub configure {
 	$self->widget->set_relief('none');
 	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('commander', PerlPanel::icon_size)));
 	$self->widget->signal_connect('clicked', sub { $self->run });
-	PerlPanel::tips->set_tip($self->widget, 'Run Command');
+	PerlPanel::tips->set_tip($self->widget, _('Run Command'));
 	return 1;
 }
 
@@ -112,9 +112,9 @@ sub run {
 		}
 	});
 
-	my $terminal_checkbutton = Gtk2::CheckButton->new('Run in terminal');
+	my $terminal_checkbutton = Gtk2::CheckButton->new(_('Run in terminal'));
 
-	my $file_button = Gtk2::Button->new('Run with file...');
+	my $file_button = Gtk2::Button->new(_('Run with file...'));
 	$file_button->signal_connect('clicked', sub {
 		my $file_selection = Gtk2::FileSelection->new('Choose File');
 		$file_selection->signal_connect('response', sub {
@@ -148,7 +148,7 @@ sub run {
 	$main_hbox->pack_start($vbox, 1, 1, 0);
 
 	my $dialog = Gtk2::Dialog->new;
-	$dialog->set_title('Run Command');
+	$dialog->set_title(_('Run Command'));
 	$dialog->set_position('center');
 	$dialog->set_resizable(0);
 	$dialog->set_border_width(5);

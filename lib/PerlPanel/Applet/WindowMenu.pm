@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.7 2004/02/23 17:29:12 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ sub configure {
 		$self->widget->add($self->{icon});
 	}
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
-	PerlPanel::tips->set_tip($self->widget, 'Window List');
+	PerlPanel::tips->set_tip($self->widget, _('Window List'));
 	return 1;
 }
 
@@ -61,7 +61,7 @@ sub create_menu {
 		}
 	}
 	if (scalar(@windows) < 1) {
-		my $item = Gtk2::MenuItem->new_with_label('No Windows Open');
+		my $item = Gtk2::MenuItem->new_with_label(_('No Windows Open'));
 		$item->set_sensitive(0);
 		$self->menu->append($item);
 	} else {

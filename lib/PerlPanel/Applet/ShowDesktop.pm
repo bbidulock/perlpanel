@@ -1,4 +1,4 @@
-# $Id: ShowDesktop.pm,v 1.7 2004/02/17 12:30:31 jodrell Exp $
+# $Id: ShowDesktop.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ sub configure {
 	$self->{widget}->signal_connect('clicked', sub { $self->clicked });
 	$self->{widget}->set_relief('none');
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
-	PerlPanel::tips->set_tip($self->{widget}, "Show the Desktop");
+	PerlPanel::tips->set_tip($self->{widget}, _('Show the Desktop'));
 }
 
 sub widget {
@@ -72,9 +72,9 @@ sub get_default_config {
 sub clicked {
 	my $self = shift;
 	if ($self->widget->get_active) {
-		PerlPanel::tips->set_tip($self->{widget}, "Restore Programs");
+		PerlPanel::tips->set_tip($self->{widget}, _('Restore Windows'));
 	} else {
-		PerlPanel::tips->set_tip($self->{widget}, "Show the Desktop");
+		PerlPanel::tips->set_tip($self->{widget}, _('Show the Desktop'));
 	}
 	$self->{screen}->toggle_showing_desktop(($self->widget->get_active ? 1 : 0));
 	return 1;

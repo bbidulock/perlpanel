@@ -1,4 +1,4 @@
-# $Id: ActionMenu.pm,v 1.5 2004/02/17 12:30:31 jodrell Exp $
+# $Id: ActionMenu.pm,v 1.6 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ sub configure {
 		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
 	}
 
-	PerlPanel::tips->set_tip($self->{widget}, 'Menu');
+	PerlPanel::tips->set_tip($self->{widget}, _('Action Menu'));
 
 	$self->create_menu;
 
@@ -86,7 +86,7 @@ sub create_menu {
 sub get_default_config {
 	return {
 		icon => PerlPanel::get_applet_pbf_filename('actionmenu'),
-		label	=> 'Actions',
+		label	=> _('Actions'),
 		relief	=> 'false',
 	};
 }

@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.10 2004/02/18 19:27:17 jodrell Exp $
+# $Id: MenuBase.pm,v 1.11 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -145,22 +145,22 @@ sub add_control_items {
 	}
 	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
-		$self->menu->append($self->menu_item('Lock Screen', $PerlPanel::OBJECT_REF->get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
+		$self->menu->append($self->menu_item(_('Lock Screen'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
 	}
-	$self->menu->append($self->menu_item('Run Program...', $PerlPanel::OBJECT_REF->get_applet_pbf_filename('commander'), sub {
+	$self->menu->append($self->menu_item(_('Run Program...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('commander'), sub {
 		require('Commander.pm');
 		PerlPanel::Applet::Commander->run;
 	}));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
-	$self->menu->append($self->menu_item("Configure...", $PerlPanel::OBJECT_REF->get_applet_pbf_filename('configurator'), sub {
+	$self->menu->append($self->menu_item(_('Configure...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('configurator'), sub {
 		require('Configurator.pm');
 		my $configurator = PerlPanel::Applet::Configurator->new;
 		$configurator->configure;
 		$configurator->init;
 	}));
-	$self->menu->append($self->menu_item("Reload", $PerlPanel::OBJECT_REF->get_applet_pbf_filename('reload'), sub { $PerlPanel::OBJECT_REF->reload }));
+	$self->menu->append($self->menu_item(_('Reload'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('reload'), sub { $PerlPanel::OBJECT_REF->reload }));
 
-	my $item = $self->menu_item('Add To Panel', 'gtk-add');
+	my $item = $self->menu_item(_('Add To Panel'), 'gtk-add');
 	my $menu = Gtk2::Menu->new;
 	$item->set_submenu($menu);
 
@@ -183,7 +183,7 @@ sub add_control_items {
 
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
 
-	$self->menu->append($self->menu_item("About...", $PerlPanel::OBJECT_REF->get_applet_pbf_filename('about'), sub {
+	$self->menu->append($self->menu_item(_('About...'), $PerlPanel::OBJECT_REF->get_applet_pbf_filename('about'), sub {
 		require('About.pm');
 		my $about = PerlPanel::Applet::About->new;
 		$about->configure;

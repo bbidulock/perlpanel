@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.49 2004/02/17 12:30:31 jodrell Exp $
+# $Id: BBMenu.pm,v 1.50 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ sub configure {
 		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
 	}
 
-	PerlPanel::tips->set_tip($self->{widget}, 'Menu');
+	PerlPanel::tips->set_tip($self->{widget}, _('Menu'));
 
 	$self->create_menu;
 
@@ -121,7 +121,7 @@ sub parse_menufile {
 		}
 	}
 	if (defined($self->{menufile})) {
-		open(MENU, $self->{menufile}) or PerlPanel::error("Error opening $self->{menufile}: $!") and return undef;
+		open(MENU, $self->{menufile}) or PerlPanel::error(_("Error opening {file}: {error}", file => $self->{menufile}, error => $!)) and return undef;
 		$self->{menudata} = [];
 		while (<MENU>) {
 			s/^\s*//g;
@@ -167,7 +167,7 @@ sub parse_menufile {
 			}
 
 			if (!defined($cmd)) {
-				PerlPanel::error("Parse error on line $line_no of $self->{menufile}");
+				PerlPanel::error(_("Parse error on line {line} of {file}", line => $line_no, file => $self->{menufile}));
 			} else {
 
 				if ($cmd eq 'submenu') {
@@ -213,10 +213,10 @@ sub get_default_config {
 	return {
 		icon => PerlPanel::get_applet_pbf_filename('bbmenu'),
 		show_control_items => 'true',
-		label	=> 'Menu',
+		label	=> _('Menu'),
 		relief	=> 'false',
 		apps_in_submenu => 'false',
-		submenu_label	=> 'Applications',
+		submenu_label	=> _('Applications'),
 	};
 }
 

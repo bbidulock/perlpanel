@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.18 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Clock.pm,v 1.19 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -52,7 +52,7 @@ sub prefs {
 	my $self = shift;
 	$self->{widget}->set_sensitive(0);
 	$self->{window} = Gtk2::Dialog->new;
-	$self->{window}->set_title("$PerlPanel::NAME: Clock");
+	$self->{window}->set_title(_('Clock'));
 	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
 	$self->{window}->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
@@ -71,12 +71,12 @@ sub prefs {
 	my $adj = Gtk2::Adjustment->new($self->{config}{interval}, 0, 60000, 1, 1000, undef);
 	$self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
-	$self->{labels}{format} = Gtk2::Label->new('Date format:');
+	$self->{labels}{format} = Gtk2::Label->new(_('Date format:'));
 	$self->{labels}{format}->set_alignment(1, 0.5);
 	$self->{table}->attach_defaults($self->{labels}{format}, 0, 1, 0, 1);
 	$self->{table}->attach_defaults($self->{controls}{format}, 1, 2, 0, 1);
 
-	$self->{labels}{date_format} = Gtk2::Label->new('Tooltip format:');
+	$self->{labels}{date_format} = Gtk2::Label->new(_('Tooltip format:'));
 	$self->{labels}{date_format}->set_alignment(1, 0.5);
 	$self->{table}->attach_defaults($self->{labels}{date_format}, 0, 1, 1, 2);
 	$self->{table}->attach_defaults($self->{controls}{date_format}, 1, 2, 1, 2);
@@ -85,8 +85,8 @@ sub prefs {
 
 	$self->{calendar} = Gtk2::Calendar->new;
 
-	$self->{notebook}->append_page($self->{calendar}, 'Calendar');
-	$self->{notebook}->append_page($self->{table}, 'Configuration');
+	$self->{notebook}->append_page($self->{calendar}, _('Calendar'));
+	$self->{notebook}->append_page($self->{table}, _('Configuration'));
 
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 

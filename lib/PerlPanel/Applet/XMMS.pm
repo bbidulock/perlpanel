@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.10 2004/02/17 12:30:31 jodrell Exp $
+# $Id: XMMS.pm,v 1.11 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,12 +22,12 @@ use vars qw(%TOOLTIPS %CALLBACKS $ICON_DIR $SLIDER_SIZE);
 use strict;
 
 our %TOOLTIPS = (
-	prev	=> 'Play Previous Track',
-	stop	=> 'Stop Playing',
-	play	=> 'Play',
-	pause	=> 'Pause',
-	next	=> 'Play Next Track',
-	volume	=> 'Adjust Volume',
+	prev	=> _('Play Previous Track'),
+	stop	=> _('Stop Playing'),
+	play	=> _('Play'),
+	pause	=> _('Pause'),
+	next	=> _('Play Next Track'),
+	volume	=> _('Adjust Volume'),
 );
 
 our %CALLBACKS = (
@@ -49,7 +49,7 @@ sub new {
 	my $loaded = 0;
 	eval('use Xmms::Remote; $loaded = 1');
 	if ($loaded == 0) {
-		PerlPanel::error('The XMMS applet requires the Xmms-Perl module!', sub { PerlPanel::shutdown });
+		PerlPanel::error(_('The XMMS applet requires the Xmms-Perl module!'), sub { PerlPanel::shutdown });
 		return undef;
 	} else {
 		return $self;

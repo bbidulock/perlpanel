@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.35 2004/02/17 12:30:31 jodrell Exp $
+# $Id: IconBar.pm,v 1.36 2004/02/24 17:07:18 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@ sub configure {
 		$button->set_relief('none');
 		$button->signal_connect('clicked', sub { $dummy->add });
 		$button->add($icon);
-		PerlPanel::tips->set_tip($button, 'Add Icon');
+		PerlPanel::tips->set_tip($button, _('Add Icon'));
 		$self->widget->pack_start($button, 0, 0, 0);
 	} else {
 		foreach my $file (sort @icons) {
@@ -98,7 +98,7 @@ sub get_default_config {
 sub reorder_window {
 	my $self = shift;
 	my $dialog = Gtk2::Dialog->new;
-	$dialog->set_title('Reorder Icons');
+	$dialog->set_title(_('Reorder Icons'));
 	$dialog->set_default_size(250, 200);
 	$dialog->set_has_separator(0);
 	$dialog->add_buttons('gtk-cancel' => 'cancel', 'gtk-ok' => 'ok');
@@ -264,7 +264,7 @@ sub clicked {
 					'<Branch>',
 				],
 				[
-					'/Delete...',
+					'/'._('Delete...'),
 					undef,
 					sub { $self->delete },
 					undef,
@@ -272,7 +272,7 @@ sub clicked {
 					'gtk-remove',
 				],
 				[
-					'/Edit...',
+					'/'._('Edit...'),
 					undef,
 					sub { $self->edit },
 					undef,
@@ -280,7 +280,7 @@ sub clicked {
 					'gtk-properties',
 				],
 				[
-					'/Add...',
+					'/'._('Add...'),
 					undef,
 					sub { $self->add },
 					undef,
@@ -288,7 +288,7 @@ sub clicked {
 					'gtk-add',
 				],
 				[
-					'/Reorder...',
+					'/'._('Reorder...'),
 					undef,
 					sub { $PerlPanel::Applet::IconBar::OBJECT_REF->reorder_window },
 					undef,
@@ -307,7 +307,7 @@ sub clicked {
 						'<Separator>',
 					],
 					[
-						'/View Icon Directory',
+						'/'._('View Icon Directory'),
 						undef,
 						sub { system("$self->{nautilus} --no-desktop $self->{icondir} &") },
 						undef,
@@ -352,7 +352,7 @@ sub edit {
 			}
 		});
 	} else {
-		PerlPanel::warning('No desktop item editor could be found.');
+		PerlPanel::warning(_('No desktop item editor could be found.'));
 	}
 	return 1;
 }
