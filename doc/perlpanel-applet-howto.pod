@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.23 2004/09/19 15:57:43 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.24 2004/09/20 16:27:19 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -420,5 +420,61 @@ in C<_()>.
 
 PerlPanel provides an easy-to-use base menu class for creating menu applets.
 Consult L<PerlPanel::MenuBase> for more information.
+
+=head1 FURTHER CONSIDERATIONS
+
+Please try to keep the external dependencies of your applet to a minimum.
+Remember that your applet may get installed on systems that have a very
+different set of applications installed on them. And never, I<ever> hard-code
+paths to files you depend on.
+
+For example, this is very bad:
+
+	my $executable = '/usr/bin/executable';
+
+If the user doesn't have the C<executable> program, they may install it from
+source, in which case it will probably end up in C</usr/local/bin>, and your
+applet will break for no reason.
+
+A much better solution is to do this:
+
+	chomp(my $executable = `which executable 2>/dev/null`);
+	if (!-x $executable) {
+		PerlPanel::warning(_('Cannot find the {program} program!', program => 'executable'));
+	}
+
+This will allow C<executable> to be anywhere in the user's path, and will alert
+the user if there was a problem.
+
+Another area where this can cause problems is the use of external shared files,
+such as graphics and icons. Don't do something like this:
+
+	my $back_icon = Gtk2::Image->new_from_file('/usr/share/totem/stock_media_previous.png');
+
+This is wrong for a number of reasons:
+
+1. you're introducing a dependency on the I<totem> program. And I<totem>
+requires GNOME, and someone who's using PerlPanel because they don't want to
+install GNOME is going to be rather upset.
+
+2. it's assuming that I<totem> was installed into C</usr>. What if it was
+actually installed into C</usr/local>?
+
+2. your icon can't be themed.
+
+The correct way to implement these sort of icons is to use the C<lookup_icon()>
+method, and use the icons available through C<gnome-icon-theme>:
+
+	my $back_icon = Gtk2::Image->new_from_pixbuf(PerlPanel::lookup_icon('stock_media_prev', PerlPanel::icon_size));
+
+If an icon isn't available through gnome-icon-theme, then you should ship the
+icon as part of your applet. It must be installed into C<$PREFIX/share/icons/hicolor/$SIZE/stock/$TYPE>
+(see the layout of C<gnome-icon-theme> for examples). If the user has
+installed a theme that supports your applet, then this method will detect the
+themed icon and use it.
+
+=head1 AUTHOR
+
+Gavin Brown E<lt>gavin.brown@uk.comE<gt>.
 
 =cut
