@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.20 2004/05/28 10:46:47 jodrell Exp $
+# $Id: Commander.pm,v 1.21 2004/05/28 13:08:49 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -84,31 +84,35 @@ sub run {
 
 	$command_entry->entry->signal_connect('changed', sub {
 		my ($command, undef) = split(/\s/, $command_entry->entry->get_text, 2);
-		my $icon_file = PerlPanel::lookup_icon(basename($command));
-		if (-e $icon_file) {
-			my $new_pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon_file);
-			if ($new_pbf->get_width != $default_pbf->get_width || $new_pbf->get_height != $default_pbf->get_height) {
-				my $x0 = $new_pbf->get_width;
-				my $y0 = $new_pbf->get_height;
-				my ($x1, $y1);
-				if ($x0 > $y0) {
-					# image is landscape:
-					$x1 = $default_pbf->get_width;
-					$y1 = int(($y0 / $x0) * $default_pbf->get_height);
-				} elsif ($x0 == $y0) {
-					# image is square:
-					$x1 = $default_pbf->get_width;
-					$y1 = $default_pbf->get_width;
-				} else {
-					# image is portrait:
-					$x1 = int(($x0 / $y0) * $default_pbf->get_width);
-					$y1 = $default_pbf->get_height;
-				}
-				$new_pbf = $new_pbf->scale_simple($x1, $y1, 'bilinear');
-			}
-			$icon->set_from_pixbuf($new_pbf);
+		if ($command eq '') {
+			$icon->set_from_pixbuf($default_pbf);
 		} else {
-				$icon->set_from_pixbuf($default_pbf);
+			my $icon_file = PerlPanel::lookup_icon(basename($command));
+			if (-e $icon_file) {
+				my $new_pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon_file);
+				if ($new_pbf->get_width != $default_pbf->get_width || $new_pbf->get_height != $default_pbf->get_height) {
+					my $x0 = $new_pbf->get_width;
+					my $y0 = $new_pbf->get_height;
+					my ($x1, $y1);
+					if ($x0 > $y0) {
+						# image is landscape:
+						$x1 = $default_pbf->get_width;
+						$y1 = int(($y0 / $x0) * $default_pbf->get_height);
+					} elsif ($x0 == $y0) {
+						# image is square:
+						$x1 = $default_pbf->get_width;
+						$y1 = $default_pbf->get_width;
+					} else {
+						# image is portrait:
+						$x1 = int(($x0 / $y0) * $default_pbf->get_width);
+						$y1 = $default_pbf->get_height;
+					}
+					$new_pbf = $new_pbf->scale_simple($x1, $y1, 'bilinear');
+				}
+				$icon->set_from_pixbuf($new_pbf);
+			} else {
+					$icon->set_from_pixbuf($default_pbf);
+			}
 		}
 	});
 
