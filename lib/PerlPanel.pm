@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.120 2004/09/29 15:09:40 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.121 2004/10/09 11:49:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -1105,9 +1105,13 @@ sub load_appletregistry {
 			my ($applet, $description, $category) = split(/:/, $_, 3);
 			next unless (applet_exists($applet));
 			$registry->{$applet} = _($description);
-			push(@{$registry->{_categories}->{$category}}, $applet);
+			$registry->{_categories}->{$category}->{$applet}++;
 		}
 		close(REGFILE);
+	}
+	foreach my $category (keys %{$registry->{_categories}}) {
+		my @applets = sort keys %{$registry->{_categories}->{$category}};
+		$registry->{_categories}->{$category} = \@applets;
 	}
 	return $registry;
 }
