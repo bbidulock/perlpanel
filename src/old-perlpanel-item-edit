@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.12 2004/09/10 16:24:30 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.13 2004/09/17 12:19:03 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -27,6 +27,8 @@ Gtk2->init;
 my $desktop_namespace = 'Desktop Entry';
 
 my $PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
+
+my $MAX_ICON_SIZE = 72;
 
 my $namespace = '';
 my $data = {};
@@ -127,9 +129,9 @@ $icon_label->set_alignment(1, 0);
 my $icon_image;
 my $pixmap_path = sprintf('%s/share/pixmaps/%s', $PREFIX, $data->{$desktop_namespace}{Icon});
 if (-e $data->{$desktop_namespace}{Icon}) {
-	$icon_image = Gtk2::Image->new_from_file($data->{$desktop_namespace}{Icon});
+	$icon_image = Gtk2::Image->new_from_pixbuf(resize(Gtk2::Gdk::Pixbuf->new_from_file($data->{$desktop_namespace}{Icon})));
 } elsif (-e $pixmap_path) {
-	$icon_image = Gtk2::Image->new_from_file($pixmap_path);
+	$icon_image = Gtk2::Image->new_from_file(resize(Gtk2::Gdk::Pixbuf->new_from_file($pixmap_path)));
 } else {
 	$icon_image = Gtk2::Image->new_from_stock('gtk-missing-image', 'dialog');
 }
@@ -196,33 +198,32 @@ sub choose_program {
 }
 
 sub choose_icon {
-	my $selector;
+	my $selector = Gtk2::FileChooserDialog->new(
+		'Choose File',
+		undef,
+		'open',
+		'gtk-cancel'	=> 'cancel',
+		'gtk-ok' 	=> 'ok'
+	);
 
-	if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
-		$selector = Gtk2::FileSelection->new('Choose File');
-	} else {
-		$selector = Gtk2::FileChooserDialog->new(
-			'Choose File',
-			undef,
-			'open',
-			'gtk-cancel'	=> 'cancel',
-			'gtk-ok' => 'ok'
-		);
-
-		$selector->set_preview_widget(Gtk2::Image->new);
-		$selector->signal_connect('selection-changed', sub {
-			my $file = $selector->get_filename;
-			if (-f $file) {
-				$selector->get_preview_widget->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-			}
-		});
-	}
+	$selector->set_preview_widget(Gtk2::Image->new);
+	$selector->get_preview_widget->set_size_request($MAX_ICON_SIZE, $MAX_ICON_SIZE);
+	$selector->signal_connect('selection-changed', sub {
+		my $file = $selector->get_filename;
+		if (-f $file) {
+			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file($file);
+			$pbf = resize($pbf);
+			$selector->get_preview_widget->set_from_pixbuf($pbf);
+		}
+	});
 
 	my $pixmap_path = sprintf('%s/share/pixmaps/%s', $PREFIX, $data->{$desktop_namespace}{Icon});
 	if (-e $pixmap_path) {
 		$selector->set_filename($pixmap_path);
+	} elsif (-e $data->{$desktop_namespace}{Icon}) {
+		$selector->set_filename($data->{$desktop_namespace}{Icon});
 	} else {
-		$selector->set_filename('/usr/share/icons/');
+		$selector->set_current_folder('/usr/share/icons/hicolor/48x48/apps');
 	}
 
 	$selector->signal_connect('response', sub {
@@ -262,6 +263,30 @@ sub save {
 	}
 	close(FILE);
 	exit;
+}
+
+sub resize {
+	my $pbf = shift;
+	my $x0 = $pbf->get_width;
+	my $y0 = $pbf->get_height;
+	if ($x0 > $MAX_ICON_SIZE || $y0 > $MAX_ICON_SIZE) {
+		my ($x1, $y1);
+		if ($x0 > $y0) {
+			# image is landscape:
+			$x1 = $MAX_ICON_SIZE;
+			$y1 = int(($y0 / $x0) * $MAX_ICON_SIZE);
+		} elsif ($x0 == $y0) {
+			# image is square:
+			$x1 = $MAX_ICON_SIZE;
+			$y1 = $MAX_ICON_SIZE;
+		} else {
+			# image is portrait:
+			$x1 = int(($x0 / $y0) * $MAX_ICON_SIZE);
+			$y1 = $MAX_ICON_SIZE;
+		}
+		$pbf = $pbf->scale_simple($x1, $y1, 'bilinear');
+	}
+	return $pbf;
 }
 
 exit;
