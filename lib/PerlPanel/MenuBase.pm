@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.16 2004/04/30 16:28:03 jodrell Exp $
+# $Id: MenuBase.pm,v 1.17 2004/05/03 17:27:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@ our @ICON_DIRECTORIES = (
 	sprintf('%s/.icons/gnome/48x48/apps', $ENV{HOME}),
 	'%s/share/icons/gnome/48x48/apps',
 	'%s/share/pixmaps',
+	'/usr/share/pixmaps',
 );
 
 =pod
@@ -151,13 +152,19 @@ sub add_control_items {
 	}
 
 	### this currently does nothing:
-	if (defined($params{menu_data}) && defined($params{menu_edit_callback})) {
+	if ((defined($params{menu_data}) && defined($params{menu_edit_callback})) || defined($params{menu_edit_command})) {
+		my $callback;
+		if (defined($params{menu_data}) && defined($params{menu_edit_callback})) {
+			$callback = sub { $self->run_menu_editor($params{menu_data}, $params{menu_edit_callback}) };
+		} elsif (defined($params{menu_edit_command})) {
+			$callback = sub { system("$params{menu_edit_command} &") };
+		}
 		my $item = $self->menu_item(
 			_('Edit Menu...'),
 			'gtk-properties',
-			sub { $self->run_menu_editor($params{menu_data}, $params{menu_edit_callback}) }
+			$callback,
 		);
-		$item->set_sensitive(0);
+		$item->set_sensitive(0) unless (defined($params{menu_edit_command}));
 		$self->menu->append($item);
 		$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	}
@@ -332,6 +339,9 @@ These directories are listed in @PerlPanel::ICON_DIRECTORIES.
 
 sub get_icon {
 	my ($self, $executable, $is_submenu_parent) = @_;
+
+	# this is if we were passed an image filename, ie by GnomeMenu:
+	$executable =~ s/\.(png|svg|xpm)$//i;
 
 	$executable =~ s/\s/-/g if ($is_submenu_parent == 1);
 

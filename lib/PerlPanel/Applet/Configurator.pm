@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.43 2004/04/02 12:34:25 jodrell Exp $
+# $Id: Configurator.pm,v 1.44 2004/05/03 17:27:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -69,6 +69,22 @@ our %SETTINGS_MAP = (
 		'boolean',
 	],
 
+	'menus_follow_panel' => [
+		$PerlPanel::OBJECT_REF->{config}{panel},
+		'menu_size_as_panel',
+		'boolean',
+	],
+
+	'menu_icon_size' => [
+		$PerlPanel::OBJECT_REF->{config}{panel},
+		'menu_size',
+		'enum',
+		'tiny',
+		'small',
+		'medium',
+		'large',
+	],
+
 	#
 	# Tab #2 - bbmenu settings
 	#
@@ -115,6 +131,30 @@ our %SETTINGS_MAP = (
 		PerlPanel::get_config('ActionMenu'),
 		'label',
 		'string',
+	],
+
+	#
+	# Tab #3 GNOME menu settings
+	#
+	'gnome_menu_label' => [
+		PerlPanel::get_config('GnomeMenu'),
+		'label',
+		'string',
+	],
+	'gnome_menu_arrow' => [
+		PerlPanel::get_config('GnomeMenu'),
+		'arrow',
+		'boolean',
+	],
+	'gnome_menu_control_items' => [
+		PerlPanel::get_config('GnomeMenu'),
+		'show_control_items',
+		'boolean',
+	],
+	'gnome_menu_submenu' => [
+		PerlPanel::get_config('GnomeMenu'),
+		'apps_in_submenu',
+		'boolean',
 	],
 
 	#
@@ -256,6 +296,10 @@ sub apply_settings {
 sub setup_custom_settings {
 	my $self = shift;
 
+	$self->app->get_widget('menus_follow_panel')->signal_connect('toggled', sub {
+		$self->app->get_widget('menu_icon_size')->set_sensitive($_[0]->get_active ? undef : 1);
+	});
+
 	unless (PerlPanel::has_pager()) {
 		$self->app->get_widget('notebook')->remove_page(2);
 	}
@@ -327,7 +371,22 @@ sub setup_custom_settings {
 		$self->app->get_widget('action_menu_prefs_hbox')->get_parent->remove($self->app->get_widget('action_menu_prefs_hbox'));
 	}
 
-	unless (PerlPanel::has_application_menu() || PerlPanel::has_action_menu()) {
+	if (PerlPanel::has_action_menu()) {
+		$self->app->get_widget('gnome_menu_submenu')->set_active(0);
+		$self->app->get_widget('gnome_menu_control_items')->set_active(0);
+		$self->app->get_widget('gnome_menu_submenu')->set_sensitive(0);
+		$self->app->get_widget('gnome_menu_control_items')->set_sensitive(0);
+	}
+	if (!PerlPanel::has_applet('GnomeMenu')) {
+		$self->app->get_widget('gnome_menu_prefs_spacer')->get_parent->remove($self->app->get_widget('gnome_menu_prefs_spacer'));
+		$self->app->get_widget('gnome_menu_prefs_label')->get_parent->remove($self->app->get_widget('gnome_menu_prefs_label'));
+		$self->app->get_widget('gnome_menu_prefs_hbox')->get_parent->remove($self->app->get_widget('gnome_menu_prefs_hbox'));
+	}
+	if (!PerlPanel::has_application_menu()) {
+		$self->app->get_widget('bbmenu_prefs_spacer')->get_parent->remove($self->app->get_widget('bbmenu_prefs_spacer'));
+	}
+
+	unless (PerlPanel::has_application_menu() || PerlPanel::has_action_menu() || PerlPanel::has_applet('GnomeMenu')) {
 		$self->app->get_widget('notebook')->remove_page(1);
 	}
 

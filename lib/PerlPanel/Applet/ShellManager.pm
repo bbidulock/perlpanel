@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.3 2004/04/30 16:28:04 jodrell Exp $
+# $Id: ShellManager.pm,v 1.4 2004/05/03 17:27:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ sub create_menu {
 		foreach my $session (sort keys %connections) {
 			$self->menu->append($self->menu_item(
 				$session,
-				$self->widget->child->get_pixbuf,
+				PerlPanel::get_applet_pbf('shellmanager'),
 				sub {
 					my $cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{user}, $connections{$session}->{host});
 					system($cmd);

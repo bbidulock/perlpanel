@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.74 2004/04/28 09:39:39 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.75 2004/05/03 17:27:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -51,11 +51,13 @@ our $URL		= 'http://jodrell.net/projects/perlpanel';
 our %DEFAULTS = (
 	version	=> $VERSION,
 	panel => {
-		position	=> 'bottom',
-		spacing		=> 0,
-		size		=> 'medium',
-		theme		=> 'default',
-		has_border	=> 'false',
+		position		=> 'bottom',
+		spacing			=> 0,
+		size			=> 'medium',
+		theme			=> 'default',
+		has_border		=> 'false',
+		menu_size_as_panel	=> 'true',
+		menu_size		=> 'medium',
 	},
 	appletconf => {
 		null => {},
@@ -547,11 +549,19 @@ sub icon_size_name {
 #
 sub menu_icon_size {
 	my $self = shift || $OBJECT_REF;
-	return $self->icon_size;
+	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
+		return $self->icon_size;
+	} else {
+		return @{$SIZE_MAP{$self->{config}{panel}->{menu_size}}}[0];
+	}
 }
 sub menu_icon_size_name {
 	my $self = shift || $OBJECT_REF;
-	return $self->icon_size_name;
+	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
+		return $self->icon_size_name;
+	} else {
+		return @{$SIZE_MAP{$self->{config}{panel}->{menu_size}}}[1];
+	}
 }
 
 sub screen_width {
@@ -672,25 +682,28 @@ sub exec_wait {
 }
 
 sub has_application_menu {
-	my $self = shift || $OBJECT_REF;
-	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		return 1 if ($applet eq 'BBMenu')
-	}
+	return PerlPanel::has_applet('BBMenu');
 	return undef;
 }
 
 sub has_action_menu {
-	my $self = shift || $OBJECT_REF;
-	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		return 1 if ($applet eq 'ActionMenu')
-	}
-	return undef;
+	return PerlPanel::has_applet('ActionMenu');
 }
 
 sub has_pager {
-	my $self = shift;
-	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		return 1 if ($applet eq 'Pager')
+	return PerlPanel::has_applet('Pager');
+}
+
+sub has_applet {
+	my ($self, $applet);
+	if (scalar(@_) == 2) {
+		($self, $applet) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$applet = shift;
+	}
+	foreach my $appletname (@{$self->{config}{applets}}) {
+		return 1 if ($appletname eq $applet);
 	}
 	return undef;
 }
