@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.10 2005/01/05 12:34:41 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.11 2005/01/06 16:06:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -35,8 +35,7 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	#$self->{widget} = Gtk2::EventBox->new;
-	$self->{widget} = Gtk2::Button->new();
+	$self->{widget} = Gtk2::EventBox->new;
 	$self->widget->set_relief('none');
 
 	$self->{label}= Gtk2::Label->new();
