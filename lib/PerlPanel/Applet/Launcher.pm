@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.14 2004/11/05 13:34:38 jodrell Exp $
+# $Id: Launcher.pm,v 1.15 2004/11/22 12:16:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -53,7 +53,11 @@ sub init {
 
 	if (!-e $self->{file}) {
 
-		mkdir($LAUNCHER_DIR);
+		PerlPanel::mkpath($LAUNCHER_DIR);
+		if (!-d $LAUNCHER_DIR) {
+			print STDERR "*** Error: couldn't create launcher directory '$LAUNCHER_DIR'\n";
+			exit 256;
+		}
 
 		if (-x $LAUNCHER_EDITOR) {
 			open(FILE, ">$self->{file}") && close(FILE);
