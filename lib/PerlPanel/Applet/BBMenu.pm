@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.28 2003/10/25 14:08:00 jodrell Exp $
+# $Id: BBMenu.pm,v 1.29 2003/10/27 10:06:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -92,7 +92,6 @@ sub configure {
 	$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{label} eq '') {
 		$self->widget->add($self->{icon});
-		$self->widget->set_relief('none');
 	} else {
 		$self->widget->add(Gtk2::HBox->new);
 		$self->widget->child->set_border_width(0);
@@ -100,6 +99,7 @@ sub configure {
 		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 		$self->widget->child->pack_start(Gtk2::Label->new($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{label}), 1, 1, 0);
 	}
+	$self->widget->set_relief($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{relief});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->widget->signal_connect('button_release_event', sub { $self->popup($_[1]->button) ; return 1});
 	return 1;
@@ -126,6 +126,7 @@ sub get_default_config {
 		icon => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
 		show_control_items => 'true',
 		label	=> 'Menu',
+		relief	=> 'half',
 	};
 }
 

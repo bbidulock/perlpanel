@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.24 2003/10/08 13:05:57 jodrell Exp $
+# $Id: IconBar.pm,v 1.25 2003/10/27 10:06:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -207,7 +207,7 @@ sub clicked {
 					sub { $self->edit },
 					undef,
 					'<StockItem>',
-					'gtk-preferences',
+					'gtk-properties',
 				],
 				[
 					'/Add...',
