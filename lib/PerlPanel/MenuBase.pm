@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.24 2004/07/02 10:26:39 jodrell Exp $
+# $Id: MenuBase.pm,v 1.25 2004/07/04 12:32:37 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -262,29 +262,31 @@ sub add_control_items {
 	}
 
 	my $dir = sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME));
-	if (!opendir(DIR, $dir)) {
-		print STDERR "*** Error opening '$dir': $!\n";
+	if (-d $dir) {
+		if (!opendir(DIR, $dir)) {
+			print STDERR "*** Error opening '$dir': $!\n";
 
-	} else {
+		} else {
+	
+			my @applets = grep { /\.pm$/i } readdir(DIR);
+			closedir(DIR);
 
-		my @applets = grep { /\.pm$/i } readdir(DIR);
-		closedir(DIR);
+			if (scalar(@applets) > 0) {
+				$applet_menu->append(Gtk2::SeparatorMenuItem->new);
 
-		if (scalar(@applets) > 0) {
-			$applet_menu->append(Gtk2::SeparatorMenuItem->new);
+				foreach my $filename (sort @applets) {
+					my ($applet, undef) = split(/\./, $filename, 2);
+	
+					$applet_menu->append($self->menu_item(
+						$applet,
+						PerlPanel::get_applet_pbf($applet),
+						sub {$self->add_applet_dialog($applet)},
 
-			foreach my $filename (sort @applets) {
-				my ($applet, undef) = split(/\./, $filename, 2);
+					));
 
-				$applet_menu->append($self->menu_item(
-					$applet,
-					PerlPanel::get_applet_pbf($applet),
-					sub {$self->add_applet_dialog($applet)},
-
-				));
+				}
 
 			}
-
 		}
 	}
 
