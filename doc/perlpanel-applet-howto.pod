@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.25 2004/09/24 16:29:54 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.26 2004/09/27 12:25:17 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -399,20 +399,20 @@ To create an applet package that a user can install without root access,
 you need to create a gzipped tar archive, with the name C<AppletName-$Version.tar.gz>,
 that has the following layout:
 
-	/AppletName-$Version/
-	/AppletName-$Version/applet.info
-	/AppletName-$Version/applets
-	/AppletName-$Version/applets/AppletName.pm
-	/AppletName-$Version/share
-	/AppletName-$Version/share/icons
-	/AppletName-$Version/share/icons/hicolor
-	/AppletName-$Version/share/icons/hicolor/48x48
-	/AppletName-$Version/share/icons/hicolor/48x48/apps
-	/AppletName-$Version/share/icons/hicolor/48x48/apps/perlpanel-applet-appletname.png
-	/AppletName-$Version/share/icons/hicolor/48x48/apps/perlpanel-applet-appletname-action-specific-icon.png
-	/AppletName-$Version/share/perlpanel
-	/AppletName-$Version/share/perlpanel/glade
-	/AppletName-$Version/share/perlpanel/glade/appletname.glade
+	/
+	/applet.info
+	/applets
+	/applets/AppletName.pm
+	/share
+	/share/icons
+	/share/icons/hicolor
+	/share/icons/hicolor/48x48
+	/share/icons/hicolor/48x48/apps
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-appletname.png
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-appletname-action-specific-icon.png
+	/share/perlpanel
+	/share/perlpanel/glade
+	/share/perlpanel/glade/appletname.glade
 
 The C<applet.info> file should contain a single line of the form:
 
@@ -422,8 +422,12 @@ This line is appended to the user's applet.registry, so they see a
 descriptive entry in the Add Applet dialog. The first field must match the
 C<AppletName> part of the tarball's name.
 
+The C<$Version> part of the file name should contain only digits and
+periods. Valid version strings include: C<1.00> (Perl style), C<1.0.0>
+(Kernel style), and so on.
+
 The .pm file which contains your applet should go into C<applets/>. The
-installer will look for a file called C<AppletName.pm>, where <AppletName>
+installer will look for a file called C<AppletName.pm>, where C<AppletName>
 is taken from the C<AppletName> part of the tarball's name. PerlPanel will
 place this file into C<$HOME/.perlpanel/applets>.
 
