@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.14 2004/01/12 22:53:31 jodrell Exp $
+$Id: perlpanel.pod,v 1.15 2004/01/14 23:02:38 jodrell Exp $
 
 =head1 Introduction
 
@@ -128,7 +128,7 @@ The LoadMonitor applet shows the current charge on your laptop's battery.
 You can click on the widget and bring up a dialog to change the update
 interval. By default, this is 100ms.
 
-=head2 The The 'BBMenu' Applet
+=head2 The 'BBMenu' Applet
 
 The BBMenu applet is a program launcher menu, like the Windows Start
 Menu. It can understand any Blackbox-compatible menu file, and will look
@@ -251,7 +251,7 @@ This applet provides a way of placing some physical space between other
 applets. It adds a vertical separating line with five pixels of space
 on either side.
 
-=head2 ShowDesktop
+=head2 The 'ShowDesktop' Applet
 
 This applet provides a button that minimises/restores all the
 applications that are visible, so you can see your desktop.
@@ -307,6 +307,8 @@ want to learn how to write applets, consult L<perlpanel-applet-howto>.
 =item * L<Gtk2>
 
 =item * L<XML::Simple>
+
+=item * L<Xmms::Remote>
 
 =back
 
