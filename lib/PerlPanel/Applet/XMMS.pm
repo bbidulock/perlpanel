@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.12 2004/06/03 12:13:05 jodrell Exp $
+# $Id: XMMS.pm,v 1.13 2004/07/05 14:30:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -38,7 +38,7 @@ our %CALLBACKS = (
 	volume	=> sub { $_[0]->toggle_volume_window },
 );
 
-our $ICON_DIR = sprintf('%s/share/pixmaps/%s/xmms-applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+our $ICON_DIR = sprintf('%s/share/%s/xmms-applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 our $SLIDER_SIZE = 150;
 
