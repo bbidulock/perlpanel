@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.12 2004/11/04 16:52:18 jodrell Exp $
+# $Id: Launcher.pm,v 1.13 2004/11/04 17:03:24 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -165,6 +165,7 @@ sub edit {
 
 sub remove {
 	my $self = shift;
+	unlink($self->{file});
 	PerlPanel::remove_applet('Launcher', $self->{id});
 	return 1;
 }
