@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.13 2004/09/19 18:06:42 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.14 2004/09/29 13:21:23 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -72,9 +72,13 @@ sub create_menu {
 		foreach my $window (@windows) {
 			my $label = $window->get_name;
 			$label = (length($label) < 25 ? $label : substr($label, 0, 22).'...');
+			my $icon = $window->get_icon;
+			if ($icon->get_height > PerlPanel::menu_icon_size()) {
+				$icon = $icon->scale_simple(($icon->get_width * (PerlPanel::menu_icon_size() / $icon->get_height)), PerlPanel::menu_icon_size(), 'bilinear');
+			}
 			$self->menu->append($self->menu_item(
 				$label,
-				$window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $window->get_icon,
+				($window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $icon),
 				sub { $window->activate },
 			));
 		}
