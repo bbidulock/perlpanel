@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.40 2004/01/11 16:32:35 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.41 2004/01/11 23:36:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL 
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.2.0';
+our $VERSION		= '0.2.1';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',
@@ -100,7 +100,7 @@ sub check_deps {
 	eval 'use XML::Simple;';
 	if ($@) {
 		$self->error("Couldn't load the XML::Simple module!", sub { exit });
-		Gtk2->main();
+		Gtk2->main;
 	} else {
 		$XML::Simple::PREFERRED_PARSER = 'XML::Parser';
 		return 1;
@@ -267,9 +267,9 @@ sub request_string {
 		'gtk-cancel'	=> 0,
 		'gtk-ok'	=> 1
 	);
-	$dialog->set_border_width(8);
+	$dialog->set_border_width(12);
 	$dialog->set_icon($self->icon);
-	$dialog->vbox->set_spacing(8);
+	$dialog->vbox->set_spacing(12);
 
 	my $entry = Gtk2::Entry->new;
 	if ($visible == 1) {
@@ -277,8 +277,8 @@ sub request_string {
 	}
 
 	my $table = Gtk2::Table->new(2, 2, 0);
-	$table->set_col_spacings(8);
-	$table->set_row_spacings(8);
+	$table->set_col_spacings(12);
+	$table->set_row_spacings(12);
 
 	$table->attach_defaults(Gtk2::Image->new_from_stock('gtk-dialog-question', 'dialog'), 0, 1, 0, 2);
 	$table->attach_defaults(Gtk2::Label->new($message), 1, 2, 0, 1);

@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.8 2004/01/11 23:07:45 jodrell Exp $
+# $Id: applet.registry,v 1.9 2004/01/11 23:36:06 jodrell Exp $
 
 About=A button to show an "About" dialog.
 BatteryMonitor=Shows the status of your laptop's battery.
@@ -24,6 +24,7 @@ Quit=A button to close the panel.
 Reload=A button to reload the panel.
 Separator=A separator.
 ShowDesktop=Show or hide all the programs on screen.
+Slot=A socket for applications which support the XEMBED protocol.
 Socket=A Gtk Socket applet.
 Spacer=A spacer.
 Tasklist=Lists the programs currently running.

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.24 2004/01/11 23:07:45 jodrell Exp $
+# $Id: Configurator.pm,v 1.25 2004/01/11 23:36:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,7 +32,6 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	$self->load_appletregistry;
 	$self->{widget} = Gtk2::Button->new;
 	$self->{image} = Gtk2::Image->new_from_stock('gtk-preferences', $PerlPanel::OBJECT_REF->icon_size_name);
 	$self->{widget}->add($self->{image});
@@ -61,6 +60,7 @@ sub load_appletregistry {
 
 sub init {
 	my $self = shift;
+	$self->load_appletregistry;
 	# oh man, is this a kludge. but no matter how much i tried i couldn't dereference the ref
 	# in order to make a copy of the hash:
 	$self->{backup} = XML::Simple::XMLin(XML::Simple::XMLout($PerlPanel::OBJECT_REF->{config}));
