@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.20 2005/01/21 18:10:56 jodrell Exp $
+# $Id: applet.registry,v 1.21 2005/01/31 21:59:01 jodrell Exp $
 
 # DEPRECATED IN 0.8.0: About:A button to show an "About" dialog.:Actions
 ActionMenu:A menu containing useful actions.:Menus
@@ -41,6 +41,7 @@ Tasklist:Lists the programs currently running.:Utilities
 Timer:Set an alarm.:Utilities
 Trash:An icon that can be used to trash files.:Utilities
 Volume:Controls speaker volume.:System
+Webcam:Displays a webcam image.:Amusements
 WiFiMonitor:An applet that shows your current wireless signal strength.:System
 WindowMenu:A menu containing currently opened windows.:Utilities
 XMMS:An applet to control the XMMS media player.:Actions
