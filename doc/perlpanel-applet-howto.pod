@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.26 2004/09/27 12:25:17 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.27 2004/09/28 08:56:30 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -385,8 +385,8 @@ the keys of C<%params> are replaced with their values, for example:
 	);
 
 
-Applet authors are encouraged to wrap all the strings they use in their applets
-in C<_()>.
+Applet authors are encouraged to wrap all the strings they use in their
+applets in C<_()>.
 
 =head1 WRITING MENU APPLETS
 
@@ -396,8 +396,8 @@ Consult L<PerlPanel::MenuBase> for more information.
 =head1 PACKAGING YOUR APPLET
 
 To create an applet package that a user can install without root access,
-you need to create a gzipped tar archive, with the name C<AppletName-$Version.tar.gz>,
-that has the following layout:
+you need to create a gzipped tar archive, with the name
+C<AppletName-$Version.tar.gz>, that has the following layout:
 
 	/
 	/applet.info
@@ -431,14 +431,26 @@ installer will look for a file called C<AppletName.pm>, where C<AppletName>
 is taken from the C<AppletName> part of the tarball's name. PerlPanel will
 place this file into C<$HOME/.perlpanel/applets>.
 
-The files inside the C<share/> subdirectory are installed into C<$HOME/.local/share>.
-This is a directory defined by the Freedesktop.org base directory specification
-as the place in which user specific data files should be stored. You can use this
-subdirectory to install Glade files (which can be accessed using
-C<load_glade()> - see above), your applet's icon, and any supporting icons you
-may need. Using this path means that calls to C<lookup_icon> will work out
-the same as if the icons were in C<$PREFIX/share/icons>, and can also
-be themed.
+The files inside the C<share/> subdirectory are installed into
+C<$HOME/.local/share>. This is a directory defined by the
+Freedesktop.org base directory specification as the place in which user
+specific data files should be stored. You can use this subdirectory to
+install Glade files (which can be accessed using C<load_glade()> - see
+above), your applet's icon, and any supporting icons you may need. Using
+this path means that calls to C<lookup_icon> will work out the same as
+if the icons were in C<$PREFIX/share/icons>, and can also be themed.
+
+For example, if your applet controls a media player, and you want to include icons for the Previous, Forward, Play and Pause buttons, you can include these icons like this:
+
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-mediaplayer-previous.png
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-mediaplayer-next.png
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-mediaplayer-play.png
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-mediaplayer-pause.png
+	/share/icons/hicolor/48x48/apps/perlpanel-applet-mediaplayer-stop.png
+
+And then in your applet code, you can retrieve these icons by using this:
+
+	my $pbf = PerlPanel::lookup_icon('mediaplayer-previous', PerlPanel::icon_size);
 
 =head1 FURTHER CONSIDERATIONS
 
