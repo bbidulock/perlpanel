@@ -1,9 +1,10 @@
-# $Id: BBMenu.pm,v 1.10 2003/06/12 16:07:58 jodrell Exp $
+# $Id: BBMenu.pm,v 1.11 2003/06/12 22:30:33 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
 
 our @BBMenus = (
+	'%s/.perlpanel/menu',
 	'%s/.blackbox/menu',
 	'%s/.fluxbox/menu',
 	'%s/.openbox/menu',
@@ -29,6 +30,7 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	$self->parse_menufile;
+	$self->{itemfactory} = [['/', undef, undef, undef, '<Branch>']];
 	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
 		$self->add_control_items;
 		$self->create_itemfactory($self->{menutree}, '');
@@ -168,13 +170,16 @@ sub create_itemfactory {
 
 sub add_control_items {
 	my $self = shift;
-	push(@{$self->{itemfactory}}, [
+	my $separator = [
 		'/'.$PerlPanel::NAME.'CtlSeparator',
 		undef,
 		undef,
 		undef,
 		'<Separator>',
-	]);
+	];
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'bottom') {
+		push(@{$self->{itemfactory}}, $separator);
+	}
 	push(@{$self->{itemfactory}}, [
 		'/About...',
 		undef,
@@ -223,6 +228,9 @@ sub add_control_items {
 		'<StockItem>',
 		'gtk-quit',
 	]);
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
+		push(@{$self->{itemfactory}}, $separator);
+	}
 	return 1;
 }
 
@@ -246,16 +254,13 @@ sub popup {
 sub popup_position {
 	my $self = shift;
 	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
-		return (0, (@{$PerlPanel::SIZE_MAP{$PerlPanel::OBJECT_REF->{config}{panel}{size}}})[0]);
+		return (0, $PerlPanel::OBJECT_REF->icon_size);
 	} else {
-		my $toplevel_items = 4; # includes the control items:
-		foreach my $itemref (@{$self->{itemfactory}}) {
-			my @item = @{$itemref};
-			if ($item[0] =~ /^\/([^\/]+)$/) {
-				$toplevel_items++;
-			}
+		my $toplevel_menu_items = 3.5;
+		foreach my $item (@{$self->{itemfactory}}) {
+			$toplevel_menu_items++ if (@{$item}[0] =~ /^\/([^\/]+)$/);
 		}
-		return (0, ($PerlPanel::OBJECT_REF->{config}{screen}{height} - (17 * $toplevel_items) - (@{$PerlPanel::SIZE_MAP{$PerlPanel::OBJECT_REF->{config}{panel}{size}}})[0]));
+		return (0, $PerlPanel::OBJECT_REF->{config}{screen}{height} - (16 * $toplevel_menu_items));
 	}
 }
 
