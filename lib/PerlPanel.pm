@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.130 2004/11/07 20:01:45 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.131 2004/11/23 14:30:22 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -184,7 +184,7 @@ sub init {
 	return 1;
 }
 
-sub locale { return $_[0]->{locale} }
+sub locale { return $OBJECT_REF->{locale} }
 
 sub check_deps {
 	my $self = shift;
