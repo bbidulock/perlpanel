@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.16 2004/02/11 17:04:09 jodrell Exp $
+# $Id: Clock.pm,v 1.17 2004/02/12 14:32:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -83,9 +83,8 @@ sub prefs {
 
 	$self->{calendar} = Gtk2::Calendar->new;
 
-	$self->{notebook}->append_page($self->{calendar}, Gtk2::Label->new('Calendar'));
-	$self->{notebook}->append_page($self->{table}, Gtk2::Label->new('Configuration'));
-	$self->{notebook}->append_page($self->{reminder}, Gtk2::Label->new('Reminder'));
+	$self->{notebook}->append_page($self->{calendar}, 'Calendar');
+	$self->{notebook}->append_page($self->{table}, 'Configuration');
 
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 
@@ -101,6 +100,7 @@ sub prefs {
 			$self->{config}{date_format} = $self->{controls}{date_format}->get_text;
 			$self->{widget}->set_sensitive(1);
 			$self->{window}->destroy;
+
 			PerlPanel::save_config;
 			PerlPanel::reload;
 		} elsif ($_[1] == 1) {
@@ -113,6 +113,14 @@ sub prefs {
 	$self->{window}->show_all;
 
 	return 1;
+}
+
+sub label {
+	my ($self, $str) = @_;
+	my $label = Gtk2::Label->new($str);
+	my $align = Gtk2::Alignment->new(1, 0.5, 0, 0);
+	$align->add($label);
+	return $align;
 }
 
 sub widget {

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.33 2004/02/12 00:26:34 jodrell Exp $
+# $Id: Configurator.pm,v 1.34 2004/02/12 14:32:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -121,7 +121,6 @@ sub build_ui {
 		$self->{menu}{table}->set_row_spacings(12);
 
 		$self->{iconfile}{label} = $self->control_label('Menu icon:');
-		$self->{iconfile}{label}->set_alignment(1, 0);
 
 		$self->{iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
 		$self->{controls}{iconfile} = Gtk2::Button->new;
@@ -150,7 +149,10 @@ sub build_ui {
 		$self->{menu}{table}->attach_defaults($self->{controls}{label}, 1, 2, 1, 2);
 
 		$self->{menu}{table}->attach_defaults($self->{iconfile}{label},    0, 1, 2, 3);
-		$self->{menu}{table}->attach_defaults($self->{controls}{iconfile}, 1, 2, 2, 3);
+
+		$self->{menu}{icon_align} = Gtk2::Alignment->new(0, 0.5, 0, 0);
+		$self->{menu}{icon_align}->add($self->{controls}{iconfile});
+		$self->{menu}{table}->attach_defaults($self->{menu}{icon_align}, 1, 2, 2, 3);
 
 		if (PerlPanel::has_application_menu && !PerlPanel::has_action_menu) {
 			$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
@@ -185,8 +187,7 @@ sub build_ui {
 		$self->{action_menu}{label} = $self->control_label('Action Menu label:');
 		$self->{controls}{action_menu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{ActionMenu}, 'label', 'text', 'Menu label');
 
-		$self->{action_menu_iconfile}{label} = $self->control_label('Menu icon:');
-		$self->{action_menu_iconfile}{label}->set_alignment(1, 0);
+		$self->{action_menu_iconfile}{label} = $self->control_label('Action Menu icon:');
 
 		$self->{action_menu_iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{ActionMenu}{icon});
 		$self->{controls}{action_menu_iconfile} = Gtk2::Button->new;
@@ -203,7 +204,11 @@ sub build_ui {
 		$self->{action_menu}{table}->attach_defaults($self->{controls}{action_menu_label}, 1, 2, 1, 2);
 
 		$self->{action_menu}{table}->attach_defaults($self->{action_menu_iconfile}{label},    0, 1, 2, 3);
-		$self->{action_menu}{table}->attach_defaults($self->{controls}{action_menu_iconfile}, 1, 2, 2, 3);
+
+		$self->{action_menu}{icon_align} = Gtk2::Alignment->new(0, 0.5, 0, 0);
+		$self->{action_menu}{icon_align}->add($self->{controls}{action_menu_iconfile});
+
+		$self->{action_menu}{table}->attach_defaults($self->{action_menu}{icon_align}, 1, 2, 2, 3);
 
 		$self->{pages}{menu}->pack_start($self->{action_menu}{table}, 0, 0, 0);
 
@@ -469,7 +474,6 @@ sub choose_menu_icon {
 		$self->{controls}{$control}->remove($self->{controls}{$control}->child);
 		$self->{controls}{$control}->add($new_image);
 		$selector->destroy;
-		print Data::Dumper::Dumper($PerlPanel::OBJECT_REF->{config}{appletconf}{$applet});
 	});
 	$selector->cancel_button->signal_connect('clicked', sub {
 		$selector->destroy;
