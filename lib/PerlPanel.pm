@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.73 2004/04/14 13:13:47 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.74 2004/04/28 09:39:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -229,7 +229,10 @@ sub configure {
 
 	$self->panel->set_default_size($self->screen_width, 0);
 	$self->panel->set_border_width(0);
+
+	# check is_visible for reloads:
 	$self->panel->set_type_hint('dock');
+
 	$self->panel->stick; # needed for some window managers
 
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});

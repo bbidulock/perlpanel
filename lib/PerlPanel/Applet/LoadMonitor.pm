@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.9 2004/04/28 09:39:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,8 +32,19 @@ sub configure {
 	$self->{config} = PerlPanel::get_config('LoadMonitor');
 	$self->{widget} = Gtk2::Button->new;
 	$self->{widget}->set_relief('none');
-	$self->{label}= Gtk2::Label->new();
-	$self->{widget}->add($self->{label});
+
+	if ($self->{config}->{show_icon} eq 'true') {
+		$self->{icon} = PerlPanel::get_applet_pbf('LoadMonitor', PerlPanel::icon_size);
+		$self->{label} = Gtk2::Label->new;
+	
+		$self->widget->add(Gtk2::HBox->new);
+		$self->widget->child->pack_start(Gtk2::Image->new_from_pixbuf($self->{icon}), 0, 0, 0);
+		$self->widget->child->pack_start($self->{label}, 1, 1, 0);
+	} else {
+		$self->{label}= Gtk2::Label->new();
+		$self->{widget}->add($self->{label});
+	}
+
 	$self->{widget}->signal_connect('clicked', sub { $self->prefs });
 	PerlPanel::tips->set_tip($self->{widget}, _('CPU Usage'));
 	$self->update;
@@ -116,7 +127,10 @@ sub end {
 }
 
 sub get_default_config {
-	return { interval => 1000 }
+	return {
+		interval	=> 1000,
+		show_icon	=> 'true',
+	};
 }
 
 1;

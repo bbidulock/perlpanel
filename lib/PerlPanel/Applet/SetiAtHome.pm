@@ -1,4 +1,4 @@
-# $Id: SetiAtHome.pm,v 1.1 2004/04/27 23:06:01 jodrell Exp $
+# $Id: SetiAtHome.pm,v 1.2 2004/04/28 09:39:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,9 +37,17 @@ sub configure {
 	my $self = shift;
 	$self->{config} = PerlPanel::get_config('SetiAtHome');
 	$self->{widget} = Gtk2::Button->new;
+
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->configuration_dialog });
-	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('SetiAtHome', PerlPanel::icon_size())));
+
+	$self->{icon} = PerlPanel::get_applet_pbf('SetiAtHome', PerlPanel::icon_size);
+	$self->{label} = Gtk2::Label->new;
+
+	$self->widget->add(Gtk2::HBox->new);
+	$self->widget->child->pack_start(Gtk2::Image->new_from_pixbuf($self->{icon}), 0, 0, 0);
+	$self->widget->child->pack_start($self->{label}, 1, 1, 0);
+
 	unless (defined($TIMEOUT)) {
 		our $TIMEOUT = Glib::Timeout->add(1000 * $self->{config}->{interval}, sub { $self->refresh; return 1 });
 	}
@@ -159,6 +167,11 @@ sub refresh {
 	}
 	my $tip;
 	$progress = int($progress * 100);
+
+	if ($progress > -1) {
+		$self->{label}->set_text("$progress%");
+	}
+
 	if ($progress > -1 && $results > -1) {
 		$tip = _('Completed {units} workunits, {percent}% of current', units => $results, percent => $progress);
 	} elsif ($progress > -1 && $results < 0) {

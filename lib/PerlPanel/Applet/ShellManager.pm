@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.1 2004/04/27 23:06:01 jodrell Exp $
+# $Id: ShellManager.pm,v 1.2 2004/04/28 09:39:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -69,11 +69,11 @@ sub create_menu {
 				},
 			));
 		}
+		$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	}
-	$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	$self->menu->append($self->menu_item(
 		_('New Connection...'),
-		'gtk-add',
+		'gtk-new',
 		sub { $self->add_dialog },
 	));
 	return 1;
