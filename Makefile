@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.25 2004/02/02 12:05:53 jodrell Exp $
+# $Id: Makefile,v 1.26 2004/02/02 12:26:18 jodrell Exp $
 
 VERSION=0.3.1
 
@@ -33,7 +33,7 @@ perlpanel:
 	mkdir build
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
-	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; print' < src/perlpanel-run-dialog > build/perlpanel-run-dialog
+	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-run-dialog > build/perlpanel-run-dialog
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
@@ -55,7 +55,7 @@ clean:
 	rm -rf build
 
 uninstall:
-	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
+	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(BINDIR)/perlpanel-run-dialog $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1
 
 release:
 	./make.rpm $(VERSION)
