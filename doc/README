@@ -28,20 +28,18 @@ A few tenets:
 
 A few wahs, or, TODO:
 
-	1. Drag-and-drop sorting of applets and icons in the IconBar would
-	   be nice.
-	2. Support for multiheaded systems - there is a way to kludge this
+	1. Support for multiheaded systems - there is a way to kludge this
 	   but a "proper" solution is more desirable.
-	3. One day, all applets will be widgets in their own right, and
+	2. One day, all applets will be widgets in their own right, and
 	   will inherit from a base class that will let us do neat things
 	   like having standard pop-ups. Maybe the Panel will also be a
 	   widget as well.
-	4. Translations are incomplete.
+	3. Translations are incomplete.
 
-[1]: We use the Gnome2::Wnck library for the tasklist, show desktop
-button and pager. However this module doesn't require the rest of the
-Gnome2 modules - it's just named that way because it's maintained by the
-GNOME developers.
+[1]: We use the Gnome2::Wnck library for the launch feedback, tasklist,
+show desktop button and pager. However this module doesn't require the
+rest of the Gnome2 modules - it's just named that way because it's
+maintained by the GNOME developers.
 
 --
-$Id: README,v 1.14 2004/07/02 11:32:33 jodrell Exp $
+$Id: README,v 1.15 2004/09/27 15:42:49 jodrell Exp $
