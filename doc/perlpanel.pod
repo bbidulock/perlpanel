@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.28 2004/09/29 11:34:12 jodrell Exp $
+$Id: perlpanel.pod,v 1.29 2004/09/29 14:11:48 jodrell Exp $
 
 =head1 Introduction
 
@@ -279,6 +279,8 @@ all the current windows. Click on a window's entry to raise it.
 
 This applet lets you control the XMMS media player. You need the
 XMMS-Perl libraries in order to use this applet.
+
+This applet will also control the Beep Media Player.
 
 =head1 Writing Applets
 
