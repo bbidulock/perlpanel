@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.9 2003/06/19 16:29:43 jodrell Exp $
+# $Id: Configurator.pm,v 1.10 2003/06/20 13:31:51 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -231,12 +231,13 @@ sub add_dialog {
 
 	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
 
-	$self->{window}->add_buttons(
+	$dialog->add_buttons(
 		'gtk-cancel', 1,
 		'gtk-ok', 0,
 	);
 
-	$self->{window}->signal_connect('response', sub {
+	$dialog->signal_connect('response', sub {
+		$dialog->destroy;
 		if ($_[1] == 0) {
 			# 'ok' was clicked
 			my ($iter, $blah) = $view->get_selection->get_selected;
@@ -246,10 +247,6 @@ sub add_dialog {
 			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
 			my $newiter = $self->{store}->append;
 			$self->{store}->set($newiter, 0, $appletname);
-			$dialog->destroy;
-		} elsif ($_[1] == 1) {
-			# 'cancel' was clicked
-			$dialog->destroy;
 		}
 	});
 

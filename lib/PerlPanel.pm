@@ -1,6 +1,5 @@
-# $Id: PerlPanel.pm,v 1.20 2003/06/19 16:29:43 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.21 2003/06/20 13:31:51 jodrell Exp $
 package PerlPanel;
-use Time::HiRes qw(time);
 use Gtk2;
 use Data::Dumper;
 use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
@@ -236,13 +235,13 @@ sub request_string {
 	$dialog->signal_connect(
 		'response',
 		sub {
+			$dialog->destroy;
 			if ($_[1] eq 1) {
 				# only destroy the window if the callback
 				# returns true.
 				return unless $callback->($entry->get_text);
 				$callback->($entry->get_text);
 			}
-			$dialog->destroy;
 		}
 	);
 
