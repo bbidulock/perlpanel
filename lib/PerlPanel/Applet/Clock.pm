@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.26 2004/10/11 14:03:56 jodrell Exp $
+# $Id: Clock.pm,v 1.27 2004/10/26 16:17:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -127,7 +127,7 @@ sub make_calendar {
 	$self->{window}->realize;
 
 	$self->{model} = Gtk2::ListStore->new(qw(Glib::String Glib::String));
-	foreach my $mins (sort keys %REMINDERS) {
+	foreach my $mins (sort { $a <=> $b } keys %REMINDERS) {
 		$self->{model}->set($self->{model}->append, 0, $mins, 1, $REMINDERS{$mins});
 	}
 
