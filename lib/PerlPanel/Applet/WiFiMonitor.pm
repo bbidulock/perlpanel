@@ -1,4 +1,4 @@
-# $Id: WiFiMonitor.pm,v 1.6 2004/11/22 11:24:42 jodrell Exp $
+# $Id: WiFiMonitor.pm,v 1.7 2005/01/18 10:08:20 jodrell Exp $
 # This file is part of PerlPanel.
 #
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,34 +18,50 @@
 # Copyright: (C) 2004-2005 Nathan Powell <nathan@lagerbottom.com>
 #
 package PerlPanel::Applet::WiFiMonitor;
+use vars qw($MULTI);
+
 use strict;
+
+$MULTI = 1;
 
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
+	$self->{id}	        = shift;
 	bless($self, $self->{package});
 	return $self;
 }
 
 sub configure {
 	my $self = shift;
-	$self->{config} = PerlPanel::get_config('WiFiMonitor');
+	$self->{config} = PerlPanel::get_config('WiFiMonitor', $self->{id});
 	$self->{widget} = Gtk2::EventBox->new;
 
-	if ($self->{config}->{show_icon} eq 'true') {
-		$self->{icon} = PerlPanel::get_applet_pbf('WiFiMonitor', PerlPanel::icon_size);
+	if ($self->{config}{show_icon} eq 'true' and
+            $self->{config}{show_percent} eq 'true' ) {
+		my $icon = PerlPanel::get_applet_pbf('WiFiMonitor', PerlPanel::icon_size);
+                $self->{icon} = Gtk2::Image->new_from_pixbuf($icon);
 		$self->{label} = Gtk2::Label->new;
 		$self->widget->add(Gtk2::HBox->new);
-		$self->widget->child->pack_start(Gtk2::Image->new_from_pixbuf($self->{icon}), 0, 0, 0);
+
+		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 		$self->widget->child->pack_start($self->{label}, 1, 1, 0);
 
-	} else {
+	}
+        elsif ( $self->{config}{show_percent} eq 'true' ) {
 		$self->{label}= Gtk2::Label->new();
 		$self->{widget}->add($self->{label});
-
 	}
+        else {
+		my $icon = PerlPanel::get_applet_pbf('WiFiMonitor', PerlPanel::icon_size);
+                $self->{icon} = Gtk2::Image->new_from_pixbuf($icon);
+		$self->{label} = Gtk2::Label->new;
+		$self->widget->add(Gtk2::HBox->new);
 
-	$self->{config} = PerlPanel::get_config('WiFiMonitor');
+		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
+
+        }
+
 	PerlPanel::tips->set_tip($self->{widget}, _('Wireless Signal Strength'));
 	$self->widget->show_all;
 	$self->update;
@@ -55,19 +71,65 @@ sub configure {
 
 sub update {
 	my $self = shift;
+
+	my ( $signal, $device );
 	if (!open(WIRELESS, '/proc/net/wireless')) {
 		print STDERR "*** Error opening '/proc/net/wireless': $!\n";
 		$self->{label}->set_text('ERR');
+                $self->_set_icon("broken-0.png");
 		return undef;
 	} else {
-		my $signal;
-		while (<WIRELESS>) {
-			$signal .= $_;
+                my $count = 1;
+		while (my $wireless = <WIRELESS>) {
+                    if ( $count == 1 or $count == 2 ) {
+                        $count++;
+                        next;
+                    }
+                    $count++;
+
+                    if ( $self->{config}{device} ) {
+                        if ( $wireless =~ /^\s*$self->{config}{device}:/ ) {
+                            $device = $self->{config}{device};
+                            ( $signal ) = $wireless =~ /^\s*$self->{config}{device}:\s+\d+\s+(\d+)/;
+                            last;
+                        }
+                    }
+                    else {
+                        ($device, $signal) =
+                                $wireless =~ /^\s*(\w+\d):\s+\d+\s+(\d+)/;
+                        last;
+                    }
 		}
 		close(WIRELESS);
-	   	($signal) = $signal =~ /(?:eth|wlan)\d:\s+\d+\s+(\d+)/;
-		$self->{label}->set_text(sprintf("%d%", log($signal) / log(92) * 100));
-	}
+
+        }
+
+        if ( $device and $signal ) {
+            my $percent = sprintf("%d%", log($signal) / log(92) * 100);
+            $self->{label}->set_text($percent);
+            PerlPanel::tips->set_tip($self->{widget}, _("Wireless Signal Strength for $device: $percent"));
+
+            if ( $percent == 0 ) {
+                $self->_set_icon("no-link-0.png");
+            }
+            elsif ( $percent >= 1 and $percent <= 40 ) {
+                $self->_set_icon("signal-1-40.png");
+            }
+            elsif ( $percent >= 41 and $percent <= 60 ) {
+                $self->_set_icon("signal-41-60.png");
+            }
+            elsif ( $percent >= 61 and $percent <= 80 ) {
+                $self->_set_icon("signal-61-80.png");
+            }
+            elsif ( $percent >= 81 and $percent <= 100 ) {
+                $self->_set_icon("signal-81-100.png");
+            }
+        }
+        else {
+            $self->{label}->set_text('ERR');
+            $self->_set_icon("broken-0.png");
+            return undef;
+        }
 	return 1;
 }
 
@@ -85,9 +147,22 @@ sub fill {
 
 sub get_default_config {
 	return {
-		interval => 1000,
-		show_icon => 'true',
+		interval        => 1000,
+		show_icon       => 'true',
+		show_percent    => 'true',
+                device          => '',
 	};
 }
 
+sub _set_icon {
+    my ( $self, $icon ) = @_;
+
+    return unless $self->{config}{show_icon} eq 'true';
+
+    my $image_dir = sprintf('%s/share/%s/wifimonitor', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+    $self->{icon}->set_from_file("$image_dir/$icon");
+    $self->{widget}->queue_draw;
+}
+
 1;
+
