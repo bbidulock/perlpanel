@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.106 2004/09/17 11:28:53 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.107 2004/09/17 16:02:37 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -436,6 +436,9 @@ sub load_applet {
 	} else {
 		$self->add_applet($applet->widget, $applet->expand, $applet->fill, $position);
 		$applet->widget->show;
+		if ($id ne '') {
+			$self->{widgets}->{$id} = $applet->widget;
+		}
 	}
 
 	return 1;
@@ -458,7 +461,7 @@ sub applet_error {
 		my $configurator = PerlPanel::Applet::Configurator->new;
 		$configurator->configure;
 		$configurator->init;
-		$configurator->app->get_widget('notebook')->set_current_page(3);
+		$configurator->app->get_widget('notebook')->set_current_page(2);
 	});
 	$glade->get_widget('error_dialog')->set_position('center');
 	$glade->get_widget('error_dialog')->set_icon($self->icon);
@@ -473,6 +476,20 @@ sub add_applet {
 		$self->{hbox}->reorder_child($widget, $position);
 	}
 	return 1;
+}
+
+sub remove_applet {
+	my ($applet, $id) = @_;
+	for (my $i = 0 ; $i < scalar(@{$OBJECT_REF->{config}{applets}}) ; $i++) {
+		if ((@{$OBJECT_REF->{config}{applets}})[$i] eq sprintf('%s::%s', $applet, $id)) {
+			$OBJECT_REF->{widgets}->{$id}->destroy;
+			splice(@{$OBJECT_REF->{config}{applets}}, $i, 1);
+			PerlPanel::save_config();
+			return 1;
+		}
+	}
+	warning(_("Could not remove the {applet}::{id} applet!", applet => $applet, id => $id));
+	return undef;
 }
 
 sub show_all {
@@ -525,6 +542,11 @@ sub shutdown {
 	exit;
 }
 
+# note to applet authors: please avoid using
+# this function wherever possible - if you wish to apply preference changes
+# to your applet, do so inside the applet and then call PerlPanel::save_config()
+# to commit them to disk. Calling PerlPanel::reload() may produce
+# unpredictable behaviour in other applets.
 sub reload {
 	my $self = $OBJECT_REF;
 	$self->panel->set_sensitive(0);
@@ -827,7 +849,7 @@ sub has_applet {
 	$self = $OBJECT_REF;
 	$applet = shift;
 	foreach my $appletname (@{$self->{config}{applets}}) {
-		return 1 if ($appletname eq $applet);
+		return 1 if ($appletname =~ /^$applet/);
 	}
 	return undef;
 }
