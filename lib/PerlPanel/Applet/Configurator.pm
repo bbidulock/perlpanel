@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.58 2004/09/17 11:28:53 jodrell Exp $
+# $Id: Configurator.pm,v 1.59 2004/09/17 15:57:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -137,14 +137,6 @@ our %SETTINGS_MAP = (
 		'boolean',
 	],
 
-	#
-	# Tab #3 - pager settings
-	#
-	'pager_rows' => [
-		PerlPanel::get_config('Pager'),
-		'rows',
-		'integer',
-	],
 );
 
 sub new {
@@ -185,7 +177,6 @@ sub build_ui {
 
 	$self->app->get_widget('panel_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(PerlPanel::lookup_icon(sprintf('%s-panel', lc($PerlPanel::NAME))))->scale_simple(24, 24, 'bilinear'));
 	$self->app->get_widget('menu_tab_image')->set_from_pixbuf(PerlPanel::get_applet_pbf('bbmenu')->scale_simple(24, 24, 'bilinear'));
-	$self->app->get_widget('pager_tab_image')->set_from_pixbuf(PerlPanel::get_applet_pbf('pager')->scale_simple(24, 24, 'bilinear'));
 	$self->app->get_widget('applet_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(PerlPanel::lookup_icon(sprintf('%s-applets', lc($PerlPanel::NAME))))->scale_simple(24, 24, 'bilinear'));
 
 	$self->setup_config_mapping;
@@ -312,10 +303,6 @@ sub setup_custom_settings {
 		$self->app->get_widget('obmenu_prefs_label')->destroy;
 		$self->app->get_widget('obmenu_prefs_hbox')->destroy;
 		$self->app->get_widget('obmenu_prefs_spacer')->destroy;
-	}
-
-	unless (PerlPanel::has_pager()) {
-		$self->app->get_widget('notebook')->remove_page(2);
 	}
 
 	$self->{applet_list} = Gtk2::SimpleList->new_from_treeview(
