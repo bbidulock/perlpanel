@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.61 2004/09/26 12:59:05 jodrell Exp $
+# $Id: Configurator.pm,v 1.62 2004/09/27 10:37:24 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -312,7 +312,20 @@ sub setup_custom_settings {
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
 		my ($applet, $id) = split(/::/, $appletname, 2);
-		my $pbf = PerlPanel::get_applet_pbf($applet, 32);
+		my $pbf;
+		$pbf = PerlPanel::get_applet_pbf($applet, 32);
+		if ($applet eq 'Launcher' && $id ne '') {
+			my $file = sprintf('%s/%s.desktop', $PerlPanel::Applet::Launcher::LAUNCHER_DIR, $id);
+			if (-r $file) {
+				my $entry = PerlPanel::DesktopEntry->new($file);
+				if (-r $entry->Icon) {
+					my $launcher_pbf = Gtk2::Gdk::Pixbuf->new_from_file($entry->Icon);
+					if (defined($launcher_pbf)) {
+						$pbf = $launcher_pbf->scale_simple(32, 32, 'bilinear');
+					}
+				}
+			}
+		}
 		push(@{$self->{applet_list}->{data}}, [$pbf, $applet, $id]);
 	}
 	$self->{applet_list}->set_reorderable(1);
