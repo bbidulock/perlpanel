@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.34 2004/01/06 12:27:55 jodrell Exp $
+# $Id: BBMenu.pm,v 1.35 2004/01/06 16:13:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #
 package PerlPanel::Applet::BBMenu;
 use File::Basename qw(basename);
-use vars qw(@menufiles $MENU_ARROW @ICON_DIRECTORIES);
+use vars qw(@menufiles @ICON_DIRECTORIES);
 use strict;
 
 our @menufiles = (
@@ -33,8 +33,6 @@ our @menufiles = (
 	'/usr/local/share/waimea/menu',
 	'/usr/share/waimea/menu',
 );
-
-our $MENU_ARROW = sprintf('%s/share/pixmaps/perlpanel-menu-arrow.png', $PerlPanel::PREFIX);
 
 our @ICON_DIRECTORIES = (
 	sprintf('%s/.perlpanel/icon-files', $ENV{HOME}),
@@ -80,20 +78,6 @@ sub configure {
 	} else {
 		$self->{pixbuf} = $self->widget->render_icon('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
 	}
-	$self->{arrow_pbf} = Gtk2::Gdk::Pixbuf->new_from_file($MENU_ARROW);
-	$self->{arrow_pbf}->composite(
-		$self->{pixbuf},
-		0,
-		0,
-		$self->{arrow_pbf}->get_width,
-		$self->{arrow_pbf}->get_height,
-		0,
-		0,
-		1,
-		1,
-		'nearest',
-		1
-	);
 	$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{label} eq '') {
 		$self->widget->add($self->{icon});

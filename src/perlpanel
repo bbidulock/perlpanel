@@ -15,7 +15,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: perlpanel,v 1.4 2003/08/12 16:03:14 jodrell Exp $
+# $Id: perlpanel,v 1.5 2004/01/06 16:13:13 jodrell Exp $
 use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
 use PerlPanel;
 
@@ -25,7 +25,7 @@ use PerlPanel;
 # in the PerlPanel source directory, and work on PerlPanel without having to
 # install it, or hard-coding paths into the scripts.
 
-$PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $PerlPanel::PREFIX);
+$PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 
 my $panel = PerlPanel->new;
 

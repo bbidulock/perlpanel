@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.14 2004/01/06 12:27:55 jodrell Exp $
+# $Id: Makefile,v 1.15 2004/01/06 16:13:13 jodrell Exp $
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -41,10 +41,10 @@ install:
 	cp -Rvp lib/* $(LIBDIR)/
 	install -m 0755 build/perlpanel.1 $(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_SECTION)/
-	install -m 0644 share/perlpanel.png $(IMGDIR)/
-	install -m 0644 share/perlpanel-menu-icon.png $(IMGDIR)/
-	install -m 0644 share/perlpanel-lock-screen.png $(IMGDIR)/
-	install -m 0644 share/perlpanel-show-desktop.png $(IMGDIR)/
+	install -m 0644 share/pixmaps/perlpanel.png $(IMGDIR)/
+	install -m 0644 share/pixmaps/perlpanel-menu-icon.png $(IMGDIR)/
+	install -m 0644 share/pixmaps/perlpanel-lock-screen.png $(IMGDIR)/
+	install -m 0644 share/pixmaps/perlpanel-show-desktop.png $(IMGDIR)/
 
 clean:
 	rm -rf build

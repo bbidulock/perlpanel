@@ -1,4 +1,4 @@
-# $Id: ShowDesktop.pm,v 1.1 2003/10/12 16:10:27 jodrell Exp $
+# $Id: ShowDesktop.pm,v 1.2 2004/01/06 16:13:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,6 +21,8 @@ use vars qw($DEFAULT_DESKTOP_ICON);
 use strict;
 
 our $DEFAULT_DESKTOP_ICON = sprintf('%s/share/pixmaps/perlpanel-show-desktop.png', $PerlPanel::PREFIX);
+
+print "$DEFAULT_DESKTOP_ICON\n";
 
 sub new {
 	my $self		= {};

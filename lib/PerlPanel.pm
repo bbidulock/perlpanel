@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.36 2004/01/05 14:56:59 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.37 2004/01/06 16:13:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -35,8 +35,6 @@ our @CO_AUTHORS		= (
 
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 our $LICENSE		= "This program is Free Software. You may use it\nunder the terms of the GNU General Public License.";
-
-chomp(our $PREFIX = `gtk-config --prefix`);
 
 our %DEFAULTS = (
 	version	=> $VERSION,
