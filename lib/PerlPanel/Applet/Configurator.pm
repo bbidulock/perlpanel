@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.46 2004/05/27 16:29:53 jodrell Exp $
+# $Id: Configurator.pm,v 1.47 2004/06/03 12:13:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -134,7 +134,7 @@ our %SETTINGS_MAP = (
 	],
 
 	#
-	# Tab #3 GNOME menu settings
+	# Tab #2 - GNOME menu settings
 	#
 	'gnome_menu_label' => [
 		PerlPanel::get_config('GnomeMenu'),
@@ -154,6 +154,16 @@ our %SETTINGS_MAP = (
 	'gnome_menu_submenu' => [
 		PerlPanel::get_config('GnomeMenu'),
 		'apps_in_submenu',
+		'boolean',
+	],
+
+	#
+	# Tab 2 - global menu settings
+	#
+
+	'quit_button_checkbutton' => [
+		$PerlPanel::OBJECT_REF->{config}{panel},
+		'show_quit_button',
 		'boolean',
 	],
 

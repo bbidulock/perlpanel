@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.12 2004/06/03 12:03:41 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.13 2004/06/03 12:13:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,7 +28,16 @@ sub configure {
 	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('nautilusbookmarks', PerlPanel::icon_size));
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->set_relief('none');
-	$self->widget->add($self->{icon});
+	$self->{config} = PerlPanel::get_config('NautilusBookmarks');
+	if ($self->{config}->{label} eq '') {
+		$self->widget->add($self->{icon});
+	} else {
+		$self->widget->add(Gtk2::HBox->new);
+		$self->widget->child->set_border_width(0);
+		$self->widget->child->set_spacing(0);
+		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
+		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
+	}
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	PerlPanel::tips->set_tip($self->widget, _('Nautilus Bookmarks'));
 	return 1;

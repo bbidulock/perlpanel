@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.7 2004/05/28 10:46:47 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.8 2004/06/03 12:13:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,7 +20,6 @@
 package PerlPanel::Applet::GnomeMenu;
 use base 'PerlPanel::MenuBase';
 use Gnome2::VFS;
-use Gnome2;
 use vars qw ($DESKTOP_NAMESPACE);
 use strict;
 
@@ -30,9 +29,6 @@ sub configure {
 	my $self = shift;
 
 	Gnome2::VFS->init;
-
-	$self->{theme} = Gnome2::IconTheme->new;
-	$self->{theme}->set_custom_theme('Gnome');
 
 	$self->{widget} = Gtk2::Button->new;
 
@@ -146,13 +142,13 @@ sub create_submenu_for {
 				my (undef, undef, $icon, undef) = $self->parse_desktopfile($data);
 
 				if ($icon eq '') {
-					$menu_icon = $self->lookup_icon('gnome-fs-directory', PerlPanel::icon_size);
+					$menu_icon = PerlPanel::lookup_icon('gnome-fs-directory');
 
 				} else {
 					$menu_icon = $icon;
 				}
 			} else {
-				$menu_icon = $self->lookup_icon('gnome-fs-directory', PerlPanel::icon_size);
+				$menu_icon = PerlPanel::lookup_icon('gnome-fs-directory');
 
 			}
 
@@ -214,7 +210,7 @@ sub parse_desktopfile {
 	if (-e $params->{$DESKTOP_NAMESPACE}{Icon}) {
 		$icon = $params->{$DESKTOP_NAMESPACE}{Icon};
 	} else {
-		$icon = $self->lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
+		$icon = PerlPanel::lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
 		if (! -e $icon) {
 			if (-e "/usr/share/pixmaps/$params->{$DESKTOP_NAMESPACE}{Icon}") {
 				$icon = PerlPanel::lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
@@ -223,11 +219,6 @@ sub parse_desktopfile {
 	}
 
 	return ($name, $comment, $icon, $program);
-}
-
-sub lookup_icon {
-	my ($self, $icon) = @_;
-	return ($self->{theme}->lookup_icon($icon, PerlPanel::icon_size_name))[0];
 }
 
 sub get_file_contents {

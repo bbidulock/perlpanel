@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.11 2004/02/24 17:07:18 jodrell Exp $
+# $Id: XMMS.pm,v 1.12 2004/06/03 12:13:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -49,7 +49,7 @@ sub new {
 	my $loaded = 0;
 	eval('use Xmms::Remote; $loaded = 1');
 	if ($loaded == 0) {
-		PerlPanel::error(_('The XMMS applet requires the Xmms-Perl module!'), sub { PerlPanel::shutdown });
+		PerlPanel::warning(_('The XMMS applet requires the Xmms-Perl module!'));
 		return undef;
 	} else {
 		return $self;

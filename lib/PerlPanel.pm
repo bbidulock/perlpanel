@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.82 2004/06/03 12:02:43 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.83 2004/06/03 12:13:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -303,7 +303,7 @@ sub load_applets {
 		undef($@);		
 		eval($expr);
 
-		if ($@) {
+		if ($@ || !defined($applet)) {
 			print STDERR $@;
 
 			my $message = _("Error loading {applet} applet.\n", applet => $appletname);
@@ -319,7 +319,6 @@ sub load_applets {
 				$configurator->init;
 				$configurator->app->get_widget('notebook')->set_current_page(3);
 			});
-
 		} else {
 
 			if (!defined($self->{config}{appletconf}{$appletname})) {
@@ -500,7 +499,7 @@ sub alert {
 		sub {
 			if ($_[1] eq 'cancel') {
 				$cancel_callback->() if $cancel_callback;
-			} else {
+			} elsif ($_[1] eq 'ok') {
 				$ok_callback->() if $ok_callback;
 			}
 			$dialog->destroy;

@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.4 2004/05/03 17:27:30 jodrell Exp $
+# $Id: ShellManager.pm,v 1.5 2004/06/03 12:13:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,7 +31,16 @@ sub configure {
 
 	$self->widget->set_relief('none');
 
-	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('ShellManager', PerlPanel::icon_size)));
+	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('ShellManager', PerlPanel::icon_size));
+	if ($self->{config}->{label} eq '') {
+		$self->widget->add($self->{icon});
+	} else {
+		$self->widget->add(Gtk2::HBox->new);
+		$self->widget->child->set_border_width(0);
+		$self->widget->child->set_spacing(0);
+		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
+		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
+	}
 
 	PerlPanel::tips->set_tip($self->{widget}, _('Shell Manager'));
 

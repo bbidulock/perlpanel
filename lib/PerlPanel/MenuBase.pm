@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.19 2004/05/28 10:46:41 jodrell Exp $
+# $Id: MenuBase.pm,v 1.20 2004/06/03 12:13:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -126,6 +126,7 @@ menu. The menu will subsequently look like this:
 	| ----------------------------- |
 	| Configure...			|
 	| Reload			|
+	| Close Panel			|
 	| ----------------------------- |
 	| About...			|
 	+-------------------------------+
@@ -200,6 +201,14 @@ sub add_control_items {
 		$configurator->init;
 	}));
 	$self->menu->append($self->menu_item(_('Reload'), PerlPanel::get_applet_pbf_filename('reload'), sub { PerlPanel::reload }));
+
+	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{show_quit_button} eq 'true') {
+		$self->menu->append(
+			$self->menu_item(_('Close Panel'),
+			'gtk-close',
+			sub { PerlPanel::shutdown }
+		));
+	}
 
 	my $item = $self->menu_item(_('Add To Panel'), 'gtk-add');
 	my $menu = Gtk2::Menu->new;
