@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.31 2004/01/26 00:50:58 jodrell Exp $
+# $Id: Configurator.pm,v 1.32 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,10 +29,10 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('configurator', $PerlPanel::OBJECT_REF->icon_size)));
+	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('configurator', PerlPanel::icon_size)));
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->widget->set_sensitive(0) ; $self->init });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Configure');
+	PerlPanel::tips->set_tip($self->widget, 'Configure');
 	return 1;
 }
 
@@ -73,7 +73,7 @@ sub build_ui {
 	$self->{window}->set_has_separator(0);
 	$self->{window}->set_default_size(250, 350);
 	$self->{window}->action_area->set_layout('end');
-	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
+	$self->{window}->set_icon(PerlPanel::icon);
 
 	$self->{notebook} = Gtk2::Notebook->new;
 	$self->{notebook}->set_border_width(6);
@@ -108,7 +108,7 @@ sub build_ui {
 	$self->{pages}{menu}->set_border_width(12);
 	$self->{pages}{menu}->set_spacing(6);
 
-	if ($PerlPanel::OBJECT_REF->has_application_menu) {
+	if (PerlPanel::has_application_menu) {
 
 		my $label = Gtk2::Label->new;
 		$label->set_markup('<span weight="bold">Menu</span>');
@@ -138,7 +138,7 @@ sub build_ui {
 		$self->{menu}{label} = $self->control_label('Menu label:');
 		$self->{controls}{label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'label', 'text', 'Menu label');
 
-		if (!$PerlPanel::OBJECT_REF->has_action_menu) {
+		if (!PerlPanel::has_action_menu) {
 			$self->{menu}{submenu_label} = $self->control_label('Submenu label:');
 			$self->{controls}{submenu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'submenu_label', 'text', 'Submenu label');
 			$self->{menu}{table}->attach_defaults($self->{menu}{submenu_label},     0, 1, 0, 1);
@@ -152,13 +152,13 @@ sub build_ui {
 		$self->{menu}{table}->attach_defaults($self->{iconfile}{label},    0, 1, 2, 3);
 		$self->{menu}{table}->attach_defaults($self->{controls}{iconfile}, 1, 2, 2, 3);
 
-		if ($PerlPanel::OBJECT_REF->has_application_menu && !$PerlPanel::OBJECT_REF->has_action_menu) {
+		if (PerlPanel::has_application_menu && !PerlPanel::has_action_menu) {
 			$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
 		}
 
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
 
-		if (!$PerlPanel::OBJECT_REF->has_action_menu) {
+		if (!PerlPanel::has_action_menu) {
 			my $control = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu');
 			$control->signal_connect('toggled', sub { $self->{controls}{submenu_label}->set_sensitive($control->get_active) });
 			$self->{controls}{submenu_label}->set_sensitive($control->get_active);
@@ -169,7 +169,7 @@ sub build_ui {
 
 	}
 
-	if ($PerlPanel::OBJECT_REF->has_action_menu) {
+	if (PerlPanel::has_action_menu) {
 		my $label = Gtk2::Label->new;
 		$label->set_markup('<span weight="bold">Action Menu</span>');
 		my $align = Gtk2::Alignment->new(0, 0.5, 0, 0);
@@ -208,7 +208,7 @@ sub build_ui {
 
 	}
 
-	if ($PerlPanel::OBJECT_REF->has_application_menu || $PerlPanel::OBJECT_REF->has_action_menu) {
+	if (PerlPanel::has_application_menu || PerlPanel::has_action_menu) {
 		$self->{notebook}->append_page($self->{pages}{menu}, 'Menus');
 	}
 
@@ -259,11 +259,11 @@ sub build_ui {
 			if ($_[1] == 0) {
 				$self->rebuild_appletlist;
 				if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'false' && $self->{backup}{panel}{autohide} eq 'true') {
-					$PerlPanel::OBJECT_REF->{panel}->signal_handler_disconnect($PerlPanel::OBJECT_REF->{enter_connect_id});
-					$PerlPanel::OBJECT_REF->{panel}->signal_handler_disconnect($PerlPanel::OBJECT_REF->{leave_connect_id});
+					PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{enter_connect_id});
+					PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{leave_connect_id});
 				}
-				$PerlPanel::OBJECT_REF->save_config;
-				$PerlPanel::OBJECT_REF->reload;
+				PerlPanel::save_config;
+				PerlPanel::reload;
 			} elsif ($_[1] == 1) {
 				$self->discard;
 			}
@@ -315,7 +315,7 @@ sub create_list {
 	$self->{view}->set_headers_visible(0);
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname, 24), $appletname]);
+		push(@{$self->{view}->{data}}, [PerlPanel::get_applet_pbf($appletname, 24), $appletname]);
 	}
 	return 1;
 }
@@ -333,7 +333,7 @@ sub discard {
 	my $self = shift;
 	$self->{widget}->set_sensitive(1);
 	$PerlPanel::OBJECT_REF->{config} = $self->{backup};
-	$PerlPanel::OBJECT_REF->save_config;
+	PerlPanel::save_config;
 	return 1;
 }
 
@@ -345,7 +345,7 @@ sub add_dialog {
 	$dialog->set_modal(1);
 	$dialog->set_border_width(12);
 	$dialog->set_default_size(450, 350);
-	$dialog->set_icon($PerlPanel::OBJECT_REF->icon);
+	$dialog->set_icon(PerlPanel::icon);
 
 	my $view = Gtk2::SimpleList->new(
 		'Icon'		=> 'pixbuf',
@@ -373,8 +373,8 @@ sub add_dialog {
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
 		push(@{$view->{data}}, [
-			$PerlPanel::OBJECT_REF->get_applet_pbf($appletname),
-			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, $self->{registry}{$appletname}),
+			PerlPanel::get_applet_pbf($appletname),
+			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}{$appletname} ne '' ? $self->{registry}{$appletname} : 'No description available.')),
 		]);
 	}
 
@@ -401,7 +401,7 @@ sub add_dialog {
 			my $idx = ($view->get_model->get_path($iter)->get_indices)[0];
 			my ($appletname, undef) = split(/\./, $files[$idx], 2);
 			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
-			push(@{$self->{view}->{data}}, [$PerlPanel::OBJECT_REF->get_applet_pbf($appletname, 24), $appletname]);
+			push(@{$self->{view}->{data}}, [PerlPanel::get_applet_pbf($appletname, 24), $appletname]);
 		}
 		$dialog->destroy;
 	});

@@ -1,4 +1,4 @@
-# $Id: Reload.pm,v 1.5 2004/01/26 00:50:58 jodrell Exp $
+# $Id: Reload.pm,v 1.6 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,10 +28,11 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('reload', $PerlPanel::OBJECT_REF->icon_size)));	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Reload');
+	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('reload', PerlPanel::icon_size)));
+	PerlPanel::tips->set_tip($self->{widget}, 'Reload');
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub {
-		$PerlPanel::OBJECT_REF->reload;
+		PerlPanel::reload;
 	});
 	return 1;
 

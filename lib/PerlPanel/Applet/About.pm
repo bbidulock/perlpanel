@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.9 2004/01/26 00:50:58 jodrell Exp $
+# $Id: About.pm,v 1.10 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,9 +29,9 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	$self->{widget}->set_relief('none');
-	$self->{widget}->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('about', $PerlPanel::OBJECT_REF->icon_size)));
+	$self->{widget}->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('about', PerlPanel::icon_size)));
 	$self->{widget}->signal_connect('clicked', sub { $self->about });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, "About $PerlPanel::NAME");
+	PerlPanel::tips->set_tip($self->{widget}, "About $PerlPanel::NAME");
 	return 1;
 
 }
@@ -60,7 +60,7 @@ sub about {
 	$self->{window}->set_position('center');
 	$self->{window}->set_border_width(15);
 	$self->{window}->set_title("About $PerlPanel::NAME");
-	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
+	$self->{window}->set_icon(PerlPanel::icon);
 	$self->{vbox} = Gtk2::VBox->new;
 	$self->{vbox}->set_spacing(15);
 	$self->{vbox}->pack_start(Gtk2::Image->new_from_file(sprintf('%s/share/pixmaps/%s-logo.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME))), 0, 0, 0);

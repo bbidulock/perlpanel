@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.5 2004/01/26 00:50:58 jodrell Exp $
+# $Id: Lock.pm,v 1.6 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,10 +31,12 @@ sub new {
 
 sub configure {
 	my $self = shift;
+	$self->{config} = PerlPanel::get_config('Lock');
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('lock', $PerlPanel::OBJECT_REF->icon_size)));	$self->widget->signal_connect('clicked', sub { $self->lock });
+	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('lock', PerlPanel::icon_size)));
+	$self->widget->signal_connect('clicked', sub { $self->lock });
 	$self->widget->set_relief('none');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Lock the Screen');
+	PerlPanel::tips->set_tip($self->widget, 'Lock the Screen');
 }
 
 sub widget {
@@ -64,8 +66,8 @@ sub lock {
 	my $self = shift;
 	my $cmd = sprintf(
 		'%s %s &',
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{Lock}{program},
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{Lock}{args},
+		$self->{config}->{program},
+		$self->{config}->{args},
 	);
 	system($cmd);
 	return 1;

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.52 2004/02/02 11:56:42 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.53 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -164,7 +164,7 @@ sub load_config {
 }
 
 sub save_config {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	$self->{config}{version} = $VERSION;
 	open(RCFILE, ">$self->{rcfile}") or print STDERR "Error writing to '$self->{rcfile}': $!\n" and exit 1;
 	print RCFILE XMLout($self->{config});
@@ -174,19 +174,19 @@ sub save_config {
 
 sub build_ui {
 	my $self = shift;
-	$self->{tooltips} = Gtk2::Tooltips->new;
-	our $TOOLTIP_REF = $self->{tooltips};
+	$self->{tips} = Gtk2::Tooltips->new;
+	our $TOOLTIP_REF = $self->{tips};
 	$self->{panel} = Gtk2::Window->new;
 
-	$self->{panel}->set_type_hint('dock');
-	$self->{panel}->stick; # needed for some window managers
+	$self->panel->set_type_hint('dock');
+	$self->panel->stick; # needed for some window managers
 
 	$self->{hbox} = Gtk2::HBox->new;
 
 	$self->{port} = Gtk2::Viewport->new;
 	$self->{port}->add($self->{hbox});
 
-	$self->{panel}->add($self->{port});
+	$self->panel->add($self->{port});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
 
 	return 1;
@@ -194,13 +194,13 @@ sub build_ui {
 
 sub configure {
 	my $self = shift;
-	$self->{panel}->set_default_size($self->screen_width, 0);
+	$self->panel->set_default_size($self->screen_width, 0);
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{hbox}->set_border_width(0);
 	$self->{port}->set_shadow_type('out');
 	if ($self->{config}{panel}{autohide} eq 'true') {
-		$self->{leave_connect_id} = $self->{panel}->signal_connect('leave_notify_event', sub { $self->autohide; });
-		$self->{enter_connect_id} = $self->{panel}->signal_connect('enter_notify_event', sub { $self->autoshow; });
+		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
+		$self->{enter_connect_id} = $self->panel->signal_connect('enter_notify_event', sub { $self->autoshow; });
 	}
 	return 1;
 }
@@ -250,19 +250,19 @@ sub add {
 sub show_all {
 	my $self = shift;
 
-	$self->{panel}->show_all;
+	$self->panel->show_all;
 
 	return 1;
 }
 
 sub move {
 	my $self = shift;
-	my $panel_height = $self->{panel}->allocation->height;
+	my $panel_height = $self->panel->allocation->height;
 	if ($self->position eq 'top') {
-		$self->{panel}->move(0, 0);
+		$self->panel->move(0, 0);
 	} elsif ($self->position eq 'bottom') {
 		my $screen_height= $self->screen_height;
-		$self->{panel}->move(0, ($screen_height - $panel_height));
+		$self->panel->move(0, ($screen_height - $panel_height));
 	} else {
 		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
 	}
@@ -274,7 +274,7 @@ sub move {
 		($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
 	}
 
-	$self->{panel}->window->property_change(
+	$self->panel->window->property_change(
 		Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
 		Gtk2::Gdk::Atom->intern('CARDINAL', undef),
 		32,
@@ -289,14 +289,14 @@ sub move {
 }
 
 sub shutdown {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	$self->save_config;
 	exit;
 }
 
 sub reload {
-	my $self = shift;
-	$self->{panel}->set_sensitive(0);
+	my $self = shift || $OBJECT_REF;
+	$self->panel->set_sensitive(0);
 	$self->save_config;
 	foreach my $applet ($self->{hbox}->get_children) {
 		$applet->destroy;
@@ -304,12 +304,18 @@ sub reload {
 	$self->load_applets;
 	$self->configure;
 	$self->move;
-	$self->{panel}->set_sensitive(1);
+	$self->panel->set_sensitive(1);
 	return 1;
 }
 
 sub request_string {
-	my ($self, $message, $callback, $visible) = @_;
+	my ($self, $message, $callback, $visible);
+	if (scalar(@_) == 4) {
+		($self, $message, $callback, $visible) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $callback, $visible) = @_;
+	}
 
 	my $dialog = Gtk2::Dialog->new(
 		"$NAME: $message",
@@ -360,14 +366,26 @@ sub request_string {
 }
 
 sub request_password {
-	my ($self, $message, $callback) = @_;
+	my ($self, $message, $callback);
+	if (scalar(@_) == 3) {
+		($self, $message, $callback) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $callback) = @_;
+	}
 	$self->request_string($message, $callback, 1);
 }
 
 # you shouldn't need to access this directly -
 # instead use one of the wrappers below:
 sub alert {
-	my ($self, $message, $ok_callback, $cancel_callback, $type) = @_;
+	my ($self, $message, $ok_callback, $cancel_callback, $type);
+	if (scalar(@_) == 5) {
+		($self, $message, $ok_callback, $cancel_callback, $type) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $ok_callback, $cancel_callback, $type) = @_;
+	}
 
 	my $buttons = 'ok';
 	if (defined($ok_callback) && defined($cancel_callback)) {
@@ -396,58 +414,95 @@ sub alert {
 }
 
 sub question {
-	my ($self, $message, $ok_callback, $cancel_callback) = @_;
+	my ($self, $message, $ok_callback, $cancel_callback);
+	if (scalar(@_) == 4) {
+		($self, $message, $ok_callback, $cancel_callback) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $ok_callback, $cancel_callback) = @_;
+	}
 	return $self->alert($message, $ok_callback, $cancel_callback, 'question');
 }
 
 sub error {
-	my ($self, $message, $ok_callback) = @_;
+	my ($self, $message, $ok_callback);
+	if (scalar(@_) == 3) {
+		($self, $message, $ok_callback) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $ok_callback) = @_;
+	}
 	return $self->alert($message, (defined($ok_callback) ? $ok_callback : sub { $self->shutdown} ), undef, 'error');
 }
 
 sub warning {
-	my ($self, $message, $ok_callback) = @_;
+	my ($self, $message, $ok_callback);
+	if (scalar(@_) == 3) {
+		($self, $message, $ok_callback) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $ok_callback) = @_;
+	}
 	return $self->alert($message, $ok_callback, undef, 'warning');
 }
 
 sub notify {
-	my ($self, $message, $ok_callback) = @_;
+	my ($self, $message, $ok_callback);
+	if (scalar(@_) == 3) {
+		($self, $message, $ok_callback) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($message, $ok_callback) = @_;
+	}
 	return $self->alert($message, $ok_callback, undef, 'info');
 }
 
+sub tips {
+	my $self = shift || $OBJECT_REF;
+	return $self->{tips};
+}
+
+sub panel {
+	my $self = shift || $OBJECT_REF;
+	return $self->{panel};
+}
+
 sub icon {
-	return $_[0]->{icon};
+	my $self = shift || $OBJECT_REF;
+	return $self->{icon};
 }
 
 sub icon_size {
-	return @{$SIZE_MAP{$_[0]->{config}{panel}{size}}}[0];
+	my $self = shift || $OBJECT_REF;
+	return @{$SIZE_MAP{$self->{config}{panel}{size}}}[0];
 }
 
 sub icon_size_name {
-	return @{$SIZE_MAP{$_[0]->{config}{panel}{size}}}[1];
+	my $self = shift || $OBJECT_REF;
+	return @{$SIZE_MAP{$self->{config}{panel}{size}}}[1];
 }
 
 sub screen_width {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	return (defined($self->{screen}) ? $self->{screen}->get_width : $self->{screen_width});
 }
 
 sub screen_height {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	return (defined($self->{screen}) ? $self->{screen}->get_height : $self->{screen_height});
 }
 
 sub position {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	return $self->{config}{panel}{position};
 }
 
 sub autohide {
 	my $self = shift;
 	if ($self->position eq 'top') {
-		$self->{panel}->move(0, 0 - $self->{panel}->allocation->height + 2);
+		$self->panel->move(0, 0 - $self->panel->allocation->height + 2);
 	} elsif ($self->position eq 'bottom') {
-		$self->{panel}->move(0, $self->screen_height - 2);
+		$self->panel->move(0, $self->screen_height - 2);
 	} else {
 		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
 	}
@@ -492,7 +547,13 @@ sub autoshow {
 # and subtract the widget->pointer values. Simple, eh? :p
 
 sub get_widget_position {
-	my ($self, $widget) = @_;
+	my ($self, $widget);
+	if (scalar(@_) == 2) {
+		($self, $widget) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$widget = shift;
+	}
 
 	my $window = $widget->get_toplevel;
 
@@ -510,13 +571,20 @@ sub get_widget_position {
 }
 
 sub get_mouse_pointer_position {
-	my $self = shift;
-	my (undef, $x, $y, undef) = $self->{panel}->get_root_window->get_pointer;
+	my $self = shift || $OBJECT_REF;
+	my (undef, $x, $y, undef) = $self->panel->get_root_window->get_pointer;
 	return ($x, $y);
 }
 
 sub exec_wait {
-	my ($self, $command, $callback) = @_;
+	my ($self, $command, $callback);
+	if (scalar(@_) == 3) {
+		($self, $command, $callback) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($command, $callback) = @_;
+	}
+
 	open(COMMAND, "$command|");
 	my $tag;
 	$tag = Gtk2::Helper->add_watch(fileno(COMMAND), 'in', sub {
@@ -530,7 +598,7 @@ sub exec_wait {
 }
 
 sub has_application_menu {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
 		return 1 if ($applet eq 'BBMenu')
 	}
@@ -538,7 +606,7 @@ sub has_application_menu {
 }
 
 sub has_action_menu {
-	my $self = shift;
+	my $self = shift || $OBJECT_REF;
 	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
 		return 1 if ($applet eq 'ActionMenu')
 	}
@@ -548,13 +616,27 @@ sub has_action_menu {
 # this is just a stub, should we ever implement icon themes this will become
 # more useful:
 sub get_applet_pbf_filename {
-	my ($self, $applet) = @_;
+	my ($self, $applet);
+	if (scalar(@_) == 2) {
+		($self, $applet) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$applet = shift;
+	}
 	return sprintf('%s/%s.png', $APPLET_ICON_DIR, lc($applet));
 }
 
 sub get_applet_pbf {
-	my ($self, $applet, $size) = @_;
+	my ($self, $applet, $size);
+	if (scalar(@_) == 3) {
+		($self, $applet, $size) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		($applet, $size) = @_;
+	}
+
 	$size = ($size > 0 ? $size : $APPLET_ICON_SIZE);
+
 	if (!defined($self->{pbfs}{$applet}{$size})) {
 		my $file = $self->get_applet_pbf_filename($applet);
 		if (-e $file) {
@@ -567,6 +649,22 @@ sub get_applet_pbf {
 		}
 	}
 	return $self->{pbfs}{$applet}{$size};
+}
+
+sub get_config {
+	my ($self, $applet);
+	if (scalar(@_) == 2) {
+		($self, $applet) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$applet = shift;
+	}
+	return $self->{config}{appletconf}{$applet};
+}
+
+sub spacing {
+	my $self = shift || $OBJECT_REF;
+	return $self->{config}{panel}{spacing};
 }
 
 1;

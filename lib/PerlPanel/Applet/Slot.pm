@@ -1,4 +1,4 @@
-# $Id: Slot.pm,v 1.1 2004/01/06 12:27:55 jodrell Exp $
+# $Id: Slot.pm,v 1.2 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -43,7 +43,7 @@ sub configure {
 	$self->{socketfile} = sprintf('%s/.%s/socketid', $ENV{HOME}, lc($PerlPanel::NAME));
 
 	$socket->signal_connect('realize', sub {
-		open(SOCKETFILE, ">$self->{socketfile}") or $PerlPanel::OBJECT_REF->error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
+		open(SOCKETFILE, ">$self->{socketfile}") or PerlPanel::error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
 		print SOCKETFILE $socket->get_id;
 		close(SOCKETFILE);
 	});

@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.1 2004/01/05 13:19:33 jodrell Exp $
+# $Id: PanelPet.pm,v 1.2 2004/02/11 17:04:09 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -15,6 +15,9 @@ sub new {
 # Build the Gtk Widget for our applet
 sub configure {
     my $self = shift;
+
+    $self->{config} = PerlPanel::get_config('PanelPet');
+
     $self->{widget} = Gtk2::Button->new;
     $self->{widget}->set_relief('none');
 
@@ -30,13 +33,13 @@ sub configure {
             sub { $self->_button_click ($_[1]->button) ; return undef });
 
     # Set the tooltip for the applet
-    $PerlPanel::TOOLTIP_REF->set_tip($self->{widget},
+    PerlPanel::tips->set_tip($self->{widget},
                                      "Hi, I'm your Panel Pet!");
     $self->{current_frame} = 1;
     $self->_update;
 
     Glib::Timeout->add(
-        $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{interval},
+        $self->{config}{interval},
         sub { $self->_update },
     );
 
@@ -147,17 +150,17 @@ sub _right_click_menu {
 sub _popup_position {
     my $self = shift;
     my $x0 = $_[1];
-    if ($PerlPanel::OBJECT_REF->position eq 'top') {
-        return ($x0, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+    if (PerlPanel::position eq 'top') {
+        return ($x0, PerlPanel::panel->allocation->height);
     }
     else {
         $self->{menu}->realize;
         $self->{menu}->show_all;
         return (
             $x0,
-            $PerlPanel::OBJECT_REF->screen_height -
+            PerlPanel::screen_height -
             $self->{menu}->allocation->height     -
-            $PerlPanel::OBJECT_REF->{panel}->allocation->height,
+            PerlPanel::panel->allocation->height,
         );
     }
 }
@@ -171,7 +174,7 @@ sub _panel_pet {
     $self->{window}->set_position('center');
     $self->{window}->set_border_width(15);
     $self->{window}->set_title("Panel Pet: Hello");
-    $self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
+    $self->{window}->set_icon(PerlPanel::icon);
     $self->{vbox} = Gtk2::VBox->new;
     $self->{vbox}->set_spacing(15);
     $self->{label} = Gtk2::Label->new();
@@ -218,7 +221,7 @@ EOF
     $self->{window}->set_position('center');
     $self->{window}->set_border_width(15);
     $self->{window}->set_title("PanelPet: About");
-    $self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
+    $self->{window}->set_icon(PerlPanel::icon);
     $self->{vbox} = Gtk2::VBox->new;
     $self->{vbox}->set_spacing(15);
     #$self->{vbox}->pack_start(Gtk2::Image->new_from_file("$PerlPanel::PREFIX/share/pixmaps/perlpanel.png"), 0, 0, 0);
@@ -252,13 +255,13 @@ sub _preferences {
 
     $self->{window}->set_border_width(8);
     $self->{window}->vbox->set_spacing(8);
-    $self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
+    $self->{window}->set_icon(PerlPanel::icon);
     $self->{table} = Gtk2::Table->new(5, 2, 0);
     $self->{table}->set_col_spacings(8);
     $self->{table}->set_row_spacings(8);
 
     my $adj_interval = Gtk2::Adjustment->new(
-            $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{interval},
+            $self->{config}{interval},
             100, 60000, 100, 1000, undef,
     );
 
@@ -270,7 +273,7 @@ sub _preferences {
     $self->{table}->attach_defaults($self->{controls}{interval}, 1, 2, 2, 3);
 
     my $adj_frames = Gtk2::Adjustment->new(
-            $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{frames},
+            $self->{config}{frames},
             1, 100000, 1, 10, undef,
     );
 
@@ -282,7 +285,7 @@ sub _preferences {
     $self->{table}->attach_defaults($self->{controls}{frames}, 1, 2, 3, 4);
 
     my $image = Gtk2::Image->new_from_file(
-            $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{image},
+            $self->{config}{image},
     );
 
     $self->{controls}{image} = Gtk2::Button->new;
@@ -306,17 +309,17 @@ sub _preferences {
 
         # 'Okay' was clicked, this all needs to be saved
         if ($_[1] == 0) {
-            $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{interval} =
+            $self->{config}{interval} =
                                 $self->{controls}{interval}->get_value_as_int;
-            $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{frames} =
+            $self->{config}{frames} =
                                 $self->{controls}{frames}->get_value_as_int;
-            $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{image} =
+            $self->{config}{image} =
                                 $self->{controls}{selector}{filename};
 
             $self->{widget}->set_sensitive(1);
             $self->{window}->destroy;
-            $PerlPanel::OBJECT_REF->save_config;
-            $PerlPanel::OBJECT_REF->reload;
+            PerlPanel::save_config;
+            PerlPanel::reload;
 
         }
         elsif ($_[1] == 1) {
@@ -336,10 +339,10 @@ sub _update {
     my $self = shift;
 
     my $filename =
-        $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{image};
+        $self->{config}{image};
 
     $self->{frames} =
-        $PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{frames};
+        $self->{config}{frames};
 
     my $base_image = Gtk2::Gdk::Pixbuf->new_from_file($filename);
     my $original_width  = ( $base_image->get_width / $self->{frames} );
@@ -357,26 +360,26 @@ sub _update {
                            $display_image, 0, 0 );
 
     # If the current image is larger than the panel, we need to scale it down
-    if ($original_height != $PerlPanel::OBJECT_REF->icon_size) {
+    if ($original_height != PerlPanel::icon_size) {
         my ($scaled_width, $scaled_height);
 
         # Image is landscape
         if ($original_width > $original_height) {
-            $scaled_height = $PerlPanel::OBJECT_REF->icon_size;
+            $scaled_height = PerlPanel::icon_size;
             $scaled_width  = int(($original_width / $original_height) *
                              $scaled_height);
         }
         # Image is square
         elsif ($original_width == $original_height) {
-            $scaled_width  = $PerlPanel::OBJECT_REF->icon_size;
-            $scaled_height = $PerlPanel::OBJECT_REF->icon_size;
+            $scaled_width  = PerlPanel::icon_size;
+            $scaled_height = PerlPanel::icon_size;
         }
         # Image is portrait
         else {
             $scaled_width = int(($original_width / $original_height) *
-                            $PerlPanel::OBJECT_REF->icon_size
+                            PerlPanel::icon_size
             );
-            $scaled_height = $PerlPanel::OBJECT_REF->icon_size;
+            $scaled_height = PerlPanel::icon_size;
         }
 
         $display_image = $display_image->scale_simple(
@@ -404,7 +407,7 @@ sub _update {
 sub _choose_panelpet_image {
     my $self = shift;
     my $selector = Gtk2::FileSelection->new('Choose PanelPet Image');
-    $selector->set_filename($PerlPanel::OBJECT_REF->{config}{appletconf}{PanelPet}{image});
+    $selector->set_filename($self->{config}{image});
     $selector->ok_button->signal_connect('clicked', sub {
         $self->{controls}{selector}{filename} = $selector->get_filename;
         my $new_image = Gtk2::Image->new_from_file($self->{controls}{selector}{filename});
@@ -429,8 +432,8 @@ sub _remove {
         }
     }
 
-    $PerlPanel::OBJECT_REF->save_config;
-    $PerlPanel::OBJECT_REF->reload;
+    PerlPanel::save_config;
+    PerlPanel::reload;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: Tasklist.pm,v 1.4 2004/01/11 23:36:06 jodrell Exp $
+# $Id: Tasklist.pm,v 1.5 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,7 +34,7 @@ sub configure {
 	$self->{tasklist}->set_minimum_width(50);
 	$self->{widget} = Gtk2::Alignment->new(0.5, 0.5, 1, 0);
 	$self->widget->set_border_width(2);
-	$self->widget->set_size_request(50, $PerlPanel::OBJECT_REF->icon_size);
+	$self->widget->set_size_request(50, PerlPanel::icon_size);
 	$self->widget->add($self->{tasklist});
 	return 1;
 }

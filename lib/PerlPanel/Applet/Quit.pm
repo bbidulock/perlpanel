@@ -1,4 +1,4 @@
-# $Id: Quit.pm,v 1.8 2004/01/26 00:50:58 jodrell Exp $
+# $Id: Quit.pm,v 1.9 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,11 +28,11 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('quit', $PerlPanel::OBJECT_REF->icon_size)));
+	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('quit', PerlPanel::icon_size)));
 	my $code = '$PerlPanel::OBJECT_REF->shutdown';
 	$self->widget->signal_connect('clicked', sub { eval $code ; if ($@) { print STDERR "Error shutting down: $@\n" ; exit 1 } });
 	$self->widget->set_relief('none');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, "Close $PerlPanel::NAME");
+	PerlPanel::tips->set_tip($self->widget, "Close $PerlPanel::NAME");
 }
 
 sub widget {

@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.8 2004/01/23 00:18:08 jodrell Exp $
+# $Id: XMMS.pm,v 1.9 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,7 +47,7 @@ sub new {
 	my $loaded = 0;
 	eval('use Xmms::Remote; $loaded = 1');
 	if ($loaded == 0) {
-		$PerlPanel::OBJECT_REF->error('The XMMS applet requires the Xmms-Perl module!', sub { $PerlPanel::OBJECT_REF->shutdown });
+		PerlPanel::error('The XMMS applet requires the Xmms-Perl module!', sub { PerlPanel::shutdown });
 		return undef;
 	} else {
 		return $self;
@@ -69,14 +69,14 @@ sub configure {
 	$self->{widget} = Gtk2::HBox->new;
 	$self->{controller} = Xmms::Remote->new;
 	$self->{pbfs}{pause} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, 'pause'));
-	if ($self->{pbfs}{pause}->get_height > $PerlPanel::OBJECT_REF->icon_size) {
-		$self->{pbfs}{pause} = $self->{pbfs}{pause}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
+	if ($self->{pbfs}{pause}->get_height > PerlPanel::icon_size) {
+		$self->{pbfs}{pause} = $self->{pbfs}{pause}->scale_simple(PerlPanel::icon_size, PerlPanel::icon_size, 'bilinear');
 	}
 	foreach my $name (qw(prev play stop next volume)) {
 		$self->{buttons}{$name} = $self->create_button($name);
 		my $func = $CALLBACKS{$name};
 		$self->{buttons}{$name}->signal_connect('clicked', sub { &$func($self) });
-		$PerlPanel::TOOLTIP_REF->set_tip($self->{buttons}{$name}, $TOOLTIPS{$name});
+		PerlPanel::tips->set_tip($self->{buttons}{$name}, $TOOLTIPS{$name});
 		$self->{widget}->pack_start($self->{buttons}{$name}, 0, 0, 0);
 	}
 	$self->{volume_slider} = Gtk2::VScale->new_with_range(0, 100, 1);
@@ -104,10 +104,10 @@ sub configure {
 				$self->{buttons}{stop}->set_sensitive(1);
 				if ($self->{controller}->is_paused) {
 					$self->{buttons}{play}->child->set_from_pixbuf($self->{pbfs}{play});
-					$PerlPanel::TOOLTIP_REF->set_tip($self->{buttons}{play}, $TOOLTIPS{play});
+					PerlPanel::tips->set_tip($self->{buttons}{play}, $TOOLTIPS{play});
 				} else {
 					$self->{buttons}{play}->child->set_from_pixbuf($self->{pbfs}{pause});
-					$PerlPanel::TOOLTIP_REF->set_tip($self->{buttons}{play}, $TOOLTIPS{pause});
+					PerlPanel::tips->set_tip($self->{buttons}{play}, $TOOLTIPS{pause});
 				}
 			} else {
 				$self->{buttons}{stop}->set_sensitive(0);
@@ -127,8 +127,8 @@ sub configure {
 sub create_button {
 	my ($self, $id) = @_;
 	$self->{pbfs}{$id} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, $id));
-	if ($self->{pbfs}{$id}->get_height > $PerlPanel::OBJECT_REF->icon_size) {
-		$self->{pbfs}{$id} = $self->{pbfs}{$id}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
+	if ($self->{pbfs}{$id}->get_height > PerlPanel::icon_size) {
+		$self->{pbfs}{$id} = $self->{pbfs}{$id}->scale_simple(PerlPanel::icon_size, PerlPanel::icon_size, 'bilinear');
 	}
 	my $button;
 	if ($id eq 'volume') {
@@ -152,13 +152,13 @@ sub toggle_volume_window {
 		$self->{volume_window}->show_all;
 		$self->{volume_window}->set_size_request($self->{buttons}{volume}->allocation->width, $SLIDER_SIZE);
 
-		my ($x, $y) = $PerlPanel::OBJECT_REF->get_widget_position($self->{buttons}{volume});
+		my ($x, $y) = PerlPanel::get_widget_position($self->{buttons}{volume});
 
-		if ($PerlPanel::OBJECT_REF->position eq 'top') {
-			$y = $PerlPanel::OBJECT_REF->{panel}->allocation->height;
+		if (PerlPanel::position eq 'top') {
+			$y = PerlPanel::panel->allocation->height;
 		} else {
-			$y = $PerlPanel::OBJECT_REF->screen_height -
-					$PerlPanel::OBJECT_REF->{panel}->allocation->height -
+			$y = PerlPanel::screen_height -
+					PerlPanel::panel->allocation->height -
 					$SLIDER_SIZE;
 		}
 		$self->{volume_window}->move($x, $y);

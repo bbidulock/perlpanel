@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.5 2003/08/12 16:03:14 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.6 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -27,21 +27,22 @@ sub new {
 
 sub configure {
 	my $self = shift;
+	$self->{config} = PerlPanel::get_config('LoadMonitor');
 	$self->{widget} = Gtk2::Button->new;
 	$self->{widget}->set_relief('none');
 	$self->{label}= Gtk2::Label->new();
 	$self->{widget}->add($self->{label});
 	$self->{widget}->signal_connect('clicked', sub { $self->prefs });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'CPU Usage');
+	PerlPanel::tips->set_tip($self->{widget}, 'CPU Usage');
 	$self->update;
-	Glib::Timeout->add($PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}, sub { $self->update });
+	Glib::Timeout->add($self->{config}->{interval}, sub { $self->update });
 	return 1;
 
 }
 
 sub update {
 	my $self = shift;
-	open(LOADAVG, '/proc/loadavg') or $PerlPanel::OBJECT_REF->error("Couldn't open '/proc/loadavg': $!", sub { exit }) and return undef;
+	open(LOADAVG, '/proc/loadavg') or PerlPanel::error("Couldn't open '/proc/loadavg': $!", sub { exit }) and return undef;
 	chomp(my $data = <LOADAVG>);
 	close(LOADAVG);
 	my $load = (split(/\s+/, $data, 5))[0];
@@ -57,12 +58,12 @@ sub prefs {
 	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
 	$self->{window}->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
-	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
+	$self->{window}->set_icon(PerlPanel::icon);
 	$self->{table} = Gtk2::Table->new(3, 2, 0);
 	$self->{table}->set_col_spacings(8);
 	$self->{table}->set_row_spacings(8);
 
-	my $adj = Gtk2::Adjustment->new($PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}, 100, 60000, 1, 1000, undef);
+	my $adj = Gtk2::Adjustment->new($self->{config}->{interval}, 100, 60000, 1, 1000, undef);
 	$self->{controls}{interval} = Gtk2::SpinButton->new($adj, 1, 0);
 
 	$self->{labels}{interval} = Gtk2::Label->new('Update interval (ms):');
@@ -78,11 +79,11 @@ sub prefs {
 	$self->{window}->signal_connect('response', sub {
 		if ($_[1] == 0) {
 			# 'ok' was clicked
-			$PerlPanel::OBJECT_REF->{config}{appletconf}{LoadMonitor}{interval}    = $self->{controls}{interval}->get_value_as_int;
+			$self->{config}->{interval}    = $self->{controls}{interval}->get_value_as_int;
 			$self->{widget}->set_sensitive(1);
 			$self->{window}->destroy;
-			$PerlPanel::OBJECT_REF->save_config;
-			$PerlPanel::OBJECT_REF->reload;
+			PerlPanel::save_config;
+			PerlPanel::reload;
 		} elsif ($_[1] == 1) {
 			$self->{widget}->set_sensitive(1);
 			$self->{window}->destroy;

@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.4 2004/01/26 00:50:58 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.5 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,9 +28,9 @@ sub new {
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gnome2::NautilusBookmarks->new(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('nautilusbookmarks', $PerlPanel::OBJECT_REF->icon_size)));
+	$self->{widget} = Gnome2::NautilusBookmarks->new(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('nautilusbookmarks', PerlPanel::icon_size)));
 	$self->widget->set_relief('none');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Nautilus Bookmarks');
+	PerlPanel::tips->set_tip($self->widget, 'Nautilus Bookmarks');
 	$self->widget->signal_connect('clicked', sub {
 		$self->widget->get_menu->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $self->widget, undef);
 	});
@@ -39,14 +39,14 @@ sub configure {
 
 sub popup_position {
 	my $self = shift;
-	my ($x, undef) = $PerlPanel::OBJECT_REF->get_widget_position($self->widget);
+	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
 	$x = 0 if ($x < 5);
-	if ($PerlPanel::OBJECT_REF->position eq 'top') {
-		return ($x, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	if (PerlPanel::position eq 'top') {
+		return ($x, PerlPanel::panel->allocation->height);
 	} else {
 		$self->widget->get_menu->realize;
 		$self->widget->get_menu->show_all;
-		return ($x, $PerlPanel::OBJECT_REF->screen_height - $self->widget->get_menu->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return ($x, (PerlPanel::screen_height) - $self->widget->get_menu->allocation->height - PerlPanel::panel->allocation->height);
 	}
 }
 

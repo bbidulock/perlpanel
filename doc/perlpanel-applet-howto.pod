@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.11 2004/02/02 12:45:47 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.12 2004/02/11 17:04:09 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -27,7 +27,7 @@ This document explains how to write applets for the PerlPanel.
 		$self->{widget}->signal_connect(
 			'clicked',
 			sub {
-				$PerlPanel::OBJECT_REF->alert(
+				PerlPanel::alert(
 					'Hello World!'
 				);
 			}
@@ -134,12 +134,6 @@ The panel uses a horizontal packing box to contain the applet widgets.
 These two methods return integer values for the 'expand' and 'fill'
 arguments to C<pack_start()> or C<pack_end()>).
 
-	$applet->end
-
-This method returns either C<'start'> (in which case C<pack_start()> is
-used to add the widget to the panel) or C<'end'> (which will tell the
-panel to use C<pack_end()>).
-
 	$applet->get_default_config
 
 This method returns a reference to an array containing the default
@@ -149,6 +143,21 @@ is only called once - the first time the applet is loaded, after which
 the panel will use the data from the user's config file.
 If this methods returns C<undef> then the panel will assume there is no
 configuration data.
+
+=head1 HISTORICAL NOTE
+
+The following sections describe the variables and functions that PerlPanel
+provides that make applet writing easier. Prior to version 0.4.0, the
+functions below were accessed using the form
+
+	$PerlPanel::OBJECT_REF->function_name
+
+As of version 0.4.0, the syntax is
+
+	PerlPanel::function_name
+
+For he purposes of backwards compatibility, the older form will continue to
+work, but all new code should use the new syntax.
 
 =head1 USEFUL VARIABLES
 
@@ -160,64 +169,70 @@ to the internal guts of the panel:
 This is a reference to the main panel object. A number of methods are
 available for your use, they're explained below.
 
-	$PerlPanel::TOOLTIP_REF
+=head1 USEFUL FUNCTIONS
 
-This a reference to the Gtk2::Tooltips object. You can use it to give
-your applet widgets tooltips.
+	PerlPanel::get_config($appletname)
 
-=head1 USEFUL METHODS
+This function returns a reference containing the configuration data for
+the applet. The structure of the data will be that defined by the
+C<get_default_config> function.
 
-	$PerlPanel::OBJECT_REF->icon
+	PerlPanel::tips()
+
+This returns a C<Gtk2::Tooltips> object ready for use. In versions prior to
+0.4.0, this was accessed using C<$PerlPanel::TOOLTIPS_REF>.
+
+	PerlPanel::icon()
 
 This returns a GdkPixbuf object containing the PerlPanel icon. You
 should use this pixbuf to set the icon for any windows you create, eg:
 
-	$dialog->set_icon($PerlPanel::OBJECT_REF->icon);
+	$dialog->set_icon(PerlPanel::icon);
 
 You don't need to resize the pixbuf, this is done when the application
 (a window manager, or task list) requires it.
 
-	$PerlPanel::OBJECT_REF->icon_size
+	PerlPanel::icon_size()
 
 The size of icons on the panel, in pixels. You should use this to scale
 things so that everything fits nicely together.
 
-	$PerlPanel::OBJECT_REF->icon_size_name
+	PerlPanel::icon_size_name()
 
 The name of the Gtk stock icon size, eg C<'large-toolbar'> or C<'menu'>.
 Again, use this to correctly scale things in your applet.
 
-	$PerlPanel::OBJECT_REF->screen_width
+	PerlPanel::screen_width
 
-	$PerlPanel::OBJECT_REF->screen_height
+	PerlPanel::screen_height
 
 These two methods return the width and height (in pixels) of the default
 display. PerlPanel attempts to work this out if the system's Gtk+ is
 recent enough (ie later than 2.2.0), otherwise it will take them from the
 output of the C<xdpyinfo(1)> program.
 
-	$PerlPanel::OBJECT_REF->position
+	PerlPanel::position
 
 This returns the panel's physical position on-screen, either C<'top'> or
 C<'bottom'>. This is useful for when you want to show popup menus from
 your applets (for an example, see the BBMenu applet), and need to know
 the position of the panel.
 
-	$PerlPanel::OBJECT_REF->save_config
+	PerlPanel::save_config
 
 This tells the panel to save its configuration data to the resource file.
 
-	$PerlPanel::OBJECT_REF->shutdown
+	PerlPanel::shutdown
 
 This tells the panel to save its config file to disk and exit.
 
-	$PerlPanel::OBJECT_REF->reload
+	PerlPanel::reload
 
 This tells the panel to destroy its current instance, and create a new
 one, having reloaded config data from disk. This is useful for when you've
 just changed a config variable and want to apply the change.
 
-	$PerlPanel::OBJECT_REF->request_string($message, $callback)
+	PerlPanel::request_string($message, $callback)
 
 This is a clone of the request_string method from the Gnome libs, so
 that PerlPanel isn't dependent on Gnome being installed. It prompts the
@@ -225,45 +240,45 @@ user for a string using C<$message>, and executes C<$callback> when the
 user presses 'Ok' or hits the Enter key. The callback's C<$_[0]> will
 contain the supplied string.
 
-	$PerlPanel::OBJECT_REF->request_password($message, $callback)
+	PerlPanel::request_password($message, $callback)
 
 As above, except the entry widget will not show the entered characters.
 
-	$PerlPanel::OBJECT_REF->question($message, $ok_callback,
+	PerlPanel::question($message, $ok_callback,
 		$cancel_callback)
 
 This prompts the user to answer a Yes/No type question. C<$ok_callback>
 is executed when the user hits 'Ok'. Working out what happens when the
 user hits 'Cancel' is left as an exercise for the reader.
 
-	$PerlPanel::OBJECT_REF->error($message, $ok_callback)
+	PerlPanel::error($message, $ok_callback)
 
 This pops up a dialog with an error icon and the given message.
 C<$ok_callback> is executed if the user hits the 'Ok' button.
 
-	$PerlPanel::OBJECT_REF->warning($message, $ok_callback)
+	PerlPanel::warning($message, $ok_callback)
 
 This pops up a dialog with a warning icon (less severe than an error)
 and the given message. C<$ok_callback> is executed if the user hits the
 'Ok' button.
 
-	$PerlPanel::OBJECT_REF->notify($message, $ok_callback)
+	PerlPanel::notify($message, $ok_callback)
 
 This pops up a dialog with a information icon and the given message.
 C<$ok_callback> is executed if the user hits the 'Ok' button.
 
-	$PerlPanel::OBJECT_REF->get_widget_position($widget)
+	PerlPanel::get_widget_position($widget)
 
 This returns two numbers corresponding to the position on-screen of the
 top-left corner of $widget. This means that C<$widget> must be visible on
 screen.
 
-	$PerlPanel::OBJECT_REF->get_mouse_pointer
+	PerlPanel::get_mouse_pointer
 
 This returns two numbers corresponding to the position on-screen of the
 mouse pointer.
 
-	$PerlPanel::OBJECT_REF->exec_wait($cmd, $callback)
+	PerlPanel::exec_wait($cmd, $callback)
 
 This function allows you to execute a command and wait for it to finish,
 without interrupting the Gtk main loop, and without inducing unneeded

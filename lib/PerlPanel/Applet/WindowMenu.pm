@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.3 2004/01/26 00:50:58 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.4 2004/02/11 17:04:09 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,9 +31,10 @@ sub configure {
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{screen}->force_update;
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf($PerlPanel::OBJECT_REF->get_applet_pbf('windowmenu', $PerlPanel::OBJECT_REF->icon_size)));	$self->widget->set_relief('none');
+	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('windowmenu', PerlPanel::icon_size)));
+	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, 'Window List');
+	PerlPanel::tips->set_tip($self->widget, 'Window List');
 	return 1;
 }
 
@@ -88,14 +89,14 @@ sub clicked {
 
 sub popup_position {
 	my $self = shift;
-	my ($x, undef) = $PerlPanel::OBJECT_REF->get_widget_position($self->widget);
+	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
 	$x = 0 if ($x < 5);
-	if ($PerlPanel::OBJECT_REF->position eq 'top') {
-		return ($x, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+	if (PerlPanel::position eq 'top') {
+		return ($x, PerlPanel::panel->allocation->height);
 	} else {
 		$self->{menu}->realize;
 		$self->{menu}->show_all;
-		return ($x, $PerlPanel::OBJECT_REF->screen_height - $self->{menu}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return ($x, PerlPanel::screen_height() - $self->{menu}->allocation->height - PerlPanel::panel->allocation->height);
 	}
 }
 
