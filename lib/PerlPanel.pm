@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.126 2004/11/04 16:52:17 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.127 2004/11/05 10:00:32 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -807,15 +807,20 @@ sub icon_size {
 	return $OBJECT_REF->{config}->{panel}->{size};
 }
 
-#
-# These do the same as the two subs above, but may do something else in the future:
-#
 sub menu_icon_size {
 	my $self = $OBJECT_REF;
 	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
 		return $self->icon_size;
 	} else {
 		return @{$SIZE_MAP{'medium'}}[0];
+	}
+}
+sub menu_icon_size_name {
+	my $self = $OBJECT_REF;
+	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
+		return $self->icon_size;
+	} else {
+		return @{$SIZE_MAP{'medium'}}[1];
 	}
 }
 

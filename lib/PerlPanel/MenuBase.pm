@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.35 2004/11/04 16:52:18 jodrell Exp $
+# $Id: MenuBase.pm,v 1.36 2004/11/05 10:00:32 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -340,10 +340,10 @@ sub menu_item {
 
 	} elsif ($icon =~ /^gtk-/) {
 		# assume it's a stock ID:
-		$pbf = $self->widget->render_icon($icon, 'dialog')->scale_simple(PerlPanel::menu_icon_size, PerlPanel::menu_icon_size, 'bilinear');
+		$pbf = $self->widget->render_icon($icon, PerlPanel::menu_icon_size_name);
 
 	} else {
-		$pbf = $self->widget->render_icon('gtk-new', 'dialog')->scale_simple(PerlPanel::menu_icon_size, PerlPanel::menu_icon_size, 'bilinear');
+		$pbf = $self->widget->render_icon('gtk-new', PerlPanel::menu_icon_size_name);
 
 	}
 

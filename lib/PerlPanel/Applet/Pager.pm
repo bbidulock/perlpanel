@@ -1,4 +1,4 @@
-# $Id: Pager.pm,v 1.13 2004/10/09 11:50:05 jodrell Exp $
+# $Id: Pager.pm,v 1.14 2004/11/05 10:00:32 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,14 +67,17 @@ sub configure {
 sub popup_menu {
 	my $self = shift;
 	my $menu = Gtk2::Menu->new;
-	my $properties_item	= Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
+
+	my $properties_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
 	$properties_item->signal_connect('activate', sub { $self->prefs_window });
+
 	my $remove_item	= Gtk2::ImageMenuItem->new_from_stock('gtk-remove');
 	$remove_item->signal_connect('activate', sub { PerlPanel::remove_applet('Pager', $self->{id}) });
+
 	$menu->add($properties_item);
 	$menu->add($remove_item);
 	$menu->show_all;
-	$menu->popup(undef, undef, sub { return $self->popup_position($menu)	 }, undef, 3, undef);
+	$menu->popup(undef, undef, sub { return $self->popup_position($menu) }, undef, 3, undef);
 	return 1;
 
 }
@@ -125,9 +128,11 @@ sub popup_position {
 	$x = 0 if ($x < 5);
 	if (PerlPanel::position eq 'top') {
 		return ($x, PerlPanel::panel->allocation->height);
+
 	} else {
 		$menu->realize;
 		return ($x, PerlPanel::screen_height() - $menu->allocation->height - PerlPanel::panel->allocation->height);
+
 	}
 }
 

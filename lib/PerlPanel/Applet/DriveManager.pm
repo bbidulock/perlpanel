@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.6 2004/11/04 16:12:01 jodrell Exp $
+# $Id: DriveManager.pm,v 1.7 2004/11/05 10:00:32 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,6 +31,7 @@ our %TYPES = (
 	ipod		=> _('iPod'),
 	removable	=> _('Removable Drive (Floppy, Zip or Jaz)'),
 	usb		=> _('USB Device (Camera, external HD)'),
+	remote		=> _('Network Drive (SMB or NFS)'),
 );
 our %EJECTABLE		= (
 	cdrom		=> 1,
