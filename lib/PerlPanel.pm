@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.47 2004/01/21 10:23:20 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.48 2004/01/22 16:45:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -502,6 +502,22 @@ sub exec_wait {
 		}
 	});
 	return 1;
+}
+
+sub has_application_menu {
+	my $self = shift;
+	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
+		return 1 if ($applet eq 'BBMenu')
+	}
+	return undef;
+}
+
+sub has_action_menu {
+	my $self = shift;
+	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
+		return 1 if ($applet eq 'ActionMenu')
+	}
+	return undef;
 }
 
 1;

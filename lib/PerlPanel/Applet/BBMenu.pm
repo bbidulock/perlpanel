@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.43 2004/01/19 15:48:10 jodrell Exp $
+# $Id: BBMenu.pm,v 1.44 2004/01/22 16:45:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -94,7 +94,7 @@ sub configure {
 sub create_menu {
 	my $self = shift;
 	$self->parse_menufile;
-	$self->add_control_items if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{show_control_items} eq 'true');
+	$self->add_control_items if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{show_control_items} eq 'true' && !$PerlPanel::OBJECT_REF->has_action_menu);
 	return 1;
 }
 
@@ -132,7 +132,7 @@ sub parse_menufile {
 		# $current_menu is a reference to the current menu or submenu - it starts out as the toplevel menu:
 		my $current_menu;
 
-		if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{apps_in_submenu} eq 'true') {
+		if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{apps_in_submenu} eq 'true' && !$PerlPanel::OBJECT_REF->has_action_menu) {
 
 			my $item = $self->menu_item(
 				$PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{submenu_label},

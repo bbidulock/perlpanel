@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.3 2004/01/21 10:23:20 jodrell Exp $
+# $Id: MenuBase.pm,v 1.4 2004/01/22 16:45:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -153,7 +153,33 @@ sub add_control_items {
 		$configurator->init;
 	}));
 	$self->menu->append($self->menu_item("Reload", 'gtk-refresh', sub { $PerlPanel::OBJECT_REF->reload }));
+
+	my $item = $self->menu_item('Add To Panel', 'gtk-add');
+	my $menu = Gtk2::Menu->new;
+	$item->set_submenu($menu);
+
+	my @files;
+	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME)), sprintf('%s/lib/%s/Applet', $ENV{PWD}, $PerlPanel::NAME)) {
+		opendir(DIR, $dir) or next;
+		push(@files, grep { /\.pm$/ } readdir(DIR));
+		closedir(DIR);
+	}
+
+	@files = sort(@files);
+
+	require('Configurator.pm');
+	foreach my $file (@files) {
+		my ($appletname, undef) = split(/\./, $file, 2);
+		$menu->append($self->menu_item($appletname, sprintf('%s/share/pixmaps/%s/applets/%s.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc($appletname)), sub {
+			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
+			$PerlPanel::OBJECT_REF->reload;
+		}));
+	}
+
+	$self->menu->append($item);
+
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
+
 	$self->menu->append($self->menu_item("About...", 'gtk-dialog-info', sub {
 		require('About.pm');
 		my $about = PerlPanel::Applet::About->new;
@@ -190,6 +216,9 @@ sub menu_item {
 	} else {
 		# assume it's a stock ID:
 		$pbf = $self->widget->render_icon($icon, $PerlPanel::OBJECT_REF->icon_size_name);
+	}
+	if (ref($pbf) ne 'Gtk2::Gdk::Pixbuf') {
+		$pbf = Gtk2::Gdk::Pixbuf->new('rgb', 1, 8, $PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
 	}
 	my $x0 = $pbf->get_width;
 	my $y0 = $pbf->get_height;

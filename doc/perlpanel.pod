@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.17 2004/01/17 13:47:52 jodrell Exp $
+$Id: perlpanel.pod,v 1.18 2004/01/22 16:45:40 jodrell Exp $
 
 =head1 Introduction
 
@@ -149,6 +149,12 @@ explained in brief below.
 
 Clicking this icon brings up a little dialog box that contains the
 credits, version number and license for PerlPanel.
+
+=head2 The 'ActionMenu' Applet
+
+This applet provides a launcher menu containing the standard "action"
+items. If you don't want to run another menu applet but want access to
+action menus, use this applet.
 
 =head2 The 'BatteryMonitor' Applet
 

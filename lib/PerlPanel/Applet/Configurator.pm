@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.28 2004/01/17 00:56:19 jodrell Exp $
+# $Id: Configurator.pm,v 1.29 2004/01/22 16:45:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -110,13 +110,17 @@ sub build_ui {
 
 	$self->{notebook}->append_page($self->{pages}{panel}, $self->control_label('Panel'));
 
+	$self->{pages}{menu} = Gtk2::VBox->new;
+	$self->{pages}{menu}->set_border_width(12);
+	$self->{pages}{menu}->set_spacing(6);
 
-	my $menu_used = 0;
-	map { $menu_used++ if $_ eq 'BBMenu' } @{$PerlPanel::OBJECT_REF->{config}{applets}};
-	if ($menu_used > 0) {
-		$self->{pages}{menu} = Gtk2::VBox->new;
-		$self->{pages}{menu}->set_border_width(12);
-		$self->{pages}{menu}->set_spacing(12);
+	if ($PerlPanel::OBJECT_REF->has_application_menu) {
+
+		my $label = Gtk2::Label->new;
+		$label->set_markup('<span weight="bold">Menu</span>');
+		my $align = Gtk2::Alignment->new(0, 0.5, 0, 0);
+		$align->add($label);
+		$self->{pages}{menu}->pack_start($align, 0, 0, 0);
 
 		$self->{menu}{table} = Gtk2::Table->new(3, 2);
 		$self->{menu}{table}->set_col_spacings(12);
@@ -132,18 +136,21 @@ sub build_ui {
 		$self->{controls}{iconfile}->signal_connect(
 			'clicked',
 			sub {
-				$self->choose_menu_icon;
+				$self->choose_menu_icon('BBMenu', 'iconfile');
 			}
 		);
 
-		$self->{menu}{submenu_label} = $self->control_label('Submenu label:');
-		$self->{controls}{submenu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'submenu_label', 'text', 'Submenu label');
 
 		$self->{menu}{label} = $self->control_label('Menu label:');
 		$self->{controls}{label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'label', 'text', 'Menu label');
 
-		$self->{menu}{table}->attach_defaults($self->{menu}{submenu_label},     0, 1, 0, 1);
-		$self->{menu}{table}->attach_defaults($self->{controls}{submenu_label}, 1, 2, 0, 1);
+		if (!$PerlPanel::OBJECT_REF->has_action_menu) {
+			$self->{menu}{submenu_label} = $self->control_label('Submenu label:');
+			$self->{controls}{submenu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'submenu_label', 'text', 'Submenu label');
+			$self->{menu}{table}->attach_defaults($self->{menu}{submenu_label},     0, 1, 0, 1);
+			$self->{menu}{table}->attach_defaults($self->{controls}{submenu_label}, 1, 2, 0, 1);
+
+		}
 
 		$self->{menu}{table}->attach_defaults($self->{menu}{label},    0, 1, 1, 2);
 		$self->{menu}{table}->attach_defaults($self->{controls}{label}, 1, 2, 1, 2);
@@ -151,11 +158,60 @@ sub build_ui {
 		$self->{menu}{table}->attach_defaults($self->{iconfile}{label},    0, 1, 2, 3);
 		$self->{menu}{table}->attach_defaults($self->{controls}{iconfile}, 1, 2, 2, 3);
 
-		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
+		if ($PerlPanel::OBJECT_REF->has_application_menu && !$PerlPanel::OBJECT_REF->has_action_menu) {
+			$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
+		}
+
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
-		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu'), 0, 0, 0);
+
+		if (!$PerlPanel::OBJECT_REF->has_action_menu) {
+			$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu'), 0, 0, 0);
+		}
+
 		$self->{pages}{menu}->pack_start($self->{menu}{table}, 0, 0, 0);
 
+	}
+
+	if ($PerlPanel::OBJECT_REF->has_action_menu) {
+		my $label = Gtk2::Label->new;
+		$label->set_markup('<span weight="bold">Action Menu</span>');
+		my $align = Gtk2::Alignment->new(0, 0.5, 0, 0);
+		$align->add($label);
+		$self->{pages}{menu}->pack_start($align, 0, 0, 0);
+		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{ActionMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
+
+		$self->{action_menu}{table} = Gtk2::Table->new(3, 2);
+		$self->{action_menu}{table}->set_col_spacings(12);
+		$self->{action_menu}{table}->set_row_spacings(12);
+
+		$self->{action_menu}{label} = $self->control_label('Action Menu label:');
+		$self->{controls}{action_menu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{ActionMenu}, 'label', 'text', 'Menu label');
+
+		$self->{action_menu_iconfile}{label} = $self->control_label('Menu icon:');
+		$self->{action_menu_iconfile}{label}->set_alignment(1, 0);
+
+		$self->{action_menu_iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{ActionMenu}{icon});
+		$self->{controls}{action_menu_iconfile} = Gtk2::Button->new;
+		$self->{controls}{action_menu_iconfile}->add($self->{action_menu_iconfile}{icon});
+		$self->{controls}{action_menu_iconfile}->set_relief('none');
+		$self->{controls}{action_menu_iconfile}->signal_connect(
+			'clicked',
+			sub {
+				$self->choose_menu_icon('ActionMenu', 'action_menu_iconfile');
+			}
+		);
+
+		$self->{action_menu}{table}->attach_defaults($self->{action_menu}{label},    0, 1, 1, 2);
+		$self->{action_menu}{table}->attach_defaults($self->{controls}{action_menu_label}, 1, 2, 1, 2);
+
+		$self->{action_menu}{table}->attach_defaults($self->{action_menu_iconfile}{label},    0, 1, 2, 3);
+		$self->{action_menu}{table}->attach_defaults($self->{controls}{action_menu_iconfile}, 1, 2, 2, 3);
+
+		$self->{pages}{menu}->pack_start($self->{action_menu}{table}, 0, 0, 0);
+
+	}
+
+	if ($PerlPanel::OBJECT_REF->has_application_menu || $PerlPanel::OBJECT_REF->has_action_menu) {
 		$self->{notebook}->append_page($self->{pages}{menu}, $self->control_label('Menu'));
 	}
 
@@ -376,16 +432,17 @@ sub get_default_config {
 }
 
 sub choose_menu_icon {
-	my $self = shift;
+	my ($self, $applet, $control) = @_;
 	my $selector = Gtk2::FileSelection->new('Choose Icon');
-	$selector->set_filename($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
+	$selector->set_filename($PerlPanel::OBJECT_REF->{config}{appletconf}{$applet}{icon});
 	$selector->ok_button->signal_connect('clicked', sub {
-		$PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon} = $selector->get_filename;
-		my $new_image = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
+		$PerlPanel::OBJECT_REF->{config}{appletconf}{$applet}{icon} = $selector->get_filename;
+		my $new_image = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{$applet}{icon});
 		$new_image->show;
-		$self->{controls}{iconfile}->remove($self->{controls}{iconfile}->child);
-		$self->{controls}{iconfile}->add($new_image);
+		$self->{controls}{$control}->remove($self->{controls}{$control}->child);
+		$self->{controls}{$control}->add($new_image);
 		$selector->destroy;
+		print Data::Dumper::Dumper($PerlPanel::OBJECT_REF->{config}{appletconf}{$applet});
 	});
 	$selector->cancel_button->signal_connect('clicked', sub {
 		$selector->destroy;
