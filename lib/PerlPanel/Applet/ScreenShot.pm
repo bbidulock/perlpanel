@@ -1,4 +1,4 @@
-# $Id: ScreenShot.pm,v 1.2 2004/05/21 10:22:51 jodrell Exp $
+# $Id: ScreenShot.pm,v 1.3 2004/07/06 12:46:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -81,6 +81,7 @@ sub prompt {
 	$self->{app}->get_widget('preview_image')->set_from_pixbuf($pbf);
 	$self->{app}->get_widget('file_entry')->set_text(_('{home}/screenshot.png', home => $ENV{HOME}));
 	$self->{app}->get_widget('screenshot_dialog')->set_icon(PerlPanel::icon);
+	$self->{app}->get_widget('screenshot_dialog')->set_position('center');
 	$self->{app}->get_widget('screenshot_dialog')->show_all;
 	return 1;
 }

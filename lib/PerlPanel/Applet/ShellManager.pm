@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.5 2004/06/03 12:13:05 jodrell Exp $
+# $Id: ShellManager.pm,v 1.6 2004/07/06 12:46:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -98,6 +98,7 @@ sub edit_dialog {
 	my $glade = PerlPanel::load_glade('shellmanager');
 	my $dialog = $glade->get_widget('edit_window');
 
+	$dialog->set_position('center');
 	$dialog->set_icon(PerlPanel::icon);
 
 	my $list = Gtk2::SimpleList->new_from_treeview(
