@@ -1,5 +1,5 @@
 # Makefile for PerlPanel
-# $Id: Makefile,v 1.7 2003/06/27 13:26:17 jodrell Exp $
+# $Id: Makefile,v 1.8 2003/06/27 15:52:20 jodrell Exp $
 
 PREFIX=/usr
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -16,7 +16,7 @@ perlpanel:
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
 
 install:
-	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR)
+	mkdir -p $(LIBDIR) $(BINDIR) $(MANDIR) $(IMGDIR)
 	install -m 0755 build/perlpanel $(BINDIR)/
 	install -m 0755 src/perlpanel-item-edit $(BINDIR)/
 	cp -Rvp lib/* $(LIBDIR)/
