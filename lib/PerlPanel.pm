@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.108 2004/09/18 00:03:30 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.109 2004/09/19 15:57:10 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -120,7 +120,7 @@ sub new {
 	);								# determined at runtime)
 
 	# stuff for ill8n - this has to be done before any strings are used:
-	setlocale(LC_ALL, $ENV{LANG});
+	setlocale(LC_ALL, (defined($ENV{LC_MESSAGES}) ? $ENV{LC_MESSAGES} : $ENV{LANG}));
 	bindtextdomain(lc($NAME), sprintf('%s/share/locale', $PREFIX));
 	textdomain(lc($NAME));
 
