@@ -1,4 +1,4 @@
-# $Id: RunMe.pm,v 1.1 2004/05/28 10:46:57 jodrell Exp $
+# $Id: RunMe.pm,v 1.2 2004/06/07 09:17:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,10 +18,7 @@
 # Copyright: (C) 2004 Mark Ng <markn+0@cs.mu.OZ.AU>
 #
 package PerlPanel::Applet::RunMe;
-use vars qw($histfile);
 use strict;
-
-our $histfile = sprintf('%s/.%s/run-history', $ENV{HOME}, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -35,31 +32,22 @@ sub configure {
 	$self->{widget} = Gtk2::Combo->new; 
 	$self->widget->disable_activate();
 
-  	open(HFILE, $histfile);
-	my @history = reverse(<HFILE>);
-	close(HFILE);
-	map { chomp($history[$_]) } 0..scalar(@history);
-	$self->{history} = \@history;
+	my @history = PerlPanel::get_run_history;
 
-	$self->{widget}->set_popdown_strings(@history);
+	$self->{widget}->set_popdown_strings('', @history);
 	$self->{widget}->set_use_arrows(1);
 	$self->{widget}->set_value_in_list(0, 1);
-	$self->{widget}->entry->set_text('');
 
 	$self->{widget}->entry->signal_connect('activate', sub {
 		my $command = $self->{widget}->entry->get_text();
 		system("$command &");
 
 		unshift(@{$self->{history}}, $command);
-		$self->{widget}->set_popdown_strings(@{$self->{history}});
+		$self->{widget}->set_popdown_strings(@history);
 
 		$self->{widget}->entry->set_text('');
 
-		# save history as we go along.
-		if (open (HFILE, ">>$histfile")) {
-			print HFILE "$command\n";
-			close(HFILE);
-		}
+		PerlPanel::append_run_history($command);
 	});
 	return 1;
 }

@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.21 2004/05/28 13:08:49 jodrell Exp $
+# $Id: Commander.pm,v 1.22 2004/06/07 09:17:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,11 +18,10 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Commander;
-use vars qw($histfile $iconfile);
 use File::Basename qw(basename);
+use vars qw($iconfile);
 use strict;
 
-our $histfile = sprintf('%s/.perlpanel/run-history', $ENV{HOME});
 our $iconfile = PerlPanel::get_applet_pbf_filename(undef, 'commander');
 
 sub new {
@@ -65,10 +64,7 @@ sub get_default_config {
 sub run {
 	my $self = shift;
 
-	open(HISTFILE, $histfile);
-	my @history = reverse(<HISTFILE>);
-	map { chomp($history[$_]) } 0..scalar(@history);
-	close(HISTFILE);
+	my @history = PerlPanel::get_run_history;
 
 	my $default_pbf = Gtk2::Gdk::Pixbuf->new_from_file($iconfile);
 
@@ -183,9 +179,8 @@ sub run {
 				$command = 'xterm -e '.$command;
 			}
 	
-			open(HISTFILE, ">>$histfile");
-			print HISTFILE "$command\n";
-			close(HISTFILE);
+			PerlPanel::append_run_history($command);
+
 			my $old_dir = $ENV{PWD};
 			chdir($ENV{HOME});
 			system("$command &");

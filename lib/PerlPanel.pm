@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.84 2004/06/04 09:02:12 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.85 2004/06/07 09:17:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,9 +31,9 @@ use File::Basename qw(basename fileparse);
 use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
-		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE);
+		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
+		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH);
 use strict;
-
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
 
@@ -85,8 +85,10 @@ our %SIZE_MAP = (
 
 our $APPLET_ICON_SIZE = 48;
 
-our $RUN_COMMAND_FILE = sprintf('%s/.%s/run-command', $ENV{HOME}, lc($NAME));
-our $PIDFILE = sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
+our $RUN_COMMAND_FILE	= sprintf('%s/.%s/run-command', $ENV{HOME}, lc($NAME));
+our $PIDFILE		= sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
+our $RUN_HISTORY_FILE	= sprintf('%s/.perlpanel/run-history', $ENV{HOME});
+our $RUN_HISTORY_LENGTH	= 15;
 
 Gtk2->init;
 
@@ -166,7 +168,7 @@ sub init {
 
 	my $sub = sub {
 		my $error = shift;
-		print STDERR $error unless ($error =~ /^[A-Z]{3}$/);
+		print STDERR $error unless ($error =~ /^[A-Z]{3,4}$/);
 		unlink($PIDFILE);
 		exit;
 	};
@@ -272,6 +274,7 @@ sub configure {
 
 	$self->panel->set_decorated(0); # needed for some window managers
 	$self->panel->stick; # needed for some window managers
+	$self->panel->set_keep_above(1);
 
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{hbox}->set_border_width(0);
@@ -859,6 +862,53 @@ sub lookup_icon {
 			return $info->get_filename;
 
 		}
+	}
+}
+
+sub get_run_history {
+	my @history;
+	if (!open(HISTFILE, $RUN_HISTORY_FILE)) {
+		print STDERR "*** error opening $RUN_HISTORY_FILE for appending: $!\n";
+	} else {
+		@history = reverse(<HISTFILE>);
+		map { chomp($history[$_]) } 0..scalar(@history);
+		close(HISTFILE);
+	}
+	@history = grep { $_ ne '' } uniq(@history);
+	return splice(@history, 0, $RUN_HISTORY_LENGTH);
+}
+
+sub uniq {
+	my @array = @_;
+	my @new;
+	my %map;
+	foreach my $member (@array) {
+		$map{$member}++;
+	}
+	foreach my $member (@array) {
+		if ($map{$member} > 0) {
+			push(@new, $member);
+			$map{$member} = 0;
+		}
+	}
+	return @new;
+}
+
+sub append_run_history {
+	my ($self, $command);
+	if (scalar(@_) == 2) {
+		($self, $command) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$command = shift;
+	}
+	if (open(HISTFILE, ">>$RUN_HISTORY_FILE")) {
+		print STDERR "*** error opening $RUN_HISTORY_FILE for appending: $!\n";
+		return undef;
+	} else {
+		print HISTFILE "$command\n";
+		close(HISTFILE);
+		return 1;
 	}
 }
 
