@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.111 2004/09/24 12:43:30 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.112 2004/09/24 14:49:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -135,6 +135,7 @@ sub new {
 sub init {
 	my $self = shift;
 	$self->check_deps;
+	$self->setup_launch_feedback;
 	$self->load_config;
 	$self->get_screen || $self->parse_xdpyinfo;
 	$self->load_icon_theme;
@@ -197,8 +198,6 @@ sub init {
 	foreach my $signal (qw(ABRT ALRM HUP INT KILL QUIT SEGV STOP TERM __DIE__)) {
 		$SIG{$signal} = $sub;
 	}
-
-	$self->setup_launch_feedback;
 
 	Gtk2->main;
 
@@ -572,29 +571,41 @@ sub setup_launch_feedback {
 	return 1;
 }
 
+sub start_feedback {
+	return $OBJECT_REF->panel->get_root_window->set_cursor($OBJECT_REF->{cursors}->{busy});
+}
+sub end_feedback {
+	return $OBJECT_REF->panel->get_root_window->set_cursor($OBJECT_REF->{cursors}->{normal});
+}
+
 sub launch_manager {
 	my ($self, $id) = @_;
-	return undef if ($id eq '');
-	if (!defined($self->{startup_ids}->{$id})) {
-		return undef;
-	} else {
-		undef($self->{startup_ids}->{$id});
-		$self->panel->get_root_window->set_cursor($self->{cursors}->{normal});
+	if ($id ne '') {
+		if (!defined($self->{startup_ids}->{$id})) {
+			return undef;
+		} else {
+			undef($self->{startup_ids}->{$id});
+			$self->end_feedback;
+		}
 	}
 	return 1;
 }
 
 sub launch {
 	my ($cmd, $startup) = @_;
+	# $cmd might have some %x tokens in it, provided by a .desktop file. We don't
+	# support them just yet, so just remove them:
+	$cmd =~ s/\%[fFuUdDnNickv]//g;
+
 	if (defined($startup)) {
 		my $id = sprintf('%s_%s', $NAME, new_applet_id());
 		$cmd = sprintf('DESKTOP_STARTUP_ID=%s %s &', $id, $cmd);
 		$OBJECT_REF->{startup_ids}->{$id} = $cmd;
-		$OBJECT_REF->panel->get_root_window->set_cursor($OBJECT_REF->{cursors}->{busy});
-		Glib::Timeout->add(1500, sub {
+		$OBJECT_REF->start_feedback;
+		Glib::Timeout->add(5000, sub {
 			if (defined($OBJECT_REF->{startup_ids}->{$id})) {
 				undef($OBJECT_REF->{startup_ids}->{$id});
-				$OBJECT_REF->panel->get_root_window->set_cursor($OBJECT_REF->{cursors}->{normal});
+				$OBJECT_REF->end_feedback;
 			}
 			return undef;
 		});

@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.6 2004/09/24 12:43:31 jodrell Exp $
+# $Id: Launcher.pm,v 1.7 2004/09/24 14:49:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,9 +19,11 @@
 #
 package PerlPanel::Applet::Launcher;
 use PerlPanel::DesktopEntry;
-use Data::Dumper;
 use vars qw($MULTI $LAUNCHER_DIR $LAUNCHER_EDITOR);
 use strict;
+
+# these are user-edited files, so make sure an error gets out:
+$PerlPanel::DesktopEntry::VERBOSE = 1;
 
 our $MULTI = 1;
 our $LAUNCHER_DIR = sprintf('%s/.%s/launchers', $ENV{HOME}, lc($PerlPanel::NAME));
@@ -73,6 +75,7 @@ sub init {
 		$self->widget->signal_connect('button_release_event', sub {
 			if ($_[1]->button == 1) {
 				PerlPanel::launch($program, $entry->StartupNotify);
+
 			} elsif ($_[1]->button == 3) {
 				my $menu = Gtk2::Menu->new;
 				my $exec_item = Gtk2::ImageMenuItem->new_from_stock('gtk-execute');
@@ -86,6 +89,7 @@ sub init {
 				$menu->add($remove_item);
 				$menu->show_all;
 				$menu->popup(undef, undef, sub { return $self->popup_position }, undef, $_[1]->button, undef);
+
 			}
 			return undef;
 		});

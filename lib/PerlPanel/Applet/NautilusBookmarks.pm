@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.19 2004/09/18 00:03:30 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.20 2004/09/24 14:49:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -88,27 +88,27 @@ sub add_places {
 	$submenu->append($self->menu_item(
 		_('Home'),
 		'gtk-home',
-		sub { PerlPanel::launch("nautilus --no-desktop $ENV{HOME}", 1) }
+		sub { PerlPanel::launch("nautilus --no-desktop $ENV{HOME}") }
 	));
 	$submenu->append($self->menu_item(
 		_('Computer'),
 		PerlPanel::lookup_icon('gnome-fs-client'),
-		sub { PerlPanel::launch("nautilus --no-desktop computer:", 1) }
+		sub { PerlPanel::launch("nautilus --no-desktop computer:") }
 	));
 	$submenu->append($self->menu_item(
 		_('Templates'),
 		PerlPanel::lookup_icon('gnome-fs-directory'),
-		sub { PerlPanel::launch("nautilus --no-desktop $ENV{HOME}/Templates", 1) }
+		sub { PerlPanel::launch("nautilus --no-desktop $ENV{HOME}/Templates") }
 	));
 	$submenu->append($self->menu_item(
 		_('Trash'),
 		PerlPanel::lookup_icon('gnome-fs-trash-full'),
-		sub { PerlPanel::launch("nautilus --no-desktop $ENV{HOME}/.Trash", 1) }
+		sub { PerlPanel::launch("nautilus --no-desktop $ENV{HOME}/.Trash") }
 	));
 	$submenu->append($self->menu_item(
 		_('CD Burner'),
 		PerlPanel::lookup_icon('gnome-dev-cdrom'),
-		sub { PerlPanel::launch("nautilus --no-desktop burn:", 1) }
+		sub { PerlPanel::launch("nautilus --no-desktop burn:") }
 	));
 
 	return 1;
@@ -124,7 +124,7 @@ sub add_bookmarks {
 		$self->menu->append($self->menu_item(
 			$name,
 			PerlPanel::lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name}),
-			sub { PerlPanel::launch("nautilus --no-desktop \"$bookmarks->{bookmark}->{$name}->{uri}\"", 1) },
+			sub { PerlPanel::launch("nautilus --no-desktop \"$bookmarks->{bookmark}->{$name}->{uri}\"") },
 		));
 	}
 

@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.17 2004/09/24 12:43:31 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.18 2004/09/24 14:49:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,6 +22,8 @@ use base 'PerlPanel::MenuBase';
 use PerlPanel::DesktopEntry;
 use Gnome2::VFS;
 use strict;
+
+$PerlPanel::DesktopEntry::SILENT = 1;
 
 sub configure {
 	my $self = shift;

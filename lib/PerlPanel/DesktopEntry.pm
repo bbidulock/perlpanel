@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.2 2004/09/24 12:43:30 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.3 2004/09/24 14:49:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,12 +20,14 @@
 package PerlPanel::DesktopEntry;
 use Carp;
 use Gnome2::VFS;
-use vars qw($DEFAULT_GROUP $DEFAULT_LOCALE @REQUIRED);
+use vars qw($DEFAULT_GROUP $DEFAULT_LOCALE @REQUIRED $VERBOSE $SILENT);
 use strict;
 
 our $DEFAULT_GROUP	= 'Desktop Entry';
 our $DEFAULT_LOCALE	= 'C';
 our @REQUIRED		= qw(Encoding Name Type);
+our $VERBOSE		= 0;
+our $SILENT		= 0;
 
 =pod
 
@@ -73,7 +75,7 @@ sub new {
 	Gnome2::VFS->init;
 	$self->{_raw} = $self->get_file_contents($uri);
 	if ($self->{_raw} eq '') {
-		carp("got no data for $self->{uri}");
+		carp("got no data for $self->{uri}") unless ($SILENT == 1);
 		return undef;
 	}
 	return undef unless ($self->parse);
@@ -127,20 +129,20 @@ sub parse {
 				$key =~ s/\[$locale\]$//;
 			}
 			if (defined($self->{data}->{$current_group}->{$key}->{$locale})) {
-				warn(sprintf(
+				carp(sprintf(
 					'Parse error on %s line %s: value already exists for \'%s\' in \'%s\', skipping later entry',
 					$self->{uri},
 					$i+1,
 					$last_key,
 					$current_group,
-				));
+				)) if ($VERBOSE == 1);
 			} else {
 				$self->{data}->{$current_group}->{$key}->{$locale} = $value;
 			}
 
 		} else {
 			# an error:
-			carp(sprintf('Parse error on %s line %s: no group name defined', $self->{uri}, $i+1));
+			carp(sprintf('Parse error on %s line %s: no group name defined', $self->{uri}, $i+1)) unless ($SILENT == 1);
 			return undef;
 		}
 	}
@@ -287,11 +289,11 @@ sub locales {
 	$group	= (defined($group) ? $group : $DEFAULT_GROUP);
 
 	if (!$self->has_group($group)) {
-		carp(sprintf('get_value(): no \'%s\' group found', $group));
+		carp(sprintf('get_value(): no \'%s\' group found', $group)) if ($VERBOSE == 1);
 		return undef;
 
 	} elsif (!$self->has_key($key, $group)) {
-		carp(sprintf('get_value(): no \'%s\' key found in \'%s\'', $key, $group));
+		carp(sprintf('get_value(): no \'%s\' key found in \'%s\'', $key, $group)) if ($VERBOSE == 1);
 		return undef;
 
 	} else {
@@ -323,7 +325,7 @@ sub Comment		{ $_[0]->get_value('Comment',		$DEFAULT_GROUP, $_[1]) }
 sub Type		{ $_[0]->get_value('Type',		$DEFAULT_GROUP, $_[1]) }
 sub Icon		{ $_[0]->get_value('Icon',		$DEFAULT_GROUP, $_[1]) }
 sub Exec		{ $_[0]->get_value('Exec',		$DEFAULT_GROUP, $_[1]) }
-sub StartupNotify	{ $_[0]->get_value('StartupNotify',	$DEFAULT_GROUP, $_[1]) }
+sub StartupNotify	{ return ($_[0]->get_value('StartupNotify', $DEFAULT_GROUP, $_[1]) eq 'true' ? 1 : undef) }
 
 =pod
 
