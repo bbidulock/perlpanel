@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.8 2003/06/06 16:12:00 jodrell Exp $
+# $Id: BBMenu.pm,v 1.9 2003/06/10 13:30:05 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -111,6 +111,8 @@ sub parse_menufile {
 					}
 				} elsif ($cmd eq 'exec') {
 					push(@{$parentref}, { name => $name, val => $val });
+				} elsif ($cmd eq 'nop') {
+					push(@{$parentref}, 'separator');
 				}
 			}
 		}
@@ -123,17 +125,35 @@ sub create_itemfactory {
 	return undef if (scalar(@{$branch}) < 1);
 	foreach my $twig (@{$branch}) {
 		if (ref($twig) eq 'HASH') {
-			my $item = {
-				path	=> "$path/$twig->{name}",
-				stock	=> 'gtk-execute',
-			};
+			my $item = [
+				"$path/$twig->{name}",
+				undef,
+				sub { system("$twig->{val} &") },
+				undef,
+				'<StockItem>',
+				'gtk-execute',
+			];
 			push(@{$self->{itemfactory}}, $item);
 		} elsif (ref($twig) eq 'ARRAY') {
-			#$item = {
-			#	path	=> "$path/".@{$twig}[0],
-			#	type	=> '<Branch>',
-			#};
+			next if (scalar(@{@{$twig}[1]}) < 1);
+			my $item = [
+				"$path/".@{$twig}[0],
+				undef,
+				undef,
+				undef,
+				'<Branch>',
+			];
+			push(@{$self->{itemfactory}}, $item);
 			$self->create_itemfactory(@{$twig}[1], "$path/".@{$twig}[0]);
+		} elsif ($twig eq 'separator') {
+			my $item = [
+			 "$path/",
+			 undef,
+			 undef,
+			 undef,
+			 '<Separator>',
+			];
+			push(@{$self->{itemfactory}}, $item);
 		}
 	}
 	$self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
@@ -143,9 +163,28 @@ sub create_itemfactory {
 
 sub popup {
 	my $self = shift;
-	my $widget = $self->{factory}->get_widget('<main>');
-	$widget->popup(undef, undef, sub { return splice(@_, 1, 2) }, 0, $self->{widget}, undef);
+	if (!defined($self->{menu_widget})) {
+		$self->{menu_widget} = $self->{factory}->get_widget('<main>');
+	}
+	$self->{menu_widget}->popup(undef, undef, sub { return $self->popup_position(@_); }, 0, $self->{widget}, undef);
 	return 1;
+}
+
+sub popup_position {
+	my $self = shift;
+	my ($x0, $y0) = splice(@_, 1, 2);
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{position} eq 'top') {
+		return ($x0, $y0);
+	} else {
+		my $toplevel_items = 0;
+		foreach my $itemref (@{$self->{itemfactory}}) {
+			my @item = @{$itemref};
+			if ($item[0] =~ /^\/([^\/]+)$/) {
+				$toplevel_items++;
+			}
+		}
+		return ($x0, $y0 - (20 * $toplevel_items));
+	}
 }
 
 sub get_default_config {

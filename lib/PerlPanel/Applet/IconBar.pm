@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.12 2003/06/06 16:12:00 jodrell Exp $
+# $Id: IconBar.pm,v 1.13 2003/06/10 13:30:05 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use MIME::Base64;
@@ -35,25 +35,6 @@ sub configure {
 		$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
 	}
 
-	$self->{addpixmap} = Gtk2::Image->new_from_stock('gtk-add', 'menu');
-	$self->{addbutton} = Gtk2::Button->new;
-	$self->{addbutton}->add($self->{addpixmap});
-	$self->{addbutton}->set_relief('none');
-	$self->{addbutton}->set_size_request(16, 16);
-	$self->{addbutton}->signal_connect('clicked', sub { PerlPanel::Applet::IconBar::DesktopEntry->add });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{addbutton}, "Add an icon");
-	$self->{delpixmap} = Gtk2::Image->new_from_stock('gtk-remove', 'menu');
-	$self->{delbutton} = Gtk2::Button->new;
-	$self->{delbutton}->add($self->{delpixmap});
-	$self->{delbutton}->set_relief('none');
-	$self->{delbutton}->set_size_request(16, 16);
-	$self->{delbutton}->signal_connect('clicked', sub { $PerlPanel::Applet::IconBar::DesktopEntry::DELETE_CLICKED = 1 });
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{delbutton}, "Delete an icon (click to remove)");
-	$self->{ctlbox} = Gtk2::VBox->new;
-	$self->{ctlbox}->pack_start($self->{addbutton}, 0, 0, 0);
-	$self->{ctlbox}->pack_start($self->{delbutton}, 1, 1, 0);
-	$self->{widget}->pack_start($self->{ctlbox}, 0, 0, 0);
-
 	return 1;
 }
 
@@ -84,11 +65,7 @@ sub get_default_config {
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;
-
-use vars qw($DELETE_CLICKED);
 use strict;
-
-$DELETE_CLICKED = 0;
 
 sub new {
 	my $self		= {};
@@ -166,10 +143,7 @@ sub widget {
 
 sub clicked {
 	my ($self, $button) = @_;
-	if ($DELETE_CLICKED == 1) {
-		$DELETE_CLICKED = 0;
-		$self->delete;
-	} elsif ($button == 1) {
+	if ($button == 1) {
 		system($self->{exec}.' &');
 	} elsif ($button == 3) {
 
@@ -190,7 +164,7 @@ sub clicked {
 		$self->{items}{edit}->signal_connect('activate', sub { $self->edit });
 
 		$self->{boxes}{delete} = Gtk2::HBox->new;
-		$self->{boxes}{delete}->pack_start(Gtk2::Image->new_from_stock('gtk-delete', 'menu'), 0, 0, 0);
+		$self->{boxes}{delete}->pack_start(Gtk2::Image->new_from_stock('gtk-remove', 'menu'), 0, 0, 0);
 		$self->{boxes}{delete}->pack_start(Gtk2::Label->new('Delete'), 1, 1, 0);
 
 		$self->{items}{delete} = Gtk2::MenuItem->new;

@@ -1,4 +1,4 @@
-# $Id: Quit.pm,v 1.5 2003/06/05 11:32:10 jodrell Exp $
+# $Id: Quit.pm,v 1.6 2003/06/10 13:30:05 jodrell Exp $
 package PerlPanel::Applet::Quit;
 use strict;
 
@@ -17,7 +17,7 @@ sub configure {
 	my $code = '$PerlPanel::OBJECT_REF->shutdown';
 	$self->{widget}->signal_connect('clicked', sub { eval $code ; if ($@) { print STDERR "Error shutting down: $@\n" ; exit 1 } });
 	$self->{widget}->set_relief('none');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Quit');
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, "Close $PerlPanel::NAME");
 }
 
 sub widget {

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.6 2003/06/06 16:12:00 jodrell Exp $
+# $Id: Configurator.pm,v 1.7 2003/06/10 13:30:05 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -49,7 +49,7 @@ sub build_ui {
 
 	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Panel position:'), 0, 1, 0, 1);
 	$self->{controls}{position} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'position', 'enum', qw(top bottom));
-	$self->{pages}{panel}->attach($self->{controls}{position}, 1, 2, 0, 1, 'expand', 'expand', 0, 0);
+	$self->{pages}{panel}->attach($self->{controls}{position}, 1, 2, 0, 1, 'fill', 'expand', 0, 0);
 
 	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Panel spacing:'), 0, 1, 1, 2);
 	$self->{controls}{spacing} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'spacing', 'int');
@@ -57,7 +57,7 @@ sub build_ui {
 
 	$self->{pages}{panel}->attach_defaults(Gtk2::Label->new('Icon size:'), 0, 1, 2, 3);
 	$self->{controls}{icon_size} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'size', 'enum', qw(tiny small medium large));
-	$self->{pages}{panel}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'expand', 'expand', 0, 0);
+	$self->{pages}{panel}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'fill', 'expand', 0, 0);
 
 	$self->{notebook}->append_page($self->{pages}{panel}, Gtk2::Label->new('Panel'));
 

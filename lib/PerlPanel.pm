@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.13 2003/06/06 16:12:00 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.14 2003/06/10 13:30:05 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -161,8 +161,9 @@ sub shutdown {
 
 sub reload {
 	my $self = shift;
-	$self->{panel}->destroy;
+	$self->{panel}->set_sensitive(0);
 	$self->save_config;
+	$self->{panel}->destroy;
 	undef $self;
 	my $panel = PerlPanel->new;
 	$panel->init;
