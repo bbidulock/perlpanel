@@ -1,0 +1,244 @@
+#!/usr/bin/perl
+# $Id: perlpanel-item-edit,v 1.1 2005/01/03 15:23:00 jodrell Exp $
+# This file is part of PerlPanel.
+# 
+# PerlPanel is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# PerlPanel is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PerlPanel; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2005 Gavin Brown <gavin.brown@uk.com>
+#
+use Gtk2 -init;
+use Gtk2::GladeXML;
+use X11::FreeDesktop::DesktopEntry;
+use Gnome2::VFS;
+use File::Basename qw(basename);
+use XML::Simple;
+use POSIX qw(setlocale);
+use Locale::gettext;
+use strict;
+
+my $PREFIX			= (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
+my $GLADE			= sprintf('%s/share/perlpanel/glade/item-editor.glade', $PREFIX);
+$XML::Simple::PREFERRED_PARSER	= 'XML::Parser';
+my $RCFILE			= sprintf('%s/.perlpanelrc', $ENV{HOME});
+my $LOCALE			= (defined($ENV{LC_MESSAGES}) ? $ENV{LC_MESSAGES} : $ENV{LANG});
+
+setlocale(LC_ALL,		$LOCALE);
+bindtextdomain('perlpanel',	sprintf('%s/share/locale', $PREFIX));
+textdomain('perlpanel');
+
+my $ICON_THEME;
+if (-r $RCFILE) {
+	$ICON_THEME = XMLin($RCFILE)->{panel}->{icon_theme};
+}
+$ICON_THEME = 'gnome' if ($ICON_THEME eq '');
+
+my ($PROGRAM, $ICON);
+
+Gnome2::VFS->init;
+
+my $theme = Gtk2::IconTheme->new;
+$theme->append_search_path(sprintf('%s/share/icons', $PREFIX));
+$theme->set_custom_theme($ICON_THEME);
+
+my $uri = Gnome2::VFS->make_uri_canonical($ARGV[0]);
+
+my ($result, undef) = Gnome2::VFS->get_file_info($uri, 'default');
+
+error_dialog(_("Error opening '{uri}': {result}", uri => $uri, result => $result)) if ($result ne 'ok');
+
+my ($result, $size, $data) = Gnome2::VFS->read_entire_file($uri);
+
+error_dialog(_("Error reading '{uri}': {result}", uri => $uri, result => $result)) if ($result ne 'ok');
+
+my $entry = X11::FreeDesktop::DesktopEntry->new_from_data($data);
+
+error_dialog(_("Error parsing '{uri}'", uri => $uri)) if (!defined($entry));
+
+my $glade = Gtk2::GladeXML->new($GLADE);
+
+$glade->get_widget('launcher_name')->set_text($entry->Name($LOCALE));
+$glade->get_widget('launcher_comment')->set_text($entry->Comment($LOCALE));
+
+$PROGRAM = $entry->Exec;
+$glade->get_widget('launcher_program')->set_text(basename($PROGRAM));
+
+$ICON = $entry->Icon;
+
+if (-r $ICON) {
+	$glade->get_widget('launcher_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($ICON, 48, 48));
+
+} else {
+	my $icon = $theme->load_icon($ICON, 48, 'force-svg');
+
+	if (defined($icon)) {
+		$glade->get_widget('launcher_icon')->set_from_pixbuf($icon);
+
+	} else {
+		$glade->get_widget('launcher_icon')->set_from_pixbuf($glade->get_widget('item_edit_dialog')->render_icon('gtk-missing-image', 'dialog'));
+
+	}
+}
+
+$glade->get_widget('launcher_feedback')->set_active($entry->StartupNotify);
+
+$glade->signal_autoconnect_from_package('main');
+
+my $window_icon = $theme->load_icon('perlpanel', 48, 'force-svg');
+
+$glade->get_widget('item_edit_dialog')->set_icon($window_icon);
+
+$glade->get_widget('item_edit_dialog')->show_all;
+
+Gtk2->main;
+
+### Begin auto-generated signal handlers
+
+# Widgets calling the 'on_icon_button_clicked' callback:
+#
+#	Widget ID:	icon_button
+#	Widget Type:	GtkButton
+#	Signal:		clicked
+#
+sub on_icon_button_clicked {
+	my $selector = Gtk2::FileChooserDialog->new(
+		_('Choose File'),
+		undef,
+		'open',
+		'gtk-cancel'	=> 'cancel',
+		'gtk-ok' 	=> 'ok'
+	);
+
+	$selector->set_preview_widget(Gtk2::Image->new);
+	$selector->signal_connect('selection-changed', sub {
+		my $file = $selector->get_filename;
+		if (-f $file) {
+			my $pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, 48, 48);
+			$selector->get_preview_widget->set_from_pixbuf($pbf) if (defined($pbf));
+		}
+	});
+
+	if (-r $ICON) {
+		$selector->set_filename($ICON);
+
+	} else {
+
+		my $icon = $theme->lookup_icon($ICON, 48, 'force-svg');
+		if (defined($icon)) {
+			$selector->set_filename($icon->get_filename);
+
+		} else {
+			$selector->set_current_folder('/usr/share/icons/hicolor/48x48/apps');
+
+		}
+	}
+
+	$selector->signal_connect('response', sub {
+		if ($_[1] eq 'ok') {
+			$ICON = $selector->get_filename;
+			$glade->get_widget('launcher_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($ICON, 48, 48));
+
+		}
+		$selector->destroy;
+	});
+
+	$selector->set_icon($glade->get_widget('item_edit_dialog')->get_icon);
+
+	$selector->show_all;
+	return 1;
+}
+
+# Widgets calling the 'on_item_edit_dialog_response' callback:
+#
+#	Widget ID:	item_edit_dialog
+#	Widget Type:	GtkDialog
+#	Signal:		response
+#
+sub on_item_edit_dialog_response {
+	if ($_[1] eq 'ok') {
+		print STDERR "FIXME: Can't write back, since it's not supported in DesktopEntry.pm yet\n";
+	}
+
+	Gtk2->main_quit;
+	exit 0;
+}
+
+# Widgets calling the 'on_program_browse_button_clicked' callback:
+#
+#	Widget ID:	program_browse_button
+#	Widget Type:	GtkButton
+#	Signal:		clicked
+#
+sub on_program_browse_button_clicked {
+	my $selector = Gtk2::FileChooserDialog->new(
+		_('Choose File'),
+		undef,
+		'open',
+		'gtk-cancel'	=> 'cancel',
+		'gtk-ok'	=> 'ok'
+	);
+
+	my $cmd = sprintf('which "%s"', $PROGRAM);
+	chomp(my $path = `$cmd`);
+	if (-x $path) {
+		$selector->set_filename($path);
+		
+	} else {
+		$selector->set_filename($PROGRAM);
+
+	}
+
+	$selector->signal_connect('response', sub {
+		if ($_[1] eq 'ok') {
+			$PROGRAM = $selector->get_filename;
+			$glade->get_widget('launcher_program')->set_text(basename($PROGRAM));
+
+		}
+		$selector->destroy;
+	});
+
+	$selector->set_icon($glade->get_widget('item_edit_dialog')->get_icon);
+
+	$selector->show_all;
+	return 1;
+}
+
+sub error_dialog {
+	my $error = shift;
+	my $dialog = Gtk2::MessageDialog->new(
+		undef,
+		'modal',
+		'error',
+		'ok',
+		$error,
+	);
+	$dialog->signal_connect('response',	sub { exit 1 });
+	$dialog->signal_connect('delete_event', sub { exit 1 });
+
+	$dialog->run;
+
+}
+
+# copied from PerlPanel.pm:
+sub _ {
+	my $str = shift;
+	my %params = @_;
+	my $translated = gettext($str);
+	if (scalar(keys(%params)) > 0) {
+		foreach my $key (keys %params) {
+			$translated =~ s/\{$key\}/$params{$key}/g;
+		}
+	}
+	return $translated;
+}
