@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.21 2004/06/07 09:19:36 jodrell Exp $
+# $Id: MenuBase.pm,v 1.22 2004/06/30 18:52:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -174,24 +174,36 @@ sub add_control_items {
 		$screenshot->prompt;
 	}));
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
+
 	# here we callously assume that the presence of this file means that bog-standard users can poweroff and reboot:	
+
 	if (-e '/etc/pam.d/poweroff') {
-		$self->menu->append($self->menu_item(_('Shut Down...'), sprintf('%s/share/pixmaps/%s/shutdown.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)), sub {
-			PerlPanel::question(
-				_('Are you sure you want to shut down?'),
-				sub { system("poweroff") },
-				sub { },
-			);
-		}));
+		$self->menu->append($self->menu_item(
+			_('Shut Down...'),
+			PerlPanel::lookup_icon(sprintf('%s-action-shutdown', lc($PerlPanel::NAME))),
+			sub {
+				PerlPanel::question(
+					_('Are you sure you want to shut down?'),
+					sub { system("poweroff") },
+					sub { },
+				);
+			},
+		));
+
 	}
+
 	if (-e '/etc/pam.d/reboot') {
-		$self->menu->append($self->menu_item(_('Reboot...'), sprintf('%s/share/pixmaps/%s/reboot.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)), sub {
-			PerlPanel::question(
-				_('Are you sure you want to reboot?'),
-				sub { system("reboot") },
-				sub { },
-			);
-		}));
+		$self->menu->append($self->menu_item(
+			_('Reboot...'),
+			PerlPanel::lookup_icon(sprintf('%s-action-reboot', lc($PerlPanel::NAME))),
+			sub {
+				PerlPanel::question(
+					_('Are you sure you want to reboot?'),
+					sub { system("reboot") },
+					sub { },
+				);
+			},
+		));
 	}
 	$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	$self->menu->append($self->menu_item(_('Configure...'), PerlPanel::get_applet_pbf_filename('configurator'), sub {

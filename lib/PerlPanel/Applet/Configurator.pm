@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.49 2004/06/25 14:36:43 jodrell Exp $
+# $Id: Configurator.pm,v 1.50 2004/06/30 18:52:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -199,10 +199,10 @@ sub build_ui {
 	my $self = shift;
 	$self->{app} = PerlPanel::load_glade('configurator');
 
-	$self->app->get_widget('panel_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s/panel-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)))->scale_simple(24, 24, 'bilinear'));
+	$self->app->get_widget('panel_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/%s/panel-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)))->scale_simple(24, 24, 'bilinear'));
 	$self->app->get_widget('menu_tab_image')->set_from_pixbuf(PerlPanel::get_applet_pbf('bbmenu')->scale_simple(24, 24, 'bilinear'));
 	$self->app->get_widget('pager_tab_image')->set_from_pixbuf(PerlPanel::get_applet_pbf('pager')->scale_simple(24, 24, 'bilinear'));
-	$self->app->get_widget('applet_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s/applets-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)))->scale_simple(24, 24, 'bilinear'));
+	$self->app->get_widget('applet_tab_image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/%s/applets-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)))->scale_simple(24, 24, 'bilinear'));
 
 	$self->setup_config_mapping;
 
