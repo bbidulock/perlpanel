@@ -105,6 +105,8 @@ sub about {
 	$self->{box}->add($self->{fixed});
 
 	$self->{window} = Gtk2::Window->new;
+	$self->{window}->set_title(_('About {name}', name => $PerlPanel::NAME));
+	$self->{window}->set_icon(PerlPanel::icon);
 	$self->{window}->set_decorated(0);
 	$self->{window}->set_modal(1);
 	$self->{window}->set_position('center');
