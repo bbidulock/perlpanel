@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.95 2004/07/02 12:52:21 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.96 2004/07/05 14:31:35 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -124,6 +124,7 @@ sub init {
 	$self->check_deps;
 	$self->load_config;
 	$self->get_screen || $self->parse_xdpyinfo;
+	$self->load_icon_theme;
 	$self->build_panel;
 	$self->configure;
 	$self->load_applets;
@@ -237,6 +238,24 @@ sub save_config {
 	open(RCFILE, ">$self->{rcfile}") or print STDERR "Error writing to '$self->{rcfile}': $!\n" and exit 1;
 	print RCFILE XMLout($self->{config});
 	close(RCFILE);
+	return 1;
+}
+
+sub load_icon_theme {
+	my $self = shift;
+	$self->{icon_theme} = Gtk2::IconTheme->new;
+
+	my $theme = $self->{config}->{panel}->{icon_theme} ne '' ?
+		$self->{config}->{panel}->{icon_theme} : $DEFAULT_THEME;
+
+	$self->{icon_theme}->set_custom_theme($theme);
+
+	if ($VERSION !~ /^[\d\.]$/) {
+		# we're in sandbox mode
+		$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
+	}
+	$self->{icon_theme}->prepend_search_path(sprintf('%s/.%s/icon-files/', $ENV{HOME}, lc($NAME)));
+
 	return 1;
 }
 
@@ -422,6 +441,7 @@ sub reload {
 	}
 	$self->{vbox}->remove($self->{hbox});
 	$self->{vbox}->remove($self->{separator});
+	$self->load_icon_theme;
 	$self->arrange_border;
 	$self->load_applets;
 	$self->configure;
@@ -857,41 +877,20 @@ sub lookup_icon {
 		$icon = shift;
 	}
 
+	$self->{icon_theme}->rescan_if_needed;
+
 	if ($icon eq '') {
 		return undef;
+
 	} elsif (-f $icon) {
 		return $icon;
-	} else {
 
+	} else {
 		# remove everything after the last dot:
 		$icon = basename($icon);
 		$icon =~ s/\..+$//g;
 
-		if (!defined($self->{icon_theme})) {
-			# user has forced use of a particular theme:
-			if ($self->{config}->{icon_theme} ne '') {
-				$self->{icon_theme} = Gtk2::IconTheme->new;
-				$self->{icon_theme}->set_custom_theme($self->{config}->{icon_theme});
-
-			} else {
-				# use the default:
-				$self->{icon_theme} = Gtk2::IconTheme->get_default;
-
-				# check to see that the theme has loaded OK (might not if GNOME's not running):
-				unless (-f $self->{icon_theme}->get_example_icon_name) {
-					$self->{icon_theme} = Gtk2::IconTheme->new;
-					$self->{icon_theme}->set_custom_theme($DEFAULT_THEME);
-				}
-			}
-			if ($VERSION !~ /^[\d\.]$/) {
-				# we're in sandbox mode
-				$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
-			}
-		} else {
-			$self->{icon_theme}->rescan_if_needed;
-		}
-
-		my $info = $self->{icon_theme}->lookup_icon($icon, 48, 'use-builtin');
+		my $info = $self->{icon_theme}->lookup_icon(lc($icon), 48, 'force-svg');
 
 		if (!defined($info)) {
 			return undef;

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.52 2004/07/02 10:26:39 jodrell Exp $
+# $Id: Configurator.pm,v 1.53 2004/07/05 14:31:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -263,6 +263,29 @@ sub setup_custom_settings {
 		$self->app->get_widget('menu_icon_size')->set_sensitive($_[0]->get_active ? undef : 1);
 	});
 
+	my @dirs = $PerlPanel::OBJECT_REF->{icon_theme}->get_search_path;
+	my %themes = (
+		$PerlPanel::DEFAULT_THEME => 1,
+	);
+	foreach my $dir (@dirs) {
+		if (!opendir(DIR, $dir)) {
+			print STDERR "*** Error opening '$dir' for reading: $!\n";
+		} else {
+			map { $themes{$_}++ if (-e "$dir/$_/index.theme") } readdir(DIR);
+			closedir(DIR);
+		}
+	}
+
+	$self->{icon_theme_list} = Gtk2::SimpleList->new('theme' => 'text');
+	$self->app->get_widget('icon_theme')->set_model($self->{icon_theme_list}->get_model);
+	my @themes = sort(keys(%themes));
+	for (my $i = 0 ; $i < scalar(@themes) ; $i++) {
+		push(@{$self->{icon_theme_list}->{data}}, $themes[$i]);
+		if ($themes[$i] eq $PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme}) {
+			$self->app->get_widget('icon_theme')->set_active($i);
+		}
+	}
+
 	if (!PerlPanel::has_applet('BBMenu')) {
 		$self->app->get_widget('bbmenu_prefs_label')->destroy;
 		$self->app->get_widget('bbmenu_prefs_hbox')->destroy;
@@ -386,6 +409,8 @@ sub apply_custom_settings {
 		PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{enter_connect_id});
 		PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{leave_connect_id});
 	}
+
+	$PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme} = @{@{$self->{icon_theme_list}->{data}}[$self->app->get_widget('icon_theme')->get_active]}[0];
 
 	return 1;
 }

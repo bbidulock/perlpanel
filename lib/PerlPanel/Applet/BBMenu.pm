@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.60 2004/06/30 19:12:54 jodrell Exp $
+# $Id: BBMenu.pm,v 1.61 2004/07/05 14:31:37 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -246,7 +246,12 @@ sub get_icon {
 		return $file;
 
 	} else {
-		return ($is_submenu_parent == 1 ? PerlPanel::lookup_icon('gnome-fs-directory') : 'gtk-execute');
+		if ($is_submenu_parent == 1) {
+			my $icon = PerlPanel::lookup_icon('gnome-fs-directory');
+			return (-f $icon ? $icon : 'gtk-open');
+		} else {
+			return 'gtk-execute';
+		}
 
 	}
 }
