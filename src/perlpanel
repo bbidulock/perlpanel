@@ -1,22 +1,14 @@
 #!/usr/bin/perl
-# $Id: perlpanel,v 1.1 2003/06/05 11:32:10 jodrell Exp $
-
+# $Id: perlpanel,v 1.2 2003/06/05 23:25:53 jodrell Exp $
 use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
-
 use PerlPanel;
 
-$PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $PerlPanel::PREFIX);
+# if you're running from a sandbox, you can get PerlPanel to run by symlinking
+# this file into a directory in your PATH, and symlinking the
+# lib/PerlPanel/Applet to ~/.perlpanel/applets. Then you can work on PerlPanel
+# without having to install it, or hard-coding paths into the scripts.
 
-# if you're running from a sandbox, copy this file somewhere and uncomment
-# this code:
-#
-# push(
-#	@{$PerlPanel::DEFAULTS{appletsdirs}},
-#	'/path/to/sandbox/lib/PerlPanel/Applet/'
-# );
-#
-# then you can run PerlPanel from your shell without worrying too much about
-# library paths.
+$PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $PerlPanel::PREFIX);
 
 my $panel = PerlPanel->new;
 

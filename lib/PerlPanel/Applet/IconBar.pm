@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.10 2003/06/05 15:02:37 jodrell Exp $
+# $Id: IconBar.pm,v 1.11 2003/06/05 23:25:53 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -128,44 +128,80 @@ sub build {
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	}
 	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, sprintf('%s (right-click to edit)', ($self->{name} || $self->{exec})));
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $self->{name} || $self->{exec});
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('button_press_event', sub {
-		my ($button, $event) = @_;
-		if ($event->button == 1) {
-			system($self->{exec}.' &');
-		} elsif ($event->button == 3) {
-			chomp (my $menueditor = `which gnome-desktop-item-edit`);
-			if (-x $menueditor) {
-				# create a lock file for the subshell to remove when the editor is done:
-				my $lockfile = "$self->{filename}.lock";
-				open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
-				# record the desktop file's mod time:
-				my $mtime = (stat($self->{filename}))[9];
-				# run the editor:
-				$self->{widget}->set_sensitive(0);
-				system("$menueditor $self->{filename} && rm -f $lockfile &");
-				# wait for the lockfile to be removed:
-				while (-e $lockfile) {
-					Gtk2->main_iteration while (Gtk2->events_pending);
-				}
-				# reload if the file changed:
-				$self->{widget}->set_sensitive(1);
-				my $newmtime = (stat($self->{filename}))[9];
-				if ($newmtime > $mtime) {
-					$PerlPanel::OBJECT_REF->reload;
-				}
-			} else {
-				$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');
-			}
-		}
-	});
+	$self->{widget}->signal_connect('button_press_event', sub { $self->clicked($_[1]->button) });
 	return 1;
 }
 
 sub widget {
 	return $_[0]->{widget};
+}
+
+sub clicked {
+	my ($self, $button) = @_;
+	if ($button == 1) {
+		system($self->{exec}.' &');
+	} elsif ($button == 3) {
+		$self->{boxes}{edit} = Gtk2::HBox->new;
+		$self->{boxes}{edit}->pack_start(Gtk2::Image->new_from_stock('gtk-preferences', 'menu'), 0, 0, 0);
+		$self->{boxes}{edit}->pack_start(Gtk2::Label->new('Edit...'), 1, 1, 0);
+
+		$self->{items}{edit} = Gtk2::MenuItem->new;
+		$self->{items}{edit}->add($self->{boxes}{edit});
+		$self->{items}{edit}->signal_connect('activate', sub { $self->edit });
+
+		$self->{boxes}{delete} = Gtk2::HBox->new;
+		$self->{boxes}{delete}->pack_start(Gtk2::Image->new_from_stock('gtk-delete', 'menu'), 0, 0, 0);
+		$self->{boxes}{delete}->pack_start(Gtk2::Label->new('Delete'), 1, 1, 0);
+
+		$self->{items}{delete} = Gtk2::MenuItem->new;
+		$self->{items}{delete}->add($self->{boxes}{delete});
+		$self->{items}{delete}->signal_connect('activate', sub { $self->delete });
+
+		$self->{menu} = Gtk2::Menu->new;
+		$self->{menu}->append($self->{items}{edit});
+		$self->{menu}->append($self->{items}{delete});
+		$self->{menu}->show_all;
+		$self->{menu}->popup(undef, undef, sub { return ($_[1], $_[2] - 40) }, 1000, $self->{widget}, undef);
+		#$self->exec;
+	}
+	return 1;
+}
+
+sub edit {
+	my $self = shift;
+	chomp (my $menueditor = `which gnome-desktop-item-edit`);
+	if (-x $menueditor) {
+		# create a lock file for the subshell to remove when the editor is done:
+		my $lockfile = "$self->{filename}.lock";
+		open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
+		# record the desktop file's mod time:
+		my $mtime = (stat($self->{filename}))[9];
+		# run the editor:
+		$self->{widget}->set_sensitive(0);
+		system("$menueditor $self->{filename} && rm -f $lockfile &");
+		# wait for the lockfile to be removed:
+		while (-e $lockfile) {
+			Gtk2->main_iteration while (Gtk2->events_pending);
+		}
+		# reload if the file changed:
+		$self->{widget}->set_sensitive(1);
+		my $newmtime = (stat($self->{filename}))[9];
+		if ($newmtime > $mtime) {
+			$PerlPanel::OBJECT_REF->reload;
+		}
+	} else {
+		$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');
+	}
+	return 1;
+}
+
+sub delete {
+	my $self = shift;
+	unlink($self->{filename});
+	$PerlPanel::OBJECT_REF->reload;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.11 2003/06/05 15:31:17 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.12 2003/06/05 23:25:53 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -22,20 +22,18 @@ our $Y_OFFSET = 10;
 
 our %DEFAULTS = (
 	version	=> $VERSION,
-	screen	=> {
-		width		=> 1024,
-		height		=> 768,
+	screen => {
+		width => 1024,
+		height => 768,
 	},
 	panel => {
-		position	=> 'bottom',
-		spacing		=> 2,
-		size		=> 'medium',
+		position => 'bottom',
+		spacing => 2,
+		size => 'medium',
 	},
-	appletsdirs => [
-		sprintf('%s/share/%s/applets', $PREFIX, lc($NAME)),
-		sprintf('%s/lib/%s/applets', $PREFIX, lc($NAME)),
-		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),
-	],
+	appletconf => {
+		null => {},
+	},
 	applets => [
 		'BBMenu',
 		'IconBar',
@@ -70,7 +68,7 @@ sub init {
 	my $self = shift;
 	$self->load_config;
 	$self->build_ui;
-	map { push(@INC, $_) } @{$self->{config}{appletsdirs}};
+	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
 	$self->show_all;
 	Gtk2->main;
@@ -125,7 +123,7 @@ sub load_applets {
 		if ($@) {
 			my $message = "Error loading $appletname applet.\n";
 			if ($@ =~ /can't locate/i) {
-				$message = "Error: couldn't load applet file $appletname.pm in\n\n\t".join("\n\t", @INC)."\n\nYou can add extra directories to this list using the <appletsdir>\ntag in your rcfile.";
+				$message = "Error: couldn't load applet file $appletname.pm in\n\n\t".join("\n\t", @INC);
 			}
 			$self->error($message, sub { $self->shutdown });
 			return undef;
@@ -165,9 +163,11 @@ sub shutdown {
 sub reload {
 	my $self = shift;
 	$self->{panel}->destroy;
+	$self->save_config;
 	undef $self;
 	my $panel = PerlPanel->new;
 	$panel->init;
+	return 1;
 }
 
 sub request_string {
