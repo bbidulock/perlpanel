@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.47 2004/02/11 17:04:09 jodrell Exp $
+# $Id: BBMenu.pm,v 1.48 2004/02/12 00:26:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -69,7 +69,19 @@ sub configure {
 		$self->{pixbuf} = $self->widget->render_icon('gtk-jump-to', PerlPanel::icon_size_name);
 	}
 
-	$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
+	if ($self->{config}->{arrow} eq 'true') {
+		my $fixed = Gtk2::Fixed->new;
+		$fixed->put(Gtk2::Image->new_from_pixbuf($self->{pixbuf}), 0, 0);
+		my $arrow = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s/menu-arrow-%s.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc(PerlPanel::position)));
+		my $x = ($self->{pixbuf}->get_width - $arrow->get_width);
+		my $y = (PerlPanel::position eq 'bottom' ? 0 : ($self->{pixbuf}->get_height - $arrow->get_height));
+		$fixed->put(Gtk2::Image->new_from_pixbuf($arrow), $x, $y);
+		$self->{icon} = Gtk2::Alignment->new(0.5, 0.5, 0, 0);
+		$self->{icon}->add($fixed);
+	} else {
+		$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
+	}
+
 	if ($self->{config}->{label} eq '') {
 		$self->widget->add($self->{icon});
 	} else {

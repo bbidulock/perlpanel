@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.32 2004/02/11 17:04:09 jodrell Exp $
+# $Id: Configurator.pm,v 1.33 2004/02/12 00:26:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -157,6 +157,7 @@ sub build_ui {
 		}
 
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
+		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'arrow', 'boolean', 'Show arrow on icon'), 0, 0, 0);
 
 		if (!PerlPanel::has_action_menu) {
 			my $control = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu');
@@ -210,6 +211,19 @@ sub build_ui {
 
 	if (PerlPanel::has_application_menu || PerlPanel::has_action_menu) {
 		$self->{notebook}->append_page($self->{pages}{menu}, 'Menus');
+	}
+
+	if ($PerlPanel::OBJECT_REF->has_pager) {
+		$self->{pages}{pager_table} = Gtk2::Table->new(1, 2);
+		$self->{pages}{pager_table}->attach_defaults($self->control_label('Number of rows:'), 0, 1, 0, 1);
+		$self->{pages}{pager_table}->attach_defaults($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{Pager}, 'rows', 'int', 1), 1, 2, 0, 1);
+
+		$self->{pages}{pager} = Gtk2::VBox->new(0,0);
+		$self->{pages}{pager}->set_border_width(12);
+		$self->{pages}{pager}->set_spacing(6);
+		$self->{pages}{pager}->pack_start($self->{pages}{pager_table}, 0, 0, 0);
+
+		$self->{notebook}->append_page($self->{pages}{pager}, 'Pager');
 	}
 
 	$self->create_list;
@@ -277,7 +291,7 @@ sub control {
 	my ($self, $ref, $name, $type, @values) = @_;
 	my $control;
 	if (lc($type) eq 'int') {
-		my $adj = Gtk2::Adjustment->new($ref->{$name}, 0, 5000, 1, 100, undef);
+		my $adj = Gtk2::Adjustment->new($ref->{$name}, $values[0], 5000, 1, 100, undef);
 		$control = Gtk2::SpinButton->new($adj, 1, 0);
 		$adj->signal_connect('value_changed', sub { $ref->{$name} = $control->get_value_as_int });
 	} elsif (lc($type) eq 'enum') {

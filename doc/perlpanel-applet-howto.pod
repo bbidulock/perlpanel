@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.12 2004/02/11 17:04:09 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.13 2004/02/12 00:26:34 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -132,17 +132,21 @@ panel. It can be any kind of Gtk widget apart from a window.
 
 The panel uses a horizontal packing box to contain the applet widgets.
 These two methods return integer values for the 'expand' and 'fill'
-arguments to C<pack_start()> or C<pack_end()>).
+arguments to C<pack_start()>.
 
 	$applet->get_default_config
 
-This method returns a reference to an array containing the default
+This method returns a reference to a hash containing the default
 configuration data. This data is imported into the user's config file
 and is saved to disk and can then be modified by the user as needed. It
 is only called once - the first time the applet is loaded, after which
 the panel will use the data from the user's config file.
+
 If this methods returns C<undef> then the panel will assume there is no
 configuration data.
+
+NB: The C<end()> function is now deprecated and does not need to be used
+in new applets.
 
 =head1 HISTORICAL NOTE
 

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.53 2004/02/11 17:04:09 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.54 2004/02/12 00:26:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -230,7 +230,7 @@ sub load_applets {
 				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
 			}
 			$applet->configure;
-			$self->add($applet->widget, $applet->expand, $applet->fill, $applet->end);
+			$self->add($applet->widget, $applet->expand, $applet->fill);
 			$applet->widget->show_all;
 		}
 	}
@@ -238,12 +238,8 @@ sub load_applets {
 }
 
 sub add {
-	my ($self, $widget, $expand, $fill, $end) = @_;
-	if ($end == 'end') {
-		$self->{hbox}->pack_start($widget, $expand, $fill, 0);
-	} else {
-		$self->{hbox}->pack_end($widget, $expand, $fill, 0);
-	}
+	my ($self, $widget, $expand, $fill) = @_;
+	$self->{hbox}->pack_start($widget, $expand, $fill, 0);
 	return 1;
 }
 
@@ -609,6 +605,14 @@ sub has_action_menu {
 	my $self = shift || $OBJECT_REF;
 	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
 		return 1 if ($applet eq 'ActionMenu')
+	}
+	return undef;
+}
+
+sub has_pager {
+	my $self = shift;
+	foreach my $applet (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
+		return 1 if ($applet eq 'Pager')
 	}
 	return undef;
 }
