@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: perlpanel,v 1.10 2004/02/18 19:27:17 jodrell Exp $
+# $Id: perlpanel,v 1.11 2004/02/20 12:35:07 jodrell Exp $
 
 #
 # are we installed or running in a sandbox?
@@ -27,19 +27,25 @@ use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
 use PerlPanel;
 
 #
-# override prefix:
+# set the values for prefix and libdir:
 #
 $PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
+$PerlPanel::LIBDIR = (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
 
 #
 # if we're in a sandbox then it's handy to add ./src to the PATH:
 #
 $ENV{PATH} = $ENV{PATH}.':'.$ENV{PWD}.'/src' if (!-e '@PREFIX@');
 
+#
+# and then move to $HOME, so that launched applications start in the
+# right place:
+#
 chdir($ENV{HOME});
 
-my $panel = PerlPanel->new;
-
-$panel->init;
+#
+# start the panel:
+#
+PerlPanel->new->init;
 
 exit;

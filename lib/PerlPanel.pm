@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.58 2004/02/18 19:27:16 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.59 2004/02/20 12:35:07 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ package PerlPanel;
 use Gtk2;
 use Gtk2::GladeXML;
 use Data::Dumper;
-use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE @APPLET_DIRS);
+use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX $LIBDIR %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE @APPLET_DIRS);
 use strict;
 
 use vars qw();
@@ -85,10 +85,9 @@ sub new {
 	our $APPLET_ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
 
 	our @APPLET_DIRS = (
-		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),		# user-installed applets
-		sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME),	# admin-installed applets
-		sprintf('%s/lib/%s/Applet', $PREFIX, $NAME),			# sandbox applets
-	);
+		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),	# user-installed applets
+		sprintf('%s/%s/Applet', $LIBDIR, $NAME, $NAME),		# admin-installed or sandbox applets ($LIBDIR is
+	);								# determined at runtime)
 
 	return $self;
 }

@@ -14,7 +14,10 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.32 2004/02/18 19:27:16 jodrell Exp $
+#
+# Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
+#
+# $Id: Makefile,v 1.33 2004/02/20 12:35:07 jodrell Exp $
 
 VERSION=0.4.0
 
@@ -46,22 +49,22 @@ perlpanel:
 	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
 
 install:
-	mkdir -p	$(DESTDIR)$(LIBDIR) \
-			$(DESTDIR)$(BINDIR) \
-			$(DESTDIR)$(MANDIR)/$(MAN_SECTION) \
-			$(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)
-	cp -Rvp lib/*	$(DESTDIR)$(LIBDIR)/
-	cp -Rvp share/*	$(DESTDIR)$(DATADIR)/
-	install -m 0755 build/perlpanel			$(DESTDIR)$(BINDIR)/
-	install -m 0755 build/perlpanel-item-edit 	$(DESTDIR)$(BINDIR)/
-	install -m 0755 build/perlpanel-run-dialog	$(DESTDIR)$(BINDIR)/
-	install -m 0755 src/perlpaneld			$(DESTDIR)$(BINDIR)/
-	install -m 0644 build/PerlPanel.pm		$(DESTDIR)$(LIBDIR)/
-	install -m 0755 build/perlpanel.1		$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-applet-howto.1	$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-item-edit.1	$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/perlpanel-run-dialog.1	$(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
-	install -m 0755 build/PerlPanel::MenuBase.1	$(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)/
+	mkdir -p	$(DESTDIR)/$(LIBDIR) \
+			$(DESTDIR)/$(BINDIR) \
+			$(DESTDIR)/$(MANDIR)/$(MAN_SECTION) \
+			$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)
+	cp -Rvp lib/*	$(DESTDIR)/$(LIBDIR)/
+	cp -Rvp share/*	$(DESTDIR)/$(DATADIR)/
+	install -m 0755 build/perlpanel			$(DESTDIR)/$(BINDIR)/
+	install -m 0755 build/perlpanel-item-edit 	$(DESTDIR)/$(BINDIR)/
+	install -m 0755 build/perlpanel-run-dialog	$(DESTDIR)/$(BINDIR)/
+	install -m 0755 src/perlpaneld			$(DESTDIR)/$(BINDIR)/
+	install -m 0644 build/PerlPanel.pm		$(DESTDIR)/$(LIBDIR)/
+	install -m 0755 build/perlpanel.1		$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-applet-howto.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-item-edit.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-run-dialog.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/PerlPanel::MenuBase.1	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
 
 clean:
 	rm -rf build
@@ -71,15 +74,14 @@ uninstall:
 		$(BINDIR)/perlpaneld \
 		$(BINDIR)/perlpanel-item-edit \
 		$(BINDIR)/perlpanel-run-dialog \
-		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
-		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-applet-howto.1 \
-		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-run-dialog.1 \
-		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1 \
-		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
-		$(MANDIR)/perlpanel-applet-howto.1 \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel-applet-howto.1 \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1 \
+		$(MANDIR)/$(MAN_SECTION)/perlpanel-run-dialog.1 \
 		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1 \
 		$(DATADIR)/perlpanel \
-		$(DATADIR)/pixmaps/perlpanel*
+		$(DATADIR)/pixmaps/perlpanel* \
+		$(LIBDIR)/perlpanel
 
 release:
 	./make-rpm $(VERSION)
