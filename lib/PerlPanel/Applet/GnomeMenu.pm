@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.8 2004/06/03 12:13:05 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.9 2004/06/25 14:36:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -105,6 +105,7 @@ sub create_menu {
 
 sub create_submenu_for {
 	my ($self, $uri, $menu) = @_;
+
 	my ($result, @files) = Gnome2::VFS::Directory->list_load($uri, 'default');
 
 	if ($result ne 'ok') {
@@ -139,6 +140,7 @@ sub create_submenu_for {
 
 			if ($result eq 'ok') {
 				my $data = $self->get_file_contents($dfile);
+
 				my (undef, undef, $icon, undef) = $self->parse_desktopfile($data);
 
 				if ($icon eq '') {
@@ -169,17 +171,16 @@ sub create_submenu_for {
 			my $path = sprintf('%s/%s', $uri, $file->{name});
 			my $data = $self->get_file_contents($path);
 			my ($name, $comment, $icon, $program) = $self->parse_desktopfile($data);
-
 			if ($name ne '' && $program ne '') {
 				my $item = $self->menu_item(
 					$name,
 					(-e $icon ? $icon : 'gtk-execute'),
 					sub { system("$program &") },
 				);
-				if ($name ne 'KBattleship') {
+				if ($comment ne '') {
 					PerlPanel::tips->set_tip($item, $comment);
-					$menu->append($item);
 				}
+				$menu->append($item);
 			}
 
 		}
@@ -223,7 +224,12 @@ sub parse_desktopfile {
 
 sub get_file_contents {
 	my ($self, $path) = @_;
-	return Gnome2::VFS->read_entire_file($path);
+	my ($result, $info) = Gnome2::VFS->get_file_info($path, 'default');
+	if ($result eq 'ok' && $info->{type} eq 'regular') {
+		return Gnome2::VFS->read_entire_file($path);
+	} else {
+		return undef;
+	}
 }
 
 sub get_default_config {

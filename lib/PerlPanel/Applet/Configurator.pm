@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.48 2004/06/03 12:42:40 jodrell Exp $
+# $Id: Configurator.pm,v 1.49 2004/06/25 14:36:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -86,66 +86,22 @@ our %SETTINGS_MAP = (
 	],
 
 	#
-	# Tab #2 - bbmenu settings
+	# Tab #2 - BBMenu settings
 	#
-	'menu_control_items' => [
+	'bbmenu_control_items' => [
 		PerlPanel::get_config('BBMenu'),
 		'show_control_items',
 		'boolean',
 	],
-	'menu_border' => [
-		PerlPanel::get_config('BBMenu'),
-		'relief',
-		'boolean',
-	],
-	'menu_arrow' => [
-		PerlPanel::get_config('BBMenu'),
-		'arrow',
-		'boolean',
-	],
-	'menu_submenu' => [
+	'bbmenu_submenu' => [
 		PerlPanel::get_config('BBMenu'),
 		'apps_in_submenu',
 		'boolean',
-	],
-	'menu_submenu_label' => [
-		PerlPanel::get_config('BBMenu'),
-		'submenu_label',
-		'string',
-	],
-	'menu_label' => [
-		PerlPanel::get_config('BBMenu'),
-		'label',
-		'string',
-	],
-
-	#
-	# Tab #2 - action menu settings
-	#
-	'action_menu_border' => [
-		PerlPanel::get_config('ActionMenu'),
-		'relief',
-		'boolean',
-	],
-	'action_menu_label' => [
-		PerlPanel::get_config('ActionMenu'),
-		'label',
-		'string',
 	],
 
 	#
 	# Tab #2 - GNOME menu settings
 	#
-	'gnome_menu_label' => [
-		PerlPanel::get_config('GnomeMenu'),
-		'label',
-		'string',
-	],
-	'gnome_menu_arrow' => [
-		PerlPanel::get_config('GnomeMenu'),
-		'arrow',
-		'boolean',
-	],
 	'gnome_menu_control_items' => [
 		PerlPanel::get_config('GnomeMenu'),
 		'show_control_items',
@@ -158,7 +114,21 @@ our %SETTINGS_MAP = (
 	],
 
 	#
-	# Tab 2 - global menu settings
+	# Tab #2 - OpenBox menu settings
+	#
+	'obmenu_control_items' => [
+		PerlPanel::get_config('OpenBoxMenu'),
+		'show_control_items',
+		'boolean',
+	],
+	'obmenu_submenu' => [
+		PerlPanel::get_config('OpenBoxMenu'),
+		'apps_in_submenu',
+		'boolean',
+	],
+
+	#
+	# Tab 2 - Global menu settings
 	#
 
 	'quit_button_checkbutton' => [
@@ -310,131 +280,24 @@ sub setup_custom_settings {
 		$self->app->get_widget('menu_icon_size')->set_sensitive($_[0]->get_active ? undef : 1);
 	});
 
-	unless (PerlPanel::has_pager()) {
-		$self->app->get_widget('notebook')->remove_page(2);
-	}
-
-	#
-	# menu stuff:
-	#
-	if (PerlPanel::has_application_menu()) {
-		my $file = PerlPanel::get_config('BBMenu')->{icon};
-		$file = (-e $file ? $file : PerlPanel::get_applet_pbf_filename('BBMenu'));
-		$self->app->get_widget('menu_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-		$self->{tmp_config}{BBMenu}{icon} = $file;
-
-		$self->app->get_widget('menu_icon_button')->signal_connect('clicked', sub {
-
-			my $dialog;
-			if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
-				$dialog = Gtk2::FileSelection->new(_('Choose File'));
-			} else {
-				$dialog = Gtk2::FileChooserDialog->new(
-					_('Choose File'),
-					undef,
-					'open',
-					'gtk-cancel'	=> 'cancel',
-					'gtk-ok' => 'ok'
-				);
-				$dialog->set_preview_widget(Gtk2::Image->new);
-				$dialog->signal_connect('selection-changed', sub {
-					my $file = $dialog->get_filename;
-					if ($file ne '') {
-						$dialog->get_preview_widget->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-					}
-				});
-			}
-			$dialog->set_modal(1);
-			$dialog->set_icon(PerlPanel::icon());
-			$dialog->set_filename($file);
-			$dialog->signal_connect('response', sub {
-				my $file = $dialog->get_filename;
-				if ($_[1] eq 'ok') {
-					$self->app->get_widget('menu_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-					$self->{tmp_config}{BBMenu}{icon} = $file;
-				}
-				$dialog->destroy;
-			});
-			$dialog->show_all;
-		});
-
-		if (PerlPanel::has_action_menu()) {
-			$self->app->get_widget('menu_control_items')->set_sensitive(0);
-			$self->app->get_widget('menu_submenu')->set_sensitive(0);
-			$self->app->get_widget('menu_submenu_label')->set_sensitive(0);
-		} else {
-			$self->app->get_widget('menu_submenu')->signal_connect('toggled', sub {
-				$self->app->get_widget('menu_submenu_label')->set_sensitive($self->app->get_widget('menu_submenu')->get_active);
-			});
-			$self->app->get_widget('menu_submenu_label')->set_sensitive($self->app->get_widget('menu_submenu')->get_active);
-		}
-	} else {
-		$self->app->get_widget('menu_prefs_label')->get_parent->remove($self->app->get_widget('menu_prefs_label'));
-		$self->app->get_widget('menu_prefs_hbox')->get_parent->remove($self->app->get_widget('menu_prefs_hbox'));
-	}
-
-	if (PerlPanel::has_action_menu()) {
-		my $file = PerlPanel::get_config('ActionMenu')->{icon};
-		$file = (-e $file ? $file : PerlPanel::get_applet_pbf_filename('ActionMenu'));
-		$self->app->get_widget('action_menu_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-		$self->{tmp_config}{ActionMenu}{icon} = $file;
-
-		$self->app->get_widget('action_menu_icon_button')->signal_connect('clicked', sub {
-			my $dialog;
-			if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
-				$dialog = Gtk2::FileSelection->new(_('Choose File'));
-			} else {
-				$dialog = Gtk2::FileChooserDialog->new(
-					_('Choose File'),
-					undef,
-					'open',
-					'gtk-cancel'	=> 'cancel',
-					'gtk-ok' => 'ok'
-				);
-				$dialog->set_preview_widget(Gtk2::Image->new);
-				$dialog->signal_connect('selection-changed', sub {
-					my $file = $dialog->get_filename;
-					if ($file ne '') {
-						$dialog->get_preview_widget->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-					}
-				});
-			}
-			$dialog->set_modal(1);
-			$dialog->set_icon(PerlPanel::icon());
-			$dialog->set_filename($file);
-			$dialog->signal_connect('response', sub {
-				my $file = $dialog->get_filename;
-				if ($_[1] eq 'ok') {
-					$self->app->get_widget('action_menu_icon')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($file));
-					$self->{tmp_config}{ActionMenu}{icon} = $file;
-				}
-				$dialog->destroy;
-			});
-			$dialog->show_all;
-		});
-
-	} else {
-		$self->app->get_widget('action_menu_prefs_label')->get_parent->remove($self->app->get_widget('action_menu_prefs_label'));
-		$self->app->get_widget('action_menu_prefs_hbox')->get_parent->remove($self->app->get_widget('action_menu_prefs_hbox'));
-	}
-
-	if (PerlPanel::has_action_menu()) {
-		$self->app->get_widget('gnome_menu_submenu')->set_active(0);
-		$self->app->get_widget('gnome_menu_control_items')->set_active(0);
-		$self->app->get_widget('gnome_menu_submenu')->set_sensitive(0);
-		$self->app->get_widget('gnome_menu_control_items')->set_sensitive(0);
+	if (!PerlPanel::has_applet('BBMenu')) {
+		$self->app->get_widget('bbmenu_prefs_label')->destroy;
+		$self->app->get_widget('bbmenu_prefs_hbox')->destroy;
+		$self->app->get_widget('bbmenu_prefs_spacer')->destroy;
 	}
 	if (!PerlPanel::has_applet('GnomeMenu')) {
-		$self->app->get_widget('gnome_menu_prefs_spacer')->get_parent->remove($self->app->get_widget('gnome_menu_prefs_spacer'));
-		$self->app->get_widget('gnome_menu_prefs_label')->get_parent->remove($self->app->get_widget('gnome_menu_prefs_label'));
-		$self->app->get_widget('gnome_menu_prefs_hbox')->get_parent->remove($self->app->get_widget('gnome_menu_prefs_hbox'));
+		$self->app->get_widget('gnome_menu_prefs_label')->destroy;
+		$self->app->get_widget('gnome_menu_prefs_hbox')->destroy;
+		$self->app->get_widget('gnome_menu_prefs_spacer')->destroy;
 	}
-	if (!PerlPanel::has_application_menu()) {
-		$self->app->get_widget('bbmenu_prefs_spacer')->get_parent->remove($self->app->get_widget('bbmenu_prefs_spacer'));
+	if (!PerlPanel::has_applet('OpenBoxMenu')) {
+		$self->app->get_widget('obmenu_prefs_label')->destroy;
+		$self->app->get_widget('obmenu_prefs_hbox')->destroy;
+		$self->app->get_widget('obmenu_prefs_spacer')->destroy;
 	}
 
-	unless (PerlPanel::has_application_menu() || PerlPanel::has_action_menu() || PerlPanel::has_applet('GnomeMenu')) {
-		$self->app->get_widget('notebook')->remove_page(1);
+	unless (PerlPanel::has_pager()) {
+		$self->app->get_widget('notebook')->remove_page(2);
 	}
 
 	$self->{applet_list} = Gtk2::SimpleList->new_from_treeview(
@@ -530,12 +393,6 @@ sub run_add_applet_dialog {
 
 sub apply_custom_settings {
 	my $self = shift;
-	if (PerlPanel::has_application_menu) {
-		PerlPanel::get_config('BBMenu')->{icon} = $self->{tmp_config}{BBMenu}{icon};
-	}
-	if (PerlPanel::has_action_menu) {
-		PerlPanel::get_config('ActionMenu')->{icon} = $self->{tmp_config}{ActionMenu}{icon};
-	}
 	my @applets;
 	foreach my $rowref (@{$self->{applet_list}->{data}}) {
 		push(@applets, @{$rowref}[1]);

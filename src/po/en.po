@@ -1,4 +1,4 @@
-# $Id: en.po,v 1.6 2004/06/05 12:55:14 jodrell Exp $
+# $Id: en.po,v 1.7 2004/06/25 14:36:44 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ msgstr ""
 "Project-Id-Version: PerlPanel X.Y.Z\n"
 "Report-Msgid-Bugs-To: gavin.brown@uk.com\n"
 "POT-Creation-Date: 2004-04-05 22:08+0100\n"
-"PO-Revision-Date: $Date: 2004/06/05 12:55:14 $\n"
+"PO-Revision-Date: $Date: 2004/06/25 14:36:44 $\n"
 "Last-Translator: $Author: jodrell $\n"
 "Language-Team: perlpanel-devel@savannah.nongnu.org\n"
 "MIME-Version: 1.0\n"
@@ -288,6 +288,16 @@ msgid "PerlPanel: Add Applet"
 msgstr ""
 
 #
+# lib/PerlPanel/Applet/CPUTemp.pm
+#
+
+msgid "Error opening '{command}': {error}"
+msgstr ""
+
+msgid "CPU Temperature"
+msgstr ""
+
+#
 # lib/PerlPanel/Applet/IconBar.pm
 #
 
@@ -337,6 +347,13 @@ msgstr ""
 #
 
 msgid "Nautilus Bookmarks"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/OpenBoxMenu.pm
+#
+
+msgid "Error parsing OpenBox menu: can't find the {id} menu"
 msgstr ""
 
 #
