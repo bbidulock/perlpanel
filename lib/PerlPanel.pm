@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.54 2004/02/12 00:26:34 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.55 2004/02/16 00:29:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 package PerlPanel;
 
 use Gtk2;
+use Gtk2::GladeXML;
 use Data::Dumper;
 use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF $APPLET_ICON_DIR $APPLET_ICON_SIZE);
 use strict;
@@ -43,14 +44,14 @@ our %DEFAULTS = (
 	version	=> $VERSION,
 	panel => {
 		position => 'bottom',
-		spacing => 2,
+		spacing => 0,
 		size => 'medium',
 	},
 	appletconf => {
 		null => {},
 	},
 	applets => [
-		'BBMenu',
+		'ActionMenu',
 		'IconBar',
 		'Tasklist',
 		'Clock',
@@ -669,6 +670,19 @@ sub get_config {
 sub spacing {
 	my $self = shift || $OBJECT_REF;
 	return $self->{config}{panel}{spacing};
+}
+
+sub load_glade {
+	my ($self, $gladefile);
+	if (scalar(@_) == 2) {
+		($self, $gladefile) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$gladefile = shift;
+	}
+	my $file = sprintf('%s/share/%s/glade/%s.glade', $PREFIX, lc($NAME), $gladefile);
+
+	return Gtk2::GladeXML->new($file);
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.13 2004/02/11 17:04:09 jodrell Exp $
+# $Id: Commander.pm,v 1.14 2004/02/16 00:29:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -74,6 +74,7 @@ sub run {
 	my $command_entry = Gtk2::Combo->new;
 	$command_entry->disable_activate;
 	$command_entry->set_popdown_strings(@history);
+	$command_entry->set_use_arrows(1);
 	$command_entry->entry->set_text(undef);
 
 	my $terminal_checkbutton = Gtk2::CheckButton->new('Run in terminal');
@@ -135,7 +136,10 @@ sub run {
 			open(HISTFILE, ">>$histfile");
 			print HISTFILE "$command\n";
 			close(HISTFILE);
+			my $old_dir = $ENV{PWD};
+			chdir($ENV{HOME});
 			system("$command &");
+			chdir($old_dir);
 		}
 		if (!defined($PerlPanel::OBJECT_REF)) {
 			# we're not in a panel, so we can just quit:

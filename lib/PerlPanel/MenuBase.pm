@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.7 2004/01/26 00:50:58 jodrell Exp $
+# $Id: MenuBase.pm,v 1.8 2004/02/16 00:29:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -294,6 +294,7 @@ sub get_icon {
 sub detect_icon {
 	my ($self, $executable) = @_;
 
+	return undef if ($executable eq '');
 	my $program = lc(basename($executable));
 	($program, undef) = split(/\s/, $program, 2);
 
