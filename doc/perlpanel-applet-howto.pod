@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.1 2003/06/13 15:43:33 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.2 2003/06/13 15:57:22 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -86,7 +86,20 @@ When it loads a module, PerlPanel will create a new instance of the
 applet. It will then call various methods of the object in order to work
 out what to do with it.
 
-These methods are explained below:
+These methods are explained below.
+
+=head1 INSTALLING YOUR APPLET
+
+To make your applet usable, you can place it in one of two places:
+
+=over
+
+=item * C<$PREFIX/lib/perlpanel/PerlPanel/Applet>, for site-wide use
+
+=item * C<$HOME/.perlpanel/applets>, for single-user use
+
+=back
+
 
 =head1 REQUIRED METHODS
 
@@ -203,9 +216,5 @@ and the given message. C<$ok_callback> is executed if the user hits the
 
 This pops up a dialog with a information icon and the given message.
 C<$ok_callback> is executed if the user hits the 'Ok' button.
-
-=head1 AUTHOR
-
-Gavin Brown E<lt>L<gavin.brown@uk.com>E<gt>.
 
 =cut

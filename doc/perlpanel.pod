@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.1 2003/06/13 15:43:33 jodrell Exp $
+$Id: perlpanel.pod,v 1.2 2003/06/13 15:57:22 jodrell Exp $
 
 =head1 Introduction
 
@@ -27,13 +27,13 @@ What you will need is this:
 
 =over
 
-=item Perl
+=item * Perl
 
-=item The XML::Simple Perl module
+=item * The XML::Simple Perl module
 
-=item Gtk+ version 2 or higher
+=item * Gtk+ version 2 or higher
 
-=item The Gtk2-Perl libraries
+=item * The Gtk2-Perl libraries
 
 =back
 
