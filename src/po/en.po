@@ -1,0 +1,455 @@
+# $Id: en.po,v 1.1 2004/04/05 22:02:29 jodrell Exp $
+# This file is part of PerlPanel.
+# 
+# PerlPanel is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# PerlPanel is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PerlPanel; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PerlPanel X.Y.Z\n"
+"Report-Msgid-Bugs-To: gavin.brown@uk.com\n"
+"POT-Creation-Date: 2004-04-05 22:08+0100\n"
+"PO-Revision-Date: $Date: 2004/04/05 22:02:29 $\n"
+"Last-Translator: $Author: jodrell $\n"
+"Language-Team: perlpanel-devel@savannah.nongnu.org\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#
+# lib/PerlPanel.pm
+#
+
+msgid "A lean, mean panel program written in Perl."
+msgstr ""
+
+msgid ""
+"This program is Free Software. You may use it under the terms of the GNU "
+"General Public License."
+msgstr ""
+
+msgid "Couldn't load the {module} module!"
+msgstr ""
+
+msgid "Can't open pipe from {prog}: {error}"
+msgstr ""
+
+msgid "Error loading {applet} applet.\n"
+msgstr ""
+
+msgid "Error: couldn't find applet file {file}.pm."
+msgstr ""
+
+msgid "Invalid panel position '{position}'."
+msgstr ""
+
+#
+# lib/PerlPanel/MenuBase.pm
+#
+
+msgid "Lock Screen"
+msgstr ""
+
+msgid "Run Program..."
+msgstr ""
+
+msgid "Take Screenshot..."
+msgstr ""
+
+msgid "Shut Down..."
+msgstr ""
+
+msgid "Are you sure you want to shut down?"
+msgstr ""
+
+msgid "Reboot..."
+msgstr ""
+
+msgid "Are you sure you want to reboot?"
+msgstr ""
+
+msgid "Configure..."
+msgstr ""
+
+msgid "Add To Panel"
+msgstr ""
+
+msgid "About..."
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/ActionMenu.pm
+#
+
+msgid "Action Menu"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+# 
+# lib/PerlPanel/Applet/About.pm
+#
+
+msgid "About {name}"
+msgstr ""
+
+msgid "Sandbox Mode"
+msgstr ""
+
+msgid "Version {version}"
+msgstr ""
+
+msgid "Author:"
+msgstr ""
+
+msgid "Using Perl v{perl_ver}, Gtk+ v{gtk_ver} and Gtk2.pm v{gtk2_ver}."
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/BatteryMonitor.pm
+#
+
+msgid "No APM support in kernel"
+msgstr ""
+
+msgid "The system is running on AC power"
+msgstr ""
+
+msgid "The system is running on battery power"
+msgstr ""
+
+msgid "The system is running on backup power"
+msgstr ""
+
+msgid "Unknown status"
+msgstr ""
+
+msgid "BatteryMonitor Configuration"
+msgstr ""
+
+msgid "Update interval (ms):"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/BBMenu.pm
+#
+msgid "Menu"
+msgstr ""
+
+msgid "Error opening {file}: {error}"
+msgstr ""
+
+msgid "Parse error on line {line} of {file}"
+msgstr ""
+
+msgid "Applications"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/Clock.pm
+#
+
+msgid "Clock"
+msgstr ""
+
+msgid "Date format:"
+msgstr ""
+
+msgid "Tooltip format:"
+msgstr ""
+
+msgid "Calendar"
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/Commander.pm
+#
+
+msgid "Run Command"
+msgstr ""
+
+msgid "Run in terminal"
+msgstr ""
+
+msgid "Run with file..."
+msgstr ""
+
+msgid "No description available."
+msgstr ""
+
+#
+# Configurator.pm Glade
+#
+
+msgid "PerlPanel Configuration"
+msgstr ""
+
+msgid "Icon Size:"
+msgstr ""
+
+msgid "top"
+msgstr ""
+
+msgid "bottom"
+msgstr ""
+
+msgid "tiny"
+msgstr ""
+
+msgid "small"
+msgstr ""
+
+msgid "medium"
+msgstr ""
+
+msgid "large"
+msgstr ""
+
+msgid "Panel Position:"
+msgstr ""
+
+msgid "Autohide"
+msgstr ""
+
+msgid "Panel"
+msgstr ""
+
+msgid "<span weight=\"bold\">Menu</span>"
+msgstr ""
+
+msgid "Control items in menu"
+msgstr ""
+
+msgid "Border on button"
+msgstr ""
+
+msgid "Arrow on icon"
+msgstr ""
+
+msgid "Applications in a submenu"
+msgstr ""
+
+msgid "Submenu label:"
+msgstr ""
+
+msgid "Menu label:"
+msgstr ""
+
+msgid "Menu Icon:"
+msgstr ""
+
+msgid "<span weight=\"bold\">Action Menu</span>"
+msgstr ""
+
+msgid "Action Menu Label:"
+msgstr ""
+
+msgid "Action Menu Icon:"
+msgstr ""
+
+msgid "Menus"
+msgstr ""
+
+msgid "Number of rows:"
+msgstr ""
+
+msgid "Pager"
+msgstr ""
+
+msgid "Drag and drop items in the list to move them."
+msgstr ""
+
+msgid "Applets"
+msgstr ""
+
+msgid "PerlPanel: Add Applet"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/IconBar.pm
+#
+
+msgid "Add Icon"
+msgstr ""
+
+msgid "Reorder Icons"
+msgstr ""
+
+msgid "Delete..."
+msgstr ""
+
+msgid "Edit..."
+msgstr ""
+
+msgid "Add..."
+msgstr ""
+
+msgid "Reorder..."
+msgstr ""
+
+msgid "View Icon Directory"
+msgstr ""
+
+msgid "No desktop item editor could be found."
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/LoadMonitor.pm
+#
+
+msgid "CPU Usage"
+msgstr ""
+
+msgid "Couldn't open '/proc/loadavg': {error}"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/Lock.pm
+#
+
+msgid "Lock the Screen"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/NautilusBookmarks.pm
+#
+
+msgid "Nautilus Bookmarks"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/Pager.pm
+#
+
+msgid "Workspace Pager"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/PanelPet.pm
+#
+
+msgid "Hi, I'm your Panel Pet!"
+msgstr ""
+
+msgid "Preferences"
+msgstr ""
+
+msgid "About"
+msgstr ""
+
+msgid "Remove From Panel"
+msgstr ""
+
+msgid ""
+"Just a hello from your Panel Pet!\n"
+"\n"
+"Bark Bark"
+msgstr ""
+
+msgid "Panel Pet: Hello"
+msgstr ""
+
+msgid "Frames in animation:"
+msgstr ""
+
+msgid "PanelPet Imagefile:"
+msgstr ""
+
+msgid "Choose PanelPet Image"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/Quit.pm
+#
+
+msgid "Close {name}"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/Reload.pm
+#
+
+msgid "Reload"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/ScreenShot.pm
+#
+
+msgid "Choose File"
+msgstr ""
+
+msgid "Take Screenshot"
+msgstr ""
+
+#
+# ScreenShot.pm Glade:
+#
+
+msgid "_Browse..."
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/ShowDesktop.pm
+#
+
+msgid "{home}/screenshot.png"
+msgstr ""
+
+msgid "Show the Desktop"
+msgstr ""
+
+msgid "Restore Windows"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/WindowMenu.pm
+#
+
+msgid "Window List"
+msgstr ""
+
+msgid "No Windows Open"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/XMMS.pm
+#
+
+msgid "Play Previous Track"
+msgstr ""
+
+msgid "Stop Playing"
+msgstr ""
+
+msgid "Play"
+msgstr ""
+
+msgid "Pause"
+msgstr ""
+
+msgid "Play Next Track"
+msgstr ""
+
+msgid "Adjust Volume"
+msgstr ""
+
+msgid "The XMMS applet requires the Xmms-Perl module!"
+msgstr ""

@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.3 2004/02/24 17:07:18 jodrell Exp $
+# $Id: PanelPet.pm,v 1.4 2004/04/05 22:02:29 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -105,7 +105,7 @@ sub _right_click_menu {
                         ],
 
                         [
-                            "/"._("Preferences"),
+                            "/"._('Preferences'),
                             undef,
                             sub { $self->_preferences },
                             undef,
@@ -113,7 +113,7 @@ sub _right_click_menu {
                             "gtk-preferences",
                         ],
                         [
-                            "/"._("About"),
+                            "/"._('About'),
                             undef,
                             sub { $self->_about },
                             undef,
@@ -128,7 +128,7 @@ sub _right_click_menu {
                             '<Separator>',
                         ],
                         [
-                            "/"._("Remove From Panel"),
+                            "/"._('Remove From Panel'),
                             undef,
                             sub { $self->_remove },
                             undef,
@@ -173,7 +173,7 @@ sub _panel_pet {
     $self->{window} = Gtk2::Window->new('toplevel');
     $self->{window}->set_position('center');
     $self->{window}->set_border_width(15);
-    $self->{window}->set_title(_("Panel Pet: Hello"));
+    $self->{window}->set_title(_('Panel Pet: Hello'));
     $self->{window}->set_icon(PerlPanel::icon);
     $self->{vbox} = Gtk2::VBox->new;
     $self->{vbox}->set_spacing(15);
@@ -220,7 +220,7 @@ EOF
     $self->{window} = Gtk2::Window->new('toplevel');
     $self->{window}->set_position('center');
     $self->{window}->set_border_width(15);
-    $self->{window}->set_title(_("About"));
+    $self->{window}->set_title(_('About'));
     $self->{window}->set_icon(PerlPanel::icon);
     $self->{vbox} = Gtk2::VBox->new;
     $self->{vbox}->set_spacing(15);
@@ -247,7 +247,7 @@ sub _preferences {
     my $self = shift;
     $self->{widget}->set_sensitive(0);
     $self->{window} = Gtk2::Dialog->new;
-    $self->{window}->set_title(_("Configuration"));
+    $self->{window}->set_title(_('Configuration'));
     $self->{window}->signal_connect(
             'delete_event',
             sub { $self->{widget}->set_sensitive(1) }

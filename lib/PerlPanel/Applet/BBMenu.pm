@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.50 2004/02/24 17:07:18 jodrell Exp $
+# $Id: BBMenu.pm,v 1.51 2004/04/05 22:02:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -121,7 +121,7 @@ sub parse_menufile {
 		}
 	}
 	if (defined($self->{menufile})) {
-		open(MENU, $self->{menufile}) or PerlPanel::error(_("Error opening {file}: {error}", file => $self->{menufile}, error => $!)) and return undef;
+		open(MENU, $self->{menufile}) or PerlPanel::error(_('Error opening {file}: {error}', file => $self->{menufile}, error => $!)) and return undef;
 		$self->{menudata} = [];
 		while (<MENU>) {
 			s/^\s*//g;
@@ -167,7 +167,7 @@ sub parse_menufile {
 			}
 
 			if (!defined($cmd)) {
-				PerlPanel::error(_("Parse error on line {line} of {file}", line => $line_no, file => $self->{menufile}));
+				PerlPanel::error(_('Parse error on line {line} of {file}', line => $line_no, file => $self->{menufile}));
 			} else {
 
 				if ($cmd eq 'submenu') {

@@ -1,0 +1,19 @@
+README-IL8N
+===========
+
+PerlPanel uses gettext to provide support for foreign languages. If you
+would like to translate PerlPanel into your own language, you must copy
+the file src/po/en.po to src/po/YOUR_LANGUAGE.po and begin to translate
+the strings found inside.
+
+When you submit your translation for inclusion into the main
+distribution, please check to make sure that the patch you submit is of
+the correct character set, namely UTF-8.
+
+I recommend gtranslator (http://gtranslator.sf.net/) for a nice GUI .po
+file editor.
+
+G.
+
+--
+$Id: README-IL8N,v 1.1 2004/04/05 22:02:29 jodrell Exp $

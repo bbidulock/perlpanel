@@ -41,6 +41,7 @@ A few wahs, or, TODO:
 	   widget as well.
 	5. Someone needs to work out how to place a shadow around the panel
 	   without violating Fitt's Law[2].
+	6. Translations are incomplete.
 
 [1]: We use the Gnome2::Wnck library for the tasklist, show desktop
 button and pager. However this module doesn't require the rest of the
@@ -50,4 +51,4 @@ GNOME developers.
 [2]: See http://www.asktog.com/basics/firstPrinciples.html#fitts's%20law.
 
 --
-$Id: README,v 1.11 2004/04/04 14:21:37 jodrell Exp $
+$Id: README,v 1.12 2004/04/05 22:02:29 jodrell Exp $

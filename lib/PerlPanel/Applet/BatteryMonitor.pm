@@ -1,4 +1,4 @@
-# $Id: BatteryMonitor.pm,v 1.5 2004/02/24 17:07:18 jodrell Exp $
+# $Id: BatteryMonitor.pm,v 1.6 2004/04/05 22:02:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ sub configure {
 
 sub update {
     my $self = shift;
-        my $apm = Sys::Apm->new or PerlPanel::error(_("No APM support in kernel"), sub { exit }) and return undef;
+        my $apm = Sys::Apm->new or PerlPanel::error(_('No APM support in kernel'), sub { exit }) and return undef;
         my $ac_status = $apm->ac_status;
         my $status_symbol;
         if ( $ac_status == 1 ) {
@@ -78,7 +78,7 @@ sub prefs {
     my $self = shift;
     $self->{widget}->set_sensitive(0);
     $self->{window} = Gtk2::Dialog->new;
-    $self->{window}->set_title(_("BatteryMonitor Configuration"));
+    $self->{window}->set_title(_('BatteryMonitor Configuration'));
     $self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
     $self->{window}->set_border_width(8);
     $self->{window}->vbox->set_spacing(8);
