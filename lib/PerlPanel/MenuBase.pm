@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.36 2004/11/05 10:00:32 jodrell Exp $
+# $Id: MenuBase.pm,v 1.37 2005/01/03 14:14:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -135,8 +135,8 @@ menu. The menu will subsequently look like this:
 	| Reboot...			|
 	| ----------------------------- |
 	| Configure...			|
-	| Reload			|
 	| Close Panel			|
+	| Add To Panel                > |
 	| ----------------------------- |
 	| About...			|
 	+-------------------------------+
@@ -239,7 +239,6 @@ sub add_control_items {
 		$configurator->configure;
 		$configurator->init;
 	}));
-	$self->menu->append($self->menu_item(_('Reload'), 'gtk-refresh', sub { PerlPanel::reload }));
 
 	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{show_quit_button} eq 'true') {
 		$self->menu->append(
