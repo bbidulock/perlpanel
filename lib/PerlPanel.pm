@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.22 2003/06/23 12:34:00 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.23 2003/06/23 12:36:32 jodrell Exp $
 package PerlPanel;
 use Gtk2;
 use Data::Dumper;
@@ -38,8 +38,6 @@ our %DEFAULTS = (
 		'Clock',
 		'Configurator',
 		'Commander',
-		'About',
-		'Quit',
 	],
 );
 
