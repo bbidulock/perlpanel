@@ -1,4 +1,4 @@
-# $Id: Timer.pm,v 1.3 2005/01/20 17:23:25 jodrell Exp $
+# $Id: Timer.pm,v 1.4 2005/01/21 12:54:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -83,12 +83,12 @@ sub configure {
 
 		} else {
 			$self->{label}->show;
-			my $mins = int($self->{countdown} / 60);
-			my $secs = $self->{countdown} - ($mins * 60);
-			$self->{countdown}--;
+			my $mins = int(($self->{countdown} -1) / 60);
+			my $secs = $self->{countdown} - 1 - ($mins * 60);
 			$self->{glade}->get_widget('minutes')->set_value($mins);
 			$self->{glade}->get_widget('seconds')->set_value($secs);
 			$self->{label}->set_text(sprintf('%02d:%02d', $mins, $secs));
+			$self->{countdown}--;
 			if ($self->{countdown} == 0) {
 				$self->{alert} = 1;
 			}
