@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.3 2004/10/29 11:46:02 jodrell Exp $
+# $Id: DriveManager.pm,v 1.4 2004/10/31 10:25:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -261,8 +261,42 @@ sub config_dialog {
 	$glade->get_widget('mountpoint_entry')->set_text($self->{config}->{point});
 
 	$glade->get_widget('device_browse_button')->signal_connect('clicked', sub {
+		my $dialog = Gtk2::FileChooserDialog->new(
+			_('Choose Device'),
+			undef,
+			'open',
+			'gtk-cancel'	=> 'cancel',
+			'gtk-ok'	=> 'ok',
+		);
+		$dialog->set_modal(1);
+		$dialog->signal_connect('response', sub {
+			if ($_[1] eq 'ok') {
+				$glade->get_widget('device_entry')->set_text($dialog->get_filename);
+			}
+			$dialog->destroy;
+		});
+		$dialog->show_all;
+		# this can take ages, cos gnomevfs takes ages to read the /dev directory:
+		$dialog->set_filename($glade->get_widget('device_entry')->get_text);
 	});
 	$glade->get_widget('mountpoint_browse_button')->signal_connect('clicked', sub {
+		my $dialog = Gtk2::FileChooserDialog->new(
+			_('Choose Mount Point'),
+			undef,
+			'select-folder',
+			'gtk-cancel'	=> 'cancel',
+			'gtk-ok'	=> 'ok',
+		);
+		$dialog->set_modal(1);
+		$dialog->signal_connect('response', sub {
+			if ($_[1] eq 'ok') {
+				$glade->get_widget('mountpoint_entry')->set_text($dialog->get_current_folder);
+			}
+			$dialog->destroy;
+		});
+		$dialog->show_all;
+		# this can take ages, cos gnomevfs takes ages to read the /dev directory:
+		$dialog->set_current_folder($glade->get_widget('mountpoint_entry')->get_text);
 	});
 
 	$glade->get_widget('type_combo_placeholder')->pack_start($combo, 1, 1, 0);
