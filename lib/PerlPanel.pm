@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.81 2004/05/28 13:32:29 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.82 2004/06/03 12:02:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -265,7 +265,10 @@ sub configure {
 	$self->panel->set_border_width(0);
 
 	# check is_visible for reloads:
-	$self->panel->set_type_hint('dock');
+	my $gdk_window = $self->panel->window;
+	if (!defined($gdk_window) || !$gdk_window->is_visible) {
+		$self->panel->set_type_hint('dock');
+	}
 
 	$self->panel->set_decorated(0); # needed for some window managers
 	$self->panel->stick; # needed for some window managers
