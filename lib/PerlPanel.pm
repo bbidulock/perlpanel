@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.96 2004/07/05 14:31:35 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.97 2004/07/06 12:51:24 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
 		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES
-		$DEFAULT_THEME);
+		$DEFAULT_THEME	$APPLET_ERROR_MARKUP);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -92,6 +92,10 @@ our $RUN_HISTORY_LENGTH	= 15;
 our @APPLET_CATEGORIES = qw(Actions System Utilities Launchers Menus);
 
 our $DEFAULT_THEME = 'gnome';
+
+our $APPLET_ERROR_MARKUP = <<"END";
+<span weight="bold">%s</span>
+END
 
 Gtk2->init;
 
@@ -343,21 +347,27 @@ sub load_applets {
 		eval($expr);
 
 		if ($@ || !defined($applet)) {
-			print STDERR $@;
-
 			my $message = _("Error loading {applet} applet.\n", applet => $appletname);
 			my $toplevel = (split(/::/, $appletname))[0];
 			if ($@ =~ /can\'t locate $toplevel/i) {
 				$message = _("Error: couldn't find applet file {file}.pm.", file => $appletname);
 			}
 
-			$self->warning($message, sub {
+			my $glade = $self->load_glade('applet-error');
+			$glade->get_widget('error_label')->set_markup(sprintf($APPLET_ERROR_MARKUP, $message));
+			$glade->get_widget('error_text')->get_buffer->set_text($@);
+			$glade->get_widget('error_dialog')->signal_connect('response', sub {
+				$_[0]->destroy;
 				require('Configurator.pm');
 				my $configurator = PerlPanel::Applet::Configurator->new;
 				$configurator->configure;
 				$configurator->init;
 				$configurator->app->get_widget('notebook')->set_current_page(3);
 			});
+			$glade->get_widget('error_dialog')->set_position('center');
+			$glade->get_widget('error_dialog')->set_icon($self->icon);
+			$glade->get_widget('error_dialog')->show_all;
+
 		} else {
 
 			if (!defined($self->{config}{appletconf}{$appletname})) {
