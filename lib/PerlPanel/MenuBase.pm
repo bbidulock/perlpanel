@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.18 2004/05/27 16:29:51 jodrell Exp $
+# $Id: MenuBase.pm,v 1.19 2004/05/28 10:46:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,19 +18,8 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::MenuBase;
-use vars qw(@ICON_DIRECTORIES);
-use File::Basename qw(basename);
 use Gtk2::SimpleList;
 use strict;
-
-our @ICON_DIRECTORIES = (
-	sprintf('%s/.perlpanel/icon-files', $ENV{HOME}),
-	sprintf('%s/.icons', $ENV{HOME}),
-	sprintf('%s/.icons/gnome/48x48/apps', $ENV{HOME}),
-	'%s/share/icons/gnome/48x48/apps',
-	'%s/share/pixmaps',
-	'/usr/share/pixmaps',
-);
 
 =pod
 
@@ -330,50 +319,9 @@ sub popup_position {
 
 	my $icon = $self->get_icon($string, $is_submenu_parent);
 
-This returns a scalar containing either a filename for an icon, or a stock ID.
-This method is best used when used as the C<$icon> argument to the
-C<menu_item()> method above.
-
-C<menu_item()> searches a series of directories looking for an appropriate icon.
-These directories are listed in @PerlPanel::ICON_DIRECTORIES.
+This method is deprecated and is no longer available. Use PerlPanel::lookup_icon() instead.
 
 =cut
-
-sub get_icon {
-	my ($self, $executable, $is_submenu_parent) = @_;
-
-	# this is if we were passed an image filename, ie by GnomeMenu:
-	$executable =~ s/\.(png|svg|xpm)$//i;
-
-	$executable =~ s/\s/-/g if ($is_submenu_parent == 1);
-
-	my $file = $self->detect_icon($executable);
-
-	if (-e $file) {
-		return $file;
-
-	} else {
-		return ($is_submenu_parent == 1 ? 'gtk-open' : 'gtk-execute');
-
-	}
-}
-
-sub detect_icon {
-	my ($self, $executable) = @_;
-
-	return undef if ($executable eq '');
-	my $program = lc(basename($executable));
-	($program, undef) = split(/\s/, $program, 2);
-
-	foreach my $dir (@ICON_DIRECTORIES) {
-		my $file = sprintf('%s/%s.png', sprintf($dir, $PerlPanel::PREFIX), $program);
-		if (-e $file) {
-			return $file;
-		}
-	}
-
-	return undef;
-}
 
 sub add_applet_dialog {
 	my ($self, $applet) = @_;

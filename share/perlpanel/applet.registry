@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.4 2004/04/30 16:28:05 jodrell Exp $
+# $Id: applet.registry,v 1.5 2004/05/28 10:46:57 jodrell Exp $
 
 About=A button to show an "About" dialog.
 ActionMenu=A menu containing useful actions.
@@ -23,6 +23,7 @@ Pager=Displays your current workspaces.
 PanelPet=A friendly creature to keep you company.
 Quit=A button to close the panel.
 Reload=A button to reload the panel.
+RunMe=A simple command line.
 ScreenShot=Capture images of your desktop.
 Separator=A separator.
 SetiAtHome=A Seti@Home status monitor.

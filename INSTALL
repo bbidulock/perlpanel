@@ -4,7 +4,7 @@ INSTALL
 What you will need is this:
 
     * Perl 5.8.0 or higher
-    * Gtk+ version 2 or higher
+    * Gtk+ version 2.4.0 or higher
     * The XML::Simple Perl module
     * The XML::Parser Perl module
     * The Gtk2-Perl libraries
@@ -82,4 +82,4 @@ Users of Debian GNU/Linux can install PerlPanel by running the command
 Users of the Gentoo operating system can find ebuilds via the project website.
 
 --
-$Id: INSTALL,v 1.4 2004/05/07 14:31:14 jodrell Exp $
+$Id: INSTALL,v 1.5 2004/05/28 10:46:23 jodrell Exp $

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.79 2004/05/27 16:29:51 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.80 2004/05/28 10:46:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -27,6 +27,7 @@ use Data::Dumper;
 use POSIX qw(setlocale);
 use Locale::gettext;
 use base 'Exporter';
+use File::Basename qw(basename fileparse);
 use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
@@ -46,6 +47,7 @@ our @CO_AUTHORS		= (
 	'Scott Arrington',
 	'Torsten Schoenfeld',
 	'Marc Brockschmidt',
+	'Mark Ng',
 );
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 
@@ -106,7 +108,7 @@ sub new {
 	bindtextdomain(lc($NAME), sprintf('%s/share/locale', $PREFIX));
 	textdomain(lc($NAME));
 
-	our $DESCRIPTION	= _('A lean, mean panel program written in Perl.');
+	our $DESCRIPTION	= _('The Lean, Mean, Panel Machine!');
 	our $LICENSE		= _('This program is Free Software. You may use it under the terms of the GNU General Public License.');
 
 	return $self;
@@ -162,7 +164,12 @@ sub init {
 		close(PIDFILE);
 	}
 
-	my $sub = sub { unlink($PIDFILE) ; exit };
+	my $sub = sub {
+		my $error = shift;
+		print STDERR $error;
+		unlink($PIDFILE);
+		exit;
+	};
 	foreach my $signal (qw(ABRT ALRM HUP INT KILL QUIT SEGV STOP TERM __DIE__)) {
 		$SIG{$signal} = $sub;
 	}
@@ -812,6 +819,43 @@ sub _ {
 		}
 	}
 	return $translated;
+}
+
+sub lookup_icon {
+
+	my ($self, $icon);
+	if (scalar(@_) == 2) {
+		($self, $icon) = @_;
+	} else {
+		$self = $OBJECT_REF;
+		$icon = shift;
+	}
+
+	if ($icon eq '') {
+		return undef;
+	} elsif (-f $icon) {
+		return $icon;
+	} else {
+
+		# remove everything after the last dot:
+		$icon = basename($icon);
+		$icon =~ s/\..+$//g;
+
+		if (!defined($self->{icon_theme})) {
+			$self->{icon_theme} = Gtk2::IconTheme->get_default;
+	
+		}
+
+		my $info = $self->{icon_theme}->lookup_icon($icon, 48, 'no-svg');
+
+		if (!defined($info)) {
+			return undef;
+
+		} else {
+			return $info->get_filename;
+
+		}
+	}
 }
 
 1;

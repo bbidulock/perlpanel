@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.6 2004/05/27 16:29:53 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.7 2004/05/28 10:46:47 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -217,7 +217,7 @@ sub parse_desktopfile {
 		$icon = $self->lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
 		if (! -e $icon) {
 			if (-e "/usr/share/pixmaps/$params->{$DESKTOP_NAMESPACE}{Icon}") {
-				$icon = $self->get_icon($params->{$DESKTOP_NAMESPACE}{Icon});
+				$icon = PerlPanel::lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.53 2004/05/17 13:33:27 jodrell Exp $
+# $Id: BBMenu.pm,v 1.54 2004/05/28 10:46:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 package PerlPanel::Applet::BBMenu;
 use base 'PerlPanel::MenuBase';
 use vars qw(@menufiles @ICON_DIRECTORIES);
+use File::Basename qw(basename);
 use strict;
 
 our @menufiles = (
@@ -34,6 +35,15 @@ our @menufiles = (
 	'/usr/share/fluxbox/menu',
 	'/usr/local/share/waimea/menu',
 	'/usr/share/waimea/menu',
+);
+
+our @ICON_DIRECTORIES = (
+	sprintf('%s/.perlpanel/icon-files', $ENV{HOME}),
+	sprintf('%s/.icons', $ENV{HOME}),
+	sprintf('%s/.icons/gnome/48x48/apps', $ENV{HOME}),
+	'%s/share/icons/gnome/48x48/apps',
+	'%s/share/pixmaps',
+	'/usr/share/pixmaps',
 );
 
 sub configure {
@@ -245,6 +255,42 @@ sub get_default_config {
 		apps_in_submenu => 'false',
 		submenu_label	=> _('Applications'),
 	};
+}
+
+sub get_icon {
+	my ($self, $executable, $is_submenu_parent) = @_;
+
+	$executable = basename($executable);
+	$executable =~ s/\..+$//g;
+
+	$executable =~ s/\s/-/g if ($is_submenu_parent == 1);
+
+	my $file = $self->detect_icon($executable);
+
+	if (-e $file) {
+		return $file;
+
+	} else {
+		return ($is_submenu_parent == 1 ? 'gtk-open' : 'gtk-execute');
+
+	}
+}
+
+sub detect_icon {
+	my ($self, $executable) = @_;
+
+	return undef if ($executable eq '');
+	my $program = lc(basename($executable));
+	($program, undef) = split(/\s/, $program, 2);
+
+	foreach my $dir (@ICON_DIRECTORIES) {
+		my $file = sprintf('%s/%s.png', sprintf($dir, $PerlPanel::PREFIX), $program);
+		if (-e $file) {
+			return $file;
+		}
+	}
+
+	return PerlPanel::lookup_icon($executable);
 }
 
 1;

@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.16 2004/02/24 17:07:18 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.17 2004/05/28 10:46:27 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -322,6 +322,12 @@ Returns a true value if an ActionMenu applet is in the user's applet list.
 	PerlPanel::has_pager
 
 Returns a true value if an Pager applet is in the user's applet list.
+
+	PerlPanel::lookup_icon($icon);
+
+This is a convenience function that wraps Gtk2::IconTheme. The C<$icon>
+argument is the name of a program or similar. This function will return
+a filename or C<undef> if unsuccessful.
 
 =head1 INTERNATIONALISATION SUPPORT
 

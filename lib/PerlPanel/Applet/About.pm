@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.13 2004/05/27 16:29:52 jodrell Exp $
+# $self->{image}d: About.pm,v 1.13 2004/05/27 16:29:52 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,7 +18,27 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::About;
+use vars qw($BORDER $MARKUP_FMT);
 use strict;
+
+our $BORDER = 10;
+
+our $MARKUP_FMT = <<"END";
+<span foreground="#FFFFFF"><span size="large"><span weight="bold">%s</span>
+
+%s</span>
+
+<span weight="bold">%s %s</span>
+
+<span size="small"><span weight="bold">%s</span> %s</span>
+
+<span size="large" weight="bold">%s</span>
+
+<span size="small">%s
+
+%s</span></span>
+
+END
 
 sub new {
 	my $self		= {};
@@ -47,7 +67,7 @@ sub about {
 	$co_authors =~ s/</&lt;/g;
 	$co_authors =~ s/>/&gt;/g;
 	my $markup = sprintf(
-		"<span foreground=\"#FFFFFF\">%s\n\n%s\n\n%s %s\n\n<span size=\"small\">%s %s</span>\n\n%s\n\n<span size=\"small\">%s\n\n%s</span></span>",
+		$MARKUP_FMT,
 		($PerlPanel::VERSION eq '@VERSION@' ? _('Sandbox Mode') : _('Version {version}', version => $PerlPanel::VERSION)),
 		$PerlPanel::DESCRIPTION,
 		_('Author:'),
@@ -64,30 +84,32 @@ sub about {
 		),
 	);
 
-	my $i = Gtk2::Image->new_from_file(sprintf('%s/share/pixmaps/%s-about.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+	$self->{image} = Gtk2::Image->new_from_file(sprintf('%s/share/pixmaps/%s-about.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
 
-	my $l = Gtk2::Label->new;
-	$l->set_size_request($i->get_pixbuf->get_width, -1);
-	$l->set_justify('center');
-	$l->set_line_wrap(1);
-	$l->set_markup($markup);
+	$self->{label} = Gtk2::Label->new;
+	$self->{label}->set_size_request($self->{image}->get_pixbuf->get_width - $BORDER, -1);
+	$self->{label}->set_justify('center');
+	$self->{label}->set_line_wrap(1);
+	$self->{label}->set_markup($markup);
 
-	my $f = Gtk2::Fixed->new;
+	$self->{fixed} = Gtk2::Fixed->new;
 
-	$f->add($i);
+	$self->{fixed}->add($self->{image});
 
-	$f->put($l, 0, 115);
+	$self->{fixed}->put($self->{label}, $BORDER, 115);
 
-	my $e = Gtk2::EventBox->new;
-	$e->signal_connect('button_release_event', sub { exit });
-	$e->add($f);
+	$self->{box} = Gtk2::EventBox->new;
+	$self->{box}->signal_connect('button_release_event', sub {
+		$self->{window}->destroy;
+	});
+	$self->{box}->add($self->{fixed});
 
-	my $w = Gtk2::Window->new;
-	$w->set_decorated(0);
-	$w->set_modal(1);
-	$w->set_position('center');
-	$w->add($e);
-	$w->show_all;
+	$self->{window} = Gtk2::Window->new;
+	$self->{window}->set_decorated(0);
+	$self->{window}->set_modal(1);
+	$self->{window}->set_position('center');
+	$self->{window}->add($self->{box});
+	$self->{window}->show_all;
 
 	return 1;
 }

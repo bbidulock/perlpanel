@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.19 2004/05/21 10:22:50 jodrell Exp $
+# $Id: Commander.pm,v 1.20 2004/05/28 10:46:47 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,8 +18,8 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Commander;
-use PerlPanel::MenuBase;
 use vars qw($histfile $iconfile);
+use File::Basename qw(basename);
 use strict;
 
 our $histfile = sprintf('%s/.perlpanel/run-history', $ENV{HOME});
@@ -84,7 +84,7 @@ sub run {
 
 	$command_entry->entry->signal_connect('changed', sub {
 		my ($command, undef) = split(/\s/, $command_entry->entry->get_text, 2);
-		my $icon_file = PerlPanel::MenuBase::detect_icon(undef, $command);
+		my $icon_file = PerlPanel::lookup_icon(basename($command));
 		if (-e $icon_file) {
 			my $new_pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon_file);
 			if ($new_pbf->get_width != $default_pbf->get_width || $new_pbf->get_height != $default_pbf->get_height) {
