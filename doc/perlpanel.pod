@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.26 2004/09/10 13:01:14 jodrell Exp $
+$Id: perlpanel.pod,v 1.27 2004/09/28 09:05:39 jodrell Exp $
 
 =head1 Introduction
 
@@ -50,6 +50,18 @@ If you've used Gnome or KDE you should be familiar with applets -
 they're small widgets that perform a particular task. PerlPanel comes
 with a number of useful applets that are enabled by default. They are
 explained in brief below.
+
+=head2 Installing Third Party applets
+
+A number of people have written applets for PerlPanel which aren't part
+of the main PerlPanel package. These applets can be downloaded and
+installed very easily.
+
+To install an applet, you can use the "Install Applet..." item in the
+"Add To Panel" submenu of the Action Menu, or the "Install Applet"
+button on the "Add Applet" dialog of the Configurator. Each of these
+will display a dialog that will prompt you for the filename of the
+applet to be installed. Then you can add the Applet to your panel.
 
 =head2 The 'About' Applet
 
