@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.7 2004/02/24 17:07:18 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.8 2004/04/30 16:28:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,54 +18,52 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::NautilusBookmarks;
-use Gnome2::NautilusBookmarks;
+use base 'PerlPanel::MenuBase';
+use XML::Simple;
 use strict;
-
-sub new {
-	my $self		= {};
-	$self->{package}	= shift;
-	bless($self, $self->{package});
-	return $self;
-}
 
 sub configure {
 	my $self = shift;
-	$self->{widget} = Gnome2::NautilusBookmarks->new(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('nautilusbookmarks', PerlPanel::icon_size)));
+	$self->{file} = sprintf('%s/.nautilus/bookmarks.xml', $ENV{HOME});
+	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('nautilusbookmarks', PerlPanel::icon_size));
+	$self->{widget} = Gtk2::Button->new;
+	$self->{use_gnome} = 0;
+	eval 'use Gnome2 ; $self->{use_gnome} = 1';
 	$self->widget->set_relief('none');
+	$self->widget->add($self->{icon});
+	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	PerlPanel::tips->set_tip($self->widget, _('Nautilus Bookmarks'));
-	$self->widget->signal_connect('clicked', sub {
-		$self->widget->get_menu->popup(undef, undef, sub { return $self->popup_position(@_) }, undef, $self->widget, undef);
-	});
 	return 1;
 }
 
-sub popup_position {
+sub clicked {
 	my $self = shift;
-	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
-	$x = 0 if ($x < 5);
-	if (PerlPanel::position eq 'top') {
-		return ($x, PerlPanel::panel->allocation->height);
-	} else {
-		$self->widget->get_menu->realize;
-		$self->widget->get_menu->show_all;
-		return ($x, (PerlPanel::screen_height) - $self->widget->get_menu->allocation->height - PerlPanel::panel->allocation->height);
+	$self->create_menu;
+	$self->popup;
+}
+
+sub create_menu {
+	my $self = shift;
+	$self->{menu} = Gtk2::Menu->new;
+	my $bookmarks = XMLin($self->{file});
+	$self->{mtime} = (stat($bookmarks))[9];
+	if ($self->{use_gnome} == 1) {
+		$self->{theme} = Gnome2::IconTheme->new;
 	}
-}
-
-sub widget {
-	return $_[0]->{widget};
-}
-
-sub expand {
-	return 0;
-}
-
-sub fill {
-	return 0;
-}
-
-sub end {
-	return 'start';
+	foreach my $name (sort keys %{$bookmarks->{bookmark}}) {
+		my $icon;
+		if ($self->{use_gnome} == 1) {
+			($icon, undef) = $self->{theme}->lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name}, PerlPanel::icon_size_name);
+		} else {
+			$icon = 'gtk-jump-to',
+		}
+		$self->menu->append($self->menu_item(
+			$name,
+			$icon,
+			sub { system("nautilus --no-desktop \"$bookmarks->{bookmark}->{$name}->{uri}\" &") },
+		));
+	}
+	return 1;
 }
 
 sub get_default_config {

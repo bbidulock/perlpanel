@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.15 2004/04/03 10:29:44 jodrell Exp $
+# $Id: MenuBase.pm,v 1.16 2004/04/30 16:28:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -144,9 +144,24 @@ menu. The menu will subsequently look like this:
 
 sub add_control_items {
 	my $self = shift;
+	my %params = @_;
+
 	if (scalar($self->menu->get_children) > 0) {
 		$self->menu->append(Gtk2::SeparatorMenuItem->new);
 	}
+
+	### this currently does nothing:
+	if (defined($params{menu_data}) && defined($params{menu_edit_callback})) {
+		my $item = $self->menu_item(
+			_('Edit Menu...'),
+			'gtk-properties',
+			sub { $self->run_menu_editor($params{menu_data}, $params{menu_edit_callback}) }
+		);
+		$item->set_sensitive(0);
+		$self->menu->append($item);
+		$self->menu->append(Gtk2::SeparatorMenuItem->new);
+	}
+
 	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
 		$self->menu->append($self->menu_item(_('Lock Screen'), PerlPanel::get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
@@ -361,6 +376,27 @@ sub add_applet_dialog {
 		PerlPanel::reload;
 	}
 	return 1;
+}
+
+sub run_menu_editor {
+	my ($self, $data, $callback) = @_;
+
+	my $glade = PerlPanel::load_glade('menu-editor');
+	my $dialog = $glade->get_widget('main_window');
+
+	$dialog->set_icon(PerlPanel::icon);
+
+	# this will be a Gtk2::Simple::Tree one day:
+	my $list = Gtk2::SimpleList->new_from_treeview(
+		$glade->get_widget('menu_tree'),
+		'entry'	=> 'text',
+	);
+
+	$dialog->signal_connect('response', sub {
+		my $data = $list->{data},
+		$dialog->destroy;
+		&{$callback}($data);
+	});
 }
 
 =pod

@@ -1,4 +1,4 @@
-# $Id: en.po,v 1.2 2004/04/27 23:06:02 jodrell Exp $
+# $Id: en.po,v 1.3 2004/04/30 16:28:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ msgstr ""
 "Project-Id-Version: PerlPanel X.Y.Z\n"
 "Report-Msgid-Bugs-To: gavin.brown@uk.com\n"
 "POT-Creation-Date: 2004-04-05 22:08+0100\n"
-"PO-Revision-Date: $Date: 2004/04/27 23:06:02 $\n"
+"PO-Revision-Date: $Date: 2004/04/30 16:28:05 $\n"
 "Last-Translator: $Author: jodrell $\n"
 "Language-Team: perlpanel-devel@savannah.nongnu.org\n"
 "MIME-Version: 1.0\n"
@@ -473,6 +473,9 @@ msgstr ""
 msgid "Port:"
 msgstr ""
 
+msgid "Connection List"
+msgstr ""
+
 #
 # lib/PerlPanel/Applet/ShowDesktop.pm
 #
@@ -519,4 +522,23 @@ msgid "Adjust Volume"
 msgstr ""
 
 msgid "The XMMS applet requires the Xmms-Perl module!"
+msgstr ""
+
+#
+# menu-editor.glade
+#
+
+msgid "Menu Editor"
+msgstr ""
+
+msgid "Name:"
+msgstr ""
+
+msgid "Command:"
+msgstr ""
+
+msgid "Icon:"
+msgstr ""
+
+msgid "_Browse..."
 msgstr ""
