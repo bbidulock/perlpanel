@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.32 2004/11/04 16:52:18 jodrell Exp $
+# $Id: Clock.pm,v 1.33 2004/11/07 16:24:48 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -366,7 +366,7 @@ sub edit_event {
 				$self->{glade}->get_widget('edit_event_hour')->get_value_as_int,
 				$self->{glade}->get_widget('edit_event_minute')->get_value_as_int,
 			);
-			$event->{note} = $self->{glade}->get_widget('edit_event_notes')->get_buffer->get_text(
+			$event->{notes} = $self->{glade}->get_widget('edit_event_notes')->get_buffer->get_text(
 				$self->{glade}->get_widget('edit_event_notes')->get_buffer->get_start_iter,
 				$self->{glade}->get_widget('edit_event_notes')->get_buffer->get_end_iter,
 				undef,
