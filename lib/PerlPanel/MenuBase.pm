@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.38 2005/01/08 14:03:27 jodrell Exp $
+# $Id: MenuBase.pm,v 1.39 2005/01/10 10:10:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -288,9 +288,9 @@ sub add_control_items {
 			PerlPanel::tips->set_tip($item, $registry->{$applet});
 			$applet_menu->append($item);
 		}
-	}
 
-	$applet_menu->append(Gtk2::SeparatorMenuItem->new);
+		$applet_menu->append(Gtk2::SeparatorMenuItem->new);
+	}
 
 	my $add_item = $self->menu_item(
 		_('Install Applet...'),
