@@ -1,0 +1,42 @@
+=pod
+
+=for comment
+$Id: perlpanel-run-dialog.pod,v 1.1 2004/02/17 13:56:26 jodrell Exp $
+
+=head1 Name
+
+perlpanel-run-dialog - a .desktop file editor for PerlPanel.
+
+=head1 Usage
+
+	perlpanel-run-dialog
+
+=head1 Description
+
+perlpanel-run-dialog provides a simple pop-up window for running programs.
+It is very closely modelled on the "Run Application" dialog provided by
+GNOME.
+
+=head1 See Also
+
+=over
+
+=item * L<PerlPanel>
+
+=item * http://www.freedesktop.org/
+
+=back
+
+=head1 Copyright
+
+Copyright (c) 2004 Gavin Brown.
+
+perlpanel-run-dialog is part of PerlPanel.
+
+PerlPanel is free software, you can use it and/or redistribute it under the
+terms of the GNU General Public License. See the COPYING file for more
+information
+
+=head1 Author
+
+Gavin Brown E<lt>gavin.brown@uk.comE<gt>.

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.56 2004/02/17 12:30:31 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.57 2004/02/17 13:56:26 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,6 +37,7 @@ our @CO_AUTHORS		= (
 	'Eric Andreychek <eric@openthought.net> (Applet development)',
 	'Scott Arrington <muppet@asofyet.org> (Bug fixes)',
 	'Torsten Schoenfeld <kaffeetisch@web.de> (libwnck libraries)',
+	'Marc Brockschmidt <marc@dch-faq.de> (Debian packages)',
 );
 
 our $URL		= 'http://jodrell.net/projects/perlpanel';

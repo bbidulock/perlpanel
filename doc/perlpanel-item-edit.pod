@@ -1,0 +1,45 @@
+=pod
+
+=for comment
+$Id: perlpanel-item-edit.pod,v 1.1 2004/02/17 13:56:26 jodrell Exp $
+
+=head1 Name
+
+perlpanel-item-edit - a .desktop file editor for PerlPanel.
+
+=head1 Usage
+
+	perlpanel-item-edit [FILE]
+
+=head1 Description
+
+perlpanel-item-edit provides a simple dialog for editing .desktop launcher
+files. These files contain information that can be used by desktop components
+to run programs.
+
+For more information, see the Freedesktop.org specification for the .desktop
+file format.
+
+=head1 See Also
+
+=over
+
+=item * L<PerlPanel>
+
+=item * http://www.freedesktop.org/
+
+=back
+
+=head1 Copyright
+
+Copyright (c) 2004 Gavin Brown.
+
+perlpanel-item-edit is part of PerlPanel.
+
+PerlPanel is free software, you can use it and/or redistribute it under the
+terms of the GNU General Public License. See the COPYING file for more
+information
+
+=head1 Author
+
+Gavin Brown E<lt>gavin.brown@uk.comE<gt>.

@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.13 2004/02/12 00:26:34 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.14 2004/02/17 13:56:26 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -101,7 +101,7 @@ To make your applet usable, you can place it in one of two places:
 =back
 
 You should also add an entry to the applet registry file, located at
-C<$PREFIX/lib/perlpanel/applet.registry>. This file contains a short
+C<$PREFIX/share/perlpanel/applet.registry>. This file contains a short
 textual description of each available applet, for example:
 
 	Commander=A button to show a command dialog.

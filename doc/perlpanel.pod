@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.18 2004/01/22 16:45:40 jodrell Exp $
+$Id: perlpanel.pod,v 1.19 2004/02/17 13:56:26 jodrell Exp $
 
 =head1 Introduction
 
@@ -72,47 +72,6 @@ unreliable conversion of data. So PerlPanel forces the use of
 XML::Parser instead of XML::SAX. So even if you have XML::Simple
 installed you may find that PerlPanel won't run - this is because
 XML::Parser is required.
-
-=head1 Installation
-
-Installing PerlPanel is a simple matter of downloading the source
-tarball, extracting it, and then running the following commands:
-
-	[user@host]$ make
-	[user@host]$ su
-	Enter password:
-	[root@host]# make install
-
-By default, PerlPanel will install into the C</usr/local> directory.
-If you want to change this, you can either edit the C<PREFIX> variable
-in the Makefile, or add 'C<PREFIX=/path/to/directory>' as an argument
-to C<make>.
-
-=head2 Installing from an RPM
-
-PerlPanel is also available in RPM package form. These packages should
-work on any operating system that supports the RPM system, for example
-Red Hat, Fedora, Mandrake and SuSE. Simply download the NoArch RPM and
-run:
-
-	[root@host]# rpm -Uvh PerlPanel-x.y.z-1.noarch.rpm
-
-If you want to build your own RPMs from the source RPM, simply download
-the C<PerlPanel-x.y.x.src.rpm> file and run these commands:
-
-	[root@host]# rpm -ivh PerlPanel-x.y.z.src.rpm
-	[root@host]# cd /path/to/rpm/directory/SPECS
-	[root@host]# rpmbuild -bb PerlPanel-x.y.z.spec --target=noarch
-	[root@host]# rpm -Uvh ../RPMS/noarch/PerlPanel-x.y.z-1.noarch.rpm
-
-You can also build an RPM directly from the source tarball, using
-
-	[root@host]# rpmbuild -tb PerlPanel-x.y.z.tar.gz
-
-NB: RPM's system for handling Perl module dependencies is unreliable.
-You may find that when you try to install the package RPM will report
-missing Perl modules, even if they are already installed. To correct this,
-use the C<--nodeps> argument to RPM.
 
 =head1 Running PerlPanel
 
@@ -345,5 +304,19 @@ want to learn how to write applets, consult L<perlpanel-applet-howto>.
 =item * L<Xmms::Remote>
 
 =back
+
+=head1 Copyright
+
+Copyright (c) 2004 Gavin Brown.
+
+PerlPanel is free software, you can use it and/or redistribute it under the
+terms of the GNU General Public License. See the COPYING file for more
+information
+
+=head1 Author
+
+Gavin Brown 
+
+Gavin Brown E<lt>gavin.brown@uk.comE<gt>.
 
 =cut

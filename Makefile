@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.29 2004/02/12 00:26:34 jodrell Exp $
+# $Id: Makefile,v 1.30 2004/02/17 13:56:26 jodrell Exp $
 
 VERSION=0.4.0
 
@@ -42,6 +42,8 @@ perlpanel:
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
+	pod2man doc/perlpanel-run-dialog.pod > build/perlpanel-run-dialog.1
+	pod2man doc/perlpanel-item-edit.pod > build/perlpanel-item-edit.1
 	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
 
 install:
@@ -54,6 +56,8 @@ install:
 	install -m 0644 build/PerlPanel.pm $(DESTDIR)$(LIBDIR)/
 	install -m 0755 build/perlpanel.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-applet-howto.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-item-edit.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
+	install -m 0755 build/perlpanel-run-dialog.1 $(DESTDIR)$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/PerlPanel::MenuBase.1 $(DESTDIR)$(MANDIR)/$(MAN_LIBS_SECTION)/
 	cp -Rvp share/pixmaps/* $(DESTDIR)$(IMGDIR)/
 
@@ -61,7 +65,16 @@ clean:
 	rm -rf build
 
 uninstall:
-	rm -rf $(BINDIR)/perlpanel $(BINDIR)/perlpaneld $(BINDIR)/perlpanel-item-edit $(BINDIR)/perlpanel-run-dialog $(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1 $(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1
+	rm -rf	$(BINDIR)/perlpanel \
+		$(BINDIR)/perlpaneld \
+		$(BINDIR)/perlpanel-item-edit \
+		$(BINDIR)/perlpanel-run-dialog \
+		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
+		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-run-dialog.1 \
+		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1 \
+		$(LIBDIR) $(MANDIR)/$(MAN_SECTION)/perlpanel.1 \
+		$(MANDIR)/perlpanel-applet-howto.1 \
+		$(MANDIR)/$(MAN_LIBS_SECTION)/PerlPanel::MenuBase.1
 
 release:
-	./make.rpm $(VERSION)
+	./make-rpm $(VERSION)
