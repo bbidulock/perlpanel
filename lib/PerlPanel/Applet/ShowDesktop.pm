@@ -1,4 +1,4 @@
-# $Id: ShowDesktop.pm,v 1.8 2004/02/24 17:07:18 jodrell Exp $
+# $Id: ShowDesktop.pm,v 1.9 2004/06/28 19:54:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -32,17 +32,16 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::ToggleButton->new;
 	$self->{config} = PerlPanel::get_config('ShowDesktop');
-	if (-e $self->{config}->{icon}) {
-		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{config}->{icon});
-		$self->{pixbuf} = $self->{pixbuf}->scale_simple(PerlPanel::icon_size, PerlPanel::icon_size, 'bilinear');
-		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
-	} else {
-		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name);
-	}
-	$self->{widget}->add($self->{pixmap});
-	$self->{widget}->signal_connect('clicked', sub { $self->clicked });
-	$self->{widget}->set_relief('none');
+
+	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('ShowDesktop', PerlPanel::icon_size)));
+	$self->widget->signal_connect('clicked', sub { $self->clicked });
+	$self->widget->set_relief('none');
+
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
+	$self->{screen}->signal_connect('showing-desktop-changed', sub {
+		$self->widget->set_active($self->{screen}->get_showing_desktop);
+	});
+
 	PerlPanel::tips->set_tip($self->{widget}, _('Show the Desktop'));
 }
 
@@ -58,15 +57,8 @@ sub fill {
 	return 0;
 }
 
-sub end {
-	return 'start';
-}
-
 sub get_default_config {
-	return {
-		icon => PerlPanel::get_applet_pbf_filename('showdesktop'),
-	};
-
+	return undef;
 }
 
 sub clicked {
@@ -76,7 +68,7 @@ sub clicked {
 	} else {
 		PerlPanel::tips->set_tip($self->{widget}, _('Show the Desktop'));
 	}
-	$self->{screen}->toggle_showing_desktop(($self->widget->get_active ? 1 : 0));
+	$self->{screen}->toggle_showing_desktop($self->widget->get_active);
 	return 1;
 }
 

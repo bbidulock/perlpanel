@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.85 2004/06/07 09:17:54 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.86 2004/06/28 19:54:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -121,7 +121,7 @@ sub init {
 	$self->check_deps;
 	$self->load_config;
 	$self->get_screen || $self->parse_xdpyinfo;
-	$self->build_ui;
+	$self->build_panel;
 	$self->configure;
 	$self->load_applets;
 	$self->show_all;
@@ -235,7 +235,7 @@ sub save_config {
 	return 1;
 }
 
-sub build_ui {
+sub build_panel {
 	my $self = shift;
 
 	$self->{tips} = Gtk2::Tooltips->new;
