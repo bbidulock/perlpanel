@@ -1,4 +1,4 @@
-# $Id: OpenBoxMenu.pm,v 1.1 2004/06/25 14:36:43 jodrell Exp $
+# $Id: OpenBoxMenu.pm,v 1.2 2004/06/28 12:41:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -51,6 +51,16 @@ sub configure {
 
 	$self->widget->set_relief('none');
 	PerlPanel::tips->set_tip($self->widget, _('Menu'));
+
+	if ($self->{config}->{warning_seen} ne 'true') {
+		PerlPanel::warning(
+			_('The OpenBox menu is new and unstable - it is not guaranteed to work correctly. If you find a bug, submit a patch!'),
+			sub {
+				$self->{config}->{warning_seen} = 'true';
+				PerlPanel::save_config;
+			}
+		);
+	}
 
 	$self->create_menu;
 
@@ -191,7 +201,8 @@ sub build_root_menu {
 sub build_menu {
 	my ($self, $id, $menu) = @_;
 	my $last_type = '';
-	foreach my $item (@{$self->{tree}->{$id}}) {
+	for (my $i = 0 ; $i < scalar(@{$self->{tree}->{$id}}) ; $i++) {
+		my $item = @{$self->{tree}->{$id}}[$i];
 		if ($item->{type} eq 'execute') {
 			my $icon = PerlPanel::lookup_icon($item->{exec});
 			$icon = (-e $icon ? $icon : 'gtk-execute');
@@ -209,24 +220,22 @@ sub build_menu {
 			$last_type = $item->{type};
 
 		} elsif ($item->{type} eq 'menu') {
-			my $icon = PerlPanel::lookup_icon($item->{exec});
-			$icon = (-e $icon ? $icon : PerlPanel::lookup_icon('gnome-fs-directory'));
-
-			my $menu_item = $self->menu_item(
-				($self->{labels}->{$item->{id}} ne '' ? $self->{labels}->{$item->{id}} : $item->{id}),
-				$icon
-			);
-			$menu->append($menu_item);
-
 			if (defined($self->{tree}->{$item->{id}}) && scalar(@{$self->{tree}->{$item->{id}}}) > 0) {
+				my $icon = PerlPanel::lookup_icon($item->{exec});
+				$icon = (-e $icon ? $icon : PerlPanel::lookup_icon('gnome-fs-directory'));
+
+				my $menu_item = $self->menu_item(
+					($self->{labels}->{$item->{id}} ne '' ? $self->{labels}->{$item->{id}} : $item->{id}),
+					$icon
+				);
+				$menu->append($menu_item);
+
 				my $submenu = Gtk2::Menu->new;
 				$menu_item->set_submenu($submenu);
 				$self->build_menu($item->{id}, $submenu);
-			} else {
-				$menu_item->set_sensitive(0);
-			}
-			$last_type = $item->{type};
 
+				$last_type = $item->{type};
+			}
 		}
 	}
 	return 1;
