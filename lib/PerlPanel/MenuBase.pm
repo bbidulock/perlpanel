@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.13 2004/03/25 00:16:43 jodrell Exp $
+# $Id: MenuBase.pm,v 1.14 2004/03/29 20:48:02 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -275,7 +275,7 @@ sub popup_position {
 		return ($x, PerlPanel::panel->allocation->height);
 	} else {
 		$self->menu->realize;
-		return ($x, PerlPanel::screen_height - $self->menu->allocation->height - PerlPanel::panel->allocation->height);
+		return ($x, PerlPanel::screen_height() - $self->menu->allocation->height - PerlPanel::panel->allocation->height);
 	}
 }
 
