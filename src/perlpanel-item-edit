@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.2 2005/01/03 19:02:57 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.3 2005/01/03 19:05:13 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,7 +28,9 @@ use POSIX qw(setlocale);
 use Locale::gettext;
 use strict;
 
-die("X11::FreeDesktop::DesktopEntry must be at least 0.03") unless ($X11::FreeDesktop::DesktopEntry::VERSION >= 0.04);
+my $REQUIRED_VERSION = 0.04;
+
+die("X11::FreeDesktop::DesktopEntry must be at least $REQUIRED_VERSION") unless ($X11::FreeDesktop::DesktopEntry::VERSION >= $REQUIRED_VERSION);
 
 my $PREFIX			= (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 my $GLADE			= sprintf('%s/share/perlpanel/glade/item-editor.glade', $PREFIX);
