@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.21 2004/02/18 19:27:16 jodrell Exp $
+$Id: perlpanel.pod,v 1.22 2004/05/28 13:57:33 jodrell Exp $
 
 =head1 Introduction
 
@@ -127,6 +127,14 @@ panel itself.
 You can add, remove and re-order applets on the panel from the 'Applets'
 tab.
 
+=head2 The 'GnomeMenu Applet'
+
+This applet gives you access to the standard Gnome applications menu.
+
+By default, this applet reads the menu information from the C<applications:>
+Gnome-VFS URI. However you can change this URI to any that Gnome-VFS
+understands. Edit the C<base> attribute of the applet's configuration.
+
 =head2 The 'IconBar' Applet
 
 The IconBar places a number of launcher icons on your panel. When
@@ -188,11 +196,37 @@ Clicking on this icon causes the panel to reload itself. If you have
 manually changed the contents of the resource file or one of the icons,
 clicking this will activate the changes.
 
+=head2 The 'RunMe' Applet
+
+This applet places a small combo box on the panel. When you type a
+command into the entry and press enter, the command will be run.
+
 =head2 The 'Separator' Applet
 
 This applet provides a way of placing some physical space between other
 applets. It adds a vertical separating line with five pixels of space
 on either side.
+
+=head2 The 'SetiAtHome' Applet
+
+This applet displays the total current number of work units completed
+for your Seti@Home account, and the progress on the current one. If you
+click on the applet you will be shown a configuration dialog allowing you
+to enter your account details. You can also check progress on a remote
+host using SSH - you may wish to register your SSH RSA/DSA key on the
+remote host so that you're not prompted for a password every time.
+
+=head2 The 'ShellManager' Applet
+
+This applet gives you a quick and simple way to launch remote shells -
+you can easily add shortcuts to your most frequently visited hosts,
+and open connections to them from the list. Clicking on the applet
+brings up a menu with list of accounts, and entries for adding and
+editing accounts.
+
+By default, the ShellManager will invoke SSH using the C<gnome-terminal>
+program. If you want to change this, edit the C<terminal> attribute of
+the applet's configuration.
 
 =head2 The 'ShowDesktop' Applet
 
@@ -222,7 +256,7 @@ desktop. You can click on the entries for each program to raise them
 to the top of the stack. You can right-click on them to bring up a
 context menu for maximising, minimising, shading and so on.
 
-=head2 The 'WindowMenu' Applet.
+=head2 The 'WindowMenu' Applet
 
 This applet is an alternative to the Tasklist applet, which can
 sometimes use up a lot of space on the panel. This applet presents
