@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.6 2003/06/03 22:57:54 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.7 2003/06/04 15:47:44 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -247,11 +247,11 @@ sub notify {
 }
 
 sub icon_size {
-	return ($_[0]->{config}{icon_size} || $DEFAULTS{panel}{icon_size});
+	return ($_[0]->{config}{panel}{icon_size} || $DEFAULTS{panel}{icon_size});
 }
 
 sub icon_size_name {
-	return ($_[0]->{config}{icon_size_name} || $DEFAULTS{panel}{icon_size_name});
+	return ($_[0]->{config}{panel}{icon_size_name} || $DEFAULTS{panel}{icon_size_name});
 }
 
 1;

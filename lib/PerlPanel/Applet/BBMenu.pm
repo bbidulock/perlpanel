@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.4 2003/06/03 22:57:54 jodrell Exp $
+# $Id: BBMenu.pm,v 1.5 2003/06/04 15:47:44 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -56,7 +56,8 @@ sub end {
 sub parse_menufile {
 	my $self = shift;
 	foreach my $menufile (@BBMenus) {
-		if (-e sprintf($menufile, $ENV{HOME})) {
+		$menufile = sprintf($menufile, $ENV{HOME});
+		if (-e $menufile) {
 			$self->{menufile} = $menufile;
 			last;
 		}

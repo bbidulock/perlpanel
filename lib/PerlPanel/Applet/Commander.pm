@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.4 2003/06/03 16:10:21 jodrell Exp $
+# $Id: Commander.pm,v 1.5 2003/06/04 15:47:44 jodrell Exp $
 package PerlPanel::Applet::Commander;
 use strict;
 
@@ -32,7 +32,7 @@ sub run {
 				$PerlPanel::OBJECT_REF->warning(
 					"Error running '$str'",
 					sub { $self->run },
-					sub {}
+					undef
 				);
 			}
 		}
