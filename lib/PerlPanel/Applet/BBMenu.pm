@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.41 2004/01/16 17:08:52 jodrell Exp $
+# $Id: BBMenu.pm,v 1.42 2004/01/16 22:46:33 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -302,7 +302,7 @@ sub popup_position {
 
 sub get_icon {
 	my ($self, $executable, $is_dir) = @_;
-	$executable =~ s/\s/-/g;
+	$executable =~ s/\s/-/g if ($is_dir == 1);
 	my $file = $self->detect_icon($executable);
 	if (-e $file) {
 		return $self->generate_icon($file);

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.30 2004/01/11 16:32:35 jodrell Exp $
+# $Id: IconBar.pm,v 1.31 2004/01/16 22:46:33 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::IconBar;
-use vars qw($ICON_DIR $MENU_EDITOR);
+use vars qw($ICON_DIR $MENU_EDITOR $OBJECT_REF);
 use strict;
 
 our $ICON_DIR = sprintf('%s/share/pixmaps', $PerlPanel::PREFIX);
@@ -27,6 +27,7 @@ sub new {
 	my $self		= {};
 	$self->{package}	= shift;
 	bless($self, $self->{package});
+	our $OBJECT_REF = $self;
 	return $self;
 }
 
@@ -66,6 +67,7 @@ sub configure {
 
 sub add_icon {
 	my ($self, $entry) = @_;
+	push(@{$self->{icons}}, $entry);
 	$self->widget->pack_start($entry->widget, 0, 0, 0);
 	return 1;
 }
@@ -88,6 +90,47 @@ sub end {
 
 sub get_default_config {
 	return undef;
+}
+
+sub reorder_window {
+	my $self = shift;
+	my $dialog = Gtk2::Dialog->new;
+	$dialog->set_title('Reorder Icons');
+	$dialog->set_border_width(12);
+	$dialog->set_default_size(250, 200);
+	$dialog->add_buttons('gtk-cancel' => 'cancel', 'gtk-ok' => 'ok');
+	my $list = Gtk2::SimpleList->new(
+		'Icon'	=> 'pixbuf',
+		'Name'	=> 'text',
+		file	=> 'text',
+	);
+	$list->get_column(2)->set_visible(0);
+	foreach my $icon (@{$self->{icons}}) {
+		push(@{$list->{data}}, [$icon->{pixbuf}, $icon->{name}, $icon->{filename}]);
+	}
+	$list->set_reorderable(1);
+	my $scrwin = Gtk2::ScrolledWindow->new;
+	$scrwin->set_policy('never', 'automatic');
+	$scrwin->set_shadow_type('in');
+	$scrwin->add($list);
+	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
+	$dialog->signal_connect('response', sub {
+		if ($_[1] eq 'ok') {
+			my $now = time();
+			for (my $i = 0 ; $i < scalar(@{$list->{data}}) ; $i++) {
+				my $src_filename = @{@{$list->{data}}[$i]}[2];
+				my $dst_filename = sprintf('%s/%d.desktop', $self->{icondir}, $now + $i);
+				rename($src_filename, $dst_filename);
+			}
+		}
+		$dialog->destroy;
+		if ($_[1] eq 'ok') {
+			$PerlPanel::OBJECT_REF->reload;
+		}
+	});
+	$dialog->show_all;
+	$dialog->run;
+	return 1;
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;
@@ -239,6 +282,14 @@ sub clicked {
 					'<StockItem>',
 					'gtk-add',
 				],
+				[
+					'/Reorder...',
+					undef,
+					sub { $PerlPanel::Applet::IconBar::OBJECT_REF->reorder_window },
+					undef,
+					'<StockItem>',
+					'gtk-index',
+				],
 			];
 			if (-x $self->{nautilus}) {
 				push(
@@ -253,7 +304,7 @@ sub clicked {
 					[
 						'/View Icon Directory',
 						undef,
-						sub { system("$self->{nautilus} $self->{icondir} &") },
+						sub { system("$self->{nautilus} --no-desktop $self->{icondir} &") },
 						undef,
 						'<StockItem>',
 						'gtk-open'

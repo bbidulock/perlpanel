@@ -16,7 +16,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: old-perlpanel-item-edit,v 1.6 2004/01/11 16:32:35 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.7 2004/01/16 22:46:33 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -75,7 +75,7 @@ my $pristine = {
 	Exec	=> $data->{$desktop_namespace}{Exec},
 };
 
-my $icon = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/perlpanel-menu-icon.png', $PREFIX));
+my $icon = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/perlpanel-icon.png', $PREFIX));
 
 my $window = Gtk2::Dialog->new;
 $window->signal_connect('delete_event', \&save);
