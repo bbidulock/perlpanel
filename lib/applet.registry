@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.2 2003/07/03 16:07:39 jodrell Exp $
+# $Id: applet.registry,v 1.3 2003/07/12 12:05:26 jodrell Exp $
 
 About=A button to show an "About" dialog.
 BatteryMonitor=Shows the status of your laptop's battery.
@@ -15,6 +15,7 @@ Commander=A button to show a command dialog.
 Configurator=A comprehensive configuration dialog.
 IconBar=Shows launcher icons on the panel.
 LoadMonitor=Shows the current CPU load.
+Lock=Locks the screen.
 Quit=A button to close the panel.
 Reload=A button to reload the panel.
 Separator=A separator.
