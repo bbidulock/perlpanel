@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.58 2004/06/30 18:17:23 jodrell Exp $
+# $Id: BBMenu.pm,v 1.59 2004/06/30 19:02:02 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -59,7 +59,7 @@ sub configure {
 	if ($self->{config}->{arrow} eq 'true') {
 		my $fixed = Gtk2::Fixed->new;
 		$fixed->put(Gtk2::Image->new_from_pixbuf($self->{pixbuf}), 0, 0);
-		my $arrow = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s/menu-arrow-%s.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc(PerlPanel::position)));
+		my $arrow = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/%s/menu-arrow-%s.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME), lc(PerlPanel::position)));
 		my $x = ($self->{pixbuf}->get_width - $arrow->get_width);
 		my $y = (PerlPanel::position eq 'bottom' ? 0 : ($self->{pixbuf}->get_height - $arrow->get_height));
 		$fixed->put(Gtk2::Image->new_from_pixbuf($arrow), $x, $y);
