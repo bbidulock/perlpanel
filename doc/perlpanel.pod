@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.4 2003/06/13 16:06:26 jodrell Exp $
+$Id: perlpanel.pod,v 1.5 2003/06/19 11:38:49 jodrell Exp $
 
 =head1 Introduction
 
@@ -30,6 +30,8 @@ What you will need is this:
 =item * Perl
 
 =item * The XML::Simple Perl module
+
+=item * The Image::Size Perl module
 
 =item * Gtk+ version 2 or higher
 
@@ -131,6 +133,12 @@ applet will bring up a configuration dialog that lets you change the
 format used to render the time. The format used is that of the POSIX
 C<strftime()> function. Consult the L<strftime> manpage for an
 explanation of the formatting characters.
+
+=head2 LoadMonitor
+
+The LoadMonitor applet shows the current CPU load on your system, as a
+percentage. You can click on the widget and bring up a dialog to change
+the update interval. By default, this is 100ms.
 
 =head2 Configurator
 
