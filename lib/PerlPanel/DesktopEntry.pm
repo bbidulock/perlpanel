@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.6 2004/11/22 11:25:00 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.7 2004/11/23 14:34:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@ package PerlPanel::DesktopEntry;
 use Carp;
 use Gnome2::VFS;
 use vars qw($DEFAULT_GROUP $DEFAULT_LOCALE @REQUIRED $VERBOSE $SILENT);
+use utf8;
 use strict;
 
 our $DEFAULT_GROUP	= 'Desktop Entry';
@@ -253,9 +254,10 @@ sub has_key {
 Returns the value of the key named by C<$key>. C<$group> is optional, and will
 be set to the default if omitted (see above). C<$locale> is also optional, and
 defines the locale for the string (defaults to 'C<C>' if omitted). If the
-requested key does not exist for a non-default C<$locale>, this method will
-attempt to return the value for the 'C<C>' locale. If this value does not
-exist, this method will return undef.
+requested key does not exist for a non-default C<$locale> of the form C<xx_YY>,
+then the module will search for a value for the C<xx> locale. If nothing is
+found, this method will attempt to return the value for the 'C<C>' locale. If
+this value does not exist, this method will return undef.
 
 =cut
 
@@ -264,13 +266,24 @@ sub get_value {
 	$group	= (defined($group) ? $group : $DEFAULT_GROUP);
 	$locale	= (defined($locale) ? $locale : $DEFAULT_LOCALE);
 
+	my $rval;
 	if (!defined($self->{data}->{$group}->{$key}->{$locale})) {
-		return ($locale eq $DEFAULT_LOCALE ? undef : $self->get_value($key, $group, $DEFAULT_LOCALE));
+		if ($locale =~ /^[a-z]{2}_[A-Z]{2}$/) {
+			my ($base, undef) = split(/_/, $locale, 2);
+			$rval = $self->get_value($key, $group, $base);
+
+		} else {
+			$rval = ($locale eq $DEFAULT_LOCALE ? undef : $self->get_value($key, $group, $DEFAULT_LOCALE));
+
+		}
 
 	} else {
-		return $self->{data}->{$group}->{$key}->{$locale};
+		$rval = $self->{data}->{$group}->{$key}->{$locale};
 
 	}
+
+	utf8::decode($rval);
+	return $rval;
 }
 
 =pod
