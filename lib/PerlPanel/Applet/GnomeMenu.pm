@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.4 2004/05/07 14:31:42 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.5 2004/05/17 13:33:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -31,6 +31,8 @@ sub configure {
 	Gnome2::VFS->init;
 
 	$self->{theme} = Gnome2::IconTheme->new;
+	$self->{theme}->set_custom_theme('lush');
+
 	$self->{widget} = Gtk2::Button->new;
 
 	$self->{config} = PerlPanel::get_config('GnomeMenu');
@@ -97,7 +99,7 @@ sub create_menu {
 
 	if ($self->{config}->{show_control_items} eq 'true' && !PerlPanel::has_action_menu) {
 		$self->add_control_items(
-			menu_edit_command  => 'nautilus --no-desktop "$self->{config}->{base}"',
+			menu_edit_command  => "nautilus --no-desktop \"$self->{config}->{base}\"",
 		);
 	}
 

@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: perlpanel-run-dialog,v 1.6 2004/05/07 14:31:58 jodrell Exp $
+# $Id: perlpanel-run-dialog,v 1.7 2004/05/17 13:33:28 jodrell Exp $
 
 use strict;
 
@@ -30,14 +30,15 @@ $ENV{PATH} = $ENV{PATH}.':'.$ENV{PWD}.'/src' if (!-e '@PREFIX@');
 
 my $PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 
-use Gtk2 -init;
 use PerlPanel;
 
 if (-e $PerlPanel::PIDFILE) {
 	print STDERR "*** using existing perlpanel process\n";
 	open(RUN, ">$PerlPanel::RUN_COMMAND_FILE") && close(RUN);
+	exit;
 
 } else {
+	use Gtk2 -init;
 	use PerlPanel::Applet::Commander;
 	$PerlPanel::Applet::Commander::iconfile = sprintf('%s/share/pixmaps/perlpanel/applets/commander.png', $PREFIX);
 	PerlPanel::Applet::Commander->run;

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.52 2004/04/30 16:28:03 jodrell Exp $
+# $Id: BBMenu.pm,v 1.53 2004/05/17 13:33:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -203,7 +203,22 @@ sub parse_menufile {
 					# $current_menu:
 
 					my $parent_item = $current_menu->get_attach_widget;
-					$current_menu = $parent_item->get_parent if (defined($parent_item));
+
+					my $new_current_menu = $parent_item->get_parent if (defined($parent_item));
+
+					# now we can remove the menu from the parent if it doesn't contain anything
+					# useful:
+					my $children = 0;
+					map { $children++ if (ref($_) ne 'Gtk2::SeparatorMenuItem') } $current_menu->get_children;
+
+					if ($children < 1) {
+						if (defined($parent_item)) {
+							$parent_item->remove_submenu;
+							$parent_item->get_parent->remove($parent_item);
+						}
+					}
+
+					$current_menu = $new_current_menu;
 
 				} elsif ($cmd eq 'nop') {
 					$current_menu->append(Gtk2::SeparatorMenuItem->new);

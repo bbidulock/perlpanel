@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.76 2004/05/07 14:31:27 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.77 2004/05/17 13:33:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -147,7 +147,7 @@ sub init {
 
 	chdir($ENV{HOME});
 
-	Glib::Timeout->add(10, sub {
+	Glib::Timeout->add(50, sub {
 		if (-e $RUN_COMMAND_FILE) {
 			unlink($RUN_COMMAND_FILE);
 			require('Commander.pm');
