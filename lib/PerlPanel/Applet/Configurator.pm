@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.67 2005/01/20 17:23:24 jodrell Exp $
+# $Id: Configurator.pm,v 1.68 2005/01/23 23:33:12 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -180,7 +180,6 @@ sub build_ui {
 			$self->apply_custom_settings;
 			$self->apply_settings;
 			PerlPanel::save_config;
-			PerlPanel::reload;
 		}
 	});
 
@@ -322,6 +321,9 @@ sub setup_custom_settings {
 		my (undef, $iter) = $self->{applet_list}->get_selection->get_selected;
 		return undef unless (defined($iter));
 		my $idx = ($self->{applet_list}->get_model->get_path($iter)->get_indices)[0];
+		my $rowref = (@{$self->{applet_list}->{data}})[$idx];
+		my @row = @{$rowref};
+		$self->{removed}->{$row[3]} = \@row if (defined($row[3]));
 		$self->{applet_list}->get_model->remove($iter);
 		$self->{applet_list}->select($idx - 1) if ($idx > 0);
 	});
@@ -411,15 +413,35 @@ sub run_add_applet_dialog {
 
 sub apply_custom_settings {
 	my $self = shift;
-	my @applets;
-	foreach my $rowref (@{$self->{applet_list}->{data}}) {
-		if (@{$rowref}[2] ne '') {
-			push(@applets, @{$rowref}[1].'::'.@{$rowref}[2]);
-		} else {
-			push(@applets, @{$rowref}[1]);
+
+	my $box = $PerlPanel::OBJECT_REF->{hbox};
+	my @widgets = $box->get_children;
+
+	$PerlPanel::OBJECT_REF->{config}->{applets} = [];
+
+	for (my $i = 0 ; $i < scalar(@{$self->{applet_list}->{data}}) ; $i++) {
+
+		my $rowref = (@{$self->{applet_list}->{data}})[$i];
+
+		push(@{$PerlPanel::OBJECT_REF->{config}->{applets}}, (defined((@{$rowref})[2]) ? join('::', (@{$rowref})[1], (@{$rowref})[2]) : (@{$rowref})[1]));
+
+		if (defined($self->{removed}->{$i})) {
+			# applet has been removed, destroy the widget and remove it from the container:
+			$box->remove($widgets[$i]);
+			$widgets[$i]->destroy;
 		}
+
+		if (!defined((@{$rowref})[3])) {
+			# new applet at this position, call load_applet():
+			$PerlPanel::OBJECT_REF->load_applet((@{$rowref})[1], $i);
+
+		} elsif ((@{$rowref})[3] != $i) {
+			# applet has been moved, reorder:
+			$box->reorder_child($widgets[(@{$rowref})[3]], $i);
+
+		}
+
 	}
-	@{$PerlPanel::OBJECT_REF->{config}->{applets}} = @applets;
 
 	if (!$self->app->get_widget('panel_autohide')->get_active && $PerlPanel::OBJECT_REF->{config}->{panel}->{autohide} eq 'true') {
 		PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{enter_connect_id});
@@ -427,6 +449,8 @@ sub apply_custom_settings {
 	}
 
 	$PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme} = @{@{$self->{icon_theme_list}->{data}}[$self->app->get_widget('icon_theme')->get_active]}[0];
+
+	$PerlPanel::OBJECT_REF->move;
 
 	return 1;
 }
