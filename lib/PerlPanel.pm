@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.65 2004/03/19 16:20:47 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.66 2004/03/22 21:43:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -41,15 +41,15 @@ our @CO_AUTHORS		= (
 	'Torsten Schoenfeld <kaffeetisch@web.de> (libwnck libraries)',
 	'Marc Brockschmidt <marc@dch-faq.de> (Debian packages)',
 );
-
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 
 our %DEFAULTS = (
 	version	=> $VERSION,
 	panel => {
-		position => 'bottom',
-		spacing => 0,
-		size => 'medium',
+		position	=> 'bottom',
+		spacing		=> 0,
+		size		=> 'medium',
+		theme		=> 'default',
 	},
 	appletconf => {
 		null => {},
@@ -94,7 +94,7 @@ sub new {
 	textdomain(lc($NAME));
 
 	our $DESCRIPTION	= _('A lean, mean panel program written in Perl.');
-	our $LICENSE		= _("This program is Free Software. You may use it under the terms of the GNU General Public License.");
+	our $LICENSE		= _('This program is Free Software. You may use it under the terms of the GNU General Public License.');
 
 	return $self;
 }
@@ -511,7 +511,7 @@ sub autohide {
 	} elsif ($self->position eq 'bottom') {
 		$self->panel->move(0, $self->screen_height - 2);
 	} else {
-		$self->error("Invalid panel position '".$self->position."'.", sub { $self->shutdown });
+		$self->error(_("Invalid panel position '{position}'.", position => $self->position), sub { $self->shutdown });
 	}
 	return 1;
 }

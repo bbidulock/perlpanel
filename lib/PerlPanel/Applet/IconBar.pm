@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.36 2004/02/24 17:07:18 jodrell Exp $
+# $Id: IconBar.pm,v 1.37 2004/03/22 21:43:06 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -359,7 +359,6 @@ sub edit {
 
 sub add {
 	my $self = shift;
-	chomp (my $MENU_EDITOR = `which perlpanel-item-edit`);
 	my $filename = sprintf('%s/.%s/icons/%d.desktop', $ENV{HOME}, lc($PerlPanel::NAME), time());
 	if (-x $MENU_EDITOR) {
 		open(FILE, ">$filename") && close(FILE);
@@ -368,11 +367,15 @@ sub add {
 			my $newmtime = (stat($filename))[9];
 
 			if ($newmtime > $mtime) {
+				# the editor modified the file, so reload:
 				PerlPanel::reload;
+			} else {
+				# nothing changed - delete the file:
+				unlink($filename);
 			}
 		});
 	} else {
-		PerlPanel::warning('No desktop item editor could be found.');
+		PerlPanel::warning(_('No desktop item editor could be found.'));
 	}
 	return 1;
 }
