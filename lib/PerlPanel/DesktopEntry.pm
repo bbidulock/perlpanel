@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.4 2004/09/26 13:04:03 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.5 2004/09/26 14:08:53 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -306,13 +306,13 @@ sub locales {
 
 =head1 CONVENIENCE METHODS
 
-	my $name = $entry->Name($locale);
-	my $name = $entry->GenericName($locale);
-	my $name = $entry->Comment($locale);
-	my $name = $entry->Type($locale);
-	my $name = $entry->Icon($locale);
-	my $name = $entry->Exec($locale);
-	my $name = $entry->StartupNotify($locale);
+	my $name		= $entry->Name($locale);
+	my $generic_name	= $entry->GenericName($locale);
+	my $comment		= $entry->Comment($locale);
+	my $type		= $entry->Type($locale);
+	my $icon		= $entry->Icon($locale);
+	my $exec		= $entry->Exec($locale);
+	my $startup_notify	= $entry->StartupNotify($locale);
 
 These methods are shortcuts for the mostly commonly accessed fields from a
 desktop entry file. If undefined, $locale reverts to the default.
@@ -337,9 +337,7 @@ Please note that according to the Freedesktop.org spec, key names are case-sensi
 
 =over
 
-=item *
-
-Support modification of values, and writing back.
+=item * Support modification of values, and writing back.
 
 =back
 
