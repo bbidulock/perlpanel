@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.59 2004/06/30 19:02:02 jodrell Exp $
+# $Id: BBMenu.pm,v 1.60 2004/06/30 19:12:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 #
 package PerlPanel::Applet::BBMenu;
 use base 'PerlPanel::MenuBase';
-use vars qw(@menufiles @ICON_DIRECTORIES);
+use vars qw(@menufiles);
 use File::Basename qw(basename);
 use strict;
 
@@ -35,15 +35,6 @@ our @menufiles = (
 	'/usr/share/fluxbox/menu',
 	'/usr/local/share/waimea/menu',
 	'/usr/share/waimea/menu',
-);
-
-our @ICON_DIRECTORIES = (
-	sprintf('%s/.perlpanel/icon-files', $ENV{HOME}),
-	sprintf('%s/.icons', $ENV{HOME}),
-	sprintf('%s/.icons/gnome/48x48/apps', $ENV{HOME}),
-	'%s/share/icons/gnome/48x48/apps',
-	'%s/share/pixmaps',
-	'/usr/share/pixmaps',
 );
 
 sub configure {
@@ -267,14 +258,12 @@ sub detect_icon {
 	my $program = lc(basename($executable));
 	($program, undef) = split(/\s/, $program, 2);
 
-	foreach my $dir (@ICON_DIRECTORIES) {
-		my $file = sprintf('%s/%s.png', sprintf($dir, $PerlPanel::PREFIX), $program);
-		if (-e $file) {
-			return $file;
-		}
+	my $file = sprintf('%s/.%s/icon-files/%s.png', $ENV{HOME}, lc($PerlPanel::NAME), $program);
+	if (-e $file) {
+		return $file;
+	} else {
+		return PerlPanel::lookup_icon($executable);
 	}
-
-	return PerlPanel::lookup_icon($executable);
 }
 
 1;
