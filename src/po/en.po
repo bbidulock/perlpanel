@@ -1,4 +1,4 @@
-# $Id: en.po,v 1.1 2004/04/05 22:02:29 jodrell Exp $
+# $Id: en.po,v 1.2 2004/04/27 23:06:02 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ msgstr ""
 "Project-Id-Version: PerlPanel X.Y.Z\n"
 "Report-Msgid-Bugs-To: gavin.brown@uk.com\n"
 "POT-Creation-Date: 2004-04-05 22:08+0100\n"
-"PO-Revision-Date: $Date: 2004/04/05 22:02:29 $\n"
+"PO-Revision-Date: $Date: 2004/04/27 23:06:02 $\n"
 "Last-Translator: $Author: jodrell $\n"
 "Language-Team: perlpanel-devel@savannah.nongnu.org\n"
 "MIME-Version: 1.0\n"
@@ -404,6 +404,73 @@ msgstr ""
 #
 
 msgid "_Browse..."
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/SetiAtHome.pm
+#
+
+msgid "Completed {units} workunits, {percent}% of current"
+msgstr ""
+
+msgid "Completed {percent}%"
+msgstr ""
+
+msgid "ERROR"
+msgstr ""
+
+msgid "Choose File"
+msgstr ""
+
+#
+# SetiAtHome.pm Glade:
+#
+
+msgid "Preferences"
+msgstr ""
+
+msgid "Location of Seti@Home data:"
+msgstr ""
+
+msgid "_Browse..."
+msgstr ""
+
+msgid "Seti@Home Account E-mail address:"
+msgstr ""
+
+msgid "Check on remote host (requires SSH)"
+msgstr ""
+
+msgid "Remote host:"
+msgstr ""
+
+msgid "Remote user:"
+msgstr ""
+
+#
+# lib/PerlPanel/Applet/ShellManager.pm
+#
+
+msgid "Shell Manager"
+msgstr ""
+
+#
+# ShellManager.pm Glade:
+#
+
+msgid "Connect to remote host"
+msgstr ""
+
+msgid "Co_nnect"
+msgstr ""
+
+msgid "User:"
+msgstr ""
+
+msgid "Host:"
+msgstr ""
+
+msgid "Port:"
 msgstr ""
 
 #
