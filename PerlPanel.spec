@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: PerlPanel.spec,v 1.23 2004/08/24 12:45:04 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.24 2004/08/24 15:34:29 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -47,6 +47,14 @@ Requires: gettext, perl >= 5.8.0, gtk2 >= 2.4.0, libglade2, perl-Gtk2, perl-Gtk2
 PerlPanel is an attempt to build a useable, lean panel program (like Gnome's
 gnome-panel and KDE's Kicker) in Perl, using the Gtk2-Perl libraries.
 
+%package themes
+Summary: Themes for PerlPanel
+Group: applications/Accessories
+Requires: %{name}
+
+%description themes
+This package contains themes for PerlPanel.
+
 %prep
 %setup
 
@@ -64,5 +72,14 @@ rm -rf %{buildroot}
 %defattr(-,root,root,0755)
 %doc doc/README doc/README-IL8N ChangeLog
 %{_bindir}/*
-%{_datadir}/*
+%{_datadir}/man/*
+%{_datadir}/locale/*
+%{_datadir}/icons/hicolor/*
+%{_datadir}/perlpanel
+
 %{_libdir}/perlpanel
+
+%files themes
+%{_datadir}/icons/Bluecurve/*
+%{_datadir}/icons/crystalsvg/*
+
