@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.10 2004/09/17 11:28:53 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.11 2004/09/19 15:54:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -27,7 +27,9 @@ sub configure {
 	$self->{config} = PerlPanel::get_config('WindowMenu');
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{screen}->force_update;
-	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('windowmenu', PerlPanel::icon_size));
+	$self->{icon} = Gtk2::Image->new;
+	$self->{screen}->signal_connect('active-window-changed', sub { $self->update_icon });
+	$self->update_icon;
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->set_relief('none');
 	if ($self->{config}->{label} ne '') {
@@ -71,7 +73,7 @@ sub create_menu {
 			$label = (length($label) < 25 ? $label : substr($label, 0, 22).'...');
 			$self->menu->append($self->menu_item(
 				$label,
-				$window->get_icon,
+				$window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $window->get_icon,
 				sub { $window->activate },
 			));
 		}
@@ -81,6 +83,28 @@ sub create_menu {
 
 sub get_default_config {
 	return undef;
+}
+
+sub update_icon {
+	my $self = shift;
+	my $pbf;
+	eval {
+		my $window = $self->{screen}->get_active_window;
+		if (defined($window)) {
+			if (lc($window->get_name) ne 'perlpanel') {
+				$pbf = $window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $window->get_icon;
+			} else {
+				$pbf = PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size);
+			}
+		}
+	};
+	if (defined($pbf)) {
+		if ($pbf->get_height > PerlPanel::icon_size()) {
+			$pbf = $pbf->scale_simple(($pbf->get_width * (PerlPanel::icon_size() / $pbf->get_height)), PerlPanel::icon_size(), 'bilinear');
+		}
+		$self->{icon}->set_from_pixbuf($pbf);
+	}
+	return 1;
 }
 
 1;
