@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.8 2004/04/30 16:28:04 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.9 2004/05/06 10:30:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -53,7 +53,7 @@ sub create_menu {
 	foreach my $name (sort keys %{$bookmarks->{bookmark}}) {
 		my $icon;
 		if ($self->{use_gnome} == 1) {
-			($icon, undef) = $self->{theme}->lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name}, PerlPanel::icon_size_name);
+			($icon, undef) = $self->{theme}->lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name}, PerlPanel::icon_size);
 		} else {
 			$icon = 'gtk-jump-to',
 		}

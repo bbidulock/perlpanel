@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.2 2004/05/03 17:27:29 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.3 2004/05/06 10:30:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -132,7 +132,7 @@ sub create_submenu_for {
 			my $path = sprintf('%s/%s', $uri, $dir->{name});
 			my $item = $self->menu_item(
 				$dir->{name},
-				($self->lookup_icon('gnome-'.lc($dir->{name})) || $self->get_icon($dir->{name}) || $self->lookup_icon('gnome-fs-directory'))
+				($self->lookup_icon('gnome-'.lc($dir->{name})) || $self->get_icon($dir->{name}) || $self->lookup_icon('gnome-fs-directory', PerlPanel::icon_size))
 			);
 			my $sub_menu = Gtk2::Menu->new;
 			$item->set_submenu($sub_menu);
