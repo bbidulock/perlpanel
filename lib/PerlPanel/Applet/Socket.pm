@@ -1,4 +1,4 @@
-# $Id: Socket.pm,v 1.1 2003/06/30 15:29:36 jodrell Exp $
+# $Id: Socket.pm,v 1.2 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::Socket;
 use strict;
 
@@ -16,7 +16,7 @@ sub configure {
 	$self->{socketfile} = sprintf('%s/.$s/socketid', $ENV{HOME}, lc($PerlPanel::NAME));
 	open(SOCKETFILE, "$self->{socketfile}") or $PerlPanel::OBJECT_REF->error("Error opening '$self->{socketfile}': $!", sub { $PerlPanel::OBJECT_REF->shutdown });
 	print SOCKETFILE $self->{id};
-	close (SOCKETFILE);
+	close(SOCKETFILE);
 	return 1;
 
 }

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.19 2003/06/27 13:26:17 jodrell Exp $
+# $Id: BBMenu.pm,v 1.20 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -30,7 +30,7 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	$self->parse_menufile;
-	$self->add_control_items;
+	$self->add_control_items if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{show_control_items} eq 'true');
 	$self->create_menu;
 	$self->{iconfile} = $PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile};
 	if (-e $self->{iconfile}) {
@@ -66,6 +66,7 @@ sub end {
 sub get_default_config {
 	return {
 		iconfile => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
+		show_control_items => 'true',
 	};
 }
 
@@ -134,16 +135,31 @@ sub parse_menufile {
 
 sub add_control_items {
 	my $self = shift;
-	push(@{$self->{items}}, (
+	chomp(my $xscreensaver = `which xscreensaver-command`);
+	push(@{$self->{items}},
 		[
 			'/CtrlSeparator',
 			undef,
 			undef,
 			undef,
-			'<Separator>'
+			'<Separator>',
 		],
+	);
+	if (-x $xscreensaver) {
+		push(@{$self->{items}},
+			[
+				'/Lock Screen',
+				undef,
+				sub { system("$xscreensaver -lock &") },
+				undef,
+				'<StockItem>',
+				'gtk-dialog-error',
+			]
+		);
+	}
+	push(@{$self->{items}}, (
 		[
-			'/About...',
+			"/About $PerlPanel::NAME...",
 			undef,
 			sub {
 				require('About.pm');
@@ -156,7 +172,7 @@ sub add_control_items {
 			'gtk-dialog-info',
 		],
 		[
-			'/Configure...',
+			'/Configure Panel...',
 			undef,
 			sub {
 				my $configurator = PerlPanel::Applet::Configurator->new;
@@ -168,7 +184,7 @@ sub add_control_items {
 			'gtk-preferences',
 		],
 		[
-			'/Reload',
+			'/Reload Panel',
 			undef,
 			sub {
 				$PerlPanel::OBJECT_REF->reload;
@@ -178,7 +194,7 @@ sub add_control_items {
 			'gtk-refresh',
 		],
 		[
-			'/Quit',
+			'/Close Panel',
 			undef,
 			sub {
 				$PerlPanel::OBJECT_REF->shutdown;

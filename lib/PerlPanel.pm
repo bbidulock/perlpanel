@@ -1,17 +1,21 @@
-# $Id: PerlPanel.pm,v 1.25 2003/06/27 13:26:17 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.26 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel;
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $DESCRIPTION $VERSION @AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
+use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL $LICENSE $PREFIX %DEFAULTS %SIZE_MAP $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.0.4';
+our $VERSION		= '0.0.5';
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
-our @AUTHORS		= (
-	'Gavin Brown &lt;gavin.brown@uk.com&gt;',
-	'<span size="small">Scott Arrington &lt;muppet@asofyet.org&gt;</span>',
+our @LEAD_AUTHORS	= (
+	'Gavin Brown <gavin.brown@uk.com>',
 );
+our @CO_AUTHORS		= (
+	'Scott Arrington <muppet@asofyet.org>',
+	'Eric Andreychek <eric@openthought.net>',
+);
+
 our $URL		= 'http://jodrell.net/projects/perlpanel';
 our $LICENSE		= "This program is Free Software. You may use it\nunder the terms of the GNU General Public License.";
 
@@ -55,6 +59,7 @@ sub new {
 }
 
 sub init {
+	chdir($ENV{HOME});
 	my $self = shift;
 	$self->check_deps;
 	$self->load_config;
@@ -130,6 +135,7 @@ sub build_ui {
 	$self->{port}->set_shadow_type('out');
 	$self->{port}->add($self->{hbox});
 	$self->{panel}->add($self->{port});
+	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
 	return 1;
 }
 
@@ -221,6 +227,7 @@ sub request_string {
 		'gtk-ok'	=> 1
 	);
 	$dialog->set_border_width(8);
+	$dialog->set_icon($self->icon);
 	$dialog->vbox->set_spacing(8);
 
 	my $entry = Gtk2::Entry->new;
@@ -274,6 +281,7 @@ sub alert {
 	my $dialog = Gtk2::Dialog->new;
 	$dialog->set_title($NAME);
 	$dialog->set_border_width(8);
+	$dialog->set_icon($self->icon);
 	$dialog->vbox->set_spacing(8);
 
 	my $hbox = Gtk2::HBox->new;
@@ -332,6 +340,10 @@ sub warning {
 sub notify {
 	my ($self, $message, $ok_callback) = @_;
 	return $self->alert($message, $ok_callback, undef, 'gtk-dialog-info');
+}
+
+sub icon {
+	return $_[0]->{icon};
 }
 
 sub icon_size {

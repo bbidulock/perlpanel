@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.4 2003/06/27 13:26:17 jodrell Exp $
+# $Id: About.pm,v 1.5 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::About;
 use strict;
 
@@ -22,12 +22,19 @@ sub configure {
 
 sub about {
 	my $self = shift;
+	my $lead_authors = join("\n", @PerlPanel::LEAD_AUTHORS);
+	$lead_authors =~ s/</&lt;/g;
+	$lead_authors =~ s/>/&gt;/g;
+	my $co_authors = join("\n", @PerlPanel::CO_AUTHORS);
+	$co_authors =~ s/</&lt;/g;
+	$co_authors =~ s/>/&gt;/g;
 	my $text = sprintf(
-		"<span weight=\"bold\" size=\"x-large\">%s version %s</span>\n\n%s\n\nAuthors:\n%s\n\n%s\n\n<span size=\"small\">%s\n\nUsing Perl v%vd, Gtk+ v%d.%d.%d and Gtk2.pm v%s</span>",
+		"<span weight=\"bold\" size=\"x-large\">%s version %s</span>\n\n%s\n\nAuthor:\n%s\n\n<span size=\"small\">With:\n%s</span>\n\n%s\n\n<span size=\"small\">%s\n\nUsing Perl v%vd, Gtk+ v%d.%d.%d and Gtk2.pm v%s</span>",
 		$PerlPanel::NAME,
 		$PerlPanel::VERSION,
 		$PerlPanel::DESCRIPTION,
-		join("\n", @PerlPanel::AUTHORS),
+		$lead_authors,
+		$co_authors,
 		$PerlPanel::URL,
 		$PerlPanel::LICENSE,
 		$^V,
@@ -38,9 +45,9 @@ sub about {
 	$self->{window}->set_position('center');
 	$self->{window}->set_border_width(15);
 	$self->{window}->set_title("About $PerlPanel::NAME");
+	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 	$self->{vbox} = Gtk2::VBox->new;
 	$self->{vbox}->set_spacing(15);
-	#$self->{vbox}->pack_start(Gtk2::Image->new_from_stock('gtk-dialog-info', 'dialog'), 0, 0, 0);
 	$self->{vbox}->pack_start(Gtk2::Image->new_from_file("$PerlPanel::PREFIX/share/pixmaps/perlpanel.png"), 0, 0, 0);
 	$self->{label} = Gtk2::Label->new();
 	$self->{label}->set_justify('center');

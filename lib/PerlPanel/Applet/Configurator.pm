@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.14 2003/06/30 15:29:36 jodrell Exp $
+# $Id: Configurator.pm,v 1.15 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -58,6 +58,7 @@ sub build_ui {
 	$self->{window}->set_default_size(250, 350);
 	$self->{window}->vbox->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
+	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 
 	$self->{notebook} = Gtk2::Notebook->new;
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
@@ -80,6 +81,37 @@ sub build_ui {
 	$self->{pages}{panel}->attach($self->{controls}{icon_size}, 1, 2, 2, 3, 'fill', 'expand', 0, 0);
 
 	$self->{notebook}->append_page($self->{pages}{panel}, $self->control_label('Panel'));
+
+
+	my $menu_used = 0;
+	map { $menu_used++ if $_ eq 'BBMenu' } @{$PerlPanel::OBJECT_REF->{config}{applets}};
+	if ($menu_used > 0) {
+		$self->{pages}{menu} = Gtk2::VBox->new;
+		$self->{pages}{menu}->set_border_width(8);
+		$self->{pages}{menu}->set_spacing(8);
+
+		$self->{iconfile}{hbox} = Gtk2::HBox->new;
+		$self->{iconfile}{hbox}->set_spacing(8);
+		$self->{iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile});
+		$self->{controls}{iconfile} = Gtk2::Button->new;
+		$self->{controls}{iconfile}->add($self->{iconfile}{icon});
+		$self->{controls}{iconfile}->set_relief('none');
+		$self->{controls}{iconfile}->signal_connect(
+			'clicked',
+			sub {
+				$self->choose_menu_icon;
+			}
+		);
+		$self->{iconfile}{label} = $self->control_label('Menu icon:');
+		$self->{iconfile}{label}->set_alignment(1, 0);
+		$self->{iconfile}{hbox}->pack_start($self->{iconfile}{label}, 0, 0, 0);
+		$self->{iconfile}{hbox}->pack_start($self->{controls}{iconfile}, 0, 0, 0);
+		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
+		$self->{pages}{menu}->pack_start($self->{iconfile}{hbox}, 0, 0, 0);
+
+		$self->{notebook}->append_page($self->{pages}{menu}, $self->control_label('Menu'));
+	}
+
 
 	$self->{store} = Gtk2::ListStore->new('Glib::String');
 
@@ -168,6 +200,10 @@ sub control {
 				$control->set_history($i);
 			}
 		}
+	} elsif (lc($type) eq 'boolean') {
+		$control = Gtk2::CheckButton->new($values[0]);
+		$control->set_active(1) if ($ref->{$name} eq 'true');
+		$control->signal_connect('clicked', sub { $ref->{$name} = ($control->get_active ? 'true' : 'false') });
 	} else {
 		$control = Gtk2::Entry->new;
 		$control->set_text($ref->{$name});
@@ -213,12 +249,15 @@ sub add_dialog {
 	$dialog->set_position('center');
 	$dialog->set_modal(1);
 	$dialog->set_border_width(8);
-	$dialog->set_default_size(400, 250);
-	my $model = Gtk2::ListStore->new('Glib::String');
+	$dialog->set_default_size(450, 250);
+	$dialog->set_icon($PerlPanel::OBJECT_REF->icon);
+	my $model = Gtk2::ListStore->new('Glib::String', 'Glib::String');
 	my $view = Gtk2::TreeView->new($model);
 	my $renderer = Gtk2::CellRendererText->new;
-	my $column = Gtk2::TreeViewColumn->new_with_attributes('Applet', $renderer, text => 0);
-	$view->append_column($column);
+	my $name_column = Gtk2::TreeViewColumn->new_with_attributes('Applet',      $renderer, text => 0);
+	my $desc_column = Gtk2::TreeViewColumn->new_with_attributes('Description', $renderer, text => 1);
+	$view->append_column($name_column);
+	$view->append_column($desc_column);
 
 	my @files;
 	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME))) {
@@ -232,7 +271,7 @@ sub add_dialog {
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
 		my $iter = $model->append;
-		$model->set($iter, 0, "$appletname: ".$self->{registry}{$appletname});
+		$model->set($iter, 0, $appletname, 1, $self->{registry}{$appletname});
 	}
 
 	my $scrwin = Gtk2::ScrolledWindow->new;
@@ -301,4 +340,22 @@ sub get_default_config {
 	return undef;
 }
 
+sub choose_menu_icon {
+	my $self = shift;
+	my $selector = Gtk2::FileSelection->new('Choose Icon');
+	$selector->set_filename($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile});
+	$selector->ok_button->signal_connect('clicked', sub {
+		$PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile} = $selector->get_filename;
+		my $new_image = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile});
+		$new_image->show;
+		$self->{controls}{iconfile}->remove($self->{controls}{iconfile}->child);
+		$self->{controls}{iconfile}->add($new_image);
+		$selector->destroy;
+	});
+	$selector->cancel_button->signal_connect('clicked', sub {
+		$selector->destroy;
+	});
+	$selector->show_all;
+	return 1;
+}
 1;

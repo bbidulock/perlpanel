@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.1 2003/06/30 15:29:36 jodrell Exp $
+# $Id: XMMS.pm,v 1.2 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::XMMS;
 use vars qw(%TOOLTIPS %STOCK_IDS %CALLBACKS);
 use Xmms;
@@ -23,7 +23,7 @@ our %STOCK_IDS = (
 our %CALLBACKS = (
 	prev	=> sub { },
 	stop	=> sub { },
-	play	=> sub { Xmms->play() },
+	play	=> sub { play() },
 	next	=> sub { },
 	open	=> sub { },
 );

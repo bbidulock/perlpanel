@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.3 2003/06/25 11:36:13 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.4 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::LoadMonitor;
 use strict;
 
@@ -41,6 +41,7 @@ sub prefs {
 	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
 	$self->{window}->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
+	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 	$self->{table} = Gtk2::Table->new(3, 2, 0);
 	$self->{table}->set_col_spacings(8);
 	$self->{table}->set_row_spacings(8);

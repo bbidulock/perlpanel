@@ -3,7 +3,7 @@
 # Copyright (c) 2003 Gavin Brown. All rights reserved. This program is free
 # software; you can redistribute it and/or modify it under the terms
 # of the GNU General Public License.
-# $Id: old-perlpanel-item-edit,v 1.2 2003/06/25 18:50:26 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.3 2003/07/03 16:07:39 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -62,11 +62,14 @@ my $pristine = {
 	Exec	=> $data->{$desktop_namespace}{Exec},
 };
 
+my $icon = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/perlpanel-menu-icon.png', $PREFIX));
+
 my $window = Gtk2::Dialog->new;
 $window->signal_connect('delete_event', \&save);
 $window->set_position('center');
 $window->set_title('Launcher Properties');
 $window->set_border_width(8);
+$window->set_icon($icon);
 $window->vbox->set_spacing(8);
 
 my $table = Gtk2::Table->new(3, 4, 0);

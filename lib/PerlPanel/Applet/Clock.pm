@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.13 2003/06/27 15:42:11 jodrell Exp $
+# $Id: Clock.pm,v 1.14 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use POSIX qw(strftime);
 use strict;
@@ -37,6 +37,7 @@ sub prefs {
 	$self->{window}->signal_connect('delete_event', sub { $self->{widget}->set_sensitive(1) });
 	$self->{window}->set_border_width(8);
 	$self->{window}->vbox->set_spacing(8);
+	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 	$self->{table} = Gtk2::Table->new(2, 2, 0);
 	$self->{table}->set_col_spacings(8);
 	$self->{table}->set_row_spacings(8);

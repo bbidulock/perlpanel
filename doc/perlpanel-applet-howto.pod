@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.6 2003/06/24 14:42:12 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.7 2003/07/03 16:07:39 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -100,6 +100,11 @@ To make your applet usable, you can place it in one of two places:
 
 =back
 
+You should also add an entry to the applet registry file, located at
+C<$PREFIX/lib/perlpanel/applet.registry>. This file contains a short
+textual description of each available applet, for example:
+
+	Commander=A button to show a command dialog.
 
 =head1 REQUIRED METHODS
 
@@ -157,6 +162,16 @@ This a reference to the Gtk2::Tooltips object. You can use it to give
 your applet widgets tooltips.
 
 =head1 USEFUL METHODS
+
+	$PerlPanel::OBJECT_REF->icon
+
+This returns a GdkPixbuf object containing the PerlPanel icon. You
+should use this pixbuf to set the icon for any windows you create, eg:
+
+	$dialog->set_icon($PerlPanel::OBJECT_REF->icon);
+
+You don't need to resize the pixbuf, this is done when the application
+(a window manager, or task list) requires it.
 
 	$PerlPanel::OBJECT_REF->icon_size
 

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.21 2003/06/25 18:50:26 jodrell Exp $
+# $Id: IconBar.pm,v 1.22 2003/07/03 16:07:39 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use vars qw($ICON_DIR);
 use strict;
@@ -21,7 +21,6 @@ sub configure {
 	unless (-e $self->{icondir}) {
 		mkdir(sprintf('%s/.%s', $ENV{HOME}, lc($PerlPanel::NAME)));
 		mkdir($self->{icondir});
-		return undef;
 	}
 
 	opendir(DIR, $self->{icondir});
@@ -147,6 +146,7 @@ sub build {
 	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
 
 	$self->{widget} = Gtk2::Button->new;
+	$self->{widget}->set_border_width(0);
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
 	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) });
