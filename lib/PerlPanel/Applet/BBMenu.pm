@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.20 2003/07/03 16:07:39 jodrell Exp $
+# $Id: BBMenu.pm,v 1.21 2003/07/03 20:44:06 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -35,7 +35,25 @@ sub configure {
 	$self->{iconfile} = $PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile};
 	if (-e $self->{iconfile}) {
 		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
-		$self->{pixbuf} = $self->{pixbuf}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
+		my $x0 = $self->{pixbuf}->get_width;
+		my $y0 = $self->{pixbuf}->get_height;
+		if ($x0 != $PerlPanel::OBJECT_REF->icon_size || $y0 != $PerlPanel::OBJECT_REF->icon_size) {
+			my ($x1, $y1);
+			if ($x0 > $y0) {
+				# image is landscape:
+				$x1 = $PerlPanel::OBJECT_REF->icon_size;
+				$y1 = int(($y0 / $x0) * $PerlPanel::OBJECT_REF->icon_size);
+			} elsif ($x0 == $y0) {
+				# image is square:
+				$x1 = $PerlPanel::OBJECT_REF->icon_size;
+				$y1 = $PerlPanel::OBJECT_REF->icon_size;
+			} else {
+				# image is portrait:
+				$x1 = int(($x0 / $y0) * $PerlPanel::OBJECT_REF->icon_size);
+				$y1 = $PerlPanel::OBJECT_REF->icon_size;
+			}
+			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
+		}
 		$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	} else {
 		$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
