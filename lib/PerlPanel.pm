@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.86 2004/06/28 19:54:04 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.87 2004/06/28 22:18:35 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -70,8 +70,6 @@ our %DEFAULTS = (
 		'IconBar',
 		'Tasklist',
 		'Clock',
-		'Configurator',
-		'Commander',
 		'Pager',
 	],
 );

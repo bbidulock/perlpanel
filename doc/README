@@ -29,8 +29,8 @@ A few tenets:
 A few wahs, or, TODO:
 
 	1. Support FreeDesktop icon themes for menus, applets, etc - this
-	   would require implementing some of the XDG specifications in
-	   Perl, since we don't want to use GnomeIconTheme.
+	   will be pretty easy now that GnomeIconTheme has become
+           GtkIconTheme.
 	2. Drag-and-drop sorting of applets and icons in the IconBar would
 	   be nice.
 	3. Support for multiheaded systems - there is a way to kludge this
@@ -51,4 +51,4 @@ GNOME developers.
 [2]: See http://www.asktog.com/basics/firstPrinciples.html#fitts's%20law.
 
 --
-$Id: README,v 1.12 2004/04/05 22:02:29 jodrell Exp $
+$Id: README,v 1.13 2004/06/28 22:18:35 jodrell Exp $
