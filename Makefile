@@ -17,9 +17,9 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.41 2004/08/24 12:45:04 jodrell Exp $
+# $Id: Makefile,v 1.42 2004/08/26 14:58:34 jodrell Exp $
 
-VERSION=0.7.0
+VERSION=0.7.1
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -27,6 +27,7 @@ BINDIR=$(PREFIX)/bin
 DATADIR=$(PREFIX)/share
 MANDIR=$(DATADIR)/man
 LOCALEDIR=$(DATADIR)/locale
+CONFDIR=$(PREFIX)/etc
 
 LC_CATEGORY=LC_MESSAGES
 
@@ -34,25 +35,26 @@ MAN_SECTION=man1
 MAN_LIBS_SECTION=man3
 
 #
-# NB: $(DESTDIR) is usally empty.
+# NB: $(DESTDIR) is usally empty. rpmbuild needs it.
 #
 
 all: perlpanel
 
 perlpanel:
-	mkdir build
+	@mkdir -p build
 
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-run-dialog > build/perlpanel-run-dialog
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
-	pod2man doc/perlpanel.pod > build/perlpanel.1
-	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1
-	pod2man doc/perlpanel-run-dialog.pod > build/perlpanel-run-dialog.1
-	pod2man doc/perlpanel-item-edit.pod > build/perlpanel-item-edit.1
-	pod2man lib/PerlPanel/MenuBase.pm > build/PerlPanel::MenuBase.1
+	perl -I$(PWD)/build -MPerlPanel -MXML::Simple -e 'print XMLout(\%PerlPanel::DEFAULTS)' > build/perlpanelrc
+	pod2man doc/perlpanel.pod		> build/perlpanel.1
+	pod2man doc/perlpanel-applet-howto.pod	> build/perlpanel-applet-howto.1
+	pod2man doc/perlpanel-run-dialog.pod	> build/perlpanel-run-dialog.1
+	pod2man doc/perlpanel-item-edit.pod	> build/perlpanel-item-edit.1
+	pod2man lib/PerlPanel/MenuBase.pm	> build/PerlPanel::MenuBase.1
 
-	# similarly for other locales as they become available:
+	@# similarly for other locales as they become available:
 	mkdir -p  build/locale/en/$(LC_CATEGORY)
 	msgfmt -o build/locale/en/$(LC_CATEGORY)/perlpanel.mo src/po/en.po
 
@@ -61,9 +63,12 @@ install:
 			$(DESTDIR)/$(BINDIR) \
 			$(DESTDIR)/$(MANDIR)/$(MAN_SECTION) \
 			$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION) \
-			$(DESTDIR)/$(LOCALEDIR)/en/$(LC_CATEGORY)
-	cp -Rvp lib/*	$(DESTDIR)/$(LIBDIR)/
-	cp -Rvp share/*	$(DESTDIR)/$(DATADIR)/
+			$(DESTDIR)/$(LOCALEDIR)/en/$(LC_CATEGORY) \
+			$(DESTDIR)/$(CONFDIR)
+	@echo Copying library files to $(DESTDIR)/$(LIBDIR):
+	@cp -Rp lib/*	$(DESTDIR)/$(LIBDIR)/
+	@echo Copying share files to $(DESTDIR)/$(DATADIR):
+	@cp -Rp share/*	$(DESTDIR)/$(DATADIR)/
 	install -m 0755 build/perlpanel			$(DESTDIR)/$(BINDIR)/
 	install -m 0755 build/perlpanel-item-edit 	$(DESTDIR)/$(BINDIR)/
 	install -m 0755 build/perlpanel-run-dialog	$(DESTDIR)/$(BINDIR)/
@@ -73,9 +78,17 @@ install:
 	install -m 0755 build/perlpanel-item-edit.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-run-dialog.1	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/PerlPanel::MenuBase.1	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
-
-	# similarly for other locales as they become available:
 	install -m 0644 build/locale/en/$(LC_CATEGORY)/perlpanel.mo $(LOCALEDIR)/en/$(LC_CATEGORY)/
+
+	@echo Installing default rcfile:
+	@if [ -e $(DESTDIR)/$(CONFDIR)/perlpanelrc ] ; then \
+		echo Note: old $(DESTDIR)/$(CONFDIR)/perlpanelrc has not been overwritten, default has been installed to $(DESTDIR)/$(CONFDIR)/perlpanelrc.default.; \
+		install -m 0644 build/perlpanelrc	$(DESTDIR)/$(CONFDIR)/perlpanelrc.default; \
+	else \
+		install -m 0644 build/perlpanelrc	$(DESTDIR)/$(CONFDIR)/; \
+	fi
+
+
 clean:
 	rm -rf build
 
@@ -91,7 +104,7 @@ uninstall:
 		$(DATADIR)/perlpanel \
 		$(DATADIR)/pixmaps/perlpanel* \
 		$(LIBDIR) \
-		$(LOCALEDIR)/*/$(LC_CATEGORY)/perlpanel.mo
+		$(LOCALEDIR)/*/$(LC_CATEGORY)/perlpanel.mo \
 
 release:
 	./make-rpm $(VERSION)

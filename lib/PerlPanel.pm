@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.102 2004/08/24 15:22:03 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.103 2004/08/26 14:58:34 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -34,7 +34,8 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
 		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES
-		$DEFAULT_THEME	$APPLET_ERROR_MARKUP		$DESKTOP_NAMESPACE);
+		$DEFAULT_THEME	$APPLET_ERROR_MARKUP		$DESKTOP_NAMESPACE
+		$DEFAULT_RCFILE);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -72,7 +73,6 @@ our %DEFAULTS = (
 	},
 	applets => [
 		'ActionMenu',
-		'IconBar',
 		'Tasklist',
 		'Clock',
 		'Pager',
@@ -112,7 +112,7 @@ sub new {
 	$OBJECT_REF		= $self;
 	bless($self, $self->{package});
 	our $APPLET_ICON_DIR	= sprintf('%s/share/pixmaps/%s/applets', $PREFIX, lc($NAME));
-
+	our $DEFAULT_RCFILE	= sprintf('%s/etc/%src', $PREFIX, lc($NAME));
 	our @APPLET_DIRS	= (
 		sprintf('%s/.%s/applets',	$ENV{HOME}, lc($NAME)),	# user-installed applets
 		sprintf('%s/%s/Applet',		$LIBDIR, $NAME),	# admin-installed or sandbox applets ($LIBDIR is
@@ -235,7 +235,13 @@ sub parse_xdpyinfo {
 
 sub load_config {
 	my $self = shift;
-	$self->{config} = (-e $self->{rcfile} ? XMLin($self->{rcfile}) : \%DEFAULTS);
+	if (-r $self->{rcfile}) {
+		$self->{config} = XMLin($self->{rcfile});
+	} elsif (-r $DEFAULT_RCFILE) {
+		$self->{config} = XMLin($DEFAULT_RCFILE);
+	} else {
+		$self->{config} = \%DEFAULTS;
+	}
 	if ($self->{config}{version} ne $VERSION) {
 		print STDERR "*** your config file is from a different version, strange things may happen!\n";
 	}
