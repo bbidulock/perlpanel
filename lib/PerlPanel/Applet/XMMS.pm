@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.4 2003/08/12 16:03:14 jodrell Exp $
+# $Id: XMMS.pm,v 1.5 2004/01/11 23:07:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::XMMS;
-use vars qw(%TOOLTIPS %STOCK_IDS %CALLBACKS);
+use vars qw(%TOOLTIPS %CALLBACKS $ICON_DIR);
 use Xmms::Remote;
 use strict;
 
@@ -24,25 +24,18 @@ our %TOOLTIPS = (
 	prev	=> 'Play Previous Track',
 	stop	=> 'Stop Playing',
 	play	=> 'Play',
+	pause	=> 'Pause',
 	next	=> 'Play Next Track',
-	open	=> 'Play File or Directory',
-);
-
-our %STOCK_IDS = (
-	prev	=> 'gtk-goto-first',
-	stop	=> 'gtk-stop',
-	play	=> 'gtk-go-forward',
-	next	=> 'gtk-goto-last',
-	open	=> 'gtk-open',
 );
 
 our %CALLBACKS = (
-	prev	=> sub { Xmms::Remote->new->playlist_prev },
-	stop	=> sub { Xmms::Remote->new->stop },
-	play	=> sub { Xmms::Remote->new->play },
-	next	=> sub { Xmms::Remote->new->playlist_next },
-	open	=> sub { Xmms::Remote->new->pl_win_toggle(1) },
+	prev	=> sub { $_[0]->playlist_prev },
+	stop	=> sub { $_[0]->stop },
+	play	=> sub { if ($_[0]->is_playing) { $_[0]->pause } else { $_[0]->play }},
+	next	=> sub { $_[0]->playlist_next },
 );
+
+our $ICON_DIR = sprintf('%s/share/pixmaps/%s/xmms-applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -54,21 +47,48 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
-	foreach my $name (qw(prev stop play next open)) {
-		$self->{buttons}{$name} = $self->stock_button($STOCK_IDS{$name});
-		$self->{buttons}{$name}->signal_connect('clicked', $CALLBACKS{$name});
+	$self->{controller} = Xmms::Remote->new;
+	$self->{pbfs}{pause} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, 'pause'));
+	foreach my $name (qw(prev play stop next)) {
+		$self->{buttons}{$name} = $self->create_button($name);
+		my $func = $CALLBACKS{$name};
+		$self->{buttons}{$name}->signal_connect('clicked', sub { &$func($self->{controller}) });
 		$PerlPanel::TOOLTIP_REF->set_tip($self->{buttons}{$name}, $TOOLTIPS{$name});
 		$self->{widget}->pack_start($self->{buttons}{$name}, 0, 0, 0);
 	}
+	Glib::Timeout->add(50, sub {
+		my $running = 0;
+		eval('$running = ($self->{controller}->is_running ? 1 : 0)');
+		if ($running == 0) {
+			$self->widget->set_sensitive(0);
+		} else {
+			$self->widget->set_sensitive(1);
+			if ($self->{controller}->is_playing) {
+				$self->{buttons}{stop}->set_sensitive(1);
+				if ($self->{controller}->is_paused) {
+					$self->{buttons}{play}->child->set_from_pixbuf($self->{pbfs}{play});
+					$PerlPanel::TOOLTIP_REF->set_tip($self->{buttons}{play}, $TOOLTIPS{play});
+				} else {
+					$self->{buttons}{play}->child->set_from_pixbuf($self->{pbfs}{pause});
+					$PerlPanel::TOOLTIP_REF->set_tip($self->{buttons}{play}, $TOOLTIPS{pause});
+				}
+			} else {
+				$self->{buttons}{stop}->set_sensitive(0);
+				$self->{buttons}{play}->child->set_from_pixbuf($self->{pbfs}{play});
+			}
+		}
+		return 1;
+	});
 	return 1;
 }
 
-sub stock_button {
-	my ($self, $stock_id) = @_;
+sub create_button {
+	my ($self, $id) = @_;
+	$self->{pbfs}{$id} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/%s.png', $ICON_DIR, $id));
 	my $button = Gtk2::Button->new;
-	my $icon = Gtk2::Image->new_from_stock($stock_id, $PerlPanel::OBJECT_REF->icon_size_name);
+	my $image = Gtk2::Image->new_from_pixbuf($self->{pbfs}{$id});
 	$button->set_relief('none');
-	$button->add($icon);
+	$button->add($image);
 	return $button;
 }
 

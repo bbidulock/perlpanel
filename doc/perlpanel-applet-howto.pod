@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.8 2004/01/08 00:36:28 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.9 2004/01/11 23:07:45 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -105,6 +105,10 @@ C<$PREFIX/lib/perlpanel/applet.registry>. This file contains a short
 textual description of each available applet, for example:
 
 	Commander=A button to show a command dialog.
+
+Finally, you should place a 48x48 icon representing your applet into
+C<$PREFIX/share/pixmaps/perlpanel/applets>. This icon will be used in
+the icon selector.
 
 =head1 REQUIRED METHODS
 
@@ -259,4 +263,15 @@ screen.
 This returns two numbers corresponding to the position on-screen of the
 mouse pointer.
 
+	$PerlPanel::OBJECT_REF->exec_wait($cmd, $callback)
+
+This function allows you to execute a command and wait for it to finish,
+without interrupting the Gtk main loop, and without inducing unneeded
+CPU load with a custom C<while()> loop. The command contained in C<$cmd>
+is opened as a filehandle to be read from - so calling applications
+which detach from STDOUT are not recommended. C<exec_wait> creates a Glib
+handler and waits for C<eof> from the handle. Then it executes the function
+in C<$callback>.
+
+This function exists mainly because of C<IconBar.pm>.
 =cut

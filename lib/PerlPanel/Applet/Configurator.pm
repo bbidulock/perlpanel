@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.23 2004/01/06 16:31:40 jodrell Exp $
+# $Id: Configurator.pm,v 1.24 2004/01/11 23:07:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,7 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::Configurator;
+use Gtk2::SimpleList;
+use vars qw($ICON_DIR $ICON_SIZE);
 use strict;
+
+our $ICON_DIR  = sprintf('%s/share/pixmaps/%s/applets', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
+our $ICON_SIZE = 24;
 
 sub new {
 	my $self		= {};
@@ -70,19 +75,19 @@ sub build_ui {
 	$self->{window}->signal_connect('delete_event', sub { $self->discard });
 	$self->{window}->set_title('PerlPanel Configuration');
 	$self->{window}->set_position('center');
-	$self->{window}->set_border_width(8);
+	$self->{window}->set_border_width(12);
 	$self->{window}->set_default_size(250, 350);
-	$self->{window}->vbox->set_border_width(8);
-	$self->{window}->vbox->set_spacing(8);
+	$self->{window}->vbox->set_border_width(12);
+	$self->{window}->vbox->set_spacing(12);
 	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 
 	$self->{notebook} = Gtk2::Notebook->new;
 	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 
 	$self->{pages}{panel} = Gtk2::Table->new(6, 2, 0);
-	$self->{pages}{panel}->set_border_width(8);
-	$self->{pages}{panel}->set_col_spacings(8);
-	$self->{pages}{panel}->set_row_spacings(8);
+	$self->{pages}{panel}->set_border_width(12);
+	$self->{pages}{panel}->set_col_spacings(12);
+	$self->{pages}{panel}->set_row_spacings(12);
 
 	$self->{pages}{panel}->attach_defaults($self->control_label('Panel position:'), 0, 1, 0, 1);
 	$self->{controls}{position} = $self->control($PerlPanel::OBJECT_REF->{config}{panel}, 'position', 'enum', qw(top bottom));
@@ -110,12 +115,12 @@ sub build_ui {
 	map { $menu_used++ if $_ eq 'BBMenu' } @{$PerlPanel::OBJECT_REF->{config}{applets}};
 	if ($menu_used > 0) {
 		$self->{pages}{menu} = Gtk2::VBox->new;
-		$self->{pages}{menu}->set_border_width(8);
-		$self->{pages}{menu}->set_spacing(8);
+		$self->{pages}{menu}->set_border_width(12);
+		$self->{pages}{menu}->set_spacing(12);
 
 		$self->{menu}{table} = Gtk2::Table->new(2, 2);
-		$self->{menu}{table}->set_col_spacings(8);
-		$self->{menu}{table}->set_row_spacings(8);
+		$self->{menu}{table}->set_col_spacings(12);
+		$self->{menu}{table}->set_row_spacings(12);
 
 		$self->{iconfile}{label} = $self->control_label('Menu icon:');
 		$self->{iconfile}{label}->set_alignment(1, 0);
@@ -146,18 +151,7 @@ sub build_ui {
 		$self->{notebook}->append_page($self->{pages}{menu}, $self->control_label('Menu'));
 	}
 
-	$self->{store} = Gtk2::ListStore->new('Glib::String');
-
-	$self->{renderer} = Gtk2::CellRendererText->new;
-
-	$self->{column} = Gtk2::TreeViewColumn->new_with_attributes('Applet', $self->{renderer}, text => 0);
-
-	$self->{view} = Gtk2::TreeView->new($self->{store});
-	$self->{view}->set_reorderable(1);
-
-	$self->{view}->append_column($self->{column});
-
-	$self->populate_list;
+	$self->create_list;
 
 	$self->{scrwin} = Gtk2::ScrolledWindow->new;
 	$self->{scrwin}->set_policy('automatic', 'automatic');
@@ -174,8 +168,8 @@ sub build_ui {
 	$self->{buttons}{delete}->signal_connect('clicked', sub {
 		my (undef, $iter) = $self->{view}->get_selection->get_selected;
 		return undef unless (defined($iter));
-		my $idx = ($self->{store}->get_path($iter)->get_indices)[0];
-		$self->{store}->remove($iter);
+		my $idx = ($self->{view}->get_model->get_path($iter)->get_indices)[0];
+		$self->{view}->get_model->remove($iter);
 		splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx, 1);
 	});
 
@@ -183,8 +177,8 @@ sub build_ui {
 	$self->{buttonbox}->add($self->{buttons}{delete});
 
 	$self->{pages}{applets} = Gtk2::VBox->new;
-	$self->{pages}{applets}->set_spacing(8);
-	$self->{pages}{applets}->set_border_width(8);
+	$self->{pages}{applets}->set_spacing(12);
+	$self->{pages}{applets}->set_border_width(12);
 	$self->{pages}{applets}->pack_start($self->{scrwin}, 1, 1, 0);
 	$self->{pages}{applets}->pack_start(Gtk2::Label->new('Drag and drop items in the list to move them.'), 0, 0, 0);
 	$self->{pages}{applets}->pack_start($self->{buttonbox}, 0, 0, 0);
@@ -245,11 +239,16 @@ sub control {
 	return $control;
 }
 
-sub populate_list {
+sub create_list {
 	my $self = shift;
+	$self->{view} = Gtk2::SimpleList->new(
+		'Icon'	=> 'pixbuf',
+		'Name'	=> 'text',
+	);
+	$self->{view}->set_reorderable(1);
+
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		my $iter = $self->{store}->append;
-		$self->{store}->set($iter, 0, $appletname);
+		push(@{$self->{view}->{data}}, [$self->get_applet_pbf($appletname), $appletname]);
 	}
 	return 1;
 }
@@ -257,13 +256,9 @@ sub populate_list {
 sub rebuild_appletlist {
 	my $self = shift;
 	$PerlPanel::OBJECT_REF->{config}{applets} = [];
-	$self->{view}->get_model->foreach(
-		sub {
-			my $iter = $_[2];
-			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $self->{view}->get_model->get_value($iter, 0));
-			return undef
-		}
-	);
+	foreach my $row (@{$self->{view}->{data}}) {
+		push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, @{$row}[1]);
+	}
 	return 1;
 }
 
@@ -281,16 +276,15 @@ sub add_dialog {
 	$dialog->set_title("$PerlPanel::NAME: Add Applet");
 	$dialog->set_position('center');
 	$dialog->set_modal(1);
-	$dialog->set_border_width(8);
-	$dialog->set_default_size(450, 250);
+	$dialog->set_border_width(12);
+	$dialog->set_default_size(550, 350);
 	$dialog->set_icon($PerlPanel::OBJECT_REF->icon);
-	my $model = Gtk2::ListStore->new('Glib::String', 'Glib::String');
-	my $view = Gtk2::TreeView->new($model);
-	my $renderer = Gtk2::CellRendererText->new;
-	my $name_column = Gtk2::TreeViewColumn->new_with_attributes('Applet',      $renderer, text => 0);
-	my $desc_column = Gtk2::TreeViewColumn->new_with_attributes('Description', $renderer, text => 1);
-	$view->append_column($name_column);
-	$view->append_column($desc_column);
+
+	my $view = Gtk2::SimpleList->new(
+		'Icon'		=> 'pixbuf',
+		'Name'		=> 'text',
+		'Description'	=> 'text',
+	);
 
 	my @files;
 	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME)), sprintf('%s/lib/%s/Applet', $ENV{PWD}, $PerlPanel::NAME)) {
@@ -303,8 +297,7 @@ sub add_dialog {
 
 	foreach my $file (@files) {
 		my ($appletname, undef) = split(/\./, $file, 2);
-		my $iter = $model->append;
-		$model->set($iter, 0, $appletname, 1, $self->{registry}{$appletname});
+		push(@{$view->{data}}, [$self->get_applet_pbf($appletname), $appletname, $self->{registry}{$appletname}]);
 	}
 
 	my $scrwin = Gtk2::ScrolledWindow->new;
@@ -326,11 +319,10 @@ sub add_dialog {
 			return unless (defined($seln));
 			my ($blah, $iter) = $seln->get_selected;
 			return undef unless (defined($iter));
-			my $idx = ($model->get_path($iter)->get_indices)[0];
+			my $idx = ($view->get_model->get_path($iter)->get_indices)[0];
 			my ($appletname, undef) = split(/\./, $files[$idx], 2);
 			push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
-			my $newiter = $self->{store}->append;
-			$self->{store}->set($newiter, 0, $appletname);
+			push(@{$self->{view}->{data}}, [$self->get_applet_pbf($appletname), $appletname]);
 		}
 		$dialog->destroy;
 	});
@@ -391,4 +383,21 @@ sub choose_menu_icon {
 	$selector->show_all;
 	return 1;
 }
+
+sub get_applet_pbf {
+	my ($self, $applet) = @_;
+	if (!defined($self->{pbfs}{$applet})) {
+		my $file = sprintf('%s/%s.png', $ICON_DIR, lc($applet));
+		if (-e $file) {
+			$self->{pbfs}{$applet} = Gtk2::Gdk::Pixbuf->new_from_file($file);
+			if ($self->{pbfs}{$applet}->get_height != $ICON_SIZE) {
+				$self->{pbfs}{$applet} = $self->{pbfs}{$applet}->scale_simple($ICON_SIZE, $ICON_SIZE, 'bilinear');
+			}
+		} else {
+			$self->{pbfs}{$applet} = $self->get_applet_pbf('missing');
+		}
+	}
+	return $self->{pbfs}{$applet};
+}
+
 1;

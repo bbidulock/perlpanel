@@ -14,11 +14,11 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: PerlPanel.spec,v 1.3 2004/01/06 16:31:39 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.4 2004/01/11 23:07:45 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
-Version: 0.2.0
+Version: 0.2.1
 Release: 1
 Epoch: 0
 Group: Applications/Accessories
@@ -28,6 +28,9 @@ URL: http://jodrell.net/projects/perlpanel/
 Packager: Gavin Brown <gavin.brown@uk.com>
 Vendor: http://jodrell.net/
 
+#define __find_provides /usr/lib/rpm/find-provides.perl
+#define __find_requires /usr/lib/rpm/find-requires.perl
+
 Source: http://jodrell.net/download.html?file=/files/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/root-%{name}-%{version}
 Prefix: %{_prefix}
@@ -35,7 +38,7 @@ Prefix: %{_prefix}
 AutoReq: no
 
 BuildRequires: perl >= 5.8.0
-Requires: perl >= 5.8.0, perl(Gtk2), perl(Gnome2::Wnck), perl(XML::Simple)
+Requires: perl >= 5.8.0, perl(Gtk2), perl(Gnome2::Wnck), perl(XML::Simple), perl(Xmms::Remote)
 
 %description
 PerlPanel is an attempt to build a useable, lean panel program (like Gnome's gnome-panel and KDE's Kicker) in Perl, using the Gtk2-Perl libraries.

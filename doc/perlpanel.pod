@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.12 2004/01/05 14:56:59 jodrell Exp $
+$Id: perlpanel.pod,v 1.13 2004/01/11 23:07:45 jodrell Exp $
 
 =head1 Introduction
 
@@ -27,7 +27,7 @@ What you will need is this:
 
 =over
 
-=item * Perl
+=item * Perl 5.8.0 or higher
 
 =item * Gtk+ version 2 or higher
 
@@ -37,7 +37,13 @@ What you will need is this:
 
 =item * The Gtk2-Perl libraries
 
-=item * The Gnome2::Wnck Perl module (for the tasklist and pager applets)
+=back
+
+Some of the applets also require additional modules, for example:
+
+=item * The Gnome2::Wnck Perl module for the tasklist and pager applets
+
+=item * Xmms::Remote for the XMMS applet
 
 =back
 
@@ -53,7 +59,7 @@ L<http://sourceforge.net/projects/gtk2-perl>.
 Gnome2::Wnck is the Perl bindings for libwnck, the Window Navigation
 Construction Kit. You do not need the Gnome2 libraries in order to use
 this module - it has the Gnome2:: prefix because it's maintained by the
-Gnome developers.
+GNOME developers.
 
 =head2 Note about XML::Simple
 
@@ -110,7 +116,18 @@ they're small widgets that perform a particular task. PerlPanel comes
 with a number of useful applets that are enabled by default. They are
 explained in brief below.
 
-=head2 BBMenu
+=head2 The 'About' Applet
+
+Clicking this icon brings up a little dialog box that contains the
+credits, version number and license for PerlPanel.
+
+=head2 The 'BatteryMonitor' Applet
+
+The LoadMonitor applet shows the current charge on your laptop's battery.
+You can click on the widget and bring up a dialog to change the update
+interval. By default, this is 100ms.
+
+=head2 The The 'BBMenu' Applet
 
 The BBMenu applet is a program launcher menu, like the Windows Start
 Menu. It can understand any Blackbox-compatible menu file, and will look
@@ -142,7 +159,31 @@ the c<foobar> program, BBMenu will look for a file called I<foobar.png>.
 placing a copy of the image (or a symbolic link to it) in
 C<$HOME/.perlpanel/icon-files>.
 
-=head2 IconBar
+=head2 The 'Clock' Applet
+
+The Clock applet shows the current time in a text form. Clicking on the
+applet will bring up a dialog with a calender for this month, and a
+page that lets you change the format used to render the time. The
+format used is that of the POSIX C<strftime()> function. Consult the
+L<strftime> manpage for an explanation of the formatting characters.
+
+=head2 The 'Commander' Applet
+
+This applet pops up a dialog box with an entry for a command to run.
+
+=head2 The 'Configurator' Applet
+
+Clicking on the Configurator icon brings up a dialog that you can use to
+change various config settings. When you click the OK button the panel
+will reload.
+
+The Panel tab contains various positioning and padding options for the
+panel itself.
+
+You can add, remove and re-order applets on the panel from the 'Applets'
+tab.
+
+=head2 The 'IconBar' Applet
 
 The IconBar places a number of launcher icons on your panel. When
 clicked, the launchers run the program for that icon.
@@ -164,80 +205,83 @@ Right-clicking on an icon brings up a context menu. This allows you to
 add a new icon, or edit or delete the selected icon. Both the 'Add' and
 'Edit' options use an external program called C<perlpanel-item-edit>.
 
-=head2 Tasklist
+=head2 The 'LoadMonitor' Applet
+
+The LoadMonitor applet shows the current CPU load on your system, as a
+percentage. You can click on the widget and bring up a dialog to change
+the update interval. By default, this is 100ms.
+
+=head2 The 'Lock' Applet
+
+This icon locks the screen so that others cannot access your files and
+programs while you are away from the keyboard. You must enter your
+password to unlock the screen. This applet requires that you have the
+XScreenSaver program installed.
+
+=head2 The 'NautilusBookmarks' Applet
+
+This applet provides an easy way to launch your bookmarked locations
+in the Nautilus file browser.
+
+=head2 The 'Pager' Applet
+
+The Pager allows you to switch between virtual desktops, and drag
+programs between desktops.
+
+=head2 The 'PanelPet' Applet
+
+The PanelPet applet shows an animation of a fish in a bowl. You can
+use any file you like. By default, PanelPet uses an animation from
+GNOME's Fish applet. Right-click on the applet to configure it.
+
+=head2 The 'Quit' Applet
+
+Clicking this icon closes the panel.
+
+=head2 The 'Reload' Applet
+
+Clicking on this icon causes the panel to reload itself. If you have
+manually changed the contents of the resource file or one of the icons,
+clicking this will activate the changes.
+
+=head2 The 'Separator' Applet
+
+This applet provides a way of placing some physical space between other
+applets. It adds a vertical separating line with five pixels of space
+on either side.
+
+=head2 ShowDesktop
+
+This applet provides a button that minimises/restores all the
+applications that are visible, so you can see your desktop.
+
+=head2 The 'Slot' Applet
+
+The Slot applet implements the 'socket' side of the XEMBED protocol.
+This is a cross-platform protocol that lets applications of any
+kind embed widgets into other applications. When loaded, the applet
+writes the ID of its socket to the file C<$HOME/.perlpanel/socketid>.
+This ID can then be passed to the embedding application.
+
+This applet exists mainly for those who want to create applets for
+PerlPanel but don't want to use Perl.
+
+=head2 The 'Spacer' Applet
+
+The spacer applet creates a flexible space in the panel, expanding
+out to fill all the unused space.
+
+=head2 The 'Tasklist' Applet
 
 The Tasklist shows you all the programs currently visible on your
 desktop. You can click on the entries for each program to raise them
 to the top of the stack. You can right-click on them to bring up a
 context menu for maximising, minimising, shading and so on.
 
-=head2 Pager
+=head2 The 'XMMS' Applet
 
-The Pager allows you to switch between virtual desktops, and drag
-programs between desktops.
-
-=head2 Clock
-
-The Clock applet shows the current time in a text form. Clicking on the
-applet will bring up a configuration dialog that lets you change the
-format used to render the time. The format used is that of the POSIX
-C<strftime()> function. Consult the L<strftime> manpage for an
-explanation of the formatting characters.
-
-=head2 LoadMonitor
-
-The LoadMonitor applet shows the current CPU load on your system, as a
-percentage. You can click on the widget and bring up a dialog to change
-the update interval. By default, this is 100ms.
-
-=head2 BatteryMonitor
-
-The LoadMonitor applet shows the current charge on your laptop's battery.
-You can click on the widget and bring up a dialog to change the update
-interval. By default, this is 100ms.
-
-=head2 Configurator
-
-Clicking on the Configurator icon brings up a dialog that you can use to
-change various config settings. When you click the OK button the panel
-will reload.
-
-The Panel tab contains various positioning and padding options for the
-panel itself.
-
-You can add, remove and re-order applets on the panel from the 'Applets'
-tab.
-
-=head2 Reload
-
-Clicking on this icon causes the panel to reload itself. If you have
-manually changed the contents of the resource file or one of the icons,
-clicking this will activate the changes.
-
-=head2 About
-
-Clicking this icon brings up a little dialog box that contains the
-credits, version number and license for PerlPanel.
-
-=head2 Quit
-
-Clicking this icon closes the panel.
-
-=head2 NautilusBookmarks
-
-This applet provides an easy way to launch your bookmarked locations
-in the Nautilus file browser.
-
-=head2 PanelPet
-
-The PanelPet applet shows an animation of a fish in a bowl. You can
-use any file you like. By default, PanelPet uses an animation from
-GNOME's Fish applet. Right-click on the applet to configure it.
-
-=head2 ShowDesktop
-
-This applet provides a button that minimises/restores all the
-applications that are visible, so you can see your desktop.
+This applet lets you control the XMMS media player. You need the
+XMMS-Perl libraries in order to use this applet.
 
 =head1 Writing Applets
 

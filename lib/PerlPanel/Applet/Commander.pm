@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.7 2003/08/12 16:03:14 jodrell Exp $
+# $Id: Commander.pm,v 1.8 2004/01/11 23:07:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -51,6 +51,7 @@ sub run {
 					undef
 				);
 			}
+			$self->widget->set_sensitive(1);
 		}
 	);
 	return 1;

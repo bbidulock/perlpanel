@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.7 2004/01/04 17:03:12 jodrell Exp $
+# $Id: applet.registry,v 1.8 2004/01/11 23:07:45 jodrell Exp $
 
 About=A button to show an "About" dialog.
 BatteryMonitor=Shows the status of your laptop's battery.
@@ -19,6 +19,7 @@ LoadMonitor=Shows the current CPU load.
 Lock=Locks the screen.
 NautilusBookmarks=Launch Nautilus bookmarks.
 Pager=Displays your current workspaces.
+PanelPet=A friendly creature to keep you company.
 Quit=A button to close the panel.
 Reload=A button to reload the panel.
 Separator=A separator.
