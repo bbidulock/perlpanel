@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.6 2003/08/12 16:03:14 jodrell Exp $
+# $Id: About.pm,v 1.7 2004/01/12 16:54:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -45,9 +45,8 @@ sub about {
 	$co_authors =~ s/</&lt;/g;
 	$co_authors =~ s/>/&gt;/g;
 	my $text = sprintf(
-		"<span weight=\"bold\" size=\"x-large\">%s version %s</span>\n\n%s\n\nAuthor:\n%s\n\n<span size=\"small\">With:\n%s</span>\n\n%s\n\n<span size=\"small\">%s\n\nUsing Perl v%vd, Gtk+ v%d.%d.%d and Gtk2.pm v%s</span>",
-		$PerlPanel::NAME,
-		$PerlPanel::VERSION,
+		"<span size=\"small\">%s</span>\n\n%s\n\nAuthor:\n%s\n\n<span size=\"small\">With:\n%s</span>\n\n%s\n\n<span size=\"small\">%s\n\nUsing Perl v%vd, Gtk+ v%d.%d.%d and Gtk2.pm v%s</span>",
+		($PerlPanel::VERSION eq '@VERSION@' ? 'Sandbox Mode' : sprintf('Version %s', $PerlPanel::VERSION)),
 		$PerlPanel::DESCRIPTION,
 		$lead_authors,
 		$co_authors,

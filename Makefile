@@ -14,7 +14,9 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.16 2004/01/11 16:32:22 jodrell Exp $
+# $Id: Makefile,v 1.17 2004/01/12 16:54:17 jodrell Exp $
+
+VERSION=0.2.1
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -29,7 +31,7 @@ all: perlpanel
 
 perlpanel:
 	mkdir build
-	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
+	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; s!\@VERSION\@!$(VERSION)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
 	pod2man doc/perlpanel.pod > build/perlpanel.1
 	pod2man doc/perlpanel-applet-howto.pod > build/perlpanel-applet-howto.1

@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.41 2004/01/11 23:36:06 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.42 2004/01/12 16:54:17 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@ use vars qw($NAME $VERSION $DESCRIPTION $VERSION @LEAD_AUTHORS @CO_AUTHORS $URL 
 use strict;
 
 our $NAME		= 'PerlPanel';
-our $VERSION		= '0.2.1';
+our $VERSION		= '@VERSION@'; # this is replaced at build time.
 our $DESCRIPTION	= 'A lean, mean panel program written in Perl.';
 our @LEAD_AUTHORS	= (
 	'Gavin Brown <gavin.brown@uk.com>',

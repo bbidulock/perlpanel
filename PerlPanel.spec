@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: PerlPanel.spec,v 1.4 2004/01/11 23:07:45 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.5 2004/01/12 16:54:17 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -47,7 +47,7 @@ PerlPanel is an attempt to build a useable, lean panel program (like Gnome's gno
 %setup
 
 %build
-make PREFIX=%{_prefix} MANDIR=%{_mandir}
+make PREFIX=%{_prefix} MANDIR=%{_mandir} VERSION=%{version}
 
 %install
 rm -rf %{buildroot}
