@@ -1,4 +1,4 @@
-# $Id: NotificationArea.pm,v 1.5 2004/09/17 15:54:35 jodrell Exp $
+# $Id: NotificationArea.pm,v 1.6 2005/01/23 23:32:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,7 +30,6 @@ use strict;
 #
 our $DEFAULT_SCREEN = Gtk2::Gdk::Screen->get_default;
 if (Gtk2::TrayManager->check_running($DEFAULT_SCREEN)) {
-	PerlPanel::warning(_('NotificationArea applet cannot manage this screen.'));
 	$CAN_MANAGE = 0;
 } else {
 	$CAN_MANAGE = 1;
@@ -78,6 +77,11 @@ sub configure {
 	$self->{box}->pack_start($self->{button}, 0, 0, 0);
 	$self->{box}->pack_start($self->{hbox}, 1, 1, 0);
 
+	$self->{widget} = Gtk2::Frame->new;
+	$self->widget->add($self->{box});
+	$self->widget->set_border_width(0);
+	$self->widget->set_size_request(-1, PerlPanel::icon_size());
+
 	if ($CAN_MANAGE == 1) {
 		$TRAY_MANAGER->signal_connect('tray_icon_added', sub {
 			# put the socket inside a viewport so the panel doesn't get stretched if the
@@ -105,12 +109,10 @@ sub configure {
 			$self->{hbox}->remove($_[1]->parent) if defined($_[1]->parent);
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
 		});
-	}
+	} else {
+		$self->widget->set_sensitive(undef);
 
-	$self->{widget} = Gtk2::Frame->new;
-	$self->widget->add($self->{box});
-	$self->widget->set_border_width(0);
-	$self->widget->set_size_request(-1, PerlPanel::icon_size());
+	}
 
 	$self->widget->show_all;
 	return 1;
