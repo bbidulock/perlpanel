@@ -1,0 +1,57 @@
+=pod
+
+=head1 NAME
+
+Applet-HOWTO
+
+=head1 DESCRIPTION
+
+This document explains how to write applets for the PerlPanel
+
+=head1 TAG
+
+	$Id: Applet-HOWTO.pod,v 1.1 2003/05/27 16:00:32 jodrell Exp $
+
+=head1 INTRODUCTION
+
+It is very easy to write applets for the PerlPanel. Applets are simple Perl
+objects, and are allowed to do anything that a normal Gtk-Perl program might do.
+
+However, in order to work properly with the PerlPanel, they need to have an
+interface the PerlPanel can understand.
+
+When it loads a module, PerlPanel will create a new instance of the applet. It
+will then call various methods of the object in order to work out what to do with
+it.
+
+These methods are explained below:
+
+=head2 REQUIRED METHODS
+
+	$applet->new
+
+The constructor. This is pretty obvious. It can accept arguments but PerlPanel
+won't send it any.
+
+	$applet->configure
+
+This stage is intended for the loading of config data, creation of widgets, etc.
+
+	$applet->widget
+
+This method should return the Gtk widget that is to be displayed on the panel.
+It can be any kind of Gtk widget apart from a window.
+
+	$applet->expand
+	$applet->fill
+
+The panel uses a horizontal packing box to contain the applet widgets. These two
+methods return integer values for the 'expand' and 'fill' arguments to
+pack_start() or pack_end().
+
+	$applet->end
+
+This method returns either 'start' (in which case pack_start() is used to add the
+widget to the panel) or 'end' (which will PerlPanel to use pack_end()).
+
+=cut

@@ -1,9 +1,9 @@
-# $Id: PerlPanel.pm,v 1.1 2003/05/27 14:54:42 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.2 2003/05/27 16:00:32 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $PREFIX @APPLETSDIR %DEFAULTS $TOOLTIP_REF);
+use vars qw($NAME $VERSION $PREFIX @APPLETSDIR %DEFAULTS $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
 our $NAME	= 'PerlPanel';
@@ -26,7 +26,8 @@ our %DEFAULTS = (
 	applets => [
 		'Quit',
 		#'IconBar',
-		'Clock',
+		#'Clock',
+		'Commander',
 	],
 	applet => {
 		padding	=> 0,
@@ -39,6 +40,7 @@ sub new {
 	my $self		= {};
 	$self->{package}	= shift;
 	$self->{rcfile}		= sprintf('%s/.%src', $ENV{HOME}, lc($NAME));
+	$OBJECT_REF		= $self;
 	bless($self, $self->{package});
 	return $self;
 }
@@ -87,18 +89,28 @@ sub load_applets {
 			exit 1;
 		} else {
 			$applet->configure;
-			$self->add($applet->widget, $applet->expand, $applet->fill);
+			$self->add($applet->widget, $applet->expand, $applet->fill, $applet->end);
 		}
 	}
 }
 
 sub add {
-	my ($self, $widget, $expand, $fill) = @_;
-	$self->{hbox}->pack_start($widget, $expand, $fill, $self->{config}{applet}{padding});
+	my ($self, $widget, $expand, $fill, $end) = @_;
+	if ($end == 'end') {
+		$self->{hbox}->pack_start($widget, $expand, $fill, $self->{config}{applet}{padding});
+	} else {
+		$self->{hbox}->pack_end($widget, $expand, $fill, $self->{config}{applet}{padding});
+	}
+	return 1;
 }
 
 sub show_all {
 	$_[0]->{panel}->show_all();
+}
+
+sub shutdown {
+	my $self = shift;
+	exit;
 }
 
 1;

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.1 2003/05/27 14:54:42 jodrell Exp $
+# $Id: IconBar.pm,v 1.2 2003/05/27 16:00:32 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Config::Simple;
 use vars qw($ICON_SPACING $ICON_DIR);
@@ -43,11 +43,15 @@ sub widget {
 }
 
 sub expand {
-	return 0;
+	return 1;
 }
 
 sub fill {
-	return 0;
+	return 1;
+}
+
+sub end {
+	return 'start';
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;

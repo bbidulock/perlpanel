@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.1 2003/05/27 14:54:42 jodrell Exp $
+# $Id: Clock.pm,v 1.2 2003/05/27 16:00:32 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use Config::Simple;
 use POSIX qw(strftime);
@@ -19,7 +19,6 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Label->new();
 	$self->update;
-	$self->{timeout} = Gtk2->timeout($INTERVAL, sub { $self->update });
 	return 1;
 }
 
@@ -39,6 +38,10 @@ sub expand {
 
 sub fill {
 	return 0;
+}
+
+sub end {
+	return 'end';
 }
 
 1;
