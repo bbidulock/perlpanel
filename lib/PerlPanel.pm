@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.90 2004/06/30 18:57:50 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.91 2004/07/01 10:09:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -149,11 +149,13 @@ sub init {
 
 	chdir($ENV{HOME});
 
+	require('Commander.pm');
+	$self->{commander} = PerlPanel::Applet::Commander->new;
+	$self->{commander}->configure('no-widget');
 	Glib::Timeout->add(50, sub {
 		if (-e $RUN_COMMAND_FILE) {
 			unlink($RUN_COMMAND_FILE);
-			require('Commander.pm');
-			PerlPanel::Applet::Commander->run;
+			$self->{commander}->run;
 		}
 		return 1;
 	});
@@ -389,6 +391,7 @@ sub move {
 sub shutdown {
 	my $self = shift || $OBJECT_REF;
 	$self->save_config;
+	unlink($PIDFILE);
 	exit;
 }
 
@@ -754,7 +757,7 @@ sub get_applet_pbf_filename {
 		$self = $OBJECT_REF;
 		$applet = shift;
 	}
-	return $self->lookup_icon(sprintf('%s-applet-%s', lc($NAME), lc($applet)));
+	return lookup_icon(sprintf('%s-applet-%s', lc($NAME), lc($applet)));
 }
 
 sub get_applet_pbf {

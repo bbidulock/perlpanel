@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.23 2004/07/01 09:07:01 jodrell Exp $
+# $Id: Commander.pm,v 1.24 2004/07/01 10:09:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,8 +22,6 @@ use File::Basename qw(basename);
 use vars qw($iconfile);
 use strict;
 
-our $iconfile = PerlPanel::get_applet_pbf_filename('commander');
-
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
@@ -32,12 +30,16 @@ sub new {
 }
 
 sub configure {
-	my $self = shift;
-	$self->{widget} = Gtk2::Button->new;
-	$self->widget->set_relief('none');
-	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('commander', PerlPanel::icon_size)));
-	$self->widget->signal_connect('clicked', sub { $self->run });
-	PerlPanel::tips->set_tip($self->widget, _('Run Command'));
+	my ($self, $opt) = @_;
+	if ($opt ne 'no-widget') {
+		$self->{widget} = Gtk2::Button->new;
+		$self->widget->set_relief('none');
+		$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('commander', PerlPanel::icon_size)));
+		$self->widget->signal_connect('clicked', sub { $self->run });
+		PerlPanel::tips->set_tip($self->widget, _('Run Command'));
+	}
+	our $iconfile = PerlPanel::get_applet_pbf_filename('commander');
+	$self->{store} = $self->create_store;
 	return 1;
 }
 
@@ -77,6 +79,12 @@ sub run {
 	$command_entry->set_popdown_strings('', @history);
 	$command_entry->set_use_arrows(1);
 	$command_entry->list->select_item(0);
+
+	my $completion = Gtk2::EntryCompletion->new;
+	$completion->set_model($self->{store});
+	$completion->set_text_column(0);
+	$completion->set_minimum_key_length(2);
+	$command_entry->entry->set_completion($completion);
 
 	$command_entry->entry->signal_connect('changed', sub {
 		my ($command, undef) = split(/\s/, $command_entry->entry->get_text, 2);
@@ -199,6 +207,28 @@ sub run {
 	$dialog->show_all;
 
 	return 1;
+}
+
+sub create_store {
+	my $self = shift;
+	my $store = Gtk2::ListStore->new(Glib::String::);
+
+	my %executables;
+	foreach my $dir (split(/:/, $ENV{PATH})) {
+		if (!opendir(DH, $dir)) {
+			next;
+		} else {
+			my @files = grep { -x "$dir/$_" } grep { ! /^\.{1,2}$/ } readdir(DH);
+			closedir(DH);
+			map { $executables{$_}++ } @files;
+		}
+	}
+
+	foreach my $program (sort keys %executables) {
+		$store->set($store->append, 0, $program);
+	}
+
+	return $store;
 }
 
 1;

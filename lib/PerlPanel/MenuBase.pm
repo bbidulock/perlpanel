@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.22 2004/06/30 18:52:58 jodrell Exp $
+# $Id: MenuBase.pm,v 1.23 2004/07/01 10:09:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -164,8 +164,7 @@ sub add_control_items {
 		$self->menu->append($self->menu_item(_('Lock Screen'), PerlPanel::get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
 	}
 	$self->menu->append($self->menu_item(_('Run Program...'), PerlPanel::get_applet_pbf_filename('commander'), sub {
-		require('Commander.pm');
-		PerlPanel::Applet::Commander->run;
+		$PerlPanel::OBJECT_REF->{commander}->run;
 	}));
 	$self->menu->append($self->menu_item(_('Take Screenshot...'), PerlPanel::get_applet_pbf_filename('screenshot'), sub {
 		require('ScreenShot.pm');
