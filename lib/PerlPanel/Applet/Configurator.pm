@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.64 2004/11/04 16:52:18 jodrell Exp $
+# $Id: Configurator.pm,v 1.65 2004/11/05 13:34:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -62,6 +62,11 @@ our %SETTINGS_MAP = (
 	'panel_autohide' => [
 		$PerlPanel::OBJECT_REF->{config}{panel},
 		'autohide',
+		'boolean',
+	],
+	'panel_expand' => [
+		$PerlPanel::OBJECT_REF->{config}{panel},
+		'expand',
 		'boolean',
 	],
 

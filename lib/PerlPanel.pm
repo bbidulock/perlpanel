@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.127 2004/11/05 10:00:32 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.128 2004/11/05 13:34:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -65,6 +65,7 @@ our %DEFAULTS = (
 		has_border		=> 'true',
 		menu_size_as_panel	=> 'true',
 		menu_size		=> 'medium',
+		expand			=> 'true',
 	},
 	appletconf => {
 		null => {},
@@ -312,7 +313,15 @@ sub arrange_border {
 sub configure {
 	my $self = shift;
 
-	$self->panel->set_default_size($self->screen_width, 0);
+	if ($self->{config}->{panel}->{expand} eq 'true') {
+		$self->resize;
+
+	} else {
+		$self->shrink;
+		$self->panel->set_resizable(0);
+		$self->panel->signal_connect('size-request', sub { $self->move });
+	}
+
 	$self->panel->set_border_width(0);
 
 	# check is_visible for reloads:
@@ -529,21 +538,28 @@ sub show_all {
 
 sub move {
 	my $self = shift;
+	my $panel_width = $self->panel->allocation->width;
 	my $panel_height = $self->panel->allocation->height;
 
+	return if ($panel_width == 1 && $self->{config}->{panel}->{expand} eq 'false');
+
+	$self->resize unless ($self->{config}->{panel}->{expand} eq 'false');
+
+	my $xpos = ($self->{config}->{panel}->{expand} eq 'true' ? 0 : int(($self->screen_width - $panel_width) / 2));
+
 	if ($self->position eq 'top') {
-		$self->panel->move(0, 0);
+		$self->panel->move($xpos, 0);
 
 	} elsif ($self->position eq 'bottom') {
 		my $screen_height= $self->screen_height;
-		$self->panel->move(0, ($screen_height - $panel_height));
+		$self->panel->move($xpos, ($screen_height - $panel_height));
 
 	} else {
 		$self->error(_("Invalid panel position '{position}'.", position => $self->position), sub { $self->shutdown });
 	}
 
 	my ($top, $bottom);
-	if ($PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'true') {
+	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{autohide} eq 'true' || $PerlPanel::OBJECT_REF->{config}->{panel}->{expand} eq 'false') {
 		($top, $bottom) = (0, 0);
 	} else {
 		($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
@@ -560,6 +576,20 @@ sub move {
 		$bottom,
 	);
 
+	return 1;
+}
+
+sub resize {
+	my $self = shift;
+	$self->panel->set_default_size($self->screen_width, -1);
+	$self->panel->set_size_request($self->screen_width, -1);
+	return 1;
+}
+
+sub shrink {
+	my $self = shift;
+	$self->panel->set_default_size(-1, -1);
+	$self->panel->set_size_request(-1, -1);
 	return 1;
 }
 
@@ -663,9 +693,10 @@ sub reload {
 	$self->{vbox}->remove($self->{border});
 	$self->load_icon_theme;
 	$self->arrange_border;
+	$self->move;
+	$self->shrink if ($self->{config}->{panel}->{expand} ne 'false');
 	$self->load_applets;
 	$self->configure;
-	$self->move;
 	$self->panel->set_sensitive(1);
 	return 1;
 }
@@ -1288,6 +1319,10 @@ sub remove_timeout {
 		}
 	}
 	return undef;
+}
+
+sub expanded {
+	return ($OBJECT_REF->{config}->{panel}->{expanded} == 'true' ? 1 : undef);
 }
 
 1;

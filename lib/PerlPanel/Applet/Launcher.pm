@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.13 2004/11/04 17:03:24 jodrell Exp $
+# $Id: Launcher.pm,v 1.14 2004/11/05 13:34:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,8 +22,7 @@ use PerlPanel::DesktopEntry;
 use vars qw($MULTI $LAUNCHER_DIR $LAUNCHER_EDITOR);
 use strict;
 
-# these are user-edited files, so make sure an error gets out:
-$PerlPanel::DesktopEntry::VERBOSE = 1;
+$PerlPanel::DesktopEntry::VERBOSE = 0;
 
 our $MULTI = 1;
 our $LAUNCHER_DIR = sprintf('%s/.%s/launchers', $ENV{HOME}, lc($PerlPanel::NAME));
