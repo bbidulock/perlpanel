@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.37 2004/01/06 16:13:13 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.38 2004/01/07 13:28:22 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -153,6 +153,7 @@ sub build_ui {
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new;
 	$self->{panel}->set_type_hint('dock');
+	$self->{panel}->stick;
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{port} = Gtk2::Viewport->new;
 	$self->{port}->add($self->{hbox});
