@@ -1,4 +1,4 @@
-# $Id: CPUTemp.pm,v 1.4 2004/09/24 15:05:37 jodrell Exp $
+# $Id: CPUTemp.pm,v 1.5 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -61,7 +61,7 @@ sub configure {
 	$self->widget->show_all;
 
 	$self->update;
-	Glib::Timeout->add($self->{config}->{interval}, sub { $self->update ; return 1 });
+	PerlPanel::add_timeout($self->{config}->{interval}, sub { $self->update ; return 1 });
 
 	return 1;
 }

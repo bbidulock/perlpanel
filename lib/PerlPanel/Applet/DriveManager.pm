@@ -1,4 +1,4 @@
-# $Id: DriveManager.pm,v 1.5 2004/10/31 17:34:21 jodrell Exp $
+# $Id: DriveManager.pm,v 1.6 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -77,7 +77,7 @@ sub configure {
 
 	}
 
-	Glib::Timeout->add(1000, sub { $self->update });
+	$self->{timeout} = PerlPanel::add_timeout(1000, sub { $self->update });
 	$self->update;
 
 	$self->{type_model} = Gtk2::ListStore->new(qw(Gtk2::Gdk::Pixbuf Glib::String));
@@ -249,6 +249,7 @@ sub create_menu {
 		_('Remove from panel'),
 		'gtk-remove',
 		sub {
+			PerlPanel::remove_timeout($self->{timeout});
 			PerlPanel::remove_applet('DriveManager', $self->{id});
 		},
 	));

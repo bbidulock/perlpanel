@@ -1,4 +1,4 @@
-# $Id: SetiAtHome.pm,v 1.6 2004/09/17 11:28:53 jodrell Exp $
+# $Id: SetiAtHome.pm,v 1.7 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@ package PerlPanel::Applet::SetiAtHome;
 use Gnome2::VFS;
 use File::Basename qw(dirname);
 use XML::Simple;
-use vars qw($TIMEOUT);
 use strict;
 
 Gnome2::VFS->init;
@@ -48,10 +47,9 @@ sub configure {
 	$self->widget->child->pack_start(Gtk2::Image->new_from_pixbuf($self->{icon}), 0, 0, 0);
 	$self->widget->child->pack_start($self->{label}, 1, 1, 0);
 
-	unless (defined($TIMEOUT)) {
-		our $TIMEOUT = Glib::Timeout->add(1000 * $self->{config}->{interval}, sub { $self->refresh; return 1 });
-		Glib::Timeout->add(1000, sub { $self->refresh; return undef });
-	}
+	our $TIMEOUT = PerlPanel::add_timeout(1000 * $self->{config}->{interval}, sub { $self->refresh; return 1 });
+	PerlPanel::add_timeout(1000, sub { $self->refresh; PerlPanel::remove_timeout(${shift()}) ; return undef });
+
 	$self->widget->show_all;
 	return 1;
 

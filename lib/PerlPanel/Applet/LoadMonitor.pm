@@ -1,4 +1,4 @@
-# $Id: LoadMonitor.pm,v 1.11 2004/09/17 11:28:53 jodrell Exp $
+# $Id: LoadMonitor.pm,v 1.12 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -46,7 +46,7 @@ sub configure {
 	PerlPanel::tips->set_tip($self->{widget}, _('CPU Usage'));
 	$self->widget->show_all;
 	$self->update;
-	Glib::Timeout->add(1000, sub { $self->update });
+	PerlPanel::add_timeout(1000, sub { $self->update });
 	return 1;
 
 }

@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.15 2004/10/28 16:23:16 jodrell Exp $
+# $Id: applet.registry,v 1.16 2004/11/04 16:12:01 jodrell Exp $
 
 # DEPRECATED IN 0.8.0: About:A button to show an "About" dialog.:Actions
 ActionMenu:A menu containing useful actions.:Menus
@@ -15,7 +15,7 @@ Clock:Shows the current time on the panel.:Utilities
 Commander:A button to show a command dialog.:Launchers
 Configurator:A comprehensive configuration dialog.:Utilitiies
 CPUTemp:Shows the temperature of your computer's CPU.:System
-DriveManager:An icon that can be used to mount or unmount different kinds of storage devices.:Utilities
+DriveManager:An icon to manage a storage device.:System
 GnomeMenu:Your GNOME Menu.:Menus
 # DEPRECATED IN 0.8.0: IconBar:Shows launcher icons on the panel.:Launchers
 Launcher:Shows a single launcher icon on the panel.:Launchers

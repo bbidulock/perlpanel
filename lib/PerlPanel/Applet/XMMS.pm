@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.15 2004/09/29 13:17:43 jodrell Exp $
+# $Id: XMMS.pm,v 1.16 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -92,7 +92,7 @@ sub configure {
 	$self->{volume_window}->add(Gtk2::Viewport->new);
 	$self->{volume_window}->child->set_shadow_type('out');
 	$self->{volume_window}->child->add($vbox);
-	Glib::Timeout->add(50, sub {
+	PerlPanel::add_timeout(50, sub {
 		my $running = 0;
 		eval('$running = ($self->{controller}->is_running ? 1 : 0)');
 		if ($running == 0) {

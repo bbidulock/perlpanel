@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.10 2004/09/17 11:28:53 jodrell Exp $
+# $Id: Lock.pm,v 1.11 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -40,7 +40,7 @@ sub configure {
 	$self->widget->set_relief('none');
 	PerlPanel::tips->set_tip($self->widget, _('Lock the Screen'));
 
-	Glib::Timeout->add(1000, sub {
+	PerlPanel::add_timeout(1000, sub {
 		chomp(my $line = `pidof xscreensaver 2> /dev/null`);
 		my @pids = split(/[\s\t]+/, $line);
 		my $pid = shift(@pids);

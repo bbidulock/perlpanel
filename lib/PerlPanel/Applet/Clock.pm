@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.30 2004/10/28 14:35:15 jodrell Exp $
+# $Id: Clock.pm,v 1.31 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -79,7 +79,7 @@ sub configure {
 	});
 	$self->{glade}->get_widget('reminder_dialog')->set_icon(PerlPanel::icon);
 
-	Glib::Timeout->add(1000, sub { $self->update });
+	PerlPanel::add_timeout(1000, sub { $self->update });
 	$self->widget->show_all;
 	return 1;
 }

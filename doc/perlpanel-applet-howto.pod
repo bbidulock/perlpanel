@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.27 2004/09/28 08:56:30 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.28 2004/11/04 16:12:01 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -392,6 +392,37 @@ applets in C<_()>.
 
 PerlPanel provides an easy-to-use base menu class for creating menu applets.
 Consult L<PerlPanel::MenuBase> for more information.
+
+=head1 MANAGING TIMEOUTS
+
+The use of Glib timeouts (as described in L<Glib::MainLoop>) requires careful
+consideration for PerlPanel. Applet objects and widgets may be created and
+destroyed many times during the lifetime of the PerlPanel process. If these
+applets make use of a timeout, and that timeout is not properly managed, then
+over time a large amount of CPU time may be used up by timeouts that were
+created by applets that are no longer in use.
+
+PerlPanel has a system to track timeouts created by applets, and to remove them
+when the panel is reloaded, or when a particular applet is removed from the
+panel. Instead of using C<Glib::Timeout-E<gt>add($msec, $callback)> to set up your
+applet, use the following function:
+
+	$id = PerlPanel::add_timeout($msec, $callback);
+
+The arguments and return values for this function are identical to those of
+C<Glib::Timeout-E<gt>add()>. When the panel is reloaded, all the applets are
+removed and new ones are created, so the panel will automatically clean up
+these timeouts.
+
+When you want to cancel a timeout, use this function:
+
+	PerlPanel::remove_timeout($id);
+
+When the code in C<$callback> is executed, it will receive a B<reference> to
+a scalar containing the ID as the first member of C<@_>. So if you want to
+cancel the timeout from within the callback, you can call write like this:
+
+	PerlPanel::remove_timeout(${shift()});
 
 =head1 PACKAGING YOUR APPLET
 

@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.62 2004/09/17 11:28:53 jodrell Exp $
+# $Id: BBMenu.pm,v 1.63 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -80,7 +80,7 @@ sub configure {
 
 	$self->widget->signal_connect('clicked', sub { $self->popup });
 
-	Glib::Timeout->add(1000, sub {
+	PerlPanel::add_timeout(1000, sub {
 		my $age = $self->file_age;
 		my $time = $self->{mtime};
 		$self->create_menu if ($age > $time);

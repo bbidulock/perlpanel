@@ -1,4 +1,4 @@
-# $Id: RecentFiles.pm,v 1.6 2004/09/17 11:28:53 jodrell Exp $
+# $Id: RecentFiles.pm,v 1.7 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -56,7 +56,7 @@ sub configure {
 
 	$self->create_menu;
 
-	Glib::Timeout->add(1000, sub {
+	PerlPanel::add_timeout(1000, sub {
 		$self->create_menu if ($self->file_age > $self->{mtime});
 		return 1;
 	});

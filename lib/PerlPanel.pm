@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.124 2004/10/26 16:16:19 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.125 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -616,6 +616,9 @@ sub launch {
 		$cmd = sprintf('DESKTOP_STARTUP_ID=%s %s &', $id, $cmd);
 		$OBJECT_REF->{startup_ids}->{$id} = $cmd;
 		$OBJECT_REF->start_feedback;
+		# we use Glib::Timeout here because if we used add_timeout
+		# and the user reloaded the panel while we're still waiting
+		# the timeout would never get called:
 		Glib::Timeout->add(5000, sub {
 			if (defined($OBJECT_REF->{startup_ids}->{$id})) {
 				undef($OBJECT_REF->{startup_ids}->{$id});
@@ -645,9 +648,10 @@ sub reload {
 	my $self = $OBJECT_REF;
 	$self->panel->set_sensitive(0);
 	$self->save_config;
-	foreach my $applet ($self->{hbox}->get_children) {
-		$applet->destroy;
+	foreach my $applet_widget ($self->{hbox}->get_children) {
+		$applet_widget->destroy;
 	}
+	map { remove_timeout($_) } @{$self->{timeouts}};
 	$self->{vbox}->remove($self->{hbox});
 	$self->{vbox}->remove($self->{border});
 	$self->load_icon_theme;
@@ -1264,6 +1268,26 @@ sub tar_extract {
 sub mkpath {
 	my $dir = shift;
 	return system(sprintf('mkdir -p "%s"', $dir));
+}
+
+sub add_timeout {
+	my ($msec, $callback) = @_;
+	my $id;
+	$id = Glib::Timeout->add($msec, $callback, \$id);
+	push(@{$OBJECT_REF->{timeouts}}, $id);
+	return $id;
+}
+
+sub remove_timeout {
+	my $id = shift;
+	for (my $i = 0 ; $i < scalar(@{$OBJECT_REF->{timeouts}}) ; $i++) {
+		if ($id == @{$OBJECT_REF->{timeouts}}[$i]) {
+			splice(@{$OBJECT_REF->{timeouts}}, $i, 1);
+			Glib::Source->remove($id);
+			return 1;
+		}
+	}
+	return undef;
 }
 
 1;

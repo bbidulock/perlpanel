@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.20 2004/09/24 14:49:13 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.21 2004/11/04 16:12:01 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -42,7 +42,7 @@ sub configure {
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	PerlPanel::tips->set_tip($self->widget, _('Nautilus Bookmarks'));
 
-	Glib::Timeout->add(1000, sub {
+	PerlPanel::add_timeout(1000, sub {
 		$self->create_menu if ($self->file_age > $self->{mtime});
 		return 1;
 	});
