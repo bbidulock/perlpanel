@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.15 2004/02/17 12:30:31 jodrell Exp $
+# $Id: Commander.pm,v 1.16 2004/02/19 12:08:57 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Commander;
+use PerlPanel::MenuBase;
 use vars qw($histfile $iconfile);
 use strict;
 
@@ -69,15 +70,47 @@ sub run {
 	map { chomp($history[$_]) } 0..scalar(@history);
 	close(HISTFILE);
 
-	my $icon = Gtk2::Image->new_from_file($iconfile);
+	my $default_pbf = Gtk2::Gdk::Pixbuf->new_from_file($iconfile);
+
+	my $icon = Gtk2::Image->new_from_pixbuf($default_pbf);
 	my $icon_alignment = Gtk2::Alignment->new(0.5, 0.5, 1, 1);
 	$icon_alignment->add($icon);
 
 	my $command_entry = Gtk2::Combo->new;
 	$command_entry->disable_activate;
-	$command_entry->set_popdown_strings(@history);
+	$command_entry->set_popdown_strings('', @history);
 	$command_entry->set_use_arrows(1);
-	$command_entry->entry->set_text(undef);
+	$command_entry->list->select_item(0);
+
+	$command_entry->entry->signal_connect('changed', sub {
+		my ($command, undef) = split(/\s/, $command_entry->entry->get_text, 2);
+		my $icon_file = PerlPanel::MenuBase::detect_icon(undef, $command);
+		if (-e $icon_file) {
+			my $new_pbf = Gtk2::Gdk::Pixbuf->new_from_file($icon_file);
+			if ($new_pbf->get_width != $default_pbf->get_width || $new_pbf->get_height != $default_pbf->get_height) {
+				my $x0 = $new_pbf->get_width;
+				my $y0 = $new_pbf->get_height;
+				my ($x1, $y1);
+				if ($x0 > $y0) {
+					# image is landscape:
+					$x1 = $default_pbf->get_width;
+					$y1 = int(($y0 / $x0) * $default_pbf->get_height);
+				} elsif ($x0 == $y0) {
+					# image is square:
+					$x1 = $default_pbf->get_width;
+					$y1 = $default_pbf->get_width;
+				} else {
+					# image is portrait:
+					$x1 = int(($x0 / $y0) * $default_pbf->get_width);
+					$y1 = $default_pbf->get_height;
+				}
+				$new_pbf = $new_pbf->scale_simple($x1, $y1, 'bilinear');
+			}
+			$icon->set_from_pixbuf($new_pbf);
+		} else {
+				$icon->set_from_pixbuf($default_pbf);
+		}
+	});
 
 	my $terminal_checkbutton = Gtk2::CheckButton->new('Run in terminal');
 
