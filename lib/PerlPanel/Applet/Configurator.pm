@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.5 2003/06/05 23:25:53 jodrell Exp $
+# $Id: Configurator.pm,v 1.6 2003/06/06 16:12:00 jodrell Exp $
 package PerlPanel::Applet::Configurator;
 use strict;
 
@@ -81,10 +81,7 @@ sub build_ui {
 	$self->{column} = Gtk2::TreeViewColumn->new_with_attributes('Applet', $self->{renderer}, text => 0);
 	$self->{view}->append_column($self->{column});
 
-	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		my $iter = $self->{store}->append;
-		$self->{store}->set($iter, 0, $appletname);
-	}
+	$self->populate_list;
 
 	$self->{scrwin} = Gtk2::ScrolledWindow->new;
 	$self->{scrwin}->set_policy('automatic', 'automatic');
@@ -94,10 +91,11 @@ sub build_ui {
 
 	$self->{buttons}{up} = Gtk2::Button->new_from_stock('gtk-go-up');
 	$self->{buttons}{up}->set_relief('none');
-	$self->{buttons}{up}->signal_connect('clicked', sub { });
+	$self->{buttons}{up}->signal_connect('clicked', sub { $self->move(-1) });
 
 	$self->{buttons}{down} = Gtk2::Button->new_from_stock('gtk-go-down');
 	$self->{buttons}{down}->set_relief('none');
+	$self->{buttons}{down}->signal_connect('clicked', sub { $self->move(1) });
 
 	$self->{buttons}{add} = Gtk2::Button->new_from_stock('gtk-add');
 	$self->{buttons}{add}->set_relief('none');
@@ -166,6 +164,15 @@ sub control {
 	return $control;
 }
 
+sub populate_list {
+	my $self = shift;
+	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
+		my $iter = $self->{store}->append;
+		$self->{store}->set($iter, 0, $appletname);
+	}
+	return 1;
+}
+
 sub discard {
 	my $self = shift;
 	$self->{widget}->set_sensitive(1);
@@ -175,6 +182,74 @@ sub discard {
 }
 
 sub add_dialog {
+	my $self = shift;
+	my $dialog = Gtk2::Dialog->new;
+	$dialog->set_title("$PerlPanel::NAME: Add Applet");
+	$dialog->set_position('center');
+	$dialog->set_modal(1);
+	$dialog->set_border_width(8);
+	$dialog->set_default_size(200, 250);
+	my $model = Gtk2::ListStore->new('Glib::String');
+	my $view = Gtk2::TreeView->new($model);
+	my $renderer = Gtk2::CellRendererText->new;
+	my $column = Gtk2::TreeViewColumn->new_with_attributes('Applet', $renderer, text => 0);
+	$view->append_column($column);
+
+	my @files;
+	foreach my $dir (sprintf('%s/lib/%s/%s/Applet', $PerlPanel::PREFIX, lc($PerlPanel::NAME), $PerlPanel::NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME))) {
+		opendir(DIR, $dir) or next;
+		push(@files, grep { /\.pm$/ } readdir(DIR));
+		closedir(DIR);
+	}
+
+	@files = sort(@files);
+
+	foreach my $file (@files) {
+		my ($appletname, undef) = split(/\./, $file, 2);
+		my $iter = $model->append;
+		$model->set($iter, 0, $appletname);
+	}
+
+	my $scrwin = Gtk2::ScrolledWindow->new;
+	$scrwin->set_policy('automatic', 'automatic');
+	$scrwin->add_with_viewport($view);
+
+	$dialog->vbox->pack_start($scrwin, 1, 1, 0);
+
+	my $ok_button = Gtk2::Button->new_from_stock('gtk-ok');
+	$ok_button->signal_connect('clicked', sub {
+		my ($iter, $blah) = $view->get_selection->get_selected;
+		return undef unless (defined($iter));
+		my $idx = ($model->get_path($iter)->get_indices)[0];
+		my ($appletname, undef) = split(/\./, $files[$idx], 2);
+		push(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $appletname);
+		my $newiter = $self->{store}->append;
+		$self->{store}->set($newiter, 0, $appletname);
+		$dialog->destroy;
+	});
+
+	my $cancel_button = Gtk2::Button->new_from_stock('gtk-cancel');
+	$cancel_button->signal_connect('clicked', sub { $dialog->destroy });
+
+	$dialog->action_area->pack_end($cancel_button, 0, 0, 0);
+	$dialog->action_area->pack_end($ok_button, 0, 0, 0);
+
+	$dialog->show_all;
+
+	return 1;
+}
+
+sub move {
+	my ($self, $move) = @_;
+	my ($iter, $blah) = $self->{view}->get_selection->get_selected;
+	return undef unless (defined($iter));
+	my $idx = ($self->{store}->get_path($iter)->get_indices)[0];
+	my $newidx = $idx + $move;
+	return undef if ($newidx < 0 || $newidx >= scalar(@{$PerlPanel::OBJECT_REF->{config}{applets}}));
+	$self->{store}->clear;
+	splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $newidx, 0, splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $idx, 1));
+	$self->populate_list;
+	return 1;
 }
 
 sub show_all {

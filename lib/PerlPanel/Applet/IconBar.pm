@@ -1,6 +1,7 @@
-# $Id: IconBar.pm,v 1.11 2003/06/05 23:25:53 jodrell Exp $
+# $Id: IconBar.pm,v 1.12 2003/06/06 16:12:00 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
+use MIME::Base64;
 use vars qw($ICON_DIR);
 use strict;
 
@@ -34,6 +35,25 @@ sub configure {
 		$self->add_icon(PerlPanel::Applet::IconBar::DesktopEntry->new($filename));
 	}
 
+	$self->{addpixmap} = Gtk2::Image->new_from_stock('gtk-add', 'menu');
+	$self->{addbutton} = Gtk2::Button->new;
+	$self->{addbutton}->add($self->{addpixmap});
+	$self->{addbutton}->set_relief('none');
+	$self->{addbutton}->set_size_request(16, 16);
+	$self->{addbutton}->signal_connect('clicked', sub { PerlPanel::Applet::IconBar::DesktopEntry->add });
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{addbutton}, "Add an icon");
+	$self->{delpixmap} = Gtk2::Image->new_from_stock('gtk-remove', 'menu');
+	$self->{delbutton} = Gtk2::Button->new;
+	$self->{delbutton}->add($self->{delpixmap});
+	$self->{delbutton}->set_relief('none');
+	$self->{delbutton}->set_size_request(16, 16);
+	$self->{delbutton}->signal_connect('clicked', sub { $PerlPanel::Applet::IconBar::DesktopEntry::DELETE_CLICKED = 1 });
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{delbutton}, "Delete an icon (click to remove)");
+	$self->{ctlbox} = Gtk2::VBox->new;
+	$self->{ctlbox}->pack_start($self->{addbutton}, 0, 0, 0);
+	$self->{ctlbox}->pack_start($self->{delbutton}, 1, 1, 0);
+	$self->{widget}->pack_start($self->{ctlbox}, 0, 0, 0);
+
 	return 1;
 }
 
@@ -64,6 +84,11 @@ sub get_default_config {
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;
+
+use vars qw($DELETE_CLICKED);
+use strict;
+
+$DELETE_CLICKED = 0;
 
 sub new {
 	my $self		= {};
@@ -141,9 +166,21 @@ sub widget {
 
 sub clicked {
 	my ($self, $button) = @_;
-	if ($button == 1) {
+	if ($DELETE_CLICKED == 1) {
+		$DELETE_CLICKED = 0;
+		$self->delete;
+	} elsif ($button == 1) {
 		system($self->{exec}.' &');
 	} elsif ($button == 3) {
+
+		$self->{boxes}{add} = Gtk2::HBox->new;
+		$self->{boxes}{add}->pack_start(Gtk2::Image->new_from_stock('gtk-add', 'menu'), 0, 0, 0);
+		$self->{boxes}{add}->pack_start(Gtk2::Label->new('Add...'), 1, 1, 0);
+
+		$self->{items}{add} = Gtk2::MenuItem->new;
+		$self->{items}{add}->add($self->{boxes}{add});
+		$self->{items}{add}->signal_connect('activate', sub { $self->add });
+
 		$self->{boxes}{edit} = Gtk2::HBox->new;
 		$self->{boxes}{edit}->pack_start(Gtk2::Image->new_from_stock('gtk-preferences', 'menu'), 0, 0, 0);
 		$self->{boxes}{edit}->pack_start(Gtk2::Label->new('Edit...'), 1, 1, 0);
@@ -161,10 +198,11 @@ sub clicked {
 		$self->{items}{delete}->signal_connect('activate', sub { $self->delete });
 
 		$self->{menu} = Gtk2::Menu->new;
+		$self->{menu}->append($self->{items}{add});
 		$self->{menu}->append($self->{items}{edit});
 		$self->{menu}->append($self->{items}{delete});
 		$self->{menu}->show_all;
-		$self->{menu}->popup(undef, undef, sub { return ($_[1], $_[2] - 40) }, 1000, $self->{widget}, undef);
+		$self->{menu}->popup(undef, undef, sub { return ($_[1], $_[2] - (20 * scalar(keys(%{$self->{items}})))) }, 0, $self->{widget}, undef);
 		#$self->exec;
 	}
 	return 1;
@@ -191,6 +229,35 @@ sub edit {
 		my $newmtime = (stat($self->{filename}))[9];
 		if ($newmtime > $mtime) {
 			$PerlPanel::OBJECT_REF->reload;
+		}
+	} else {
+		$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');
+	}
+	return 1;
+}
+
+sub add {
+	my $self = shift;
+	chomp (my $menueditor = `which gnome-desktop-item-edit`);
+	my $filename = sprintf('%s/.%s/icons/%d.desktop', $ENV{HOME}, lc($PerlPanel::NAME), time());
+	if (-x $menueditor) {
+		# create a lock file for the subshell to remove when the editor is done:
+		my $lockfile = "$filename.lock";
+		open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
+		# record the desktop file's mod time:
+		my $mtime = (stat($filename))[9];
+		# run the editor:
+		system("$menueditor $filename && rm -f $lockfile &");
+		# wait for the lockfile to be removed:
+		while (-e $lockfile) {
+			Gtk2->main_iteration while (Gtk2->events_pending);
+		}
+		# reload if the file changed:
+		my $newmtime = (stat($filename))[9];
+		if ($newmtime > $mtime) {
+			$PerlPanel::OBJECT_REF->reload;
+		} else {
+			unlink($filename);
 		}
 	} else {
 		$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');

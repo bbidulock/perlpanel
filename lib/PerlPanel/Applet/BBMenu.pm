@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.7 2003/06/05 11:32:10 jodrell Exp $
+# $Id: BBMenu.pm,v 1.8 2003/06/06 16:12:00 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@BBMenus);
 use strict;
@@ -29,6 +29,7 @@ sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	$self->parse_menufile;
+	$self->create_itemfactory($self->{menutree}, '');
 	$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
@@ -117,11 +118,33 @@ sub parse_menufile {
 	}
 }
 
+sub create_itemfactory {
+	my ($self, $branch, $path) = @_;
+	return undef if (scalar(@{$branch}) < 1);
+	foreach my $twig (@{$branch}) {
+		if (ref($twig) eq 'HASH') {
+			my $item = {
+				path	=> "$path/$twig->{name}",
+				stock	=> 'gtk-execute',
+			};
+			push(@{$self->{itemfactory}}, $item);
+		} elsif (ref($twig) eq 'ARRAY') {
+			#$item = {
+			#	path	=> "$path/".@{$twig}[0],
+			#	type	=> '<Branch>',
+			#};
+			$self->create_itemfactory(@{$twig}[1], "$path/".@{$twig}[0]);
+		}
+	}
+	$self->{factory} = Gtk2::ItemFactory->new('Gtk2::Menu', '<main>', undef);
+	$self->{factory}->create_items(@{$self->{itemfactory}});
+	return 1;
+}
+
 sub popup {
 	my $self = shift;
-	$Data::Dumper::Terse = 1;
-	$Data::Dumper::Indent = 1;
-	$PerlPanel::OBJECT_REF->notify("Menu tree looks like this:".Data::Dumper::Dumper($self->{menutree})."\nOne day it might even work!");
+	my $widget = $self->{factory}->get_widget('<main>');
+	$widget->popup(undef, undef, sub { return splice(@_, 1, 2) }, 0, $self->{widget}, undef);
 	return 1;
 }
 

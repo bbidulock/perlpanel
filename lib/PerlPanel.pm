@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.12 2003/06/05 23:25:53 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.13 2003/06/06 16:12:00 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
@@ -35,7 +35,6 @@ our %DEFAULTS = (
 		null => {},
 	},
 	applets => [
-		'BBMenu',
 		'IconBar',
 		'Clock',
 		'Configurator',
@@ -99,7 +98,7 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new('popup');
-	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->icon_size);
+	$self->{panel}->set_default_size($self->{config}{screen}{width}, $self->icon_size + $Y_OFFSET);
 	if ($self->{config}{panel}{position} eq 'top') {
 		$self->{panel}->move(0, 0);
 	} elsif ($self->{config}{panel}{position} eq 'bottom') {
