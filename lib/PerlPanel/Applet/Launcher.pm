@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.15 2004/11/22 12:16:05 jodrell Exp $
+# $Id: Launcher.pm,v 1.16 2004/11/26 12:14:58 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -83,32 +83,44 @@ sub init {
 
 			$self->widget->signal_handler_disconnect($self->{sigid}) if (defined($self->{sigid}));
 			$self->{sigid} = $self->widget->signal_connect('button_release_event', sub {
-				if ($_[1]->button == 1) {
-					PerlPanel::launch($program, $entry->StartupNotify);
+				my ($mouse_pos_x, $mouse_pos_y) = $self->widget->get_pointer;
+				my $widget_size_x = $self->widget->size_request->width;
+				my $widget_size_y = $self->widget->size_request->height;
+				if (
+					$mouse_pos_x <= $widget_size_x &&
+					$mouse_pos_y <= $widget_size_y &&
+					$mouse_pos_x > -1 &&
+					$mouse_pos_y > -1	
 
-				} elsif ($_[1]->button == 3) {
-					my $menu = Gtk2::Menu->new;
+				) {
 
-					my $exec_item = Gtk2::ImageMenuItem->new_from_stock('gtk-execute');
-					$exec_item->signal_connect('activate', sub { $menu->destroy ; PerlPanel::launch($program, $entry->StartupNotify) });
+					if ($_[1]->button == 1) {
+						PerlPanel::launch($program, $entry->StartupNotify);
 
-					my $edit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
-					$edit_item->signal_connect('activate', sub { $menu->destroy ; $self->edit });
+					} elsif ($_[1]->button == 3) {
+						my $menu = Gtk2::Menu->new;
 
-					my $remove_item = Gtk2::ImageMenuItem->new_from_stock('gtk-remove');
-					$remove_item->signal_connect('activate', sub { $self->remove });
+						my $exec_item = Gtk2::ImageMenuItem->new_from_stock('gtk-execute');
+						$exec_item->signal_connect('activate', sub { $menu->destroy ; PerlPanel::launch($program, $entry->StartupNotify) });
 
-					my $add_item = Gtk2::ImageMenuItem->new_from_stock('gtk-add');
-					$add_item->signal_connect('activate', sub { $self->add_launcher });
+						my $edit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
+						$edit_item->signal_connect('activate', sub { $menu->destroy ; $self->edit });
 
-					$menu->add($exec_item);
-					$menu->add($edit_item);
-					$menu->add($remove_item);
-					$menu->add(Gtk2::SeparatorMenuItem->new);
-					$menu->add($add_item);
-					$menu->show_all;
-					$menu->popup(undef, undef, sub { return $self->popup_position($menu) }, undef, $_[1]->button, undef);
+						my $remove_item = Gtk2::ImageMenuItem->new_from_stock('gtk-remove');
+						$remove_item->signal_connect('activate', sub { $self->remove });
 
+						my $add_item = Gtk2::ImageMenuItem->new_from_stock('gtk-add');
+						$add_item->signal_connect('activate', sub { $self->add_launcher });
+
+						$menu->add($exec_item);
+						$menu->add($edit_item);
+						$menu->add($remove_item);
+						$menu->add(Gtk2::SeparatorMenuItem->new);
+						$menu->add($add_item);
+						$menu->show_all;
+						$menu->popup(undef, undef, sub { return $self->popup_position($menu) }, undef, $_[1]->button, undef);
+
+					}
 				}
 				return undef;
 			});
@@ -127,6 +139,14 @@ sub init {
 				$self->widget->add(Gtk2::Image->new_from_pixbuf($pbf));
 
 			}
+
+			$self->widget->drag_source_set(
+				['button1_mask', 'button3_mask'],
+				['copy', 'move'],
+				{'target' => "text/uri-list", 'flags' => [], 'info' => 0},
+			);
+			$self->widget->signal_connect('drag_data_get', sub { $self->get_drag_data(@_) });
+
 		}
 	}
 	$self->widget->show_all;
@@ -200,6 +220,13 @@ sub add_launcher {
 		$PerlPanel::OBJECT_REF->load_applet($applet, $idx+1);
 		PerlPanel::save_config();
 	}
+	return 1;
+}
+
+sub get_drag_data {
+	my ($self, $widget, $context, $data, $info, $time) = @_;
+	my $uri = Gnome2::VFS->make_uri_canonical($self->{file});
+	$data->set($data->target, 8, $uri);
 	return 1;
 }
 
