@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.23 2004/09/24 14:49:13 jodrell Exp $
+# $Id: Clock.pm,v 1.24 2004/10/09 17:56:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -77,18 +77,14 @@ sub get_default_config {
 
 sub make_calendar {
 	my $self = shift;
-	$self->{calendar} = Gtk2::Window->new;
+	my $glade = PerlPanel::load_glade('calendar');
+	$self->{calendar} = $glade->get_widget('calendar_window');
 	$self->{calendar}->set_icon(PerlPanel::icon);
 	$self->{calendar}->set_title(_('Calendar'));
 	$self->{calendar}->set_skip_pager_hint(1);
 	$self->{calendar}->set_skip_taskbar_hint(1);
 	$self->{calendar}->set_decorated(undef);
 	$self->{calendar}->set_type_hint('dialog');
-	$self->{calendar}->add(Gtk2::Viewport->new);
-	$self->{calendar}->child->set_shadow_type('out');
-	$self->{calendar}->child->add(Gtk2::VBox->new);
-	$self->{calendar}->child->child->set_border_width(6);
-	$self->{calendar}->child->child->add(Gtk2::Calendar->new);
 	$self->{calendar}->child->show_all;
 	$self->{calendar}->realize;
 }
