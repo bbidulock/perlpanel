@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.60 2004/02/20 17:01:06 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.61 2004/02/22 23:49:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -102,6 +102,18 @@ sub init {
 	$self->load_applets;
 	$self->show_all;
 
+	Gtk2::Style::paint_shadow(
+		$self->panel->get_style,
+		$self->panel->window,
+		'normal',
+		'out',
+		Gtk2::Gdk::Rectangle->new(0, 1, 1000, 1),
+		$self->panel,
+		'foo',
+		0, 1000,
+		1000, 1
+	);
+
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->autohide;
 	} else {
@@ -187,18 +199,11 @@ sub build_ui {
 	$self->{tips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tips};
 	$self->{panel} = Gtk2::Window->new;
-
 	$self->panel->set_type_hint('dock');
 	$self->panel->stick; # needed for some window managers
-
 	$self->{hbox} = Gtk2::HBox->new;
-
-	$self->{port} = Gtk2::Viewport->new;
-	$self->{port}->add($self->{hbox});
-
-	$self->panel->add($self->{port});
+	$self->panel->add($self->{hbox});
 	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
-
 	return 1;
 }
 
@@ -207,7 +212,6 @@ sub configure {
 	$self->panel->set_default_size($self->screen_width, 0);
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
 	$self->{hbox}->set_border_width(0);
-	$self->{port}->set_shadow_type('out');
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
 		$self->{enter_connect_id} = $self->panel->signal_connect('enter_notify_event', sub { $self->autoshow; });

@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.5 2004/02/17 12:30:31 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.6 2004/02/22 23:49:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,12 +30,22 @@ sub new {
 
 sub configure {
 	my $self = shift;
+	$self->{config} = PerlPanel::get_config('WindowMenu');
 	$self->{screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{screen}->force_update;
+	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('windowmenu', PerlPanel::icon_size));
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('windowmenu', PerlPanel::icon_size)));
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
+	if ($self->{config}->{label} ne '') {
+		$self->widget->add(Gtk2::HBox->new);
+		$self->widget->child->set_border_width(0);
+		$self->widget->child->set_spacing(0);
+		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
+		$self->widget->child->pack_start(Gtk2::Label->new($self->{config}->{label}), 1, 1, 0);
+	} else {
+		$self->widget->add($self->{icon});
+	}
 	PerlPanel::tips->set_tip($self->widget, 'Window List');
 	return 1;
 }
@@ -104,6 +114,10 @@ sub popup_position {
 
 sub widget {
 	return $_[0]->{widget};
+}
+
+sub button {
+	return $_[0]->{button};
 }
 
 sub expand {
