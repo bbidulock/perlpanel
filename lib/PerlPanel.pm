@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.131 2004/11/23 14:30:22 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.132 2004/11/25 15:41:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -30,6 +30,7 @@ use POSIX qw(setlocale);
 use Locale::gettext;
 use base 'Exporter';
 use File::Basename qw(basename dirname);
+use XML::Simple;
 use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
@@ -38,6 +39,8 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		$DEFAULT_THEME	$APPLET_ERROR_MARKUP		$DESKTOP_NAMESPACE
 		$DEFAULT_RCFILE	@GLADE_PATHS	$HIDE_OFFSET);
 use strict;
+
+$XML::Simple::PREFERRED_PARSER = 'XML::Parser';
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
 
@@ -139,7 +142,6 @@ sub new {
 
 sub init {
 	my $self = shift;
-	$self->check_deps;
 	$self->setup_launch_feedback;
 	$self->load_config;
 	$self->get_screen;
@@ -185,19 +187,6 @@ sub init {
 }
 
 sub locale { return $OBJECT_REF->{locale} }
-
-sub check_deps {
-	my $self = shift;
-	$@ = '';
-	eval 'use XML::Simple;';
-	if ($@ ne '') {
-		$self->error(_("Couldn't load the {module} module!", module => 'XML::Simple'), sub { exit });
-		Gtk2->main;
-	} else {
-		$XML::Simple::PREFERRED_PARSER = 'XML::Parser';
-		return 1;
-	}
-}
 
 sub get_screen {
 	my $self = shift;
