@@ -1,4 +1,4 @@
-# $Id: CPUTemp.pm,v 1.3 2004/09/17 11:28:53 jodrell Exp $
+# $Id: CPUTemp.pm,v 1.4 2004/09/24 15:05:37 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 package PerlPanel::Applet::CPUTemp;
 use Gtk2::Helper;
 use Gtk2::SimpleList;
-use vars qw(%SYMBOLS);
+use vars qw(%SYMBOLS $DELL_FILE);
 use strict;
 
 our %SYMBOLS = (
@@ -30,6 +30,10 @@ our %SYMBOLS = (
 	celsius => '&#176;C',
 	kelvin => 'K',	
 );
+
+# this /proc file is where dell systems keep the CPU temperature:
+our $DELL_FILE = '/proc/i8k';
+
 
 sub new {
 	my $self		= {};
@@ -64,6 +68,15 @@ sub configure {
 
 sub update {
 	my $self = shift;
+	if (-r $DELL_FILE) {
+		return $self->update_dell;
+	} else {
+		return $self->update_mbmon;
+	}
+}
+
+sub update_mbmon {
+	my $self = shift;
 	$self->{command} = 'mbmon -c 1'.($self->{config}->{units} eq 'fahrenheit' ? ' -f' : '');
 	if (!open(COMMAND, "$self->{command}|")) {
 		$self->label->set_markup('ERR');
@@ -89,6 +102,26 @@ sub update {
 		});
 		return 1;
 	}
+}
+
+sub update_dell {
+	my $self = shift;
+
+	open(DELLINFO, $DELL_FILE);
+	my $temp = (split(/\s+/, <DELLINFO>))[3];
+	close(DELLINFO);
+
+	if ($self->{config}->{units} eq 'fahrenheit') {
+		$temp = $self->celsius_to_fahrenheit($temp);
+
+	} elsif ($self->{config}->{units} eq 'kelvin') {
+		$temp = $self->celsius_to_kelvin($temp);
+
+	}
+
+	PerlPanel::tips->set_tip($self->widget, _('CPU Temperature'));
+	$self->label->set_markup(sprintf('%d%s', $temp, $SYMBOLS{$self->{config}->{units}}));
+	return 1;
 }
 
 sub dialog {
@@ -150,6 +183,16 @@ sub get_default_config {
 		interval => 10*1000,
 		units => 'celsius',
 	};
+}
+
+sub celsius_to_fahrenheit {
+	my ($self, $celsius) = @_;
+	return ($celsius * 1.8) + 32;
+}
+
+sub celsius_to_kelvin {
+	my ($self, $celsius) = @_;
+	return $celsius + 273.15;
 }
 
 1;
