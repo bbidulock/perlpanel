@@ -1,4 +1,4 @@
-# $Id: About.pm,v 1.7 2004/01/12 16:54:17 jodrell Exp $
+# $Id: About.pm,v 1.8 2004/01/16 00:31:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -63,7 +63,7 @@ sub about {
 	$self->{window}->set_icon($PerlPanel::OBJECT_REF->icon);
 	$self->{vbox} = Gtk2::VBox->new;
 	$self->{vbox}->set_spacing(15);
-	$self->{vbox}->pack_start(Gtk2::Image->new_from_file("$PerlPanel::PREFIX/share/pixmaps/perlpanel.png"), 0, 0, 0);
+	$self->{vbox}->pack_start(Gtk2::Image->new_from_file(sprintf('%s/share/pixmaps/%s-logo.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME))), 0, 0, 0);
 	$self->{label} = Gtk2::Label->new();
 	$self->{label}->set_justify('center');
 	$self->{label}->set_markup($text);

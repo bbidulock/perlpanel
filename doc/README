@@ -29,16 +29,19 @@ A few tenets:
 
 A few wahs, or, TODO:
 
-	1. At the moment the Panel is nothing more than a packing box in
+	1. Support FreeDesktop icon themes for menus, applets, etc - this
+	   would require  implementing some of the XDG specifications in
+	   Perl, since we don't want to use GnomeIconTheme.
+	2. At the moment the Panel is nothing more than a packing box in
 	   an undecorated window that's been warped into a rectangle.
 	   This is a bit of a kludge, and there may be a better way to
 	   do it.
-	2. No I18N yet.
-	3. Drag-and-drop sorting of applets and icons in the IconBar would
+	3. No I18N yet.
+	4. Drag-and-drop sorting of applets and icons in the IconBar would
 	   be nice.
-	4. Support for multiheaded systems - there is a way to kludge this
+	5. Support for multiheaded systems - there is a way to kludge this
 	   but a "proper" solution is more desirable.
-	5. One day, all applets will be widgets in their own right, and
+	6. One day, all applets will be widgets in their own right, and
 	   will inherit from a base class that will let us do neat things
 	   like having standard pop-ups. Maybe the Panel will also be a
 	   widget as well.
@@ -49,4 +52,4 @@ Gnome2 modules - it's just named that way because it's maintained by the
 GNOME developers.
 
 --
-$Id: README,v 1.8 2004/01/06 12:27:55 jodrell Exp $
+$Id: README,v 1.9 2004/01/16 00:31:21 jodrell Exp $

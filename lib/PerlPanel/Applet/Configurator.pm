@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.25 2004/01/11 23:36:06 jodrell Exp $
+# $Id: Configurator.pm,v 1.26 2004/01/16 00:31:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -146,6 +146,7 @@ sub build_ui {
 
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
+		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu'), 0, 0, 0);
 		$self->{pages}{menu}->pack_start($self->{menu}{table}, 0, 0, 0);
 
 		$self->{notebook}->append_page($self->{pages}{menu}, $self->control_label('Menu'));

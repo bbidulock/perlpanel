@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.3 2003/08/12 16:03:14 jodrell Exp $
+# $Id: Lock.pm,v 1.4 2004/01/16 00:31:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,12 +16,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 package PerlPanel::Applet::Lock;
-use vars qw($DEFAULT_LOCK_PROGRAM, $DEFAULT_ARGS $DEFAULT_LOCK_ICON);
+use vars qw($DEFAULT_LOCK_PROGRAM, $DEFAULT_ARGS $DEFAULT_ICON);
 use strict;
 
 chomp(our $DEFAULT_LOCK_PROGRAM = `which xscreensaver-command`);
 our $DEFAULT_ARGS = '-lock';
-our $DEFAULT_LOCK_ICON = sprintf('%s/share/pixmaps/perlpanel-lock-screen.png', $PerlPanel::PREFIX);
+our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s/applets/lock.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -66,7 +66,7 @@ sub get_default_config {
 	return {
 		program => $DEFAULT_LOCK_PROGRAM,
 		args	=> $DEFAULT_ARGS,
-		icon	=> $DEFAULT_LOCK_ICON,
+		icon	=> $DEFAULT_ICON,
 	};
 }
 

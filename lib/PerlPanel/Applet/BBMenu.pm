@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.39 2004/01/15 00:10:25 jodrell Exp $
+# $Id: BBMenu.pm,v 1.40 2004/01/16 00:31:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #
 package PerlPanel::Applet::BBMenu;
 use File::Basename qw(basename);
-use vars qw(@menufiles @ICON_DIRECTORIES);
+use vars qw(@menufiles @ICON_DIRECTORIES $DEFAULT_ICON);
 use strict;
 
 our @menufiles = (
@@ -39,6 +39,8 @@ our @ICON_DIRECTORIES = (
 	'%s/share/icons/gnome/48x48/apps',
 	'%s/share/pixmaps',
 );
+
+our $DEFAULT_ICON = sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME));
 
 sub new {
 	my $self		= {};
@@ -115,10 +117,11 @@ sub end {
 
 sub get_default_config {
 	return {
-		icon => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
+		icon => $DEFAULT_ICON,
 		show_control_items => 'true',
 		label	=> 'Menu',
 		relief	=> 'true',
+		apps_in_submenu => 'false',
 	};
 }
 
@@ -143,7 +146,19 @@ sub parse_menufile {
 		close(MENU);
 
 		# $current_menu is a reference to the current menu or submenu - it starts out as the toplevel menu:
-		my $current_menu = $self->menu;
+
+		my $current_menu;
+
+		if ($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{apps_in_submenu} eq 'true') {
+			my $item = Gtk2::ImageMenuItem->new_with_label('Applications');
+			$item->set_image($self->get_icon('Applications', 1));
+			my $menu = Gtk2::Menu->new;
+			$item->set_submenu($menu);
+			$self->menu->append($item);
+			$current_menu = $menu;
+		} else {
+			$current_menu = $self->menu;
+		}
 
 		for (my $line_no = 0 ; $line_no < scalar(@{$self->{menudata}}) ; $line_no++) {
 
@@ -186,7 +201,7 @@ sub parse_menufile {
 					# $current_menu:
 
 					my $parent_item = $current_menu->get_attach_widget;
-					$current_menu = $parent_item->get_parent;
+					$current_menu = $parent_item->get_parent if (defined($parent_item));
 
 				} elsif ($cmd eq 'nop') {
 					$current_menu->append(Gtk2::SeparatorMenuItem->new);
@@ -280,6 +295,7 @@ sub popup_position {
 
 sub get_icon {
 	my ($self, $executable, $is_dir) = @_;
+	$executable =~ s/\s/-/g;
 	my $file = $self->detect_icon($executable);
 	if (-e $file) {
 		return $self->generate_icon($file);

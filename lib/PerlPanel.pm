@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.42 2004/01/12 16:54:17 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.43 2004/01/16 00:31:21 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -78,6 +78,8 @@ sub new {
 sub init {
 	chdir($ENV{HOME});
 	my $self = shift;
+	$self->{normal_cursor}	= Gtk2::Gdk::Cursor->new('left_ptr');
+	$self->{busy_cursor}	= Gtk2::Gdk::Cursor->new('watch');
 	$self->check_deps;
 	$self->load_config;
 	$self->get_screen || $self->parse_xdpyinfo;
@@ -85,6 +87,7 @@ sub init {
 	$self->configure;
 	push(@INC, sprintf('%s/lib/%s/%s/Applet', $PREFIX, lc($NAME), $NAME), sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)));
 	$self->load_applets;
+	$self->{panel}->get_root_window->set_cursor($self->{normal_cursor});
 	$self->show_all;
 	if ($self->{config}{panel}{autohide} eq 'true') {
 		$self->autohide;
@@ -153,13 +156,16 @@ sub build_ui {
 	$self->{tooltips} = Gtk2::Tooltips->new;
 	our $TOOLTIP_REF = $self->{tooltips};
 	$self->{panel} = Gtk2::Window->new;
+
+	$self->{panel}->get_root_window->set_cursor($self->{busy_cursor});
+
 	$self->{panel}->set_type_hint('dock');
 	$self->{panel}->stick;
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{port} = Gtk2::Viewport->new;
 	$self->{port}->add($self->{hbox});
 	$self->{panel}->add($self->{port});
-	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
+	$self->{icon} = Gtk2::Gdk::Pixbuf->new_from_file(sprintf('%s/share/pixmaps/%s-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)));
 	return 1;
 }
 
