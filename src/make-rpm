@@ -4,7 +4,7 @@
 # NB: make sure cvs2cl will work, and that your user has
 # write permissions on RPM's build directory.
 #
-# $Id: make-rpm,v 1.3 2004/12/10 11:29:17 jodrell Exp $
+# $Id: make-rpm,v 1.4 2004/12/13 13:43:33 jodrell Exp $
 
 CWD=$PWD
 export VERSION=$1
@@ -42,5 +42,7 @@ cd $CWD
 echo Building RPMs:
 rpmbuild --quiet -ta $HOME/$DIR-$VERSION.tar.gz
 mv -u $TOPDIR/SRPMS/$DIR-$VERSION-*src.rpm $HOME/
+
+rm -f PerlPanel.spec
 
 true

@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.47 2004/11/05 16:13:07 jodrell Exp $
+# $Id: Makefile,v 1.48 2004/12/13 13:43:33 jodrell Exp $
 
 VERSION=0.9.0
 
@@ -102,7 +102,7 @@ install:
 	fi
 
 clean:
-	rm -rf build
+	rm -rf build PerlPanel.spec
 
 uninstall:
 	rm -rf	$(BINDIR)/perlpanel \
