@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.25 2004/07/04 12:32:37 jodrell Exp $
+# $Id: MenuBase.pm,v 1.26 2004/07/06 12:47:16 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -161,7 +161,25 @@ sub add_control_items {
 
 	chomp(my $xscreensaver = `which xscreensaver-command 2> /dev/null`);
 	if (-x $xscreensaver) {
-		$self->menu->append($self->menu_item(_('Lock Screen'), PerlPanel::get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") }));
+		my $lock_item = $self->menu_item(_('Lock Screen'), PerlPanel::get_applet_pbf_filename('lock'), sub { system("$xscreensaver -lock &") });
+		$lock_item->signal_connect('expose-event', sub {
+			chomp(my $line = `pidof xscreensaver 2> /dev/null`);
+			my @pids = split(/[\s\t]+/, $line);
+			my $pid = shift(@pids);
+			if (int($pid) < 1) {
+				$lock_item->set_sensitive(0);
+			} else {
+				if (-e "/proc/$pid") {
+					if ((stat("/proc/$pid"))[4] ne $<) {
+						$lock_item->set_sensitive(0);
+					} else {
+						$lock_item->set_sensitive(1);
+					}
+				}
+			}
+			return undef;
+		});
+		$self->menu->append($lock_item);
 	}
 	$self->menu->append($self->menu_item(_('Run Program...'), PerlPanel::get_applet_pbf_filename('commander'), sub {
 		$PerlPanel::OBJECT_REF->{commander}->run;
