@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.2 2003/05/29 12:32:18 jodrell Exp $
+# $Id: Commander.pm,v 1.3 2003/05/29 16:04:46 jodrell Exp $
 package PerlPanel::Applet::Commander;
 use strict;
 
@@ -27,7 +27,8 @@ sub run {
 		sub {
 			my $str = shift;
 			my $cmd = sprintf('%s &', $str);
-			if (!system($cmd)) {
+			system($cmd);
+			if ($!) {
 				$PerlPanel::OBJECT_REF->warning(
 					"Error running '$str'",
 					sub { $self->run },

@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.3 2003/05/29 12:32:18 jodrell Exp $
+# $Id: IconBar.pm,v 1.4 2003/05/29 16:04:46 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use File::Basename;
 use Image::Size;
@@ -98,6 +98,7 @@ sub build {
 	} else {
 		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', 'menu');
 	}
+	$self->{pixmap}->set_size_request($PerlPanel::ICON_SIZE, $PerlPanel::ICON_SIZE);
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, ($self->{name} || $self->{exec}));
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
