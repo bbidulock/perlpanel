@@ -1,7 +1,25 @@
 ChangeLog
 =========
 
+2004-09-29 - v0.8.0
+
+	* This release introduces some massive changes to PerlPanel. First off
+	  is the eagerly awaited Notification Area applet, which exists only
+	  because of the altruism of Christian Borup. Then there's the new
+	  applet install system, which lets users download and install applets
+	  in a few clicks. A number of applets have been improved on: the
+	  WiFiMonitor applet supports more interface names; the Pager now
+	  has a context menu; the calendar has been restored to the Clock
+	  applet; the CPUTemp applet now works with the CPU temperature monitor
+	  on Dell systems; the WindowMenu applet now tracks the currently
+	  active window. All applets which use .desktop files (GnomeMenu,
+	  IconBar and Launcher) now support launch feedback, and you can
+	  active launch feedback on the Launcher and IconBar applets through
+	  the .desktop editor. A lot of work has been done to improve
+	  responsiveness and startup time.
+
 2004-08-25 - v0.7.0
+
 	* This release includes two new icon themes - Bluecurve and crystalsvg.
 	  The main development work has focused on implementing support for
 	  applets with multiple instances - so you can have to mailbox
@@ -148,4 +166,4 @@ ChangeLog
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.6 2004/08/25 10:20:36 jodrell Exp $
+$Id: ChangeLog,v 1.7 2004/09/29 15:03:18 jodrell Exp $
