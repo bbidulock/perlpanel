@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.22 2004/11/26 11:49:58 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.23 2004/11/26 11:50:57 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -71,7 +71,7 @@ sub configure {
 
 	$self->create_menu;
 
-	Glib::Timeout->add(1000, sub {
+	PerlPanel::add_timeout(1000, sub {
 		my ($result, $info) = Gnome2::VFS->get_file_info($self->{config}->{base}, 'default');
 		if ($result eq 'ok') {
 			$self->create_menu if ($info->{mtime} != $self->{mtime});
