@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.129 2004/11/05 16:06:05 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.130 2004/11/07 20:01:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
 		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES
 		$DEFAULT_THEME	$APPLET_ERROR_MARKUP		$DESKTOP_NAMESPACE
-		$DEFAULT_RCFILE	@GLADE_PATHS);
+		$DEFAULT_RCFILE	@GLADE_PATHS	$HIDE_OFFSET);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -93,6 +93,7 @@ our $RUN_COMMAND_FILE	= sprintf('%s/.%s/run-command', $ENV{HOME}, lc($NAME));
 our $PIDFILE		= sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
 our $RUN_HISTORY_FILE	= sprintf('%s/.perlpanel/run-history', $ENV{HOME});
 our $RUN_HISTORY_LENGTH	= 15;
+our $HIDE_OFFSET	= 2;
 
 our @APPLET_CATEGORIES = qw(Actions System Utilities Launchers Menus);
 
@@ -515,6 +516,7 @@ sub drop_handler {
 	} else {
 		$file =~ s!^file:/+!/!g;
 		install_applet_dialog(undef, $file);
+
 	}
 
 	return 1;
@@ -546,44 +548,82 @@ sub show_all {
 sub move {
 	my $self = shift;
 	my $panel_width = $self->panel->allocation->width;
-	my $panel_height = $self->panel->allocation->height;
 
-	return if ($panel_width == 1 && $self->{config}->{panel}->{expand} eq 'false');
+	if ($panel_width == 1 && $self->{config}->{panel}->{expand} eq 'false') {
+		return 1;
+	}
 
 	$self->resize unless ($self->{config}->{panel}->{expand} eq 'false');
 
-	my $xpos = ($self->{config}->{panel}->{expand} eq 'true' ? 0 : int(($self->screen_width - $panel_width) / 2));
+	my ($xpos, $ypos) = $self->get_desired_position;
 
-	if ($self->position eq 'top') {
-		$self->panel->move($xpos, 0);
+	my $skip_move = 0;
+	# assuming that making the panel move is an expensive process (which it could be over a network or on a slow
+	# system), we'll check to see if we actually need to move it in the first place:
+	if (defined($self->panel->window) && $self->panel->window->is_visible) {
+		# get_position segfaults if the panel's not visible:
+		my ($cur_x, $cur_y) = $self->panel->get_position;
+		$skip_move = 1 if ($cur_x == $xpos && $cur_y == $ypos);
+	}
+	$self->panel->move($xpos, $ypos) unless $skip_move == 1;
+
+	# now we do the struts thing:
+	if (defined($self->panel->window) && $self->{struts_set} != 1) {
+		my ($top, $bottom);
+
+		if ($self->{config}->{panel}->{autohide} eq 'true' || $self->{config}->{panel}->{expand} eq 'false') {
+			($top, $bottom) = (0, 0);
+	
+		} else {
+			($top, $bottom) = ($self->position eq 'top' ? ($self->panel->allocation->height, 0) : (0, $self->panel->allocation->height));
+	
+		}
+
+		$self->panel->window->property_change(
+			Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
+			Gtk2::Gdk::Atom->intern('CARDINAL', undef),
+			32,
+			'replace',
+			0,
+			0,
+			$top,
+			$bottom,
+		);
+
+		$self->{struts_set} = 1;
+	}
+
+	return 1;
+}
+
+sub get_desired_position {
+	my $self = shift;
+
+	my ($xpos, $ypos);
+	$xpos = ($self->{config}->{panel}->{expand} eq 'true' ? 0 : int(($self->screen_width - $self->panel->allocation->width) / 2));
+
+	if ($self->position eq 'top' && $self->{config}->{panel}->{autohide} eq 'true' && $self->{hidden} eq 'true') {
+		# panel is at the top, expand is set and the panel is currently hidden:
+		$ypos = 0 - $self->panel->allocation->height + $HIDE_OFFSET;
+
+	} elsif ($self->position eq 'top') {
+		# panel is at the top, expand is not set and the panel is currently shown:
+		$ypos = 0;
+
+	} elsif ($self->position eq 'bottom' && $self->{config}->{panel}->{autohide} eq 'true' && $self->{hidden} eq 'true') {
+		# panel is at the bottom, expand is set and the panel is currently hidden:
+		$ypos = $self->screen_height - $HIDE_OFFSET;
 
 	} elsif ($self->position eq 'bottom') {
-		my $screen_height= $self->screen_height;
-		$self->panel->move($xpos, ($screen_height - $panel_height));
+		# panel is at the bottom, expand is not set and the panel is currently shown:
+		$ypos = $self->screen_height - $self->panel->allocation->height;
 
 	} else {
 		$self->error(_("Invalid panel position '{position}'.", position => $self->position), sub { $self->shutdown });
+
 	}
 
-	my ($top, $bottom);
-	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{autohide} eq 'true' || $PerlPanel::OBJECT_REF->{config}->{panel}->{expand} eq 'false') {
-		($top, $bottom) = (0, 0);
-	} else {
-		($top, $bottom) = ($self->position eq 'top' ? ($panel_height, 0) : (0, $panel_height));
-	}
-
-	$self->panel->window->property_change(
-		Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
-		Gtk2::Gdk::Atom->intern('CARDINAL', undef),
-		32,
-		'replace',
-		0,
-		0,
-		$top,
-		$bottom,
-	);
-
-	return 1;
+	return ($xpos, $ypos);
 }
 
 sub resize {
@@ -700,7 +740,7 @@ sub reload {
 	$self->{vbox}->remove($self->{border});
 	$self->load_icon_theme;
 	$self->arrange_border;
-	$self->move;
+	$self->{struts_set} = 0;
 	$self->shrink if ($self->{config}->{panel}->{expand} ne 'false');
 	$self->load_applets;
 	$self->configure;
@@ -869,18 +909,18 @@ sub position {
 
 sub autohide {
 	my $self = shift;
-	if ($self->position eq 'top') {
-		$self->panel->move(0, 0 - $self->panel->allocation->height + 2);
-	} elsif ($self->position eq 'bottom') {
-		$self->panel->move(0, $self->screen_height - 2);
-	} else {
-		$self->error(_("Invalid panel position '{position}'.", position => $self->position), sub { $self->shutdown });
-	}
+	$self->{hidden} = 'true';
+	my ($x, $y) = $self->get_desired_position;
+	printf("%d:%d\n", $x, $y);
+	$self->panel->move($x, $y);
 	return 1;
 }
 
 sub autoshow {
-	$_[0]->move;
+	my $self = shift;
+	$self->{hidden} = 'false';
+	$self->move;
+	return 1;
 }
 
 # kludge alert!

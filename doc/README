@@ -35,11 +35,15 @@ A few wahs, or, TODO:
 	   like having standard pop-ups. Maybe the Panel will also be a
 	   widget as well.
 	3. Translations are incomplete.
+	4. There is some sort of race in autohide mode - if the pointer
+	   hits a particular pixel, the panel flashes on and off very
+	   quickly.
 
 [1]: We use the Gnome2::Wnck library for the launch feedback, tasklist,
-show desktop button and pager. However this module doesn't require the
-rest of the Gnome2 modules - it's just named that way because it's
-maintained by the GNOME developers.
+show desktop button and pager, and Gnome2::VFS for various other stuff.
+However these modules don't require the rest of the Gnome2 modules -
+they're just named that way because they're maintained by the GNOME
+developers.
 
 --
-$Id: README,v 1.15 2004/09/27 15:42:49 jodrell Exp $
+$Id: README,v 1.16 2004/11/07 20:01:45 jodrell Exp $
