@@ -1,4 +1,4 @@
-# $Id: Volume.pm,v 1.2 2005/01/10 10:09:54 jodrell Exp $
+# $Id: Volume.pm,v 1.3 2005/01/10 10:25:19 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
 # Copyright: (C) 2005 Eric Andreychek <eric@openthought.net>
 #
 package PerlPanel::Applet::Volume;
-$PerlPanel::Applet::Volume::VERSION = '0.15';
+$PerlPanel::Applet::Volume::VERSION = '0.16';
 use strict;
 
 sub new {
@@ -31,8 +31,7 @@ sub new {
 		# we use a require() here instead of use(), because use() causes a compile-time
 		# error that the PerlPanel::load_applet catches, but require() causes a run-time
 		# error that the eval() catches:
-		require Audio::Mixer;
-		$loaded = 1;
+		require Audio::Mixer && ($loaded = 1);
 	};
 	if ($loaded == 0) {
 		PerlPanel::warning(_('The Volume applet requires the Audio::Mixer module!'));
@@ -42,6 +41,7 @@ sub new {
 		$self->{active} = 1;
 
 	}
+
 	return $self;
 }
 
@@ -51,13 +51,14 @@ sub configure {
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('volume', PerlPanel::icon_size)));
 	$self->widget->set_relief('none');
-	PerlPanel::tips->set_tip($self->widget, _('Volume Control'));
 
 	if ($self->{active} == 0) {
 		$self->widget->set_sensitive(0);
+		PerlPanel::tips->set_tip($self->widget, _('Volume Control (disabled due to missing Audio::Mixer dependency)'));
 
 	} else {
 		$self->widget->signal_connect('clicked', sub { $self->_handle_click });
+		PerlPanel::tips->set_tip($self->widget, _('Volume Control'));
 
 	}
 
@@ -203,7 +204,7 @@ sub _popup_position {
 
 	} else {
 		my $t = ($self->{window}->get_size)[1];
-		return ($x, PerlPanel::screen_height - ($self->{window}->get_size)[1] - PerlPanel::panel->allocation->height);
+		return ($x, ((PerlPanel::screen_height) - $t - (PerlPanel::panel->allocation->height)));
 
 	}
 }
