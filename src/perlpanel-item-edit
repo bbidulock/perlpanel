@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.4 2005/01/06 15:55:15 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.5 2005/01/10 11:55:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -76,12 +76,7 @@ $glade->get_widget('launcher_name')->set_text($entry->Name($LOCALE));
 $glade->get_widget('launcher_comment')->set_text($entry->Comment($LOCALE));
 
 $PROGRAM = $entry->Exec;
-if (-r $PROGRAM) {
-	$glade->get_widget('launcher_program')->set_text(basename($PROGRAM));
-
-} else {
-	$glade->get_widget('launcher_program')->set_text('');
-}
+$glade->get_widget('launcher_exec')->set_text(basename($PROGRAM));
 
 $ICON = $entry->Icon;
 
@@ -204,49 +199,6 @@ sub on_item_edit_dialog_response {
 
 	Gtk2->main_quit;
 	exit 0;
-}
-
-# Widgets calling the 'on_program_browse_button_clicked' callback:
-#
-#	Widget ID:	program_browse_button
-#	Widget Type:	GtkButton
-#	Signal:		clicked
-#
-sub on_program_browse_button_clicked {
-	my $selector = Gtk2::FileChooserDialog->new(
-		_('Choose File'),
-		undef,
-		'open',
-		'gtk-cancel'	=> 'cancel',
-		'gtk-ok'	=> 'ok'
-	);
-
-	my $cmd = sprintf('which "%s" 2>/dev/null', $PROGRAM);
-	chomp(my $path = `$cmd`);
-	if (-x $path) {
-		$selector->set_filename($path);
-		
-	} elsif ($PROGRAM ne '') {
-		$selector->set_filename($PROGRAM);
-
-	} else {
-		$selector->set_current_folder(Glib::get_home_dir);
-
-	}
-
-	$selector->signal_connect('response', sub {
-		if ($_[1] eq 'ok') {
-			$PROGRAM = $selector->get_filename;
-			$glade->get_widget('launcher_program')->set_text(basename($PROGRAM));
-
-		}
-		$selector->destroy;
-	});
-
-	$selector->set_icon($glade->get_widget('item_edit_dialog')->get_icon);
-
-	$selector->show_all;
-	return 1;
 }
 
 sub error_dialog {
