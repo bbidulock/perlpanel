@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.11 2004/05/28 10:46:47 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.12 2004/06/03 12:03:41 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -44,7 +44,6 @@ sub create_menu {
 	my $self = shift;
 	$self->{menu} = Gtk2::Menu->new;
 	my $bookmarks = XMLin($self->{file});
-	$self->{mtime} = (stat($bookmarks))[9];
 	foreach my $name (sort keys %{$bookmarks->{bookmark}}) {
 		my $icon = PerlPanel::lookup_icon($bookmarks->{bookmark}->{$name}->{icon_name});
 		$self->menu->append($self->menu_item(

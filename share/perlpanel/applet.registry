@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.5 2004/05/28 10:46:57 jodrell Exp $
+# $Id: applet.registry,v 1.6 2004/06/03 12:03:41 jodrell Exp $
 
 About=A button to show an "About" dialog.
 ActionMenu=A menu containing useful actions.
@@ -22,6 +22,7 @@ NautilusBookmarks=Launch Nautilus bookmarks.
 Pager=Displays your current workspaces.
 PanelPet=A friendly creature to keep you company.
 Quit=A button to close the panel.
+RecentFiles=A button that shows files you've recently opened.
 Reload=A button to reload the panel.
 RunMe=A simple command line.
 ScreenShot=Capture images of your desktop.

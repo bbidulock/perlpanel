@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.22 2004/05/28 13:57:33 jodrell Exp $
+$Id: perlpanel.pod,v 1.23 2004/06/03 12:03:41 jodrell Exp $
 
 =head1 Introduction
 
@@ -189,6 +189,12 @@ GNOME's Fish applet. Right-click on the applet to configure it.
 =head2 The 'Quit' Applet
 
 Clicking this icon closes the panel.
+
+=head2 The 'RecentFiles' Applet
+
+Click on this icon brings up a menu containing files you've recently
+opened. When you select the file from the menu, it will be launched in
+the default program for that file type.
 
 =head2 The 'Reload' Applet
 
