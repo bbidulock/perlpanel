@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.9 2003/08/13 13:47:42 jodrell Exp $
+$Id: perlpanel.pod,v 1.10 2003/10/08 13:21:28 jodrell Exp $
 
 =head1 Introduction
 
@@ -67,16 +67,23 @@ tarball, extracting it, and then running the following commands:
 	Enter password:
 	[root@host]# make install
 
-By default, PerlPanel will install into the C</usr> directory. If you
-want to change this, you can either edit the C<PREFIX> variable in the
-Makefile, or add 'C<PREFIX=/path/to/directory>' as an argument to the
-'make' calls above.
+By default, PerlPanel will install into the C</usr/local> directory.
+If you want to change this, you can either edit the C<PREFIX> variable
+in the Makefile, or add 'C<PREFIX=/path/to/directory>' as an argument
+to the 'make' calls above.
 
 =head1 Running PerlPanel
 
 Running PerlPanel is as simple as typing 'perlpanel' into your terminal.
 However you might wish to add this to your C<.xinitrc> file or any other
 scripts that start when your X session begins.
+
+To run PerlPanel with a configuration file other than the default, you
+can specify a file as an argument, for example:
+
+	perlpanel ~/.perlpanelrc-2
+
+This allows you to run more than one panel at a time.
 
 =head1 Configuring PerlPanel
 
@@ -141,6 +148,18 @@ relative to C<$PREFIX/share/pixmaps>.
 Right-clicking on an icon brings up a context menu. This allows you to
 add a new icon, or edit or delete the selected icon. Both the 'Add' and
 'Edit' options use an external program called C<perlpanel-item-edit>.
+
+=head2 Tasklist
+
+The Tasklist shows you all the programs currently visible on your
+desktop. You can click on the entries for each program to raise them
+to the top of the stack. You can right-click on them to bring up a
+context menu for maximising, minimising, shading and so on.
+
+=head2 Pager
+
+The Pager allows you to switch between virtual desktops, and drag
+programs between desktops.
 
 =head2 Clock
 
