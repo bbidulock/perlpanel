@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.98 2004/07/07 14:19:59 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.99 2004/07/17 17:11:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -372,13 +372,25 @@ sub load_applets {
 
 			if (!defined($self->{config}{appletconf}{$appletname})) {
 				my $hashref;
-				eval '$hashref = $applet->get_default_config';
+				eval {
+					$hashref = $applet->get_default_config;
+				};
 				$self->{config}{appletconf}{$appletname} = $hashref if (defined($hashref));
 			}
 
-			$applet->configure;
-			$self->add($applet->widget, $applet->expand, $applet->fill);
-			$applet->widget->show_all;
+			my $widget;
+			eval {
+				$applet->configure;
+				$widget = $applet->widget;
+			};
+			if ($@ || !defined($widget)) {
+				print STDERR "Error configuring '$appletname' applet: $@\n";
+
+			} else {
+				$self->add($applet->widget, $applet->expand, $applet->fill);
+				$applet->widget->show_all;
+
+			}
 		}
 	}
 

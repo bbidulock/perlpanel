@@ -1,4 +1,4 @@
-# $Id: NautilusBookmarks.pm,v 1.15 2004/06/07 09:19:36 jodrell Exp $
+# $Id: NautilusBookmarks.pm,v 1.16 2004/07/17 17:11:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -59,6 +59,62 @@ sub create_menu {
 	my $self = shift;
 	$self->{menu} = Gtk2::Menu->new;
 
+	my ($major, $minor) = Gnome2::VFS->GET_VERSION_INFO;
+
+	if (PerlPanel::position eq 'top') {
+		$self->add_places if ($major >= 2 && $minor >= 6);
+		$self->menu->append(Gtk2::SeparatorMenuItem->new);
+		$self->add_bookmarks;
+	} else {
+		$self->add_bookmarks;
+		$self->menu->append(Gtk2::SeparatorMenuItem->new);
+		$self->add_places if ($major >= 2 && $minor >= 6);
+	}
+
+	return 1;
+}
+
+sub add_places {
+	my $self = shift;
+
+	my $item = $self->menu_item(_('Places'), PerlPanel::lookup_icon('gnome-fs-directory'), undef);
+	my $submenu = Gtk2::Menu->new;
+	$item->set_submenu($submenu);
+	$self->menu->append($item);
+
+	# there's no way to magically load these from nautilus, so we just clone them:
+	$submenu->append($self->menu_item(
+		_('Home'),
+		'gtk-home',
+		sub { system("nautilus --no-desktop $ENV{HOME} &") }
+	));
+	$submenu->append($self->menu_item(
+		_('Computer'),
+		PerlPanel::lookup_icon('gnome-fs-client'),
+		sub { system("nautilus --no-desktop computer: &") }
+	));
+	$submenu->append($self->menu_item(
+		_('Templates'),
+		PerlPanel::lookup_icon('gnome-fs-directory'),
+		sub { system("nautilus --no-desktop $ENV{HOME}/Templates &") }
+	));
+	$submenu->append($self->menu_item(
+		_('Trash'),
+		PerlPanel::lookup_icon('gnome-fs-trash-full'),
+		sub { system("nautilus --no-desktop $ENV{HOME}/.Trash &") }
+	));
+	$submenu->append($self->menu_item(
+		_('CD Burner'),
+		PerlPanel::lookup_icon('gnome-dev-cdrom'),
+		sub { system("nautilus --no-desktop burn: &") }
+	));
+
+	return 1;
+}
+
+sub add_bookmarks {
+	my $self = shift;
+
 	$self->{mtime} = $self->file_age;
 
 	my $bookmarks = XMLin($self->{file});
@@ -69,6 +125,7 @@ sub create_menu {
 			sub { system("nautilus --no-desktop \"$bookmarks->{bookmark}->{$name}->{uri}\" &") },
 		));
 	}
+
 	return 1;
 }
 
