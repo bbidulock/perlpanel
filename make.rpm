@@ -4,7 +4,7 @@
 # NB: make sure cvs2cl will work, and that your user has
 # write permissions on RPM's build directory.
 #
-# $Id: make.rpm,v 1.1 2004/01/18 13:01:34 jodrell Exp $
+# $Id: make.rpm,v 1.2 2004/02/02 12:05:54 jodrell Exp $
 
 CWD=$PWD
 
@@ -18,8 +18,7 @@ cp -Rp $PWD /tmp/$DIR-$VERSION
 pushd /tmp/$DIR-$VERSION
 
 echo Generating ChangeLog:
-touch ChangeLog
-# cvs2cl
+cvs2cl
 
 echo Stripping CVS files:
 find -print | grep CVS | xargs rm -rf

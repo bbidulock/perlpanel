@@ -14,9 +14,9 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: Makefile,v 1.24 2004/02/02 12:02:45 jodrell Exp $
+# $Id: Makefile,v 1.25 2004/02/02 12:05:53 jodrell Exp $
 
-VERSION=0.3.0
+VERSION=0.3.1
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
