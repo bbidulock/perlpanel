@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.2 2004/09/10 16:23:47 jodrell Exp $
+# $Id: Launcher.pm,v 1.3 2004/09/17 15:53:31 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -86,7 +86,7 @@ sub init {
 					$menu->add($edit_item);
 					$menu->add($remove_item);
 					$menu->show_all;
-					$menu->popup(undef, undef, undef, undef, $_[1]->button, undef);
+					$menu->popup(undef, undef, sub { return $self->popup_position }, undef, $_[1]->button, undef);
 				}
 				return undef;
 			});
@@ -128,7 +128,9 @@ sub get_default_config {
 sub edit {
 	my $self = shift;
 	my $mtime = time();
+	$self->widget->set_sensitive(undef);
 	PerlPanel::exec_wait("$LAUNCHER_EDITOR $self->{file}", sub {
+		$self->widget->set_sensitive(1);
 		my $newmtime = (stat($self->{file}))[9];
 	
 		if ($newmtime > $mtime) {
@@ -141,12 +143,19 @@ sub edit {
 
 sub remove {
 	my $self = shift;
-	for (my $i = 0 ; $i < scalar(@{$PerlPanel::OBJECT_REF->{config}{applets}}) ; $i++) {
-		if ((@{$PerlPanel::OBJECT_REF->{config}{applets}})[$i] eq sprintf('Launcher::%s', $self->{id})) {
-			$self->widget->destroy;
-			splice(@{$PerlPanel::OBJECT_REF->{config}{applets}}, $i, 1);
-			PerlPanel::save_config();
-		}
+	PerlPanel::remove_applet('Launcher', $self->{id});
+	return 1;
+}
+
+sub popup_position {
+	my $self = shift;
+	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
+	$x = 0 if ($x < 5);
+	if (PerlPanel::position eq 'top') {
+		return ($x, PerlPanel::panel->allocation->height);
+	} else {
+		$self->menu->realize;
+		return ($x, PerlPanel::screen_height() - $self->menu->allocation->height - PerlPanel::panel->allocation->height);
 	}
 }
 
