@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.128 2004/11/05 13:34:38 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.129 2004/11/05 16:06:05 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -63,7 +63,6 @@ our %DEFAULTS = (
 		spacing			=> 0,
 		size			=> 24,
 		has_border		=> 'true',
-		menu_size_as_panel	=> 'true',
 		menu_size		=> 'medium',
 		expand			=> 'true',
 	},
@@ -236,6 +235,14 @@ sub load_config {
 	# check for an old value for icon_size, and correct:
 	if (@{$SIZE_MAP{$OBJECT_REF->{config}->{panel}->{size}}}[0] > 0) {
 		$OBJECT_REF->{config}->{panel}->{size} = @{$SIZE_MAP{$OBJECT_REF->{config}->{panel}->{size}}}[0];
+		$self->save_config;
+	}
+	if (defined($self->{config}{panel}->{menu_size_as_panel})) {
+		delete($self->{config}{panel}->{menu_size_as_panel});
+		$self->save_config;
+	}
+	if (defined($self->{config}{panel}->{menu_size})) {
+		delete($self->{config}{panel}->{menu_size});
 		$self->save_config;
 	}
 
@@ -840,19 +847,12 @@ sub icon_size {
 
 sub menu_icon_size {
 	my $self = $OBJECT_REF;
-	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
-		return $self->icon_size;
-	} else {
-		return @{$SIZE_MAP{'medium'}}[0];
-	}
+	return @{$SIZE_MAP{'medium'}}[0];
 }
+
 sub menu_icon_size_name {
 	my $self = $OBJECT_REF;
-	if ($self->{config}{panel}->{menu_size_as_panel} ne 'false') {
-		return $self->icon_size;
-	} else {
-		return @{$SIZE_MAP{'medium'}}[1];
-	}
+	return @{$SIZE_MAP{'medium'}}[1];
 }
 
 sub screen_width {
