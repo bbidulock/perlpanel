@@ -17,9 +17,9 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.45 2004/09/30 10:09:18 jodrell Exp $
+# $Id: Makefile,v 1.46 2004/10/19 23:09:51 jodrell Exp $
 
-VERSION=0.8.0
+VERSION=0.8.1
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -46,6 +46,7 @@ perlpanel:
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel > build/perlpanel
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-item-edit > build/perlpanel-item-edit
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-run-dialog > build/perlpanel-run-dialog
+	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-applet-install > build/perlpanel-applet-install
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	perl -I$(PWD)/build -MPerlPanel -MXML::Simple -e 'print XMLout(\%PerlPanel::DEFAULTS)' > build/perlpanelrc
 	pod2man doc/perlpanel.pod		| gzip -c > build/perlpanel.1.gz
@@ -81,6 +82,7 @@ install:
 	install -m 0755 build/perlpanel				$(DESTDIR)/$(BINDIR)/
 	install -m 0755 build/perlpanel-item-edit 		$(DESTDIR)/$(BINDIR)/
 	install -m 0755 build/perlpanel-run-dialog		$(DESTDIR)/$(BINDIR)/
+	install -m 0755 build/perlpanel-applet-install		$(DESTDIR)/$(BINDIR)/
 	install -m 0644 build/PerlPanel.pm			$(DESTDIR)/$(LIBDIR)/
 	install -m 0755 build/perlpanel.1.gz			$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
 	install -m 0755 build/perlpanel-applet-howto.1.gz	$(DESTDIR)/$(MANDIR)/$(MAN_SECTION)/
@@ -106,6 +108,7 @@ uninstall:
 	rm -rf	$(BINDIR)/perlpanel \
 		$(BINDIR)/perlpanel-item-edit \
 		$(BINDIR)/perlpanel-run-dialog \
+		$(BINDIR)/perlpanel-applet-install \
 		$(MANDIR)/$(MAN_SECTION)/perlpanel.1.gz \
 		$(MANDIR)/$(MAN_SECTION)/perlpanel-applet-howto.1.gz \
 		$(MANDIR)/$(MAN_SECTION)/perlpanel-item-edit.1.gz \
@@ -118,4 +121,4 @@ uninstall:
 		$(LOCALEDIR)/*/$(LC_CATEGORY)/perlpanel.mo \
 
 release:
-	./make-rpm $(VERSION)
+	src/make-rpm $(VERSION)

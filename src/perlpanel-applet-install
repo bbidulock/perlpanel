@@ -1,0 +1,102 @@
+#!/usr/bin/perl
+# This file is part of PerlPanel.
+# 
+# PerlPanel is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# PerlPanel is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with PerlPanel; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+# Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
+#
+# $Id: perlpanel-applet-install,v 1.1 2004/10/19 23:09:51 jodrell Exp $
+
+#
+# are we installed or running in a sandbox?
+#
+use lib (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
+
+use PerlPanel;
+use Getopt::Long;
+use Data::Dumper;
+use strict;
+
+#
+# set the values for prefix and libdir:
+#
+$PerlPanel::PREFIX = (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
+$PerlPanel::LIBDIR = (-e '@LIBDIR@' ? '@LIBDIR@' : $ENV{PWD}.'/lib/');
+
+#
+# if we're in a sandbox then it's handy to add ./src to the PATH:
+#
+$ENV{PATH} = $ENV{PATH}.':'.$ENV{PWD}.'/src' if (!-e '@PREFIX@');
+
+my ($user, $site, $file, $help);
+GetOptions(
+	'user'		=> \$user,
+	'site'		=> \$site,
+	'file=s'	=> \$file,
+	'help'		=> \$help,
+);
+
+if ($help > 0) {
+	print <<"END";
+perlpanel-applet-install - install a PerlPanel applet.
+Usage: perlpanel-applet-install [OPTIONS]
+Options:
+        --user          install applet for a single user
+        --site          install applet for all users
+        --file          file to extract from
+        --help          show this help.
+END
+	exit 0;
+
+} elsif ($user > 0 && $site > 0) {
+	print STDERR _('Error: cannot use --site and --user at the same time!')."\n";
+	exit 1;
+
+} elsif ($user < 1 && $site < 1) {
+	print STDERR _('Error: must choose either --user or --site!')."\n";
+	exit 1;
+
+} elsif (!-r $file) {
+	print STDERR _("Error: file '{file}' not found!", file => $file)."\n";
+	exit 1;
+
+} else {
+	my %args;
+	if ($user > 0) {
+		%args = (
+			datadir	=> sprintf('%s/.local/share', $ENV{HOME}),
+			libdir	=> sprintf('%s/.%s/applets', $ENV{HOME}, lc($PerlPanel::NAME)),
+			regfile	=> sprintf('%s/.%s/applet.registry', $ENV{HOME}, lc($PerlPanel::NAME)),
+		);
+	} else {
+		%args = (
+			datadir	=> sprintf('%s/share', $PerlPanel::PREFIX),
+			libdir	=> sprintf('%s/%s/Applet', $PerlPanel::LIBDIR, $PerlPanel::NAME),
+			regfile	=> sprintf('%s/share/%s/applet.registry', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
+		);
+	}
+	print Dumper(\%args);
+	my ($code, $error) = PerlPanel::install_applet($file, %args);
+	if ($code == 1) {
+		print STDERR _("Error: {error}", error => $error)."\n";
+		exit 1;
+
+	} else {
+		exit 0;
+
+	}
+}
+
+exit;

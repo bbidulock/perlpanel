@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# A simple shell script to make RPMs from a CVS directory
+# NB: make sure cvs2cl will work, and that your user has
+# write permissions on RPM's build directory.
+#
+# $Id: make-rpm,v 1.1 2004/10/19 23:09:51 jodrell Exp $
+
+CWD=$PWD
+export VERSION=$1
+TOPDIR=`grep topdir ~/.rpmmacros  | cut -d " " -f 2`
+DIR=`basename $PWD`
+
+if [ -z $VERSION ] ; then
+	echo Usage: $0 [VERSION]
+	exit
+fi
+
+echo Writing .spec file:
+perl -ne 's!^Version:\s*(.+)$!Version: $ENV{VERSION}!g ; print' < src/PerlPanel.spec.in > PerlPanel.spec
+
+echo Creating temporary copy of package:
+rm -rf /tmp/$DIR-$VERSION
+cp -Rp --no-dereference $PWD /tmp/$DIR-$VERSION
+cd /tmp/$DIR-$VERSION
+
+echo Fixing permissions on pixmaps:
+find share/ -name '*png' -exec chmod 644 \{\} \;
+
+echo Stripping CVS files:
+find -print | grep CVS | xargs rm -rf
+
+echo Creating tarball:
+cd ..
+tar zcf $DIR-$VERSION.tar.gz $DIR-$VERSION/
+rm -rf $DIR-$VERSION/
+
+mv $DIR-$VERSION.tar.gz $HOME/
+
+cd $CWD
+
+echo Building RPMs:
+rpmbuild --quiet -ta --target=noarch $HOME/$DIR-$VERSION.tar.gz 1> /dev/null 2> /dev/null
+mv -u $TOPDIR/SRPMS/$DIR-$VERSION-*src.rpm $HOME/ 1> /dev/null 2> /dev/null
+
+true
