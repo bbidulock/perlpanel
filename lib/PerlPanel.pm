@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.139 2005/01/08 14:03:27 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.140 2005/01/10 10:11:10 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -247,6 +247,13 @@ sub load_config {
 sub save_config {
 	my $self = shift || $OBJECT_REF;
 	$self->{config}->{version} = $VERSION;
+	# clean up dead config:
+	foreach my $string (keys(%{$self->{config}->{multi}})) {
+		my ($applet, $id) = split(/::/, $string, 2);
+		if ($id ne '' && !defined($self->{widgets}->{$id})) {
+			delete($self->{config}->{multi}->{$string});
+		}
+	}
 	open(RCFILE, ">$self->{rcfile}") or print STDERR "Error writing to '$self->{rcfile}': $!\n" and exit 1;
 	print RCFILE XMLout($self->{config});
 	close(RCFILE);
