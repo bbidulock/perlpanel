@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.53 2004/07/05 14:31:38 jodrell Exp $
+# $Id: Configurator.pm,v 1.54 2004/07/05 14:49:56 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -265,13 +265,13 @@ sub setup_custom_settings {
 
 	my @dirs = $PerlPanel::OBJECT_REF->{icon_theme}->get_search_path;
 	my %themes = (
-		$PerlPanel::DEFAULT_THEME => 1,
+		ucfirst($PerlPanel::DEFAULT_THEME) => 1,
 	);
 	foreach my $dir (@dirs) {
 		if (!opendir(DIR, $dir)) {
 			print STDERR "*** Error opening '$dir' for reading: $!\n";
 		} else {
-			map { $themes{$_}++ if (-e "$dir/$_/index.theme") } readdir(DIR);
+			map { $themes{ucfirst($_)}++ if (-e "$dir/$_/index.theme") } readdir(DIR);
 			closedir(DIR);
 		}
 	}
@@ -281,7 +281,7 @@ sub setup_custom_settings {
 	my @themes = sort(keys(%themes));
 	for (my $i = 0 ; $i < scalar(@themes) ; $i++) {
 		push(@{$self->{icon_theme_list}->{data}}, $themes[$i]);
-		if ($themes[$i] eq $PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme}) {
+		if (lc($themes[$i]) eq lc($PerlPanel::OBJECT_REF->{config}->{panel}->{icon_theme})) {
 			$self->app->get_widget('icon_theme')->set_active($i);
 		}
 	}
