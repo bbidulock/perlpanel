@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.18 2004/09/24 14:49:13 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.19 2004/09/27 14:40:50 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -64,9 +64,9 @@ sub configure {
 
 	$self->widget->show_all;
 
-	$self->create_menu;
-
 	$self->widget->signal_connect('clicked', sub { $self->popup });
+
+	$self->create_menu;
 
 	return 1;
 }

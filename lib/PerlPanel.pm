@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.116 2004/09/27 12:27:06 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.117 2004/09/27 14:40:50 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -140,7 +140,7 @@ sub init {
 	$self->check_deps;
 	$self->setup_launch_feedback;
 	$self->load_config;
-	$self->get_screen || $self->parse_xdpyinfo;
+	$self->get_screen;
 	$self->load_icon_theme;
 	$self->build_panel;
 	$self->configure;
@@ -176,35 +176,7 @@ sub init {
 
 	chdir($ENV{HOME});
 
-	require('Commander.pm');
-	$self->{commander} = PerlPanel::Applet::Commander->new;
-	$self->{commander}->configure('no-widget');
-	Glib::Timeout->add(50, sub {
-		if (-e $RUN_COMMAND_FILE) {
-			unlink($RUN_COMMAND_FILE);
-			$self->{commander}->run;
-		}
-		return 1;
-	});
-
-	if (open(PIDFILE, ">$PIDFILE")) {
-		print PIDFILE $$;
-		close(PIDFILE);
-	}
-
-	my $sub = sub {
-		my $error = shift;
-		print STDERR $error unless ($error =~ /^[A-Z]{3,4}$/);
-		unlink($PIDFILE);
-		exit;
-	};
-	foreach my $signal (qw(ABRT ALRM HUP INT KILL QUIT SEGV STOP TERM __DIE__)) {
-		$SIG{$signal} = $sub;
-	}
-
 	Gtk2->main;
-
-	unlink($PIDFILE);
 
 	return 1;
 }
