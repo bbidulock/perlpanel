@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.75 2004/05/03 17:27:27 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.76 2004/05/07 14:31:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ use base 'Exporter';
 use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		@CO_AUTHORS	$URL		$LICENSE	$PREFIX		$LIBDIR
 		%DEFAULTS	%SIZE_MAP	$TOOLTIP_REF	$OBJECT_REF	$APPLET_ICON_DIR
-		$APPLET_ICON_SIZE		@APPLET_DIRS);
+		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE);
 use strict;
 
 
@@ -81,6 +81,9 @@ our %SIZE_MAP = (
 );
 
 our $APPLET_ICON_SIZE = 48;
+
+our $RUN_COMMAND_FILE = sprintf('%s/.%s/run-command', $ENV{HOME}, lc($NAME));
+our $PIDFILE = sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
 
 Gtk2->init;
 
@@ -144,7 +147,28 @@ sub init {
 
 	chdir($ENV{HOME});
 
+	Glib::Timeout->add(10, sub {
+		if (-e $RUN_COMMAND_FILE) {
+			unlink($RUN_COMMAND_FILE);
+			require('Commander.pm');
+			PerlPanel::Applet::Commander->run;
+		}
+		return 1;
+	});
+
+	if (open(PIDFILE, ">$PIDFILE")) {
+		print PIDFILE $$;
+		close(PIDFILE);
+	}
+
+	my $sub = sub { unlink($PIDFILE) ; exit };
+	foreach my $signal (qw(ABRT ALRM HUP INT KILL QUIT SEGV STOP TERM __DIE__)) {
+		$SIG{$signal} = $sub;
+	}
+
 	Gtk2->main;
+
+	unlink($PIDFILE);
 
 	return 1;
 }

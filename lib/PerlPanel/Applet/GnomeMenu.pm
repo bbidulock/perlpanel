@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.3 2004/05/06 10:30:38 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.4 2004/05/07 14:31:42 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -88,16 +88,16 @@ sub create_menu {
 		$item->set_submenu($menu);
 		$self->menu->append($item);
 
-		$self->create_submenu_for('applications:', $menu);
+		$self->create_submenu_for($self->{config}->{base}, $menu);
 
 	} else {
-		$self->create_submenu_for('applications:', $self->menu);
+		$self->create_submenu_for($self->{config}->{base}, $self->menu);
 
 	}
 
 	if ($self->{config}->{show_control_items} eq 'true' && !PerlPanel::has_action_menu) {
 		$self->add_control_items(
-			menu_edit_command  => 'nautilus --no-desktop "applications:"',
+			menu_edit_command  => 'nautilus --no-desktop "$self->{config}->{base}"',
 		);
 	}
 
@@ -128,11 +128,34 @@ sub create_submenu_for {
 		}
 
 		foreach my $dirname (sort keys %dirs) {
+
 			my $dir  = $dirs{$dirname};
 			my $path = sprintf('%s/%s', $uri, $dir->{name});
+
+			# the metadata for directories is held in $dir/.directory:
+			my $dfile = sprintf('%s/.directory', $path);
+			my ($result, undef) = Gnome2::VFS->get_file_info($dfile, 'default');
+
+			my $menu_icon;
+
+			if ($result eq 'ok') {
+				my $data = $self->get_file_contents($dfile);
+				my (undef, undef, $icon, undef) = $self->parse_desktopfile($data);
+
+				if ($icon eq '') {
+					$menu_icon = $self->lookup_icon('gnome-fs-directory', PerlPanel::icon_size);
+
+				} else {
+					$menu_icon = $icon;
+				}
+			} else {
+				$menu_icon = $self->lookup_icon('gnome-fs-directory', PerlPanel::icon_size);
+
+			}
+
 			my $item = $self->menu_item(
 				$dir->{name},
-				($self->lookup_icon('gnome-'.lc($dir->{name})) || $self->get_icon($dir->{name}) || $self->lookup_icon('gnome-fs-directory', PerlPanel::icon_size))
+				$menu_icon
 			);
 			my $sub_menu = Gtk2::Menu->new;
 			$item->set_submenu($sub_menu);
@@ -173,6 +196,8 @@ sub parse_desktopfile {
 			$namespace = $1;
 		} elsif ($namespace ne '') {
 			$params->{$namespace}->{$name} = $value;
+		} else {
+			$params->{orphans}->{$name} = $value;
 		}
 	}
 	$name    = ($params->{$DESKTOP_NAMESPACE}{"Name[$self->{language}]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Name[$self->{language}]"} : $params->{$DESKTOP_NAMESPACE}{Name});
@@ -209,6 +234,7 @@ sub get_default_config {
 		arrow			=> 'true',
 		show_control_items	=> 'true',
 		apps_in_submenu		=> 'true',
+		base			=> 'applications:',
 	};
 }
 

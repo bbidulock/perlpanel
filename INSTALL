@@ -14,6 +14,7 @@ Some of the applets also require additional modules, for example:
     * The Gnome2::Wnck Perl module for the tasklist, pager and window
       menu applets
     * Xmms::Remote for the XMMS applet
+    * Gnome2::VFS for the SetiAtHome and GnomeMenu applets
 
 Perl and Gtk+ should have been installed with your operating system. If
 you don't have Gtk+ 2 or higher, then you might want to try a Gnome
@@ -74,10 +75,11 @@ You can also build an RPM directly from the source tarball, using
 
         [root@host]# rpmbuild -tb PerlPanel-x.y.z.tar.gz
 
-NB: RPM's system for handling Perl module dependencies is unreliable.
-You may find that when you try to install the package RPM will report
-missing Perl modules, even if they are already installed. To correct
-this, use the --nodeps argument to RPM.
+Users of Debian GNU/Linux can install PerlPanel by running the command
+
+	apt-get install perlpanel
+
+Users of the Gentoo operating system can find ebuilds via the project website.
 
 --
-$Id: INSTALL,v 1.3 2004/02/17 14:10:38 jodrell Exp $
+$Id: INSTALL,v 1.4 2004/05/07 14:31:14 jodrell Exp $

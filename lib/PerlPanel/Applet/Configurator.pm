@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.44 2004/05/03 17:27:28 jodrell Exp $
+# $Id: Configurator.pm,v 1.45 2004/05/07 14:31:40 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -397,7 +397,7 @@ sub setup_custom_settings {
 	);
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 24), $appletname]);
+		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 32), $appletname]);
 	}
 
 	$self->{add_applet_list} = Gtk2::SimpleList->new_from_treeview(

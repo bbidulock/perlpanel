@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.17 2004/02/24 17:07:18 jodrell Exp $
+# $Id: Commander.pm,v 1.18 2004/05/07 14:31:38 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -187,8 +187,6 @@ sub run {
 	$command_entry->entry->signal_connect('activate', sub { $dialog->signal_emit('response', 'ok') });
 
 	$dialog->show_all;
-
-	$dialog->run;
 
 	return 1;
 }

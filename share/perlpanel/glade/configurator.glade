@@ -9,7 +9,9 @@
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_CENTER</property>
   <property name="modal">True</property>
-  <property name="resizable">False</property>
+  <property name="default_width">500</property>
+  <property name="default_height">500</property>
+  <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="has_separator">False</property>
 
@@ -464,7 +466,7 @@
 		<packing>
 		  <property name="padding">0</property>
 		  <property name="expand">False</property>
-		  <property name="fill">True</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 
@@ -782,8 +784,8 @@
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">True</property>
-		  <property name="fill">True</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 
@@ -866,6 +868,27 @@
 		      <property name="column_spacing">6</property>
 
 		      <child>
+			<widget class="GtkEntry" id="gnome_menu_label">
+			  <property name="visible">True</property>
+			  <property name="can_focus">True</property>
+			  <property name="editable">True</property>
+			  <property name="visibility">True</property>
+			  <property name="max_length">0</property>
+			  <property name="text" translatable="yes"></property>
+			  <property name="has_frame">True</property>
+			  <property name="invisible_char" translatable="yes">*</property>
+			  <property name="activates_default">False</property>
+			</widget>
+			<packing>
+			  <property name="left_attach">1</property>
+			  <property name="right_attach">2</property>
+			  <property name="top_attach">3</property>
+			  <property name="bottom_attach">4</property>
+			  <property name="y_options"></property>
+			</packing>
+		      </child>
+
+		      <child>
 			<widget class="GtkLabel" id="label29">
 			  <property name="visible">True</property>
 			  <property name="label" translatable="yes">Label:</property>
@@ -882,30 +905,9 @@
 			<packing>
 			  <property name="left_attach">0</property>
 			  <property name="right_attach">1</property>
-			  <property name="top_attach">0</property>
-			  <property name="bottom_attach">1</property>
+			  <property name="top_attach">3</property>
+			  <property name="bottom_attach">4</property>
 			  <property name="x_options">fill</property>
-			  <property name="y_options"></property>
-			</packing>
-		      </child>
-
-		      <child>
-			<widget class="GtkEntry" id="gnome_menu_label">
-			  <property name="visible">True</property>
-			  <property name="can_focus">True</property>
-			  <property name="editable">True</property>
-			  <property name="visibility">True</property>
-			  <property name="max_length">0</property>
-			  <property name="text" translatable="yes"></property>
-			  <property name="has_frame">True</property>
-			  <property name="invisible_char" translatable="yes">*</property>
-			  <property name="activates_default">False</property>
-			</widget>
-			<packing>
-			  <property name="left_attach">1</property>
-			  <property name="right_attach">2</property>
-			  <property name="top_attach">0</property>
-			  <property name="bottom_attach">1</property>
 			  <property name="y_options"></property>
 			</packing>
 		      </child>
@@ -924,8 +926,8 @@
 			<packing>
 			  <property name="left_attach">0</property>
 			  <property name="right_attach">2</property>
-			  <property name="top_attach">1</property>
-			  <property name="bottom_attach">2</property>
+			  <property name="top_attach">0</property>
+			  <property name="bottom_attach">1</property>
 			  <property name="x_options">fill</property>
 			  <property name="y_options"></property>
 			</packing>
@@ -945,8 +947,8 @@
 			<packing>
 			  <property name="left_attach">0</property>
 			  <property name="right_attach">2</property>
-			  <property name="top_attach">2</property>
-			  <property name="bottom_attach">3</property>
+			  <property name="top_attach">1</property>
+			  <property name="bottom_attach">2</property>
 			  <property name="x_options">fill</property>
 			  <property name="y_options"></property>
 			</packing>
@@ -966,8 +968,8 @@
 			<packing>
 			  <property name="left_attach">0</property>
 			  <property name="right_attach">2</property>
-			  <property name="top_attach">3</property>
-			  <property name="bottom_attach">4</property>
+			  <property name="top_attach">2</property>
+			  <property name="bottom_attach">3</property>
 			  <property name="x_options">fill</property>
 			  <property name="y_options"></property>
 			</packing>
@@ -1034,8 +1036,8 @@
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">True</property>
-		  <property name="fill">True</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 
@@ -1230,8 +1232,8 @@
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">True</property>
-		  <property name="fill">True</property>
+		  <property name="expand">False</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 	    </widget>
@@ -1362,7 +1364,7 @@
 		<packing>
 		  <property name="padding">0</property>
 		  <property name="expand">False</property>
-		  <property name="fill">True</property>
+		  <property name="fill">False</property>
 		</packing>
 	      </child>
 	    </widget>
