@@ -1,4 +1,4 @@
-# $Id: CPUTemp.pm,v 1.1 2004/06/25 09:56:12 jodrell Exp $
+# $Id: CPUTemp.pm,v 1.2 2004/06/25 10:05:03 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -16,6 +16,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
+#
+# This applet is based on code written by Harm Reck <reck.harm@web.de>.
 #
 package PerlPanel::Applet::CPUTemp;
 use Gtk2::Helper;
