@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.132 2004/11/25 15:41:45 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.133 2004/11/26 11:29:15 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -155,7 +155,7 @@ sub init {
 	$self->{border}->show;
 	$self->{panel}->show;
 
-	if ($self->{config}{panel}{autohide} eq 'true') {
+	if ($self->{config}->{panel}->{autohide} eq 'true') {
 		$self->autohide;
 	} else {
 		$self->move;
@@ -218,7 +218,7 @@ sub load_config {
 	} else {
 		$self->{config} = \%DEFAULTS;
 	}
-	if ($self->{config}{version} ne $VERSION) {
+	if ($self->{config}->{version} ne $VERSION) {
 		print STDERR "*** your config file is from a different version, strange things may happen!\n";
 	}
 
@@ -227,12 +227,17 @@ sub load_config {
 		$OBJECT_REF->{config}->{panel}->{size} = @{$SIZE_MAP{$OBJECT_REF->{config}->{panel}->{size}}}[0];
 		$self->save_config;
 	}
-	if (defined($self->{config}{panel}->{menu_size_as_panel})) {
-		delete($self->{config}{panel}->{menu_size_as_panel});
+	if (defined($self->{config}->{panel}->{menu_size_as_panel})) {
+		delete($self->{config}->{panel}->{menu_size_as_panel});
 		$self->save_config;
 	}
-	if (defined($self->{config}{panel}->{menu_size})) {
-		delete($self->{config}{panel}->{menu_size});
+	if (defined($self->{config}->{panel}->{menu_size})) {
+		delete($self->{config}->{panel}->{menu_size});
+		$self->save_config;
+	}
+
+	if (!defined($self->{config}->{panel}->{use_struts})) {
+		$self->{config}->{panel}->{use_struts} = 'true';
 		$self->save_config;
 	}
 
@@ -241,7 +246,7 @@ sub load_config {
 
 sub save_config {
 	my $self = shift || $OBJECT_REF;
-	$self->{config}{version} = $VERSION;
+	$self->{config}->{version} = $VERSION;
 	open(RCFILE, ">$self->{rcfile}") or print STDERR "Error writing to '$self->{rcfile}': $!\n" and exit 1;
 	print RCFILE XMLout($self->{config});
 	close(RCFILE);
@@ -310,7 +315,7 @@ sub arrange_border {
 sub configure {
 	my $self = shift;
 
-	if ($self->{config}->{panel}->{expand} eq 'true') {
+	if ($self->{config}->{panel}->{expand} ne 'false') {
 		$self->resize;
 
 	} else {
@@ -320,6 +325,8 @@ sub configure {
 	}
 
 	$self->panel->set_border_width(0);
+	$self->{hbox}->set_spacing($self->{config}->{panel}->{spacing});
+	$self->{hbox}->set_border_width(0);
 
 	# check is_visible for reloads:
 	my $gdk_window = $self->panel->window;
@@ -327,14 +334,18 @@ sub configure {
 		$self->panel->set_type_hint('dock');
 	}
 
+	if ($self->{config}->{panel}->{expand} ne 'false') {
+		$self->panel->set_keep_above(1);
+
+	} else {
+		$self->panel->set_keep_below(1);
+
+	}
+
 	$self->panel->set_decorated(0); # needed for some window managers
 	$self->panel->stick; # needed for some window managers
-	$self->panel->set_keep_above(1);
 
-	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
-	$self->{hbox}->set_border_width(0);
-
-	if ($self->{config}{panel}{autohide} eq 'true') {
+	if ($self->{config}->{panel}->{autohide} eq 'true') {
 		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
 		$self->{enter_connect_id} = $self->panel->signal_connect('enter_notify_event', sub { $self->autoshow; });
 	}
@@ -514,10 +525,10 @@ sub drop_handler {
 
 sub remove_applet {
 	my ($applet, $id) = @_;
-	for (my $i = 0 ; $i < scalar(@{$OBJECT_REF->{config}{applets}}) ; $i++) {
-		if ((@{$OBJECT_REF->{config}{applets}})[$i] eq sprintf('%s::%s', $applet, $id)) {
+	for (my $i = 0 ; $i < scalar(@{$OBJECT_REF->{config}->{applets}}) ; $i++) {
+		if ((@{$OBJECT_REF->{config}->{applets}})[$i] eq sprintf('%s::%s', $applet, $id)) {
 			$OBJECT_REF->{widgets}->{$id}->destroy;
-			splice(@{$OBJECT_REF->{config}{applets}}, $i, 1);
+			splice(@{$OBJECT_REF->{config}->{applets}}, $i, 1);
 			PerlPanel::save_config();
 			return 1;
 		}
@@ -560,7 +571,10 @@ sub move {
 	if (defined($self->panel->window) && $self->{struts_set} != 1) {
 		my ($top, $bottom);
 
-		if ($self->{config}->{panel}->{autohide} eq 'true' || $self->{config}->{panel}->{expand} eq 'false') {
+		if ($self->{config}->{panel}->{autohide} eq 'true') {
+			($top, $bottom) = (0, 0);
+
+		} elsif ($self->{config}->{panel}->{expand} eq 'false' && $self->{config}->{panel}->{use_struts} eq 'false') {
 			($top, $bottom) = (0, 0);
 	
 		} else {
@@ -629,19 +643,21 @@ sub shrink {
 	return 1;
 }
 
-#
-# here's how this works: the launch() function sets the DESKTOP_STARTUP_ID
-# environment variable when it runs an external program - compliant apps will
-# take note of this variable and broadcast their startup state when they run.
-# It also provides the user with some visible feedback (eg, a "busy" cursor).
-# The panel keeps a Gnome2::Wnck::Screen instance, and when a new application
-# starts, a signal is emitted which we capture. If the startup ID is one we
-# recognise, then we reset the root window cursor and remove the ID from the
-# list of IDs we're tracking. launch() also sets a timeout to clean up after
-# 1500ms for those apps that don't support startup notification.
-#
-# clear as mud, what?
-#
+=pod
+
+here's how this works: the launch() function sets the DESKTOP_STARTUP_ID
+environment variable when it runs an external program - compliant apps will
+take note of this variable and broadcast their startup state when they run.
+It also provides the user with some visible feedback (eg, a "busy" cursor).
+The panel keeps a Gnome2::Wnck::Screen instance, and when a new application
+starts, a signal is emitted which we capture. If the startup ID is one we
+recognise, then we reset the root window cursor and remove the ID from the
+list of IDs we're tracking. launch() also sets a timeout to clean up after
+1500ms for those apps that don't support startup notification.
+
+clear as mud, what?
+
+=cut
 sub setup_launch_feedback {
 	my $self = shift;
 	$self->{cursors}->{normal}	= Gtk2::Gdk::Cursor->new('left_ptr');
@@ -893,15 +909,13 @@ sub screen_height {
 }
 
 sub position {
-	return $OBJECT_REF->{config}{panel}{position};
+	return $OBJECT_REF->{config}->{panel}->{position};
 }
 
 sub autohide {
 	my $self = shift;
 	$self->{hidden} = 'true';
 	my ($x, $y) = $self->get_desired_position;
-	printf("%d:%d\n", $x, $y);
-	$self->panel->move($x, $y);
 	return 1;
 }
 
@@ -1028,15 +1042,15 @@ sub get_applet_pbf {
 
 	$size = ($size > 0 ? $size : $APPLET_ICON_SIZE);
 
-	if (!defined($self->{pbfs}{$applet}{$size})) {
+	if (!defined($self->{pbfs}->{$applet}->{$size})) {
 		my $file = get_applet_pbf_filename($applet);
 		if (-e $file) {
-			$self->{pbfs}{$applet}{$size} = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, $size, $size);
+			$self->{pbfs}->{$applet}->{$size} = Gtk2::Gdk::Pixbuf->new_from_file_at_size($file, $size, $size);
 		} else {
-			$self->{pbfs}{$applet}{$size} = get_applet_pbf('missing', $size);
+			$self->{pbfs}->{$applet}->{$size} = get_applet_pbf('missing', $size);
 		}
 	}
-	return $self->{pbfs}{$applet}{$size};
+	return $self->{pbfs}->{$applet}->{$size};
 }
 
 sub get_config {
@@ -1051,7 +1065,7 @@ sub get_config {
 }
 
 sub spacing {
-	return $OBJECT_REF->{config}{panel}{spacing};
+	return $OBJECT_REF->{config}->{panel}->{spacing};
 }
 
 sub load_glade {

@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.65 2004/11/05 13:34:38 jodrell Exp $
+# $Id: Configurator.pm,v 1.66 2004/11/26 11:29:15 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,6 +67,11 @@ our %SETTINGS_MAP = (
 	'panel_expand' => [
 		$PerlPanel::OBJECT_REF->{config}{panel},
 		'expand',
+		'boolean',
+	],
+	'use_struts' => [
+		$PerlPanel::OBJECT_REF->{config}{panel},
+		'use_struts',
 		'boolean',
 	],
 
@@ -334,6 +339,11 @@ sub setup_custom_settings {
 	$column->add_attribute($renderer, 'markup', 1);
 
 	$self->load_applet_list;
+
+	$self->app->get_widget('panel_expand')->signal_connect('toggled', sub {
+		$self->app->get_widget('use_struts')->set_sensitive(!$self->app->get_widget('panel_expand')->get_active);
+	});
+	$self->app->get_widget('use_struts')->set_sensitive(!$self->app->get_widget('panel_expand')->get_active);
 
 	return 1;
 }
