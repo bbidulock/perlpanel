@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.11 2004/08/24 15:22:04 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.12 2004/09/10 16:24:30 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -222,7 +222,7 @@ sub choose_icon {
 	if (-e $pixmap_path) {
 		$selector->set_filename($pixmap_path);
 	} else {
-		$selector->set_filename($data->{$desktop_namespace}{Icon});
+		$selector->set_filename('/usr/share/icons/');
 	}
 
 	$selector->signal_connect('response', sub {

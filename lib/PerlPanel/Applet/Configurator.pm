@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.56 2004/08/24 12:45:04 jodrell Exp $
+# $Id: Configurator.pm,v 1.57 2004/09/10 16:24:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -326,7 +326,9 @@ sub setup_custom_settings {
 	$self->{applet_list}->get_column(2)->set_visible(0);
 
 	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
-		push(@{$self->{applet_list}->{data}}, [PerlPanel::get_applet_pbf($appletname, 32), split(/::/, $appletname, 2)]);
+		my ($applet, $id) = split(/::/, $appletname, 2);
+		my $pbf = PerlPanel::get_applet_pbf($applet, 32);
+		push(@{$self->{applet_list}->{data}}, [$pbf, $applet, $id]);
 	}
 	$self->{applet_list}->set_reorderable(1);
 
