@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: PerlPanel.spec,v 1.28 2004/09/28 10:21:02 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.29 2004/09/29 15:15:19 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -64,6 +64,7 @@ make PREFIX=%{_prefix} MANDIR=%{_mandir} VERSION=%{version}
 %install
 rm -rf %{buildroot}
 %makeinstall PREFIX=%{buildroot}%{_prefix} MANDIR=%{buildroot}%{_mandir}
+rm -f %{buildroot}%{_prefix}/etc/perlpanelrc
 
 %clean
 rm -rf %{buildroot}
