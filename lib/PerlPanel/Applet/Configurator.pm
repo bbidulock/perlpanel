@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.66 2004/11/26 11:29:15 jodrell Exp $
+# $Id: Configurator.pm,v 1.67 2005/01/20 17:23:24 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -48,29 +48,29 @@ our %SETTINGS_MAP = (
 	# Tab #1 - global panel settings:
 	#
 	'panel_position' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
+		$PerlPanel::OBJECT_REF->{config}->{panel},
 		'position',
 		'enum',
 		'top',
 		'bottom',
 	],
 	'panel_size_spin' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
+		$PerlPanel::OBJECT_REF->{config}->{panel},
 		'size',
 		'integer',
 	],
 	'panel_autohide' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
+		$PerlPanel::OBJECT_REF->{config}->{panel},
 		'autohide',
 		'boolean',
 	],
 	'panel_expand' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
+		$PerlPanel::OBJECT_REF->{config}->{panel},
 		'expand',
 		'boolean',
 	],
 	'use_struts' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
+		$PerlPanel::OBJECT_REF->{config}->{panel},
 		'use_struts',
 		'boolean',
 	],
@@ -122,7 +122,7 @@ our %SETTINGS_MAP = (
 	#
 
 	'quit_button_checkbutton' => [
-		$PerlPanel::OBJECT_REF->{config}{panel},
+		$PerlPanel::OBJECT_REF->{config}->{panel},
 		'show_quit_button',
 		'boolean',
 	],
@@ -293,10 +293,13 @@ sub setup_custom_settings {
 		'Icon'	=> 'pixbuf',
 		'Name'	=> 'text',
 		'id'	=> 'text',
+		'posn'	=> 'text',
 	);
 	$self->{applet_list}->get_column(2)->set_visible(0);
+	$self->{applet_list}->get_column(3)->set_visible(0);
 
-	foreach my $appletname (@{$PerlPanel::OBJECT_REF->{config}{applets}}) {
+	for (my $i = 0 ; $i < scalar(@{$PerlPanel::OBJECT_REF->{config}->{applets}}) ; $i++) {
+		my $appletname = (@{$PerlPanel::OBJECT_REF->{config}->{applets}})[$i];
 		my ($applet, $id) = split(/::/, $appletname, 2);
 		my $pbf;
 		$pbf = PerlPanel::get_applet_pbf($applet, 32);
@@ -309,7 +312,7 @@ sub setup_custom_settings {
 				}
 			}
 		}
-		push(@{$self->{applet_list}->{data}}, [$pbf, $applet, $id]);
+		push(@{$self->{applet_list}->{data}}, [$pbf, $applet, $id, $i]);
 	}
 	$self->{applet_list}->set_reorderable(1);
 
@@ -369,7 +372,7 @@ sub load_applet_list {
 		my ($appletname, undef) = split(/\./, $file, 2);
 		push(@{$self->{add_applet_list}->{data}}, [
 			PerlPanel::get_applet_pbf($appletname),
-			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}{$appletname} ne '' ? $self->{registry}{$appletname} : _('No description available.'))),
+			sprintf("<span weight=\"bold\">%s</span>\n<span size=\"small\">%s</span>", $appletname, ($self->{registry}->{$appletname} ne '' ? $self->{registry}->{$appletname} : _('No description available.'))),
 		]);
 	}
 
@@ -416,9 +419,9 @@ sub apply_custom_settings {
 			push(@applets, @{$rowref}[1]);
 		}
 	}
-	@{$PerlPanel::OBJECT_REF->{config}{applets}} = @applets;
+	@{$PerlPanel::OBJECT_REF->{config}->{applets}} = @applets;
 
-	if (!$self->app->get_widget('panel_autohide')->get_active && $PerlPanel::OBJECT_REF->{config}{panel}{autohide} eq 'true') {
+	if (!$self->app->get_widget('panel_autohide')->get_active && $PerlPanel::OBJECT_REF->{config}->{panel}->{autohide} eq 'true') {
 		PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{enter_connect_id});
 		PerlPanel::panel->signal_handler_disconnect($PerlPanel::OBJECT_REF->{leave_connect_id});
 	}

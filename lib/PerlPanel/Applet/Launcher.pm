@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.19 2005/01/06 16:25:52 jodrell Exp $
+# $Id: Launcher.pm,v 1.20 2005/01/20 17:23:25 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,17 +67,17 @@ sub init {
 		}
 
 	} else {
-		my $entry = PerlPanel::DesktopEntry->new($self->{file});
+		$self->{entry} = PerlPanel::DesktopEntry->new($self->{file});
 
-		if (!defined($entry)) {
+		if (!defined($self->{entry})) {
 			PerlPanel::warning(_('Launcher file is empty or invalid. Click OK to edit.'), sub { $self->edit });
 
 		} else {
 
-			my $name	= $entry->Name(PerlPanel::locale);
-			my $comment	= $entry->Comment(PerlPanel::locale);
-			my $program	= $entry->Exec(PerlPanel::locale);
-			my $icon	= $entry->Icon(PerlPanel::locale);
+			my $name	= $self->{entry}->Name(PerlPanel::locale);
+			my $comment	= $self->{entry}->Comment(PerlPanel::locale);
+			my $program	= $self->{entry}->Exec(PerlPanel::locale);
+			my $icon	= $self->{entry}->Icon(PerlPanel::locale);
 
 			PerlPanel::tips->set_tip($self->widget, ($comment ne '' ? sprintf("%s\n%s", $name, $comment) : $name));
 
@@ -95,13 +95,13 @@ sub init {
 				) {
 
 					if ($_[1]->button == 1) {
-						PerlPanel::launch($program, $entry->StartupNotify);
+						PerlPanel::launch($program, $self->{entry}->StartupNotify);
 
 					} elsif ($_[1]->button == 3) {
 						my $menu = Gtk2::Menu->new;
 
 						my $exec_item = Gtk2::ImageMenuItem->new_from_stock('gtk-execute');
-						$exec_item->signal_connect('activate', sub { $menu->destroy ; PerlPanel::launch($program, $entry->StartupNotify) });
+						$exec_item->signal_connect('activate', sub { $menu->destroy ; PerlPanel::launch($program, $self->{entry}->StartupNotify) });
 
 						my $edit_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
 						$edit_item->signal_connect('activate', sub { $menu->destroy ; $self->edit });
@@ -154,6 +154,12 @@ sub init {
 				{'target' => "text/uri-list", 'flags' => [], 'info' => 0},
 			);
 			$self->widget->signal_connect('drag_data_get', sub { $self->get_drag_data(@_) });
+
+			my $target_list	= Gtk2::TargetList->new;
+			$target_list->add(Gtk2::Gdk::Atom->new('text/uri-list'), 0, 0);
+			$self->widget->drag_dest_set(['drop', 'motion', 'highlight'], ['copy', 'private', 'default', 'move', 'link', 'ask']);
+			$self->widget->signal_connect(drag_data_received => sub { $self->drop_handler(@_) });
+			$self->widget->drag_dest_set_target_list($target_list);
 
 		}
 	}
@@ -235,6 +241,16 @@ sub get_drag_data {
 	my ($self, $widget, $context, $data, $info, $time) = @_;
 	my $uri = Gnome2::VFS->make_uri_canonical($self->{file});
 	$data->set($data->target, 8, $uri);
+	return 1;
+}
+
+sub drop_handler {
+	my ($self, @data) = @_;
+	my @uris = split(/[\r\n]+/, $data[4]->data);
+	if (scalar(@uris) > 0) {
+		my $cmd = $self->{entry}->Exec.' "'.join('" "', @uris).'"';
+		PerlPanel::launch($cmd);
+	}
 	return 1;
 }
 
