@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.31 2004/09/26 12:59:05 jodrell Exp $
+# $Id: MenuBase.pm,v 1.32 2004/09/27 10:37:57 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -229,7 +229,7 @@ sub add_control_items {
 		$configurator->configure;
 		$configurator->init;
 	}));
-	$self->menu->append($self->menu_item(_('Reload'), PerlPanel::get_applet_pbf_filename('reload'), sub { PerlPanel::reload }));
+	$self->menu->append($self->menu_item(_('Reload'), 'gtk-refresh', sub { PerlPanel::reload }));
 
 	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{show_quit_button} eq 'true') {
 		$self->menu->append(
