@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.104 2004/09/10 13:01:14 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.105 2004/09/10 16:23:47 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -350,7 +350,7 @@ sub load_applets {
 	}
 
 	for (my $i = 0 ; $i < scalar(@{$self->{config}{applets}}) ; $i++) {
-		$self->load_applet(@{$self->{config}{applets}}[$i]);
+		$self->load_applet(@{$self->{config}{applets}}[$i], $i);
 	}
 
 	return 1;
@@ -378,6 +378,7 @@ sub load_applet {
 	if (defined($multi) && $id eq '') {
 		$id = $self->new_applet_id;
 		@{$self->{config}{applets}}[$position] = sprintf('%s::%s', $appletname, $id);
+		save_config();
 	}
 
 	if ($id ne '') {
@@ -429,7 +430,7 @@ sub load_applet {
 		print STDERR "Error configuring '$appletname' applet: $@\n";
 
 	} else {
-		$self->append($applet->widget, $applet->expand, $applet->fill, $position);
+		$self->add_applet($applet->widget, $applet->expand, $applet->fill, $position);
 		$applet->widget->show_all;
 	}
 
@@ -461,7 +462,7 @@ sub applet_error {
 	return 1;
 }
 
-sub append {
+sub add_applet {
 	my ($self, $widget, $expand, $fill, $position) = @_;
 	$self->{hbox}->pack_start($widget, $expand, $fill, 0);
 	if (defined($position)) {
