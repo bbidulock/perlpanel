@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.109 2004/09/19 15:57:10 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.110 2004/09/20 16:06:42 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -594,6 +594,8 @@ sub launch {
 			}
 			return undef;
 		});
+	} else {
+		$cmd = sprintf('%s &', $cmd);
 	}
 	system($cmd);
 	return 1;
