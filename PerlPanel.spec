@@ -14,7 +14,7 @@
 # along with PerlPanel; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
-# $Id: PerlPanel.spec,v 1.10 2004/02/17 14:23:04 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.11 2004/02/17 14:30:40 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
@@ -62,5 +62,4 @@ rm -rf %{buildroot}
 %doc doc/README ChangeLog
 %{_bindir}/*
 %{_datadir}/*
-%{_mandir}/*
-%{_libdir}/perlpanel/
+%{_libdir}/perlpanel
