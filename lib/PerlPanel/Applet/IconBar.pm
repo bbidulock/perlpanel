@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.7 2003/06/05 11:32:10 jodrell Exp $
+# $Id: IconBar.pm,v 1.8 2003/06/05 12:50:21 jodrell Exp $
 package PerlPanel::Applet::IconBar;
 use Image::Size;
 use vars qw($ICON_DIR);
@@ -123,10 +123,37 @@ sub build {
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
 	}
 	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, ($self->{name} || $self->{exec}));
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, sprintf('%s (right-click to edit)', ($self->{name} || $self->{exec})));
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('clicked', sub { system($self->{exec}." &") });
+	$self->{widget}->signal_connect('button_press_event', sub {
+		my ($button, $event) = @_;
+		if ($event->button == 1) {
+			system($self->{exec}.' &');
+		} elsif ($event->button == 3) {
+			chomp (my $menueditor = `which gnome-desktop-item-edit`);
+			if (-x $menueditor) {
+				# create a lock file for the subshell to remove when the editor is done:
+				my $lockfile = "$self->{filename}.lock";
+				open(LOCKFILE, ">$lockfile") && close(LOCKFILE);
+				# record the desktop file's mod time:
+				my $mtime = (stat($self->{filename}))[9];
+				# run the editor:
+				system("$menueditor $self->{filename} rm -f $lockfile &");
+				# wait for the lockfile to be removed:
+				while (-e $lockfile) {
+					Gtk2->main_iteration while (Gtk2->events_pending);
+				}
+				# reload if the file changed:
+				my $newmtime = (stat($self->{filename}))[9];
+				if ($newmtime > $mtime) {
+					$PerlPanel::OBJECT_REF->reload;
+				}
+			} else {
+				$PerlPanel::OBJECT_REF->warning('No desktop item editor could be found.');
+			}
+		}
+	});
 	return 1;
 }
 
