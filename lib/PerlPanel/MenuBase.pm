@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.33 2004/09/29 13:17:43 jodrell Exp $
+# $Id: MenuBase.pm,v 1.34 2004/10/28 21:52:45 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -72,6 +72,11 @@ $COMMANDER->configure;
 sub new {
 	my $self		= {};
 	$self->{package}	= shift;
+	my $multi;
+	eval(sprintf('$multi = $%s::MULTI;', $self->{package}));
+	if (defined($multi)) {
+		$self->{id}	= shift();
+	}
 	bless($self, $self->{package});
 	return $self;
 }
