@@ -1,4 +1,4 @@
-# $Id: WiFiMonitor.pm,v 1.3 2004/09/17 15:42:32 jodrell Exp $
+# $Id: WiFiMonitor.pm,v 1.4 2004/09/17 15:49:36 jodrell Exp $
 # This file is part of PerlPanel.
 #
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -65,7 +65,7 @@ sub update {
 			$signal .= $_;
 		}
 		close(WIRELESS);
-	   	(undef, $signal) = $signal =~ /(eth|wlan)\d:\s+\d+\s+(\d+)/;
+	   	($signal) = $signal =~ /(?:eth|wlan)\d:\s+\d+\s+(\d+)/;
 		$self->{label}->set_text(sprintf('%d%%', ($signal / 92) * 100));
 	}
 	return 1;
