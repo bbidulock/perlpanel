@@ -1,4 +1,4 @@
-# $Id: Launcher.pm,v 1.9 2004/09/29 13:17:43 jodrell Exp $
+# $Id: Launcher.pm,v 1.10 2004/10/24 21:29:49 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -90,7 +90,7 @@ sub init {
 				$menu->add($edit_item);
 				$menu->add($remove_item);
 				$menu->show_all;
-				$menu->popup(undef, undef, sub { return $self->popup_position }, undef, $_[1]->button, undef);
+				$menu->popup(undef, undef, sub { return $self->popup_position($menu) }, undef, $_[1]->button, undef);
 
 			}
 			return undef;
@@ -150,14 +150,14 @@ sub remove {
 }
 
 sub popup_position {
-	my $self = shift;
+	my ($self, $menu) = @_;
 	my ($x, undef) = PerlPanel::get_widget_position($self->widget);
 	$x = 0 if ($x < 5);
 	if (PerlPanel::position eq 'top') {
 		return ($x, PerlPanel::panel->allocation->height);
 	} else {
-		$self->menu->realize;
-		return ($x, PerlPanel::screen_height() - $self->menu->allocation->height - PerlPanel::panel->allocation->height);
+		$menu->realize;
+		return ($x, PerlPanel::screen_height() - $menu->allocation->height - PerlPanel::panel->allocation->height);
 	}
 }
 
