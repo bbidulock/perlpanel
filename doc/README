@@ -39,17 +39,14 @@ A few wahs, or, TODO:
 	   havoc with a lot of things. There's probably a way to do it "properly"
 	   using Gdk but that's beyond my experience. Feel free to correct this
 	   with a patch.
-	4. The IconBar applet uses Image::Magick to rescale icons. This is
-	   probably a silly way to do things. Again, something involving
-	   Gdk::pixbuf is almost certainly the way forward.
-	5. No GUI configuration.
-	6. Currently there's no separation between panel config and applet
+	4. No GUI configuration.
+	5. Currently there's no separation between panel config and applet
 	   config. A way to separate them is probably really easy, and will
 	   come soon. Maybe.
-	7. No I18N yet.
+	6. No I18N yet.
 
 Any flames, praise, patches, offers of money or sexual favours to
 jodrell@spod.uk.net.
 
 --
-$Id: README,v 1.2 2003/06/02 21:16:48 jodrell Exp $
+$Id: README,v 1.3 2003/06/03 16:10:21 jodrell Exp $

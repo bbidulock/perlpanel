@@ -1,13 +1,10 @@
-# $Id: IconBar.pm,v 1.4 2003/05/29 16:04:46 jodrell Exp $
+# $Id: IconBar.pm,v 1.5 2003/06/03 16:10:21 jodrell Exp $
 package PerlPanel::Applet::IconBar;
-use File::Basename;
 use Image::Size;
-use Image::Magick;
-use vars qw($ICON_SPACING $ICON_DIR);
+use vars qw($ICON_DIR);
 use strict;
 
-our $ICON_SPACING	= 2;
-our $ICON_DIR		= '/usr/share/pixmaps';
+our $ICON_DIR = sprintf('%s/share/pixmaps', $PerlPanel::PREFIX);
 
 sub new {
 	my $self		= {};
@@ -19,7 +16,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
-	$self->{widget}->set_spacing($ICON_SPACING);
+	$self->{widget}->set_spacing($PerlPanel::OBJECT_REF->{config}{applet}{padding});
 	$self->{icondir} = sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));
 	opendir(DIR, $self->{icondir}) or print STDERR "Error opening $self->{icondir}: $!\n" and return undef;
 	my @icons = grep { /\.desktop$/i } readdir(DIR);
@@ -92,13 +89,35 @@ sub build {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
 	if (-e $self->{icon}) {
-		$self->{pixmap} = Gtk2::Image->new_from_file($self->rescale($self->{icon}));
+		$self->{filename} = $self->{icon};
 	} elsif (-e "$ICON_DIR/$self->{icon}") {
-		$self->{pixmap} = Gtk2::Image->new_from_file($self->rescale("$ICON_DIR/$self->{icon}"));
+		$self->{filename} = "$ICON_DIR/$self->{icon}";
 	} else {
-		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', 'menu');
+		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', $PerlPanel::OBJECT_REF->icon_size_name);
 	}
-	$self->{pixmap}->set_size_request($PerlPanel::ICON_SIZE, $PerlPanel::ICON_SIZE);
+	if (defined($self->{filename})) {
+		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{filename});
+		my ($x0, $y0) = Image::Size::imgsize($self->{filename});
+		if ($x0 != $PerlPanel::OBJECT_REF->icon_size || $y0 != $PerlPanel::OBJECT_REF->icon_size) {
+			my ($x1, $y1);
+			if ($x0 > $y0) {
+				# image is landscape:
+				$x1 = $PerlPanel::OBJECT_REF->icon_size;
+				$y1 = int(($y0 / $x0) * $PerlPanel::OBJECT_REF->icon_size);
+			} elsif ($x0 == $y0) {
+				# image is square:
+				$x1 = $PerlPanel::OBJECT_REF->icon_size;
+				$y1 = $PerlPanel::OBJECT_REF->icon_size;
+			} else {
+				# image is portrait:
+				$x1 = int(($x0 / $y0) * $PerlPanel::OBJECT_REF->icon_size);
+				$y1 = $PerlPanel::OBJECT_REF->icon_size;
+			}
+			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
+		}
+		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
+	}
+	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, ($self->{name} || $self->{exec}));
 	$self->{widget}->add($self->{pixmap});
 	$self->{widget}->set_relief('none');
@@ -108,37 +127,6 @@ sub build {
 
 sub widget {
 	return $_[0]->{widget};
-}
-
-sub rescale {
-	my ($self, $image) = @_;
-	my ($x, $y) = Image::Size::imgsize($image);
-	my $cachefile = sprintf('%s/.%s/iconcache/%s', $ENV{HOME}, lc($PerlPanel::NAME), File::Basename::basename($image));
-	if ($x <= $PerlPanel::ICON_SIZE && $y <= $PerlPanel::ICON_SIZE) {
-		# image is small enough already:
-		return $image;
-	} elsif (-e $cachefile) {
-		# already got a cached version:
-		return $cachefile;
-	} else {
-		mkdir(sprintf('%s/.%s/iconcache', $ENV{HOME}, lc($PerlPanel::NAME)));
-		my $geometry;
-		if ($x > $y) {
-			# image is landscape:
-			$geometry = sprintf('%dx%d', $PerlPanel::ICON_SIZE, $PerlPanel::ICON_SIZE * ($y / $x));
-		} elsif ($x == $y) {
-			# image is square:
-			$geometry = sprintf('%dx%d', $PerlPanel::ICON_SIZE, $PerlPanel::ICON_SIZE);
-		} else {
-			# image is portrait:
-			$geometry = sprintf('%dx%d', $PerlPanel::ICON_SIZE, $PerlPanel::ICON_SIZE * ($x / $y));
-		}
-		my $img = Image::Magick->new;
-		$img->Read(filename => $image);
-		$img->Resize(geometry=>$geometry);
-		$img->Write(filename => $cachefile);
-		return $cachefile;
-	}
 }
 
 1;

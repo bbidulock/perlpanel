@@ -1,37 +1,37 @@
-# $Id: PerlPanel.pm,v 1.4 2003/06/02 13:17:06 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.5 2003/06/03 16:10:21 jodrell Exp $
 package PerlPanel;
 use XML::Simple;
 use Gtk2;
 use Data::Dumper;
-use vars qw($NAME $VERSION $PREFIX @APPLETSDIR %DEFAULTS $TOOLTIP_REF $OBJECT_REF $ICON_SIZE_NAME $ICON_SIZE);
+use vars qw($NAME $VERSION $PREFIX %DEFAULTS $TOOLTIP_REF $OBJECT_REF);
 use strict;
 
 our $NAME	= 'PerlPanel';
-our $VERSION	= '0.01';
-our $PREFIX	= '/usr';
+our $VERSION	= '0.02';
 
-our $ICON_SIZE		= 24;
-our $ICON_SIZE_NAME	= 'large-toolbar';
-
-our @APPLETSDIR = (
-	sprintf('%s/share/%s/applets', $PREFIX, lc($NAME)),
-	sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),
-);
+chomp(our $PREFIX = `gtk-config --prefix`);
 
 our %DEFAULTS = (
 	panel => {
-		width	=> 1024,
-		height	=> 24,
-		x	=> 736,
-		y	=> 0,
-		spacing	=> 0,
+		width		=> 1024,
+		height		=> 24,
+		x		=> 736,
+		y		=> 0,
+		spacing		=> 0,
+		icon_size	=> 24,
+		icon_size_name	=> 'large-toolbar',
 	},
+	appletsdirs => [
+		sprintf('%s/share/%s/applets', $PREFIX, lc($NAME)),
+		sprintf('%s/.%s/applets', $ENV{HOME}, lc($NAME)),
+	],
 	applets => [
 		'BBMenu',
 		'IconBar',
 		'Clock',
-		'Quit',
+		'Commander',
 		'Reload',
+		'Quit',
 	],
 	applet => {
 		padding	=> 3,
@@ -53,7 +53,7 @@ sub init {
 	my $self = shift;
 	$self->load_config;
 	$self->build_ui;
-	map { push(@INC, $_) } @APPLETSDIR;
+	map { push(@INC, $_) } @{$self->{config}{appletsdirs}};
 	$self->load_applets;
 	$self->show_all;
 	Gtk2->main;
@@ -229,6 +229,14 @@ sub warning {
 sub notify {
 	my ($self, $message, $ok_callback) = @_;
 	return $self->alert($message, $ok_callback, undef, 'gtk-dialog-info');
+}
+
+sub icon_size {
+	return ($_[0]->{config}{icon_size} || $DEFAULTS{panel}{icon_size});
+}
+
+sub icon_size_name {
+	return ($_[0]->{config}{icon_size_name} || $DEFAULTS{panel}{icon_size_name});
 }
 
 1;

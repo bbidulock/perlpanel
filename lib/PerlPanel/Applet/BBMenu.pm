@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.2 2003/06/02 13:17:06 jodrell Exp $
+# $Id: BBMenu.pm,v 1.3 2003/06/03 16:10:21 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use strict;
 
@@ -12,7 +12,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::Button->new;
-	$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::ICON_SIZE_NAME);
+	$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->{widget}->set_relief('none');

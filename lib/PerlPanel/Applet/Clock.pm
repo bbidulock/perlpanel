@@ -1,11 +1,12 @@
-# $Id: Clock.pm,v 1.5 2003/06/02 22:25:27 jodrell Exp $
+# $Id: Clock.pm,v 1.6 2003/06/03 16:10:21 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use POSIX qw(strftime);
-use vars qw($FORMAT $INTERVAL);
+use vars qw($FORMAT $DATE_FORMAT $INTERVAL);
 use strict;
 
-our $FORMAT	= '%H:%M';
-our $INTERVAL	= 5;
+our $FORMAT		= '%H:%M';
+our $DATE_FORMAT	= '%c';
+our $INTERVAL		= 500;
 
 sub new {
 	my $self		= {};
@@ -25,6 +26,7 @@ sub configure {
 sub update {
 	my $self = shift;
 	$self->{widget}->set_text(strftime($FORMAT, localtime(time())));
+	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, strftime($DATE_FORMAT, localtime(time())));
 	return 1;
 }
 
