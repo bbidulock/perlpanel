@@ -1,4 +1,4 @@
-# $Id: Configurator.pm,v 1.34 2004/02/12 14:32:01 jodrell Exp $
+# $Id: Configurator.pm,v 1.35 2004/02/16 16:47:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -105,8 +105,6 @@ sub build_ui {
 	$self->{notebook}->append_page($self->{pages}{panel}, 'Panel');
 
 	$self->{pages}{menu} = Gtk2::VBox->new;
-	$self->{pages}{menu}->set_border_width(12);
-	$self->{pages}{menu}->set_spacing(6);
 
 	if (PerlPanel::has_application_menu) {
 
@@ -116,11 +114,15 @@ sub build_ui {
 		$align->add($label);
 		$self->{pages}{menu}->pack_start($align, 0, 0, 0);
 
-		$self->{menu}{table} = Gtk2::Table->new(3, 2);
-		$self->{menu}{table}->set_col_spacings(12);
-		$self->{menu}{table}->set_row_spacings(12);
-
 		$self->{iconfile}{label} = $self->control_label('Menu icon:');
+
+		$self->{menu_vbox} = Gtk2::VBox->new;
+		$self->{menu_vbox}->set_border_width(12);
+		$self->{menu_vbox}->set_spacing(6);
+
+		$self->{menu_vbox_wrapper} = Gtk2::HBox->new;
+		$self->{menu_vbox_wrapper}->pack_start(Gtk2::Label->new('    '), 0, 0, 0);
+		$self->{menu_vbox_wrapper}->pack_start($self->{menu_vbox}, 1, 1, 0);
 
 		$self->{iconfile}{icon} = Gtk2::Image->new_from_file($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{icon});
 		$self->{controls}{iconfile} = Gtk2::Button->new;
@@ -137,6 +139,10 @@ sub build_ui {
 		$self->{menu}{label} = $self->control_label('Menu label:');
 		$self->{controls}{label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'label', 'text', 'Menu label');
 
+		$self->{menu}{table} = Gtk2::Table->new(3, 2);
+		$self->{menu}{table}->set_col_spacings(12);
+		$self->{menu}{table}->set_row_spacings(12);
+
 		if (!PerlPanel::has_action_menu) {
 			$self->{menu}{submenu_label} = $self->control_label('Submenu label:');
 			$self->{controls}{submenu_label} = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'submenu_label', 'text', 'Submenu label');
@@ -144,7 +150,6 @@ sub build_ui {
 			$self->{menu}{table}->attach_defaults($self->{controls}{submenu_label}, 1, 2, 0, 1);
 
 		}
-
 		$self->{menu}{table}->attach_defaults($self->{menu}{label},    0, 1, 1, 2);
 		$self->{menu}{table}->attach_defaults($self->{controls}{label}, 1, 2, 1, 2);
 
@@ -155,20 +160,20 @@ sub build_ui {
 		$self->{menu}{table}->attach_defaults($self->{menu}{icon_align}, 1, 2, 2, 3);
 
 		if (PerlPanel::has_application_menu && !PerlPanel::has_action_menu) {
-			$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
+			$self->{menu_vbox}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'show_control_items', 'boolean', 'Show control items in menu'), 0, 0, 0);
 		}
 
-		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
-		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'arrow', 'boolean', 'Show arrow on icon'), 0, 0, 0);
+		$self->{menu_vbox}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
+		$self->{menu_vbox}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'arrow', 'boolean', 'Show arrow on icon'), 0, 0, 0);
 
 		if (!PerlPanel::has_action_menu) {
 			my $control = $self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}, 'apps_in_submenu', 'boolean', 'Place applications in a submenu');
 			$control->signal_connect('toggled', sub { $self->{controls}{submenu_label}->set_sensitive($control->get_active) });
 			$self->{controls}{submenu_label}->set_sensitive($control->get_active);
-			$self->{pages}{menu}->pack_start($control, 0, 0, 0);
+			$self->{menu_vbox}->pack_start($control, 0, 0, 0);
 		}
 
-		$self->{pages}{menu}->pack_start($self->{menu}{table}, 0, 0, 0);
+		$self->{menu_vbox}->pack_start($self->{menu}{table}, 0, 0, 0);
 
 	}
 
@@ -178,6 +183,8 @@ sub build_ui {
 		my $align = Gtk2::Alignment->new(0, 0.5, 0, 0);
 		$align->add($label);
 		$self->{pages}{menu}->pack_start($align, 0, 0, 0);
+
+
 		$self->{pages}{menu}->pack_start($self->control($PerlPanel::OBJECT_REF->{config}{appletconf}{ActionMenu}, 'relief', 'boolean', 'Show border on button'), 0, 0, 0);
 
 		$self->{action_menu}{table} = Gtk2::Table->new(3, 2);

@@ -1,4 +1,4 @@
-# $Id: NewConfigurator.pm,v 1.1 2004/02/16 00:29:16 jodrell Exp $
+# $Id: NewConfigurator.pm,v 1.2 2004/02/16 16:47:39 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -35,6 +35,9 @@ use strict;
 #	],
 #
 # where $type can be on of: enum, boolean, string, or integer.
+#
+# for enums, @values must contain the same entries as appear
+# in the option menu.
 
 our %SETTINGS_MAP = (
 
@@ -45,11 +48,17 @@ our %SETTINGS_MAP = (
 		$PerlPanel::OBJECT_REF->{config}{panel},
 		'position',
 		'enum',
+		'top',
+		'bottom',
 	],
 	'panel_size' => [
 		$PerlPanel::OBJECT_REF->{config}{panel},
 		'size',
 		'enum',
+		'tiny',
+		'small',
+		'medium',
+		'large',
 	],
 	'panel_autohide' => [
 		$PerlPanel::OBJECT_REF->{config}{panel},
@@ -197,12 +206,19 @@ sub setup_config_mapping {
 	my $self = shift;
 	foreach my $widget_id (keys %SETTINGS_MAP) {
 		my $widget = $self->app->get_widget($widget_id);
-		my ($ref, $key, $type) = @{$SETTINGS_MAP{$widget_id}};
+		my ($ref, $key, $type, @values) = @{$SETTINGS_MAP{$widget_id}};
 		if ($type eq 'string') {
 			$widget->set_text($ref->{$key});
 		} elsif ($type eq 'boolean') {
 			$widget->set_active($ref->{$key} eq 'true' ? 1 : undef);
 		} elsif ($type eq 'enum') {
+			my $i = 0;
+			foreach my $value (@values) {
+				if ($ref->{$key} eq $value) {
+					$widget->set_history($i);
+				}
+				$i++;
+			}
 		} elsif ($type eq 'integer') {
 			$widget->set_value($ref->{$key});
 		} else {
