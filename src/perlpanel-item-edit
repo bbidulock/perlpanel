@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.1 2005/01/03 15:23:00 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.2 2005/01/03 19:02:57 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -27,6 +27,8 @@ use XML::Simple;
 use POSIX qw(setlocale);
 use Locale::gettext;
 use strict;
+
+die("X11::FreeDesktop::DesktopEntry must be at least 0.03") unless ($X11::FreeDesktop::DesktopEntry::VERSION >= 0.04);
 
 my $PREFIX			= (-e '@PREFIX@' ? '@PREFIX@' : $ENV{PWD});
 my $GLADE			= sprintf('%s/share/perlpanel/glade/item-editor.glade', $PREFIX);
@@ -167,7 +169,23 @@ sub on_icon_button_clicked {
 #
 sub on_item_edit_dialog_response {
 	if ($_[1] eq 'ok') {
-		print STDERR "FIXME: Can't write back, since it's not supported in DesktopEntry.pm yet\n";
+		$entry->set_value('Name',	$glade->get_widget('launcher_name')->get_text, $LOCALE);
+		$entry->set_value('Comment',	$glade->get_widget('launcher_comment')->get_text, $LOCALE);
+		$entry->set_value('Exec',	$PROGRAM);
+		$entry->set_value('Icon',	$ICON);
+
+		my $data = $entry->as_string;
+
+		$glade->get_widget('item_edit_dialog')->set_sensitive(0);
+		Gtk2->main_iteration while (Gtk2->events_pending);
+
+		my ($result, $handle) = Gnome2::VFS->open($uri, 'write');
+		error_dialog(_("Error writing to '{uri}': {error}", uri => $uri, error => $result)) if ($result ne 'ok');
+
+		$handle->write($data, length($data));
+
+		$handle->close;
+
 	}
 
 	Gtk2->main_quit;
