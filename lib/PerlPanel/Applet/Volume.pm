@@ -1,4 +1,4 @@
-# $Id: Volume.pm,v 1.1 2005/01/08 14:03:27 jodrell Exp $
+# $Id: Volume.pm,v 1.2 2005/01/10 10:09:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -37,8 +37,11 @@ sub new {
 	if ($loaded == 0) {
 		PerlPanel::warning(_('The Volume applet requires the Audio::Mixer module!'));
 		$self->{active} = 0;
-	}
 
+	} else {
+		$self->{active} = 1;
+
+	}
 	return $self;
 }
 
