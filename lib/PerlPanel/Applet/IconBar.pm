@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.39 2004/06/26 23:18:07 jodrell Exp $
+# $Id: IconBar.pm,v 1.40 2004/07/06 12:50:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -146,7 +146,7 @@ sub new {
 	$self->{package}	= shift;
 	$self->{filename}	= shift;
 	$self->{icondir}	= sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));
-	chomp($self->{nautilus}	= `which nautilus`);
+	chomp($self->{nautilus}	= `which nautilus 2> /dev/null`);
 	bless($self, $self->{package});
 	$self->parse unless ($self->{filename} eq 'dummy');
 	$self->build;
