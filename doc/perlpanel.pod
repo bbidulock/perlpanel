@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.27 2004/09/28 09:05:39 jodrell Exp $
+$Id: perlpanel.pod,v 1.28 2004/09/29 11:34:12 jodrell Exp $
 
 =head1 Introduction
 
@@ -57,11 +57,12 @@ A number of people have written applets for PerlPanel which aren't part
 of the main PerlPanel package. These applets can be downloaded and
 installed very easily.
 
-To install an applet, you can use the "Install Applet..." item in the
-"Add To Panel" submenu of the Action Menu, or the "Install Applet"
-button on the "Add Applet" dialog of the Configurator. Each of these
-will display a dialog that will prompt you for the filename of the
-applet to be installed. Then you can add the Applet to your panel.
+To install an applet, you can simply drag the file onto the panel. Or
+you can use the "Install Applet..." item in the "Add To Panel" submenu
+of the Action Menu, or the "Install Applet" button on the "Add Applet"
+dialog of the Configurator. Each of these will display a dialog that
+will prompt you for the filename of the applet to be installed. Then you
+can add the Applet to your panel.
 
 =head2 The 'About' Applet
 
