@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.24 2005/01/05 12:34:41 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.25 2005/01/22 14:02:29 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -232,9 +232,22 @@ sub create_submenu_for {
 					(-e $icon ? $icon : 'gtk-execute'),
 					sub { PerlPanel::launch($program, $entry->StartupNotify) },
 				);
+
 				if ($comment ne '') {
 					PerlPanel::tips->set_tip($item, $comment);
 				}
+
+				$item->drag_source_set(
+					['button1_mask', 'button3_mask'],
+					['copy', 'move'],
+					{'target' => "text/uri-list", 'flags' => [], 'info' => 0},
+				);
+				$item->signal_connect('drag_data_get', sub {
+					my ($widget, $context, $data, $info, $time) = @_;
+					my $uri = Gnome2::VFS->make_uri_canonical($path);
+					$data->set($data->target, 8, $uri);
+				});
+
 				push(@file_items, $item);
 			}
 
@@ -276,6 +289,7 @@ sub resolve_target {
 		}
 	} else {
 		return $info;
+
 	}
 }
 
