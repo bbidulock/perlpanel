@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.24 2003/06/24 14:42:12 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.25 2003/06/27 13:26:17 jodrell Exp $
 package PerlPanel;
 use Gtk2;
 use Data::Dumper;
@@ -126,7 +126,10 @@ sub build_ui {
 	$self->{panel}->set_default_size($self->screen_width, 0);
 	$self->{hbox} = Gtk2::HBox->new;
 	$self->{hbox}->set_spacing($self->{config}{panel}{spacing});
-	$self->{panel}->add($self->{hbox});
+	$self->{port} = Gtk2::Viewport->new;
+	$self->{port}->set_shadow_type('out');
+	$self->{port}->add($self->{hbox});
+	$self->{panel}->add($self->{port});
 	return 1;
 }
 

@@ -1,5 +1,5 @@
 # Makefile for PerlPanel
-# $Id: Makefile,v 1.6 2003/06/25 11:36:13 jodrell Exp $
+# $Id: Makefile,v 1.7 2003/06/27 13:26:17 jodrell Exp $
 
 PREFIX=/usr
 LIBDIR=$(PREFIX)/lib/perlpanel
@@ -23,9 +23,10 @@ install:
 	install -m 0755 build/perlpanel.1 $(MANDIR)/
 	install -m 0755 build/perlpanel-applet-howto.1 $(MANDIR)/
 	install -m 0644 share/perlpanel.png $(IMGDIR)/
+	install -m 0644 share/perlpanel-menu-icon.png $(IMGDIR)/
 
 clean:
 	rm -rf build
 
 uninstall:
-	rm -rf $(BINDIR)/perlpanel $(LIBDIR) $(MANDIR)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1 $(IMGDIR)/perlpanel.png
+	rm -rf $(BINDIR)/perlpanel $(LIBDIR) $(MANDIR)/perlpanel.1 $(MANDIR)/perlpanel-applet-howto.1 $(IMGDIR)/perlpanel.png $(IMGDIR)/perlpanel-menu-icon.png

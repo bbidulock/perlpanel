@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.11 2003/06/25 11:36:13 jodrell Exp $
+# $Id: Clock.pm,v 1.12 2003/06/27 13:26:17 jodrell Exp $
 package PerlPanel::Applet::Clock;
 use POSIX qw(strftime);
 use strict;
@@ -40,6 +40,7 @@ sub prefs {
 	$self->{table} = Gtk2::Table->new(2, 2, 0);
 	$self->{table}->set_col_spacings(8);
 	$self->{table}->set_row_spacings(8);
+	$self->{table}->set_border_width(8);
 
 	$self->{controls}{format} = Gtk2::Entry->new;
 	$self->{controls}{format}->set_text($PerlPanel::OBJECT_REF->{config}{appletconf}{Clock}{format});
@@ -59,6 +60,15 @@ sub prefs {
 	$self->{labels}{date_format}->set_alignment(1, 0.5);
 	$self->{table}->attach_defaults($self->{labels}{date_format}, 0, 1, 1, 2);
 	$self->{table}->attach_defaults($self->{controls}{date_format}, 1, 2, 1, 2);
+
+	$self->{notebook} = Gtk2::Notebook->new;
+
+	$self->{calendar} = Gtk2::Calendar->new;
+
+	$self->{notebook}->append_page($self->{calendar}, Gtk2::Label->new('Calendar'));
+	$self->{notebook}->append_page($self->{table}, Gtk2::Label->new('Configuration'));
+
+	$self->{window}->vbox->pack_start($self->{notebook}, 1, 1, 0);
 
 	$self->{window}->add_buttons(
 		'gtk-cancel', 1,
@@ -80,8 +90,6 @@ sub prefs {
 			$self->{window}->destroy;
 		}
 	});
-
-	$self->{window}->vbox->pack_start($self->{table}, 1, 1, 0);
 
 	$self->{window}->show_all;
 

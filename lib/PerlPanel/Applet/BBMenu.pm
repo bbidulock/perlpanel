@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.18 2003/06/23 12:34:00 jodrell Exp $
+# $Id: BBMenu.pm,v 1.19 2003/06/27 13:26:17 jodrell Exp $
 package PerlPanel::Applet::BBMenu;
 use vars qw(@menufiles);
 use strict;
@@ -32,7 +32,14 @@ sub configure {
 	$self->parse_menufile;
 	$self->add_control_items;
 	$self->create_menu;
-	$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
+	$self->{iconfile} = $PerlPanel::OBJECT_REF->{config}{appletconf}{BBMenu}{iconfile};
+	if (-e $self->{iconfile}) {
+		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
+		$self->{pixbuf} = $self->{pixbuf}->scale_simple($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size, 'bilinear');
+		$self->{icon} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
+	} else {
+		$self->{icon} = Gtk2::Image->new_from_stock('gtk-jump-to', $PerlPanel::OBJECT_REF->icon_size_name);
+	}
 	$self->{widget}->add($self->{icon});
 	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, 'Menu');
 	$self->{widget}->set_relief('none');
@@ -57,7 +64,9 @@ sub end {
 }
 
 sub get_default_config {
-	return undef;
+	return {
+		iconfile => sprintf('%s/share/pixmaps/%s-menu-icon.png', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
+	};
 }
 
 sub parse_menufile {
