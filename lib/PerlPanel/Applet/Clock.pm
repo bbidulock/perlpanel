@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.29 2004/10/28 13:37:32 jodrell Exp $
+# $Id: Clock.pm,v 1.30 2004/10/28 14:35:15 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -167,6 +167,21 @@ sub make_calendar {
 	my $renderer = Gtk2::CellRendererText->new;
 	$self->{combo}->pack_start($renderer, undef);
 	$self->{combo}->set_attributes($renderer, 'text' => 1);
+
+	$self->{edit_combo} = Gtk2::ComboBox->new;
+
+	$self->{glade}->get_widget('edit_event_reminder_combo_placeholder')->add($self->{edit_combo});
+
+	$self->{edit_combo}->set_model($self->{model});
+
+	my $renderer = Gtk2::CellRendererText->new;
+	$self->{edit_combo}->pack_start($renderer, undef);
+	$self->{edit_combo}->set_attributes($renderer, 'text' => 1);
+
+	$self->{glade}->get_widget('edit_event_dialog')->signal_connect('delete_event', sub {
+		$self->{glade}->get_widget('edit_event_dialog')->hide_all;
+		return 1;
+	});
 
 	return 1;
 }
@@ -340,7 +355,53 @@ sub edit_event {
 	my $self = shift;
 	my ($idx) = $self->{events}->get_selected_indices;
 	my @events = $self->get_events_for($self->{calendar}->get_date);
-	print Data::Dumper::Dumper($events[$idx]);
+
+	my $event = $events[$idx];
+
+	if (defined($self->{edit_handler_id})) {
+		$self->{glade}->get_widget('edit_event_dialog')->signal_handler_disconnect($self->{edit_handler_id});
+	}
+	$self->{edit_handler_id} = $self->{glade}->get_widget('edit_event_dialog')->signal_connect('response', sub {
+
+		if ($_[1] eq 'ok') {
+			$event->{time} = sprintf(
+				'%02d:%02d',
+				$self->{glade}->get_widget('edit_event_hour')->get_value_as_int,
+				$self->{glade}->get_widget('edit_event_minute')->get_value_as_int,
+			);
+			$event->{note} = $self->{glade}->get_widget('edit_event_notes')->get_buffer->get_text(
+				$self->{glade}->get_widget('edit_event_notes')->get_buffer->get_start_iter,
+				$self->{glade}->get_widget('edit_event_notes')->get_buffer->get_end_iter,
+				undef,
+			);
+			$event->{reminder} = $self->{edit_combo}->get_model->get($self->{edit_combo}->get_active_iter, 0);
+			$event->{reminded} = 'false';
+			PerlPanel::save_config;
+			$self->show_events($self->{calendar}->get_date);
+		}
+
+		$self->{glade}->get_widget('edit_event_dialog')->hide_all;
+		$self->{glade}->get_widget('edit_event_dialog')->signal_handler_disconnect($self->{edit_handler_id});
+		undef($self->{edit_handler_id});
+	});
+
+	my ($hour, $min) = split(/:/, $event->{time}, 2);
+	$self->{glade}->get_widget('edit_event_hour')->set_value($hour);
+	$self->{glade}->get_widget('edit_event_minute')->set_value($min);
+	$self->{glade}->get_widget('edit_event_notes')->get_buffer->set_text($event->{notes});
+	my $i = 0;
+	foreach my $reminder (sort { $a <=> $b } keys %REMINDERS) {
+		if ($reminder == $event->{reminder}) {
+			$self->{edit_combo}->set_active($i);
+			last;
+		} else {
+			$i++;
+		}
+	}
+
+	$self->{glade}->get_widget('edit_event_dialog')->set_position('center');
+	$self->{glade}->get_widget('edit_event_dialog')->show_all;
+
 	return 1;
 }
 
