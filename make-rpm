@@ -4,12 +4,17 @@
 # NB: make sure cvs2cl will work, and that your user has
 # write permissions on RPM's build directory.
 #
-# $Id: make-rpm,v 1.6 2004/02/20 17:13:05 jodrell Exp $
+# $Id: make-rpm,v 1.7 2004/04/05 20:16:31 jodrell Exp $
 
 CWD=$PWD
 VERSION=$1
 TOPDIR=$HOME/.rpmbuild
 DIR=`basename $PWD`
+
+if [ -z $VERSION ] ; then
+	echo Usage: $0 [VERSION]
+	exit
+fi
 
 echo Creating temporary copy of package:
 rm -rf /tmp/$DIR-$VERSION

@@ -17,9 +17,9 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.33 2004/02/20 12:35:07 jodrell Exp $
+# $Id: Makefile,v 1.34 2004/04/05 20:16:31 jodrell Exp $
 
-VERSION=0.4.0
+VERSION=0.4.1
 
 PREFIX=/usr/local
 LIBDIR=$(PREFIX)/lib/perlpanel

@@ -1,6 +1,17 @@
 ChangeLog
 =========
 
+2004-04-06 - v0.4.1
+
+	* This release focuses on the implementation of support for GNU
+	  gettext. Users are encouraged to submit a translation of
+	  PerlPanel's strings into their own languages. To comply with
+	  Fitt's Law, the shadow border around the panel has been
+	  removed, but can be reinstated with a hidden preference.
+	  "Power Off" and "Reboot" options have been added to the
+	  default actions. A "Screenshot" applet, with a corresponding
+	  action menu item, has been added.
+
 2004-02-20 - v0.4.0
 
 	* The Configuration applet has been rewritten using Glade for
@@ -101,4 +112,4 @@ ChangeLog
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.1 2004/02/20 14:42:11 jodrell Exp $
+$Id: ChangeLog,v 1.2 2004/04/05 20:16:31 jodrell Exp $

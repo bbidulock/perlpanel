@@ -17,11 +17,11 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: PerlPanel.spec,v 1.14 2004/03/19 16:10:22 jodrell Exp $
+# $Id: PerlPanel.spec,v 1.15 2004/04/05 20:16:31 jodrell Exp $
 
 Summary: An X11 Panel program written in Perl.
 Name: PerlPanel
-Version: 0.4.0
+Version: 0.4.1
 Release: 1
 Epoch: 0
 Group: Applications/Accessories
