@@ -1,4 +1,4 @@
-# $Id: PanelPet.pm,v 1.4 2004/04/05 22:02:29 jodrell Exp $
+# $Id: PanelPet.pm,v 1.5 2004/05/21 10:22:50 jodrell Exp $
 package PerlPanel::Applet::PanelPet;
 use strict;
 
@@ -406,7 +406,18 @@ sub _update {
 
 sub _choose_panelpet_image {
     my $self = shift;
-    my $selector = Gtk2::FileSelection->new(_('Choose PanelPet Image'));
+    my $selector;
+    if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
+        $selector = Gtk2::FileSelection->new(_('Choose PanelPet Image'));
+    } else {
+        $selector = Gtk2::FileChooserDialog->new(
+            _('Choose PanelPet Image'),
+            undef,
+            'open',
+            'gtk-cancel'    => 'cancel',
+            'gtk-ok' => 'ok'
+        );
+    }
     $selector->set_filename($self->{config}{image});
     $selector->ok_button->signal_connect('clicked', sub {
         $self->{controls}{selector}{filename} = $selector->get_filename;

@@ -1,4 +1,4 @@
-# $Id: ScreenShot.pm,v 1.1 2004/02/25 16:05:54 jodrell Exp $
+# $Id: ScreenShot.pm,v 1.2 2004/05/21 10:22:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -47,7 +47,18 @@ sub configure {
 		return undef;
 	});
 	$self->{app}->get_widget('browse_button')->signal_connect('clicked', sub {
-		my $dialog = Gtk2::FileSelection->new(_('Choose File'));
+		my $dialog;
+		if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
+			$dialog = Gtk2::FileSelection->new(_('Choose File'));
+		} else {
+			$dialog = Gtk2::FileChooserDialog->new(
+				_('Choose File'),
+				undef,
+				'save',
+				'gtk-cancel'	=> 'cancel',
+				'gtk-ok' => 'ok'
+			);
+		}
 		$dialog->set_icon(PerlPanel::icon);
 		$dialog->set_filename($self->{app}->get_widget('file_entry')->get_text);
 		$dialog->signal_connect('response', sub {

@@ -1,4 +1,4 @@
-# $Id: SetiAtHome.pm,v 1.2 2004/04/28 09:39:39 jodrell Exp $
+# $Id: SetiAtHome.pm,v 1.3 2004/05/21 10:22:51 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -78,7 +78,18 @@ sub configuration_dialog {
 	$self->{app}->get_widget('email_entry')->set_text($self->{config}->{email});
 	$self->{app}->get_widget('directory_entry')->set_text($self->{config}->{dir});
 	$self->{app}->get_widget('browse_button')->signal_connect('clicked', sub {
-		my $dialog = Gtk2::FileSelection->new(_('Choose File'));
+		my $dialog;
+		if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
+			$dialog = Gtk2::FileSelection->new(_('Choose File'));
+		} else {
+			$dialog = Gtk2::FileChooserDialog->new(
+				_('Choose File'),
+				undef,
+				'select-folder',
+				'gtk-cancel'	=> 'cancel',
+				'gtk-ok' => 'ok'
+			);
+		}
 		$dialog->set_modal(1);
 		$dialog->set_icon(PerlPanel::get_applet_pbf('SetiAtHome'));
 		$dialog->set_filename($self->{app}->get_widget('directory_entry')->get_text.'/');
@@ -90,8 +101,8 @@ sub configuration_dialog {
 				} elsif (-d dirname($file)) {
 					$self->{app}->get_widget('directory_entry')->set_text(dirname($file));
 				}
+				$dialog->destroy;
 			}
-			$dialog->destroy;
 		});
 		$dialog->show_all;
 	});

@@ -1,4 +1,4 @@
-# $Id: Commander.pm,v 1.18 2004/05/07 14:31:38 jodrell Exp $
+# $Id: Commander.pm,v 1.19 2004/05/21 10:22:50 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -116,7 +116,18 @@ sub run {
 
 	my $file_button = Gtk2::Button->new(_('Run with file...'));
 	$file_button->signal_connect('clicked', sub {
-		my $file_selection = Gtk2::FileSelection->new('Choose File');
+		my $file_selection;
+		if ('' ne (my $msg = Gtk2->check_version (2, 4, 0)) or $Gtk2::VERSION < 1.040) {
+			$file_selection = Gtk2::FileSelection->new(_('Choose File'));
+		} else {
+			$file_selection = Gtk2::FileChooserDialog->new(
+				_('Choose File'),
+				undef,
+				'open',
+				'gtk-cancel'	=> 'cancel',
+				'gtk-ok' => 'ok'
+			);
+		}
 		$file_selection->signal_connect('response', sub {
 			if ($_[1] eq 'ok') {
 				my $file = $file_selection->get_filename;
