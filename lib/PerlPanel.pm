@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.112 2004/09/24 14:49:13 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.113 2004/09/24 16:29:54 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -36,7 +36,7 @@ use vars qw(	$NAME		$VERSION	$DESCRIPTION	$VERSION	@LEAD_AUTHORS
 		$APPLET_ICON_SIZE		@APPLET_DIRS	$PIDFILE	$RUN_COMMAND_FILE
 		$RUN_HISTORY_FILE		$RUN_HISTORY_LENGTH		@APPLET_CATEGORIES
 		$DEFAULT_THEME	$APPLET_ERROR_MARKUP		$DESKTOP_NAMESPACE
-		$DEFAULT_RCFILE);
+		$DEFAULT_RCFILE	@GLADE_PATHS);
 use strict;
 
 our @EXPORT_OK = qw(_); # this exports the _() function, for il8n.
@@ -102,8 +102,6 @@ our $APPLET_ERROR_MARKUP = <<"END";
 <span weight="bold">%s</span>
 END
 
-our $DESKTOP_NAMESPACE	= 'Desktop Entry';
-
 Gtk2->init;
 
 sub new {
@@ -128,6 +126,11 @@ sub new {
 
 	our $DESCRIPTION	= _('The Lean, Mean, Panel Machine!');
 	our $LICENSE		= _('This program is Free Software. You may use it under the terms of the GNU General Public License.');
+
+	our @GLADE_PATHS = (
+		sprintf('%s/.local/share/%s/glade/%%s.glade',	$ENV{HOME}, lc($NAME)),
+		sprintf('%s/share/%s/glade/%%s.glade',		$PREFIX, lc($NAME)),
+	);
 
 	return $self;
 }
@@ -981,9 +984,13 @@ sub spacing {
 
 sub load_glade {
 	my $gladefile = shift;
-	my $file = sprintf('%s/share/%s/glade/%s.glade', $PREFIX, lc($NAME), $gladefile);
 
-	return (-r $file ? Gtk2::GladeXML->new($file) : undef);
+	foreach my $path (@GLADE_PATHS) {
+		my $file = sprintf($path, $gladefile);
+		return Gtk2::GladeXML->new($file) if (-r $file);
+	}
+
+	return undef;
 }
 
 sub _ {
@@ -1080,8 +1087,8 @@ sub load_appletregistry {
 	my $self = shift;
 	my $registry = {};
 	my @registry_dirs = ( 
-		sprintf('%s/share/%s', $PerlPanel::PREFIX, lc($PerlPanel::NAME)),
-		sprintf('%s/.%s', $ENV{HOME}, lc($PerlPanel::NAME)),
+		sprintf('%s/share/%s', $PREFIX, lc($NAME)),
+		sprintf('%s/.%s', $ENV{HOME}, lc($NAME)),
 	);
 	foreach my $dir (@registry_dirs) {
 		my $file = "$dir/applet.registry";
@@ -1103,6 +1110,81 @@ sub load_appletregistry {
 
 sub new_applet_id {
 	return md5_hex(join('|', $ENV{HOSTNAME}, lc((getpwuid($<))[0]), time(), $0, int(rand(99999))));
+}
+
+sub install_applet_dialog {
+	my $callback = shift;
+	my $glade = load_glade('applet-install');
+	$glade->get_widget('install_applet_dialog')->set_position('center');
+	$glade->get_widget('install_applet_dialog')->set_icon(icon());
+
+	$glade->get_widget('install_applet_dialog')->signal_connect('response', sub {
+		my $file = $glade->get_widget('file_entry')->get_text;
+		$glade->get_widget('install_applet_dialog')->destroy;
+		if ($_[1] eq 'ok') {
+			my ($code, $error) = install_applet($file);
+			if (defined($callback)) {
+				&{$callback}($code, $error);
+			}
+		}
+	});
+
+	$glade->get_widget('browse_button')->signal_connect('clicked', sub {
+		my $chooser = Gtk2::FileChooserDialog->new(
+			_('Choose File'),
+			undef,
+			'open',
+			'gtk-cancel'	=> 'cancel',
+			'gtk-ok' => 'ok'
+		);
+		$chooser->signal_connect('response', sub {
+			if ($_[1] eq 'ok') {
+				$glade->get_widget('file_entry')->set_text($chooser->get_filename);
+			}
+			$chooser->destroy;
+		});
+		$chooser->run;
+	});
+
+	$glade->get_widget('ok_button')->set_sensitive(undef);
+	$glade->get_widget('file_entry')->signal_connect('changed', sub {
+		$glade->get_widget('ok_button')->set_sensitive(-e $glade->get_widget('file_entry')->get_text);
+	});
+
+	$glade->get_widget('install_applet_dialog')->show_all;	
+	return 1;
+}
+
+sub install_applet {
+	my $file = shift;
+	my ($name, $version);
+	if (basename($file) =~ /^(\w+)-(.+)\.tar\.gz/) {
+		$name		= $1;
+		$version	= $2;
+	}
+	if ($name eq '' || $version eq '') {
+		return (1, _('Cannot parse filename for name and version'));
+	}
+	print Dumper([$name, $version]);
+	my $cmd = sprintf('tar -ztf "%s"', $file);
+	my %files;
+	open(TAR, "$cmd|") or die "$cmd: $!\n";
+	while (<TAR>) {
+		chomp;
+		$files{$_}++;
+	}
+	close(TAR);
+
+	# required files:
+	return(1, _('Applet description is missing'))	if (!defined($files{'applet.info'}));
+	return(1, _('Applet file is missing'))		if (!defined($files{"applets/$name.pm"}));
+
+	# append the applet description:
+
+	my $regfile = sprintf('%s/.%s/applet.registry', $ENV{HOME}, lc($NAME));
+	open(REGFILE, ">>$regfile") or die "$regfile: $!";
+	print REGFILE `tar zxvf "$file" "applet.info" -O`;
+	close(REGFILE);
 }
 
 1;
