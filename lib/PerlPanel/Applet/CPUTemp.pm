@@ -1,4 +1,4 @@
-# $Id: CPUTemp.pm,v 1.5 2004/11/04 16:12:01 jodrell Exp $
+# $Id: CPUTemp.pm,v 1.6 2005/01/06 11:24:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -24,6 +24,8 @@ use Gtk2::Helper;
 use Gtk2::SimpleList;
 use vars qw(%SYMBOLS $DELL_FILE);
 use strict;
+
+$ENV{PATH} = "$ENV{PATH}:/sbin:/usr/sbin:/usr/local/sbin";
 
 our %SYMBOLS = (
 	fahrenheit => '&#176;F',
