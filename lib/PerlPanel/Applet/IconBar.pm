@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.28 2004/01/05 14:56:59 jodrell Exp $
+# $Id: IconBar.pm,v 1.29 2004/01/08 00:36:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -33,7 +33,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
-	$self->{widget}->set_spacing($PerlPanel::OBJECT_REF->{config}{panel}{spacing});
+	$self->widget->set_spacing($PerlPanel::OBJECT_REF->{config}{panel}{spacing});
 
 	$self->{icondir} = sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));
 	unless (-e $self->{icondir}) {
@@ -53,7 +53,7 @@ sub configure {
 		$button->signal_connect('clicked', sub { $dummy->add });
 		$button->add($icon);
 		$PerlPanel::TOOLTIP_REF->set_tip($button, 'Add Icon');
-		$self->{widget}->pack_start($button, 0, 0, 0);
+		$self->widget->pack_start($button, 0, 0, 0);
 	} else {
 		foreach my $file (sort @icons) {
 			my $filename = sprintf("%s/%s", $self->{icondir}, $file);
@@ -66,7 +66,7 @@ sub configure {
 
 sub add_icon {
 	my ($self, $entry) = @_;
-	$self->{widget}->pack_start($entry->widget, 0, 0, 0);
+	$self->widget->pack_start($entry->widget, 0, 0, 0);
 	return 1;
 }
 
@@ -165,14 +165,27 @@ sub build {
 	$self->{pixmap}->set_size_request($PerlPanel::OBJECT_REF->icon_size, $PerlPanel::OBJECT_REF->icon_size);
 
 	$self->{widget} = Gtk2::Button->new;
-	$self->{widget}->set_border_width(0);
-	$self->{widget}->add($self->{pixmap});
-	$self->{widget}->set_relief('none');
-	$self->{widget}->signal_connect('button_release_event', sub { $self->clicked($_[1]->button) ; return undef});
+	$self->widget->set_border_width(0);
+	$self->widget->add($self->{pixmap});
+	$self->widget->set_relief('none');
+
+	$self->widget->signal_connect('button_release_event', sub {
+		# this mess reconciles the behaviour of 'button_release_event' with the expected behaviour, which
+		# should be that of 'clicked'. The clicked() method is only called if the mouse pointer is within
+		# the widget (get_pointer() returns the co-ords of the pointer relative to the top left corner of
+		# the widget):
+		my ($x_pos, $y_pos) = $self->widget->get_pointer;
+		my $x_size = $self->widget->size_request->width;
+		my $y_size = $self->widget->size_request->height;
+		if ($x_pos <= $x_size && $y_pos <= $y_size) {
+			$self->clicked($_[1]->button);
+		}
+		return undef;
+	});
 
 	my $tip = $self->{name} || $self->{exec};
 	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');
-	$PerlPanel::TOOLTIP_REF->set_tip($self->{widget}, $tip);
+	$PerlPanel::TOOLTIP_REF->set_tip($self->widget, $tip);
 
 	return 1;
 }
@@ -183,7 +196,7 @@ sub widget {
 
 sub clicked {
 	my ($self, $button) = @_;
-	$self->{widget}->grab_focus;
+	$self->widget->grab_focus;
 	if ($button == 1) {
 		system($self->{exec}.' &');
 	} elsif ($button == 3) {
@@ -245,7 +258,7 @@ sub clicked {
 			$self->{factory}->create_items(@{$self->{itemfactory}});
 			$self->{menu} = $self->{factory}->get_widget('<main>');
 		}
-		$self->{menu}->popup(undef, undef, sub { return $self->popup_position(@_) }, 0, $self->{widget}, undef);
+		$self->{menu}->popup(undef, undef, sub { return $self->popup_position(@_) }, 0, $self->widget, undef);
 	}
 	return 1;
 }
@@ -266,14 +279,14 @@ sub edit {
 	my $self = shift;
 	if (-x $MENU_EDITOR) {
 		my $mtime = (stat($self->{filename}))[9];
-		$self->{widget}->set_sensitive(0);
+		$self->widget->set_sensitive(0);
 		open(MENU_EDITOR, "$MENU_EDITOR $self->{filename}|");
 		my $tag;
 		$tag = Gtk2::Helper->add_watch(fileno(MENU_EDITOR), 'in', sub {
 			if (eof(MENU_EDITOR)) {
 				close(MENU_EDITOR);
 
-				$self->{widget}->set_sensitive(1);
+				$self->widget->set_sensitive(1);
 
 				my $newmtime = (stat($self->{filename}))[9];
 

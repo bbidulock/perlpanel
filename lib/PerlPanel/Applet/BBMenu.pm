@@ -1,4 +1,4 @@
-# $Id: BBMenu.pm,v 1.35 2004/01/06 16:13:13 jodrell Exp $
+# $Id: BBMenu.pm,v 1.36 2004/01/08 00:36:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -295,12 +295,14 @@ sub popup {
 
 sub popup_position {
 	my $self = shift;
+	my ($x, undef) = $PerlPanel::OBJECT_REF->get_widget_position($self->widget);
+	$x = 0 if ($x == 1);
 	if ($PerlPanel::OBJECT_REF->position eq 'top') {
-		return (0, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return ($x, $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	} else {
 		$self->{menu_widget}->realize;
 		$self->{menu_widget}->show_all;
-		return (0, $PerlPanel::OBJECT_REF->screen_height - $self->{menu_widget}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
+		return ($x, $PerlPanel::OBJECT_REF->screen_height - $self->{menu_widget}->allocation->height - $PerlPanel::OBJECT_REF->{panel}->allocation->height);
 	}
 }
 

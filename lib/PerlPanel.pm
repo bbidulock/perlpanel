@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.38 2004/01/07 13:28:22 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.39 2004/01/08 00:36:28 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -141,6 +141,7 @@ sub load_config {
 
 sub save_config {
 	my $self = shift;
+	$self->{config}{version} = $VERSION;
 	open(RCFILE, ">$self->{rcfile}") or print STDERR "Error writing to '$self->{rcfile}': $!\n" and exit 1;
 	print RCFILE XMLout($self->{config});
 	close(RCFILE);
@@ -404,6 +405,69 @@ sub autohide {
 
 sub autoshow {
 	$_[0]->move;
+}
+
+# kludge alert!
+#
+# the situation is this:
+#
+#
+#0,0
+#   +----------------------------------+
+#   |                                  |
+#   | Screen                           |
+#   |                                  |
+#   |   +-------------------------+    |
+#   |   |                         |    |
+#   |   | Window                  |    |
+#   |   |                         |    |
+#   |   |  +--------+             |    |
+#   |   |  | Widget |             |    |
+#   |   |  +--------+             |    |
+#   |   |              + - pointer|    |
+#   |   |                         |    |
+#   |   +-------------------------+    |
+#   |                                  |
+#   |                                  |
+#   +----------------------------------+
+#
+# - $win_pos_x,$win_pos_y describes the position of the window relative to the screen
+#
+# - $win_mouse_pos_x,$win_mouse_pos_y describes the position of the pointer relative to the window
+#
+# - $rel_mouse_pos_x,$rel_mouse_posy describes the position of the pointer relative to the widget
+#
+# To work out the co-ords of the widget, we simply add screen->window and window->pointer values,
+# and subtract the widget->pointer values. Simple, eh? :p
+
+sub get_widget_position {
+	my ($self, $widget) = @_;
+
+	my $window = $widget->get_toplevel;
+
+	my ($win_pos_x, $win_pos_y) = $window->get_position;
+
+	my ($win_mouse_pos_x, $win_mouse_pos_y) = $window->get_pointer;
+
+	my ($rel_mouse_pos_x, $rel_mouse_pos_y) = $widget->get_pointer;
+
+	return (
+		$win_pos_x + $win_mouse_pos_x - $rel_mouse_pos_x,
+		$win_pos_y + $win_mouse_pos_y - $rel_mouse_pos_y,
+	);
+
+}
+
+sub get_mouse_pointer_position {
+	my $self = shift;
+	my ($win_pos_x, $win_pos_y) = $self->{pager}->get_position;
+
+	my ($win_mouse_pos_x, $win_mouse_pos_y) = $self->{pager}->get_pointer;
+
+	return (
+		$win_pos_x + $win_mouse_pos_x,
+		$win_pos_y + $win_mouse_pos_y,
+	);
 }
 
 1;

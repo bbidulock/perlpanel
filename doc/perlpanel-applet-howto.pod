@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel-applet-howto.pod,v 1.7 2003/07/03 16:07:39 jodrell Exp $
+$Id: perlpanel-applet-howto.pod,v 1.8 2004/01/08 00:36:28 jodrell Exp $
 
 =head1 DESCRIPTION
 
@@ -247,5 +247,16 @@ and the given message. C<$ok_callback> is executed if the user hits the
 
 This pops up a dialog with a information icon and the given message.
 C<$ok_callback> is executed if the user hits the 'Ok' button.
+
+	$PerlPanel::OBJECT_REF->get_widget_position($widget)
+
+This returns two numbers corresponding to the position on-screen of the
+top-left corner of $widget. This means that $widget must be visible on
+screen.
+
+	$PerlPanel::OBJECT_REF->get_mouse_pointer
+
+This returns two numbers corresponding to the position on-screen of the
+mouse pointer.
 
 =cut
