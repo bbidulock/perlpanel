@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.138 2005/01/03 15:22:09 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.139 2005/01/08 14:03:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -99,7 +99,7 @@ our $PIDFILE		= sprintf('%s/.%s/%s.pid', $ENV{HOME}, lc($NAME), lc($NAME));
 our $RUN_HISTORY_FILE	= sprintf('%s/.perlpanel/run-history', $ENV{HOME});
 our $RUN_HISTORY_LENGTH	= 15;
 our $HIDE_OFFSET	= 2;
-our @APPLET_CATEGORIES	= qw(Actions System Utilities Launchers Menus);
+our @APPLET_CATEGORIES	= qw(Actions System Utilities Launchers Menus Amusements);
 our $DEFAULT_THEME	= 'gnome';
 
 our $APPLET_ERROR_MARKUP = <<"END";

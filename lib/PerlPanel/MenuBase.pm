@@ -1,4 +1,4 @@
-# $Id: MenuBase.pm,v 1.37 2005/01/03 14:14:03 jodrell Exp $
+# $Id: MenuBase.pm,v 1.38 2005/01/08 14:03:27 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -278,14 +278,16 @@ sub add_control_items {
 		}
 	}
 
-	foreach my $applet (sort @{$registry->{_categories}->{''}}) {
-		my $item = $self->menu_item(
-			$applet,
-			PerlPanel::get_applet_pbf($applet, PerlPanel::menu_icon_size),
-			sub {$self->add_applet_dialog($applet)},
-		);
-		PerlPanel::tips->set_tip($item, $registry->{$applet});
-		$applet_menu->append($item);
+	if (defined($registry->{_categories}->{''})) {
+		foreach my $applet (sort @{$registry->{_categories}->{''}}) {
+			my $item = $self->menu_item(
+				$applet,
+				PerlPanel::get_applet_pbf($applet, PerlPanel::menu_icon_size),
+				sub {$self->add_applet_dialog($applet)},
+			);
+			PerlPanel::tips->set_tip($item, $registry->{$applet});
+			$applet_menu->append($item);
+		}
 	}
 
 	$applet_menu->append(Gtk2::SeparatorMenuItem->new);
