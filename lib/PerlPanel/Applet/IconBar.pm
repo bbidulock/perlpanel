@@ -1,4 +1,4 @@
-# $Id: IconBar.pm,v 1.43 2004/09/17 11:28:53 jodrell Exp $
+# $Id: IconBar.pm,v 1.44 2004/09/24 12:43:31 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -153,6 +153,7 @@ sub reorder_window {
 }
 
 package PerlPanel::Applet::IconBar::DesktopEntry;
+use PerlPanel::DesktopEntry;
 use Gtk2::Helper;
 use strict;
 
@@ -196,38 +197,20 @@ sub new {
 
 sub parse {
 	my $self = shift;
-	open(ENTRY, $self->{filename}) or die $!;
-	# this is not very clever, just try to grep out what we need:
-	while (<ENTRY>) {
-		chomp;
-		if (/^exec=(.+)$/i) {
-			$self->{exec} = $1;
-		} elsif (/^icon=(.+)$/i) {
-			$self->{icon} = $1;
-		} elsif (/^name=(.+)$/i) {
-			$self->{name} = $1;
-		} elsif (/^name\[(.+)\]=(.+)$/i) {
-			$self->{name} = $2;
-		} elsif (/^comment\[(.+)\]=(.+)$/i) {
-			$self->{comment} = $2;
-		} elsif (/^comment=(.+)$/i) {
-			$self->{comment} = $1;
-		}
-	}
-	close(ENTRY);
+	$self->{entry} = PerlPanel::DesktopEntry->new($self->{filename});
 	return 1;
 }
 
 sub build {
 	my $self = shift;
-	if (-e $self->{icon}) {
-		$self->{iconfile} = $self->{icon};
-	} elsif (-e "$ICON_DIR/$self->{icon}" && "$ICON_DIR/$self->{icon}" =~ /\.(png|gif|jpeg|jpg|xpm|bmp)$/) {
-		$self->{iconfile} = "$ICON_DIR/$self->{icon}";
+	if (-e $self->{entry}->Icon) {
+		$self->{iconfile} = $self->{entry}->Icon;
+
 	} else {
-		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name);
+		$self->{iconfile} = PerlPanel::lookup_icon($self->{entry}->Icon);
+
 	}
-	if (defined($self->{iconfile})) {
+	if (-e $self->{iconfile}) {
 		$self->{pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{iconfile});
 		my $x0 = $self->{pixbuf}->get_width;
 		my $y0 = $self->{pixbuf}->get_height;
@@ -249,14 +232,19 @@ sub build {
 			$self->{pixbuf} = $self->{pixbuf}->scale_simple($x1, $y1, 'bilinear');
 		}
 		$self->{pixmap} = Gtk2::Image->new_from_pixbuf($self->{pixbuf});
+
+	} else {
+		$self->{pixmap} = Gtk2::Image->new_from_stock('gtk-missing-image', PerlPanel::icon_size_name);
+
 	}
+
 	$self->{pixmap}->set_size_request(PerlPanel::icon_size, PerlPanel::icon_size);
 
 	$self->widget->add($self->{pixmap});
 	$self->widget->show_all;
 
-	my $tip = $self->{name} || $self->{exec};
-	$tip .= "\n".$self->{comment} if ($self->{comment} ne '');
+	my $tip = $self->{entry}->Name(PerlPanel::locale) || $self->{entry}->Exec;
+	$tip .= "\n".$self->{entry}->Comment(PerlPanel::locale) if ($self->{entry}->Comment(PerlPanel::locale) ne '');
 	PerlPanel::tips->set_tip($self->widget, $tip);
 
 	return 1;
@@ -270,7 +258,7 @@ sub clicked {
 	my ($self, $button) = @_;
 	$self->widget->grab_focus;
 	if ($button == 1) {
-		system($self->{exec}.' &');
+		PerlPanel::launch($self->{entry}->Exec, $self->{entry}->StartupNotify);
 	} elsif ($button == 3) {
 		if (!defined($self->{menu})) {
 			$self->{itemfactory} = [

@@ -18,7 +18,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: old-perlpanel-item-edit,v 1.13 2004/09/17 12:19:03 jodrell Exp $
+# $Id: old-perlpanel-item-edit,v 1.14 2004/09/24 12:43:31 jodrell Exp $
 use Gtk2;
 use strict;
 
@@ -77,10 +77,13 @@ if ($data->{$desktop_namespace}{Comment} eq '') {
 }
 
 my $pristine = {
-	Name	=> $data->{$desktop_namespace}{Name},
-	Comment	=> $data->{$desktop_namespace}{Comment},
-	Icon	=> $data->{$desktop_namespace}{Icon},
-	Exec	=> $data->{$desktop_namespace}{Exec},
+	Encoding	=> $data->{$desktop_namespace}{Encoding},
+	Type		=> $data->{$desktop_namespace}{Type},
+	Name		=> $data->{$desktop_namespace}{Name},
+	Comment		=> $data->{$desktop_namespace}{Comment},
+	Icon		=> $data->{$desktop_namespace}{Icon},
+	Exec		=> $data->{$desktop_namespace}{Exec},
+	StartupNotify	=> $data->{$desktop_namespace}{StartupNotify}
 };
 
 my $icon = $theme->load_icon('perlpanel', 48, 'use-builtin');
@@ -142,6 +145,9 @@ $icon_button->signal_connect('clicked', \&choose_icon);
 my $icon_align = Gtk2::Alignment->new(0, 0, 0, 0);
 $icon_align->add($icon_button);
 
+my $notify = Gtk2::CheckButton->new('Launch Feedback');
+$notify->set_active($data->{$desktop_namespace}{StartupNotify} eq 'true' ? 1 : undef);
+
 $table->attach_defaults($name_label, 0, 1, 0, 1);
 $table->attach_defaults($name_entry, 1, 3, 0, 1);
 
@@ -154,6 +160,8 @@ $table->attach_defaults($exec_button, 2, 3, 2, 3);
 
 $table->attach_defaults($icon_label, 0, 1, 3, 4);
 $table->attach_defaults($icon_align, 1, 2, 3, 4);
+
+$table->attach_defaults($notify, 1, 3, 4, 5);
 
 $window->vbox->pack_start($table, 1, 1, 0);
 
@@ -244,6 +252,10 @@ sub save {
 	$data->{$desktop_namespace}{Name} = $name_entry->get_text;
 	$data->{$desktop_namespace}{Comment} = $comment_entry->get_text;
 	$data->{$desktop_namespace}{Exec} = $exec_entry->get_text;
+	$data->{$desktop_namespace}{StartupNotify} = ($notify->get_active ? 'true' : 'false');
+
+	$data->{$desktop_namespace}{Type} = 'Application';
+	$data->{$desktop_namespace}{Encoding} = 'UTF-8';
 
 	my $changed = 0;
 	my $empty = 0;

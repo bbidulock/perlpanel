@@ -1,4 +1,4 @@
-# $Id: GnomeMenu.pm,v 1.16 2004/09/19 17:42:49 jodrell Exp $
+# $Id: GnomeMenu.pm,v 1.17 2004/09/24 12:43:31 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 #
 package PerlPanel::Applet::GnomeMenu;
 use base 'PerlPanel::MenuBase';
+use PerlPanel::DesktopEntry;
 use Gnome2::VFS;
 use strict;
 
@@ -133,15 +134,17 @@ sub create_submenu_for {
 			my $menu_icon;
 
 			if ($result eq 'ok') {
-				my $data = $self->get_file_contents($dfile);
-
-				my (undef, undef, $icon, undef) = PerlPanel::parse_desktopfile($data);
+				my $entry = PerlPanel::DesktopEntry->new($dfile);
+				my $icon;
+				if (defined($entry)) {
+					$icon = $entry->Icon(PerlPanel::locale);
+				}
 
 				if ($icon eq '') {
 					$menu_icon = PerlPanel::lookup_icon('gnome-fs-directory');
 
 				} else {
-					$menu_icon = $icon;
+					$menu_icon = PerlPanel::lookup_icon($icon);
 				}
 			} else {
 				$menu_icon = PerlPanel::lookup_icon('gnome-fs-directory');
@@ -163,13 +166,20 @@ sub create_submenu_for {
 
 			my $file = $files{$filename};
 			my $path = sprintf('%s/%s', $uri, $file->{name});
-			my $data = $self->get_file_contents($path);
-			my ($name, $comment, $icon, $program) = PerlPanel::parse_desktopfile($data);
+			my $entry = PerlPanel::DesktopEntry->new($path);
+
+			my $name	= $entry->Name(PerlPanel::locale);
+			my $comment	= $entry->Comment(PerlPanel::locale);
+			my $program	= $entry->Exec(PerlPanel::locale);
+			my $icon	= $entry->Icon(PerlPanel::locale);
+
+			$icon = PerlPanel::lookup_icon($icon);
+
 			if ($name ne '' && $program ne '') {
 				my $item = $self->menu_item(
 					$name,
 					(-e $icon ? $icon : 'gtk-execute'),
-					sub { PerlPanel::launch($program) },
+					sub { PerlPanel::launch($program, $entry->StartupNotify) },
 				);
 				if ($comment ne '') {
 					PerlPanel::tips->set_tip($item, $comment);
@@ -180,16 +190,6 @@ sub create_submenu_for {
 		}
 
 		return 1;
-	}
-}
-
-sub get_file_contents {
-	my ($self, $path) = @_;
-	my ($result, $info) = Gnome2::VFS->get_file_info($path, 'default');
-	if ($result eq 'ok' && $info->{type} eq 'regular') {
-		return Gnome2::VFS->read_entire_file($path);
-	} else {
-		return undef;
 	}
 }
 

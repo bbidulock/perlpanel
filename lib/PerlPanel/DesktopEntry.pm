@@ -1,4 +1,4 @@
-# $Id: DesktopEntry.pm,v 1.1 2004/09/24 11:48:12 jodrell Exp $
+# $Id: DesktopEntry.pm,v 1.2 2004/09/24 12:43:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -134,7 +134,6 @@ sub parse {
 					$last_key,
 					$current_group,
 				));
-				return undef;
 			} else {
 				$self->{data}->{$current_group}->{$key}->{$locale} = $value;
 			}
@@ -159,6 +158,21 @@ the given C<$locale>. A list of the required keys can be found in the
 Freedesktop.org specification. If C<$locale> is omitted, it will default to
 'C<C>'.
 
+=cut
+
+sub is_valid {
+	my ($self, $locale) = @_;
+	$locale	= (defined($locale) ? $locale : $DEFAULT_LOCALE);
+
+	foreach my $key (@REQUIRED) {
+		if (!defined($self->get_value($key, $DEFAULT_GROUP, $locale))) {
+			return undef;
+		}
+	}
+	return 1;
+}
+
+=pod
 	my @groups = $entry->groups;
 
 This returns an array of scalars containing the I<group names> included in the

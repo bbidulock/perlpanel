@@ -1,4 +1,4 @@
-# $Id: PerlPanel.pm,v 1.110 2004/09/20 16:06:42 jodrell Exp $
+# $Id: PerlPanel.pm,v 1.111 2004/09/24 12:43:30 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -119,8 +119,10 @@ sub new {
 		sprintf('%s/%s/Applet',		$LIBDIR, $NAME),	# admin-installed or sandbox applets ($LIBDIR is
 	);								# determined at runtime)
 
+	$self->{locale} = (defined($ENV{LC_MESSAGES}) ? $ENV{LC_MESSAGES} : $ENV{LANG});
+
 	# stuff for ill8n - this has to be done before any strings are used:
-	setlocale(LC_ALL, (defined($ENV{LC_MESSAGES}) ? $ENV{LC_MESSAGES} : $ENV{LANG}));
+	setlocale(LC_ALL, $self->locale);
 	bindtextdomain(lc($NAME), sprintf('%s/share/locale', $PREFIX));
 	textdomain(lc($NAME));
 
@@ -204,6 +206,8 @@ sub init {
 
 	return 1;
 }
+
+sub locale { return $_[0]->{locale} }
 
 sub check_deps {
 	my $self = shift;
@@ -1088,43 +1092,6 @@ sub load_appletregistry {
 
 sub new_applet_id {
 	return md5_hex(join('|', $ENV{HOSTNAME}, lc((getpwuid($<))[0]), time(), $0, int(rand(99999))));
-}
-
-sub parse_desktopfile {
-	my $data = shift;
-	my ($name, $comment, $icon, $program);
-	my $namespace;
-	my $params = {};
-	foreach my $line (split(/\n/, $data)) {
-		my ($name, $value) = split(/=/, $line, 2);
-		if ($name =~ /^\[($DESKTOP_NAMESPACE)\]/i) {
-			$namespace = $1;
-		} elsif ($namespace ne '') {
-			$params->{$namespace}->{$name} = $value;
-		} else {
-			$params->{orphans}->{$name} = $value;
-		}
-	}
-
-	my $language = $ENV{LANG} || 'en_US';
-	$language =~ s/\..*$//g;
-
-	$name    = ($params->{$DESKTOP_NAMESPACE}{"Name[$language]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Name[$language]"} : $params->{$DESKTOP_NAMESPACE}{Name});
-	$comment = ($params->{$DESKTOP_NAMESPACE}{"Comment[$language]"} ne '' ? $params->{$DESKTOP_NAMESPACE}{"Comment[$language]"} : $params->{$DESKTOP_NAMESPACE}{Comment});
-	$program = $params->{$DESKTOP_NAMESPACE}{Exec};
-
-	if (-e $params->{$DESKTOP_NAMESPACE}{Icon}) {
-		$icon = $params->{$DESKTOP_NAMESPACE}{Icon};
-	} else {
-		$icon = lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
-		if (! -e $icon) {
-			if (-e "/usr/share/pixmaps/$params->{$DESKTOP_NAMESPACE}{Icon}") {
-				$icon = lookup_icon($params->{$DESKTOP_NAMESPACE}{Icon});
-			}
-		}
-	}
-
-	return ($name, $comment, $icon, $program);
 }
 
 1;
