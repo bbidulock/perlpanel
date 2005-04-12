@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# $Id: perlpanel-item-edit,v 1.7 2005/01/22 13:52:36 jodrell Exp $
+# $Id: perlpanel-item-edit,v 1.8 2005/04/12 13:43:43 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -84,7 +84,7 @@ if (-r $ICON) {
 
 } else {
 	my $icon;
-	if ($ICON ne '') {
+	if ($ICON ne '' && -r $ICON) {
 		$icon = $theme->load_icon($ICON, 48, 'force-svg');
 	}
 
