@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.33 2004/11/07 16:24:48 jodrell Exp $
+# $Id: Clock.pm,v 1.34 2005/04/13 21:37:57 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -67,11 +67,11 @@ sub configure {
 	$self->update;
 
 	$self->{glade}->get_widget('reminder_dialog')->signal_connect('response', sub {
-		$self->{glade}->get_widget('reminder_dialog')->hide_all;
+		$self->{glade}->get_widget('reminder_dialog')->hide;
 		return 1;
 	});
 	$self->{glade}->get_widget('reminder_dialog')->signal_connect('delete_event', sub {
-		$self->{glade}->get_widget('reminder_dialog')->hide_all;
+		$self->{glade}->get_widget('reminder_dialog')->hide;
 		return 1;
 	});
 	$self->{glade}->get_widget('reminder_dialog')->set_icon(PerlPanel::icon);
@@ -145,9 +145,19 @@ sub make_calendar {
 		}
 	});
 
-	$self->{glade}->get_widget('add_button')->signal_connect('clicked', sub { $self->add_event_dialog });
+	$self->{events}->get_selection->signal_connect('changed', sub {
+		if ($_[0]->count_selected_rows == 0) {
+			$self->{glade}->get_widget('delete_buttonbox')->hide();
+		} else {
+			$self->{glade}->get_widget('delete_buttonbox')->show();
+		}
+	});
 
-	$self->{window}->child->show_all;
+
+	$self->{glade}->get_widget('add_button')->signal_connect('clicked', sub { $self->add_event_dialog });
+	$self->{glade}->get_widget('delete_button')->signal_connect('clicked', sub { $self->delete_event_dialog });
+
+	$self->{window}->child->show;
 	$self->{window}->realize;
 
 	$self->{model} = Gtk2::ListStore->new(qw(Glib::String Glib::String));
@@ -156,8 +166,10 @@ sub make_calendar {
 	}
 
 	$self->{combo} = Gtk2::ComboBox->new;
+	$self->{combo}->visible(1);
 
 	$self->{glade}->get_widget('reminder_combo_placeholder')->add($self->{combo});
+
 
 	$self->{combo}->set_model($self->{model});
 
@@ -166,6 +178,7 @@ sub make_calendar {
 	$self->{combo}->set_attributes($renderer, 'text' => 1);
 
 	$self->{edit_combo} = Gtk2::ComboBox->new;
+	$self->{edit_combo}->visible(1);
 
 	$self->{glade}->get_widget('edit_event_reminder_combo_placeholder')->add($self->{edit_combo});
 
@@ -176,7 +189,7 @@ sub make_calendar {
 	$self->{edit_combo}->set_attributes($renderer, 'text' => 1);
 
 	$self->{glade}->get_widget('edit_event_dialog')->signal_connect('delete_event', sub {
-		$self->{glade}->get_widget('edit_event_dialog')->hide_all;
+		$self->{glade}->get_widget('edit_event_dialog')->hide;
 		return 1;
 	});
 
@@ -198,7 +211,7 @@ sub show_calendar {
 		$y = PerlPanel::screen_height() - $self->{window}->allocation->height - PerlPanel::panel->allocation->height;
 	}
 	$self->{window}->move($x, $y);
-	$self->{window}->show_all;
+	$self->{window}->show;
 	return 1;
 }
 
@@ -245,7 +258,7 @@ sub add_event_dialog {
 	$self->{combo}->set_active(0);
 	$self->{glade}->get_widget('add_event_dialog')->set_position('center');
 	$self->{glade}->get_widget('add_event_dialog')->set_modal(1);
-	$self->{glade}->get_widget('add_event_dialog')->show_all;
+	$self->{glade}->get_widget('add_event_dialog')->show;
 	$self->setup_add_event_dialog_callbacks;
 
 	return 1;
@@ -258,7 +271,7 @@ sub setup_add_event_dialog_callbacks {
 		$self->{callback_ids}->{delete_event} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
 			'delete_event',
 			sub {
-				$self->{glade}->get_widget('add_event_dialog')->hide_all;
+				$self->{glade}->get_widget('add_event_dialog')->hide;
 				return 1;
 			}
 		);
@@ -290,7 +303,7 @@ sub setup_add_event_dialog_callbacks {
 					$self->show_events($self->{calendar}->get_date);
 					PerlPanel::save_config;
 				}
-				$self->{glade}->get_widget('add_event_dialog')->hide_all;
+				$self->{glade}->get_widget('add_event_dialog')->hide;
 				return 1;
 			}
 		);
@@ -298,6 +311,71 @@ sub setup_add_event_dialog_callbacks {
 
 	return 1;
 }
+
+sub delete_event_dialog {
+	my $self = shift;
+	my ($year, $month, $day) = $self->{calendar}->get_date;
+
+	my $selected_event_index = ($self->{events}->get_selected_indices)[0];
+	my ($event_time, $event_text) = @{$self->{events}->{data}->[$selected_event_index]};
+	my ($event_hour, $event_minute) = split /:/, $event_time;
+	
+	$self->{deleted_event} = {date => sprintf ('%04d-%02d-%02d', $year, $month, $day),   # Date
+	                          time => sprintf ('%02d:%02d', $event_hour, $event_minute), # Time
+	                          notes => $event_text};                                     # Note
+
+	$self->{glade}->get_widget('delete_dialog_title')->set_markup(sprintf(_('<span weight="bold" size="large">Delete Event for %02d:%02d %04d-%02d-%02d:</span>'), $event_hour, $event_minute, $year, $month+1, $day));
+	$self->{glade}->get_widget('delete_dialog_text')->set_label($event_text);
+	
+	$self->{glade}->get_widget('delete_event_dialog')->set_position('center');
+	$self->{glade}->get_widget('delete_event_dialog')->set_modal(1);
+	$self->{glade}->get_widget('delete_event_dialog')->show;
+	$self->setup_delete_event_dialog_callbacks;
+
+	return 1;
+}
+
+sub setup_delete_event_dialog_callbacks {
+	my $self = shift;
+
+	if (!defined($self->{callback_ids}->{delete_event})) {
+		$self->{callback_ids}->{delete_event} = $self->{glade}->get_widget('delete_event_dialog')->signal_connect(
+			'delete_event',
+			sub {
+				$self->{glade}->get_widget('delete_event_dialog')->hide;
+				return 1;
+			}
+		);
+	}
+
+	if (!defined($self->{callback_ids}->{response})) {
+		$self->{callback_ids}->{response} = $self->{glade}->get_widget('delete_event_dialog')->signal_connect(
+			'response',
+			sub {
+				if ($_[1] eq 'ok') {
+					my $deleted_index = 0;
+					for (@{$self->{config}->{events}}) {
+						if ($_->{date} eq $self->{deleted_event}->{date} &&
+						  $_->{time} eq $self->{deleted_event}->{time} &&
+						  $_->{notes} eq $self->{deleted_event}->{notes}) {
+							splice @{$self->{config}->{events}}, $deleted_index, 1;
+							delete $self->{deleted_event};
+						}
+						$deleted_index += 1;
+					}
+					
+					$self->show_events($self->{calendar}->get_date);
+					PerlPanel::save_config;
+				}
+				$self->{glade}->get_widget('delete_event_dialog')->hide;
+				return 1;
+			}
+		);
+	}
+
+	return 1;
+}
+
 
 sub show_reminders {
 	my $self = shift;
@@ -327,7 +405,7 @@ sub reminder {
 		),
 	));
 	$self->{glade}->get_widget('reminder_dialog_notes_label')->set_text($event->{notes});
-	$self->{glade}->get_widget('reminder_dialog')->show_all;
+	$self->{glade}->get_widget('reminder_dialog')->show;
 	return 1;
 }
 
@@ -377,7 +455,7 @@ sub edit_event {
 			$self->show_events($self->{calendar}->get_date);
 		}
 
-		$self->{glade}->get_widget('edit_event_dialog')->hide_all;
+		$self->{glade}->get_widget('edit_event_dialog')->hide;
 		$self->{glade}->get_widget('edit_event_dialog')->signal_handler_disconnect($self->{edit_handler_id});
 		undef($self->{edit_handler_id});
 	});
@@ -397,7 +475,7 @@ sub edit_event {
 	}
 
 	$self->{glade}->get_widget('edit_event_dialog')->set_position('center');
-	$self->{glade}->get_widget('edit_event_dialog')->show_all;
+	$self->{glade}->get_widget('edit_event_dialog')->show;
 
 	return 1;
 }
