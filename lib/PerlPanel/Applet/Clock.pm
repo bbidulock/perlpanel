@@ -1,4 +1,4 @@
-# $Id: Clock.pm,v 1.34 2005/04/13 21:37:57 jodrell Exp $
+# $Id: Clock.pm,v 1.35 2005/04/14 14:14:02 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -147,9 +147,9 @@ sub make_calendar {
 
 	$self->{events}->get_selection->signal_connect('changed', sub {
 		if ($_[0]->count_selected_rows == 0) {
-			$self->{glade}->get_widget('delete_buttonbox')->hide();
+			$self->{glade}->get_widget('delete_buttonbox')->hide;
 		} else {
-			$self->{glade}->get_widget('delete_buttonbox')->show();
+			$self->{glade}->get_widget('delete_buttonbox')->show;
 		}
 	});
 
@@ -169,7 +169,6 @@ sub make_calendar {
 	$self->{combo}->visible(1);
 
 	$self->{glade}->get_widget('reminder_combo_placeholder')->add($self->{combo});
-
 
 	$self->{combo}->set_model($self->{model});
 
@@ -258,7 +257,7 @@ sub add_event_dialog {
 	$self->{combo}->set_active(0);
 	$self->{glade}->get_widget('add_event_dialog')->set_position('center');
 	$self->{glade}->get_widget('add_event_dialog')->set_modal(1);
-	$self->{glade}->get_widget('add_event_dialog')->show;
+	$self->{glade}->get_widget('add_event_dialog')->show_all;
 	$self->setup_add_event_dialog_callbacks;
 
 	return 1;
@@ -267,8 +266,8 @@ sub add_event_dialog {
 sub setup_add_event_dialog_callbacks {
 	my $self = shift;
 
-	if (!defined($self->{callback_ids}->{delete_event})) {
-		$self->{callback_ids}->{delete_event} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
+	if (!defined($self->{callback_ids}->{add_dialog_delete_event})) {
+		$self->{callback_ids}->{add_dialog_delete_event} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
 			'delete_event',
 			sub {
 				$self->{glade}->get_widget('add_event_dialog')->hide;
@@ -277,8 +276,8 @@ sub setup_add_event_dialog_callbacks {
 		);
 	}
 
-	if (!defined($self->{callback_ids}->{response})) {
-		$self->{callback_ids}->{response} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
+	if (!defined($self->{callback_ids}->{add_dialog_response})) {
+		$self->{callback_ids}->{add_dialog_response} = $self->{glade}->get_widget('add_event_dialog')->signal_connect(
 			'response',
 			sub {
 				if ($_[1] eq 'ok') {
@@ -338,8 +337,8 @@ sub delete_event_dialog {
 sub setup_delete_event_dialog_callbacks {
 	my $self = shift;
 
-	if (!defined($self->{callback_ids}->{delete_event})) {
-		$self->{callback_ids}->{delete_event} = $self->{glade}->get_widget('delete_event_dialog')->signal_connect(
+	if (!defined($self->{callback_ids}->{delete_dialog_delete_event})) {
+		$self->{callback_ids}->{delete_dialog_delete_event} = $self->{glade}->get_widget('delete_event_dialog')->signal_connect(
 			'delete_event',
 			sub {
 				$self->{glade}->get_widget('delete_event_dialog')->hide;
@@ -348,8 +347,8 @@ sub setup_delete_event_dialog_callbacks {
 		);
 	}
 
-	if (!defined($self->{callback_ids}->{response})) {
-		$self->{callback_ids}->{response} = $self->{glade}->get_widget('delete_event_dialog')->signal_connect(
+	if (!defined($self->{callback_ids}->{delete_dialog_response})) {
+		$self->{callback_ids}->{delete_dialog_response} = $self->{glade}->get_widget('delete_event_dialog')->signal_connect(
 			'response',
 			sub {
 				if ($_[1] eq 'ok') {
@@ -358,8 +357,8 @@ sub setup_delete_event_dialog_callbacks {
 						if ($_->{date} eq $self->{deleted_event}->{date} &&
 						  $_->{time} eq $self->{deleted_event}->{time} &&
 						  $_->{notes} eq $self->{deleted_event}->{notes}) {
-							splice @{$self->{config}->{events}}, $deleted_index, 1;
-							delete $self->{deleted_event};
+							splice(@{$self->{config}->{events}}, $deleted_index, 1);
+							delete($self->{deleted_event});
 						}
 						$deleted_index += 1;
 					}
@@ -382,9 +381,9 @@ sub show_reminders {
 
 	my $now = time();
 
-	foreach my $event (@{$self->{config}->{events}}) {
+	foreach my $event (grep { $_->{reminder} > 0 && defined($_->{date}) } @{$self->{config}->{events}}) {
 		my $timestamp = $self->get_timestamp_for($event);
-		if (($timestamp - ($event->{reminder} * 60)) < $now && $event->{reminded} ne 'true' && $event->{notes} ne '') {
+		if ($event->{reminder} > 0 && ($timestamp - ($event->{reminder} * 60)) < $now && $event->{reminded} ne 'true' && $event->{notes} ne '') {
 			$event->{reminded} = 'true';
 			PerlPanel::save_config();
 			$self->reminder($event);
