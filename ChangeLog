@@ -1,7 +1,7 @@
 ChangeLog
 =========
 
-YYYY-MM-DD - v0.9.1
+2005-03-14 - v0.9.1
 	* This release properly fixes the panel border by using low-level
 	  drawing functions. New applets include: Timer, Trash, Volume. A
 	  number of other applets have been given a spring clean. You can
@@ -192,5 +192,5 @@ YYYY-MM-DD - v0.9.1
 	* Initial release.
 
 --
-$Id: ChangeLog,v 1.11 2005/01/22 14:28:08 jodrell Exp $
+$Id: ChangeLog,v 1.12 2005/04/14 14:41:03 jodrell Exp $
 
