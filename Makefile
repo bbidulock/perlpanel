@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.48 2004/12/13 13:43:33 jodrell Exp $
+# $Id: Makefile,v 1.49 2005/04/14 13:45:38 jodrell Exp $
 
 VERSION=0.9.0
 
@@ -27,7 +27,7 @@ BINDIR=$(PREFIX)/bin
 DATADIR=$(PREFIX)/share
 MANDIR=$(DATADIR)/man
 LOCALEDIR=$(DATADIR)/locale
-CONFDIR=$(PREFIX)/etc
+CONFDIR=/etc
 
 LC_CATEGORY=LC_MESSAGES
 
@@ -49,12 +49,12 @@ perlpanel:
 	perl -ne 's!\@PREFIX\@!$(PREFIX)!g ; s!\@LIBDIR\@!$(LIBDIR)!g ; print' < src/perlpanel-applet-install > build/perlpanel-applet-install
 	perl -ne 's!\@VERSION\@!$(VERSION)!g ; print' < lib/PerlPanel.pm > build/PerlPanel.pm
 	perl -I$(PWD)/build -MPerlPanel -MXML::Simple -e 'print XMLout(\%PerlPanel::DEFAULTS)' > build/perlpanelrc
-	pod2man doc/perlpanel.pod		| gzip -c > build/perlpanel.1.gz
-	pod2man doc/perlpanel-applet-howto.pod	| gzip -c > build/perlpanel-applet-howto.1.gz
-	pod2man doc/perlpanel-run-dialog.pod	| gzip -c > build/perlpanel-run-dialog.1.gz
-	pod2man doc/perlpanel-item-edit.pod	| gzip -c > build/perlpanel-item-edit.1.gz
-	pod2man lib/PerlPanel/MenuBase.pm	| gzip -c > build/PerlPanel::MenuBase.3.gz
-	pod2man lib/PerlPanel/DesktopEntry.pm	| gzip -c > build/PerlPanel::DesktopEntry.3.gz
+	pod2man doc/perlpanel.pod		| gzip -9c > build/perlpanel.1.gz
+	pod2man doc/perlpanel-applet-howto.pod	| gzip -9c > build/perlpanel-applet-howto.1.gz
+	pod2man doc/perlpanel-run-dialog.pod	| gzip -9c > build/perlpanel-run-dialog.1.gz
+	pod2man doc/perlpanel-item-edit.pod	| gzip -9c > build/perlpanel-item-edit.1.gz
+	pod2man lib/PerlPanel/MenuBase.pm	| gzip -9c > build/PerlPanel::MenuBase.3.gz
+	pod2man lib/PerlPanel/DesktopEntry.pm	| gzip -9c > build/PerlPanel::DesktopEntry.3.gz
 
 	@# similarly for other locales as they become available:
 	mkdir -p  build/locale/en/$(LC_CATEGORY)
