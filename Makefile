@@ -17,7 +17,7 @@
 #
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
-# $Id: Makefile,v 1.50 2005/04/14 14:44:36 jodrell Exp $
+# $Id: Makefile,v 1.51 2005/04/14 14:49:04 jodrell Exp $
 
 VERSION=0.9.1
 
@@ -92,14 +92,6 @@ install:
 	install -m 0755 build/PerlPanel::DesktopEntry.3.gz	$(DESTDIR)/$(MANDIR)/$(MAN_LIBS_SECTION)/
 	install -m 0644 build/locale/en/$(LC_CATEGORY)/perlpanel.mo $(DESTDIR)/$(LOCALEDIR)/en/$(LC_CATEGORY)/
 	install -m 0644 build/locale/de/$(LC_CATEGORY)/perlpanel.mo $(DESTDIR)/$(LOCALEDIR)/de/$(LC_CATEGORY)/
-
-	@echo Installing default rcfile:
-	@if [ -e $(DESTDIR)/$(CONFDIR)/perlpanelrc ] ; then \
-		echo Note: old $(DESTDIR)/$(CONFDIR)/perlpanelrc has not been overwritten, default has been installed to $(DESTDIR)/$(CONFDIR)/perlpanelrc.default.; \
-		install -m 0644 build/perlpanelrc	$(DESTDIR)/$(CONFDIR)/perlpanelrc.default; \
-	else \
-		install -m 0644 build/perlpanelrc	$(DESTDIR)/$(CONFDIR)/; \
-	fi
 
 clean:
 	rm -rf build PerlPanel.spec
