@@ -1,7 +1,7 @@
 =pod
 
 =for comment
-$Id: perlpanel.pod,v 1.30 2005/01/11 11:23:07 jodrell Exp $
+$Id: perlpanel.pod,v 1.31 2005/04/14 14:50:54 jodrell Exp $
 
 =head1 Introduction
 
@@ -264,6 +264,12 @@ onto the applet widget and it will be moved to the Trash folder.
 The Volume applet lets you control the volume of your computer's
 speakers. Clicking on the button shows a popup window with a slider - as
 you move the slider, the volume will change.
+
+=head2 The 'Webcam' Applet
+
+This applet loads an image from a website and displays it on your panel.
+If you click on the image you can see it full-size. If you right-click on
+the image you can configure the applet URL and update interval.
 
 =head2 The 'WiFiMonitor' Applet
 
