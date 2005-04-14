@@ -1,4 +1,4 @@
-# $Id: Webcam.pm,v 1.2 2005/02/02 15:36:12 jodrell Exp $
+# $Id: Webcam.pm,v 1.3 2005/04/14 14:39:22 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 # Copyright: (C) 2003-2004 Gavin Brown <gavin.brown@uk.com>
 #
 package PerlPanel::Applet::Webcam;
+use base 'PerlPanel::MenuBase';
 use vars qw($MULTI %COMMANDS);
 use File::Basename qw(basename);
 use strict;
@@ -48,7 +49,11 @@ sub configure {
 	$self->{loading} = 0;
 
 	$self->{widget} = Gtk2::Button->new;
-	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('webcam', PerlPanel::icon_size)));
+
+	$self->{image} = Gtk2::Image->new;
+	$self->{image}->set_from_pixbuf(PerlPanel::get_applet_pbf('webcam', PerlPanel::icon_size));
+
+	$self->widget->add($self->{image});
 	PerlPanel::tips->set_tip($self->{widget}, _('Webcam'));
 	$self->widget->set_relief('none');
 
@@ -116,25 +121,11 @@ sub configure {
 
 	}
 
+	$self->create_menu;
+
 	$self->widget->show_all;
 
 	return 1;
-}
-
-sub widget {
-	return $_[0]->{widget};
-}
-
-sub expand {
-	return 0;
-}
-
-sub fill {
-	return 0;
-}
-
-sub end {
-	return 'end';
 }
 
 sub get_default_config {
@@ -169,7 +160,7 @@ sub update {
 		PerlPanel::exec_wait($cmd, sub {
 			if ($? == 0) {
 				$self->{loading} = 0;
-				$self->widget->child->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($tmpfile, PerlPanel::icon_size, PerlPanel::icon_size));
+				$self->{image}->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($tmpfile, PerlPanel::icon_size, PerlPanel::icon_size));
 				$self->{glade}->get_widget('image')->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file($tmpfile));
 				unlink($tmpfile);
 				$self->{loaded} = 1;
@@ -179,6 +170,22 @@ sub update {
 	}
 
 	return undef;
+}
+
+sub create_menu {
+	my $self = shift;
+	$self->{menu} = Gtk2::Menu->new;
+
+	my $config_item	= Gtk2::ImageMenuItem->new_from_stock('gtk-preferences');
+	$config_item->signal_connect('activate', sub { $self->config_dialog });
+
+	my $remove_item	= Gtk2::ImageMenuItem->new_from_stock('gtk-remove');
+	$remove_item->signal_connect('activate', sub { PerlPanel::remove_applet('Webcam', $self->{id}) });
+
+	$self->menu->append($config_item);
+	$self->menu->append($remove_item);
+
+	return 1;
 }
 
 1;
