@@ -1,4 +1,4 @@
-# $Id: XMMS.pm,v 1.18 2005/02/21 15:56:37 jodrell Exp $
+# $Id: XMMS.pm,v 1.19 2005/04/14 13:46:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -81,7 +81,7 @@ sub configure {
 		eval('$running = ($self->{controller}->is_running ? 1 : 0)');
 		if ($running == 0) {
 			$self->widget->set_sensitive(0);
-		} elsif (defined($self->{buttons}{play})) {
+		} elsif (defined($self->{buttons}{play}) && defined($self->{buttons}{play}->child)) {
 			$self->widget->set_sensitive(1);
 			if ($self->{controller}->is_playing) {
 				$self->{buttons}{stop}->set_sensitive(1);
