@@ -1,4 +1,4 @@
-# $Id: Timer.pm,v 1.5 2005/01/21 18:10:56 jodrell Exp $
+# $Id: Timer.pm,v 1.6 2005/04/14 14:20:33 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@ package PerlPanel::Applet::Timer;
 use vars qw($OGGPLAYER);
 use strict;
 
-chomp(our $OGGPLAYER = `which ogg123`);
+chomp(our $OGGPLAYER = `which ogg123 2>/dev/null`);
 
 sub new {
 	my $self		= {};
@@ -86,8 +86,8 @@ sub configure {
 
 		} else {
 			$self->{label}->show;
-			my $mins = int(($self->{countdown} -1) / 60);
-			my $secs = $self->{countdown} - 1 - ($mins * 60);
+			my $mins = int(($self->{countdown}) / 60);
+			my $secs = $self->{countdown} - ($mins * 60);
 			$self->{glade}->get_widget('minutes')->set_value($mins);
 			$self->{glade}->get_widget('seconds')->set_value($secs);
 			$self->{label}->set_text(sprintf('%02d:%02d', $mins, $secs));
