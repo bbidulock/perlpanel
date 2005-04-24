@@ -1,4 +1,4 @@
-# $Id: NotificationArea.pm,v 1.6 2005/01/23 23:32:20 jodrell Exp $
+# $Id: NotificationArea.pm,v 1.7 2005/04/24 13:33:20 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -84,6 +84,13 @@ sub configure {
 
 	if ($CAN_MANAGE == 1) {
 		$TRAY_MANAGER->signal_connect('tray_icon_added', sub {
+			if($self->{config}->{hide_if_empty} &&
+			   $self->{config}->{hide_if_empty} !~ /^(no|false)$/i &&
+			   $self->{fully_hid}) {
+			   	$self->{widget}->set_shadow_type("etched_in");
+				$self->{widget}->show_all();
+				$self->{fully_hid} = 0;
+			}
 			# put the socket inside a viewport so the panel doesn't get stretched if the
 			# icon is too large:
 			my $port = Gtk2::Viewport->new;
@@ -108,6 +115,14 @@ sub configure {
 		$TRAY_MANAGER->signal_connect('tray_icon_removed', sub {
 			$self->{hbox}->remove($_[1]->parent) if defined($_[1]->parent);
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
+			if ($self->{config}->{hide_if_empty} &&
+			  $self->{config}->{hide_if_empty} !~ /^(no|false)$/i &&
+			  ! scalar $self->{hbox}->get_children) {
+				$self->{widget}->set_shadow_type("none");
+				$self->{widget}->hide_all();
+				$self->{fully_hid} = "yes, it's not here!";
+			}
+			
 		});
 	} else {
 		$self->widget->set_sensitive(undef);
@@ -115,6 +130,15 @@ sub configure {
 	}
 
 	$self->widget->show_all;
+	print join ("|", $self->{hbox}->get_children), "\n";
+	if ($self->{config}->{hide_if_empty} && 
+	  $self->{config}->{hide_if_empty} !~ /^(no|false)$/i &&
+	  ! scalar $self->{hbox}->get_children) {
+		$self->{widget}->set_shadow_type("none");
+		$self->{widget}->hide_all();
+		$self->{"fully_hid"} = "yes, it's not here!";
+	}
+
 	return 1;
 }
 
