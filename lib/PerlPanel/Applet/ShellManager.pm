@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.9 2005/01/16 17:03:55 jodrell Exp $
+# $Id: ShellManager.pm,v 1.10 2005/05/30 21:16:04 jodrell Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -76,7 +76,14 @@ sub create_menu {
 				$session,
 				PerlPanel::get_applet_pbf('shellmanager', PerlPanel::menu_icon_size),
 				sub {
-					my $cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{user}, $connections{$session}->{host});
+					my $cmd;
+					if ($self->{config}->{terminal} =~ /gnome-terminal/i) {
+						$cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{user}, $connections{$session}->{host});
+
+					} else {
+						$cmd = sprintf('%s -e ssh -p %d %s@%s &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{user}, $connections{$session}->{host});
+
+					}
 					system($cmd);
 				},
 			));
@@ -203,7 +210,14 @@ sub add_dialog {
 				host	=> lc($host),
 				port	=> $port,
 			});
-			my $cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $port, $user, $host);
+			my $cmd;
+			if ($self->{config}->{terminal} =~ /gnome-terminal/i) {
+				$cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $port, $user, $host);
+
+			} else {
+				$cmd = sprintf('%s -e ssh -p %d %s@%s &', $self->{config}->{terminal}, $port, $user, $host);
+
+			}
 			system($cmd);
 			$self->create_menu;
 			PerlPanel::save_config;
