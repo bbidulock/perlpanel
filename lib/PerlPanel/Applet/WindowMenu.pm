@@ -1,4 +1,4 @@
-# $Id: WindowMenu.pm,v 1.14 2004/09/29 13:21:23 jodrell Exp $
+# $Id: WindowMenu.pm,v 1.15 2005/11/14 14:38:53 mcummings Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -79,7 +79,7 @@ sub create_menu {
 			$self->menu->append($self->menu_item(
 				$label,
 				($window->get_icon_is_fallback ? PerlPanel::get_applet_pbf('WindowMenu-default', PerlPanel::icon_size) : $icon),
-				sub { $window->activate },
+				sub { $window->activate(time()) },
 			));
 		}
 	}
