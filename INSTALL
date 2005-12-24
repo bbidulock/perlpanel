@@ -13,6 +13,7 @@ What you will need is this:
       - Glib
       - Gtk2
       - Gtk2::GladeXML
+      - Gtk2::TrayManager
       - Gnome2::Wnck
       - Gnome2::VFS
     * The X11::FreeDesktop::DesktopEntry module
@@ -109,4 +110,4 @@ Gentoo: Users of the Gentoo operating system can find ebuilds via the
 project website.
 
 --
-$Id: INSTALL,v 1.9 2005/01/08 18:42:55 jodrell Exp $
+$Id: INSTALL,v 1.10 2005/12/24 00:02:05 mcummings Exp $
