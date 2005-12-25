@@ -1,4 +1,4 @@
-# $Id: de.po,v 1.1 2004/09/02 11:31:52 jodrell Exp $
+# $Id: de.po,v 1.2 2005/12/25 15:01:39 mmjb Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PerlPanel 0.7.0\n"
 "POT-Creation-Date: 2004-04-05 22:08+0100\n"
-"PO-Revision-Date: 2004-08-29 21:21+0100\n"
-"Last-Translator: Ruediger Arp <ruediger@gmx.net>\n"
+"PO-Revision-Date: 2005-12-25 15:53+0100\n"
+"Last-Translator: Marc Brockschmidt <marc@marcbrockschmidt.de>\n"
 "Language-Team: Deutsch <ruediger@gmx.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -33,14 +33,13 @@ msgid "A lean, mean panel program written in Perl."
 msgstr "Ein schickes, schlankes Panel geschrieben in Perl"
 
 msgid "This program is Free Software. You may use it under the terms of the GNU General Public License."
-msgstr "Dieses Program ist freie Software. Es unterliegt den Bedingungen der GNU·General·Public·License."
+msgstr "Dieses Programm ist freie Software. Es unterliegt den Bedingungen der GNU·General·Public·License."
 
 msgid "Couldn't load the {module} module!"
 msgstr "Das Modul {module}·konnte nicht geladen werden!"
 
-#, fuzzy
 msgid "Can't open pipe from {prog}: {error}"
-msgstr "Can't open pipe from {prog}: {error}"
+msgstr "Kann Weiterleitung von {prog} nicht öffnen: {error}"
 
 msgid "Error loading {applet} applet.\n"
 msgstr "Fehler beim Laden des Applets {applet}.\n"
@@ -49,7 +48,7 @@ msgid "Error: couldn't find applet file {file}.pm."
 msgstr "Fehler: Die Applet-Datei {file}.pm wurde nicht gefunden."
 
 msgid "Invalid panel position '{position}'."
-msgstr "Panel-Position '{position}' is ungültig."
+msgstr "Panel-Position '{position}' ist ungültig."
 
 # lib/PerlPanel/MenuBase.pm
 msgid "Lock Screen"
@@ -115,9 +114,8 @@ msgstr "Das System läuft mit Netzstrom"
 msgid "The system is running on battery power"
 msgstr "Das System läuft mit Akkustrom"
 
-#, fuzzy
 msgid "The system is running on backup power"
-msgstr "The·system·is·running·on·backup·power"
+msgstr "Das System läuft mit Notfallstrom"
 
 msgid "Unknown status"
 msgstr "Status unbekannt"
@@ -210,13 +208,11 @@ msgstr "Panel"
 msgid "<span weight=\"bold\">BlackBox Menu</span>"
 msgstr "<span weight=\"bold\">BlackBox-Menü</span>"
 
-#, fuzzy
 msgid "Control items in menu"
-msgstr "Control items in menu"
+msgstr "Kontroll-Schalter im Menü"
 
-#, fuzzy
 msgid "Border on button"
-msgstr "Border·on·button"
+msgstr "Schaltflächen-Rand"
 
 msgid "Arrow on icon"
 msgstr "Pfeil auf Symbol"
@@ -340,7 +336,6 @@ msgstr ""
 msgid "Panel Pet: Hello"
 msgstr "Panel·Pet:·Hallo"
 
-#, fuzzy
 msgid "Frames in animation:"
 msgstr "Frames in Animation:"
 
@@ -352,7 +347,7 @@ msgstr "Wählen Sie eine PanelPet-Bilddatei aus"
 
 # lib/PerlPanel/Applet/Quit.pm
 msgid "Close {name}"
-msgstr "{name} schliessen"
+msgstr "{name} schließen"
 
 # lib/PerlPanel/Applet/RecentFiles.pm
 msgid "Recent Files"
@@ -377,9 +372,8 @@ msgid "_Browse..."
 msgstr "_Auswählen..."
 
 # lib/PerlPanel/Applet/SetiAtHome.pm
-#, fuzzy
 msgid "Completed {units} workunits, {percent}% of current"
-msgstr "{units}·Arbeitseinheiten beendet, gegenwärtig·{percent}%"
+msgstr "{units}·Arbeitseinheiten beendet, {percent} der Aktuellen%"
 
 msgid "Completed {percent}%"
 msgstr "{percent}% abgeschlossen"
@@ -394,7 +388,6 @@ msgstr "Pfad zu den Daten von Seti@Home:"
 msgid "Seti@Home Account E-mail address:"
 msgstr "E-Mail-Adresse des Seti@Home-Kontos:"
 
-#, fuzzy
 msgid "Check on remote host (requires SSH)"
 msgstr "Auf entferntem Host nachsehen (benötigt SSH)"
 
