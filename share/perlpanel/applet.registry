@@ -5,7 +5,7 @@
 #
 # When writing the installer for your applet, have
 # it append an entry to this file.
-# $Id: applet.registry,v 1.21 2005/01/31 21:59:01 jodrell Exp $
+# $Id: applet.registry,v 1.22 2006/01/08 13:25:08 mmjb Exp $
 
 # DEPRECATED IN 0.8.0: About:A button to show an "About" dialog.:Actions
 ActionMenu:A menu containing useful actions.:Menus
@@ -22,6 +22,7 @@ Launcher:Shows a single launcher icon on the panel.:Launchers
 LoadMonitor:Shows the current CPU load.:System
 Lock:Locks the screen.:Actions
 NautilusBookmarks:Launch Nautilus bookmarks.:Launchers
+NetLoadMonitor:Shows the current net load.:System
 NotificationArea:Shows notification icons on your panel.:Utilities
 OpenBoxMenu:Your OpenBox Menu.:Menus
 Pager:Displays your current workspaces.:Utilities
