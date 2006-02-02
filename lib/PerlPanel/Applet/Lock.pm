@@ -1,4 +1,4 @@
-# $Id: Lock.pm,v 1.11 2004/11/04 16:12:01 jodrell Exp $
+# $Id: Lock.pm,v 1.12 2006/02/02 13:51:02 mcummings Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -28,6 +28,12 @@ sub new {
 	my $self		= {};
 	$self->{package}	= shift;
 	bless($self, $self->{package});
+	chomp(my $line = `pidof xscreensaver 2> /dev/null`);
+	my @pids = split(/[\s\t]+/, $line);
+	my $pid = shift(@pids);
+	if (int($pid) < 1) {
+		system("xscreensaver &");
+	}
 	return $self;
 }
 

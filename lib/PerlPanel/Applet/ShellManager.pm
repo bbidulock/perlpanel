@@ -1,4 +1,4 @@
-# $Id: ShellManager.pm,v 1.10 2005/05/30 21:16:04 jodrell Exp $
+# $Id: ShellManager.pm,v 1.11 2006/02/02 13:51:02 mcummings Exp $
 # This file is part of PerlPanel.
 # 
 # PerlPanel is free software; you can redistribute it and/or modify
@@ -76,14 +76,7 @@ sub create_menu {
 				$session,
 				PerlPanel::get_applet_pbf('shellmanager', PerlPanel::menu_icon_size),
 				sub {
-					my $cmd;
-					if ($self->{config}->{terminal} =~ /gnome-terminal/i) {
-						$cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{user}, $connections{$session}->{host});
-
-					} else {
-						$cmd = sprintf('%s -e ssh -p %d %s@%s &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{user}, $connections{$session}->{host});
-
-					}
+					my $cmd = sprintf('%s -e "ssh -p %d %s %s@%s" &', $self->{config}->{terminal}, $connections{$session}->{port}, $connections{$session}->{options}, $connections{$session}->{user}, $connections{$session}->{host});
 					system($cmd);
 				},
 			));
@@ -116,7 +109,8 @@ sub edit_dialog {
 		$glade->get_widget('connection_list'),
 		_('User')	=> 'text',
 		_('Host')	=> 'text',
-		_('Port')	=> 'int'
+		_('Port')	=> 'int',
+		_('Options')	=> 'text'
 	);
 	$list->get_column(0)->set_resizable(1);
 	$list->get_column(1)->set_resizable(1);
@@ -132,7 +126,7 @@ sub edit_dialog {
 		$connections{"$session->{user}\@$session->{host}"} = $session;
 	}
 	foreach my $session (sort keys %connections) {
-		push(@{$list->{data}}, [ $connections{$session}->{user}, $connections{$session}->{host}, $connections{$session}->{port} ]);
+		push(@{$list->{data}}, [ $connections{$session}->{user}, $connections{$session}->{host}, $connections{$session}->{port}, $connections{$session}->{options} ]);
 	}
 
 	$dialog->signal_connect('response', sub {
@@ -142,6 +136,7 @@ sub edit_dialog {
 				user	=> @{$row}[0],
 				host	=> @{$row}[1],
 				port	=> @{$row}[2],
+				options	=> @{$row}[3],
 			});
 		}
 		$dialog->destroy;
@@ -161,8 +156,8 @@ sub edit_dialog {
 
 			} else {
 				my ($idx) = $list->get_selected_indices;
-				my ($user, $host, $port) = @{(@{$list->{data}})[$idx]};
-				my $cmd = sprintf('cat "%s" | ssh -p %d %s@%s \'cat >> .ssh/authorized_keys2\' &', $KEY, $port, $user, $host);
+				my ($user, $host, $port, $options) = @{(@{$list->{data}})[$idx]};
+				my $cmd = sprintf('cat "%s" | ssh -p %d %s %s@%s \'cat >> .ssh/authorized_keys2\' &', $KEY, $port, $options, $user, $host);
 				system($cmd);
 			}
 		});
@@ -200,6 +195,7 @@ sub add_dialog {
 			my $user = $glade->get_widget('user_combo')->entry->get_text;
 			my $host = $glade->get_widget('host_combo')->entry->get_text;
 			my $port = $glade->get_widget('port_spinbutton')->get_value;
+			my $options = $glade->get_widget('options_combo')->entry->get_text;
 			if (ref($self->{config}->{sessions}) eq 'HASH') {
 				$self->{config}->{sessions} = [
 					$self->{config}->{sessions},
@@ -209,15 +205,9 @@ sub add_dialog {
 				user	=> lc($user),
 				host	=> lc($host),
 				port	=> $port,
+				options => $options,
 			});
-			my $cmd;
-			if ($self->{config}->{terminal} =~ /gnome-terminal/i) {
-				$cmd = sprintf('%s -e "ssh -p %d %s@%s" &', $self->{config}->{terminal}, $port, $user, $host);
-
-			} else {
-				$cmd = sprintf('%s -e ssh -p %d %s@%s &', $self->{config}->{terminal}, $port, $user, $host);
-
-			}
+			my $cmd = sprintf('%s -e "ssh -p %d %s %s@%s" &', $self->{config}->{terminal}, $port, $options, $user, $host);
 			system($cmd);
 			$self->create_menu;
 			PerlPanel::save_config;
