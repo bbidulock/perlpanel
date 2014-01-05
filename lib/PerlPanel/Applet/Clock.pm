@@ -21,7 +21,7 @@ package PerlPanel::Applet::Clock;
 use Gtk2::SimpleList;
 use POSIX;
 use vars qw($MULTI %REMINDERS $REMINDER_DIALOG_FMT);
-use Date::Manip;
+use Date::Parse;
 use strict;
 
 #
@@ -422,7 +422,7 @@ sub my_strftime {
 
 sub strtotime {
 	my $str = shift;
-	return UnixDate(ParseDate($str), '%s');
+	return str2time($str);
 }
 
 sub edit_event {
