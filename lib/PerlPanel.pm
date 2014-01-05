@@ -269,10 +269,7 @@ sub load_icon_theme {
 
 	$self->{icon_theme}->set_custom_theme($theme);
 
-	if ($VERSION !~ /^[\d\.]$/) {
-		# we're in sandbox mode
-		$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
-	}
+	$self->{icon_theme}->prepend_search_path(sprintf('%s/share/icons', $PREFIX));
 	$self->{icon_theme}->prepend_search_path(sprintf('%s/.%s/icon-files', $ENV{HOME}, lc($NAME)));
 	$self->{icon_theme}->prepend_search_path(sprintf('%s/.local/share/icons', $ENV{HOME}));
 
