@@ -1,0 +1,49 @@
+README
+======
+
+PerlPanel is an attempt to build a useable, lean panel program (like
+GNOME's gnome-panel and KDE's Kicker) in Perl, using Gtk2. There are
+several reasons for this:
+
+	1. I really enjoy programming with Gtk+ and Perl. It's neat.
+	2. Using a popular language like Perl lowers the barrier to
+	   entry, so a lot more people can contribute.
+	3. It makes C purists go a funny shade of purple.
+	4. Because there's nothing like it at the moment.
+	5. Perl's built-in garbage collection and optimisation means
+	   that it may well perform better on low-end systems than
+	   similar programs.
+
+A few tenets:
+
+	1. Everything is OO.
+	2. GNOME rocks, but not everyone likes or can use GNOME. So we
+	   avoid using it and stick to pure Gtk[1].
+	3. Sane defaults. Not everyone wants a CPU/eth meter by default.
+	4. Everything (apart from these tenets) is subject to debate. If
+	   something is broken in the panel/applet/config systems, then
+	   we can fix it. I can't imagine a normal user will want to use
+	   PerlPanel for a long time, so breaking compatability between
+	   versions is no problem.
+
+A few wahs, or, TODO:
+
+	1. Support for multiheaded systems - there is a way to kludge this
+	   but a "proper" solution is more desirable.
+	2. One day, all applets will be widgets in their own right, and
+	   will inherit from a base class that will let us do neat things
+	   like having standard pop-ups. Maybe the Panel will also be a
+	   widget as well.
+	3. Translations are incomplete.
+	4. There is some sort of race in autohide mode - if the pointer
+	   hits a particular pixel, the panel flashes on and off very
+	   quickly.
+
+[1]: We use the Gnome2::Wnck library for the launch feedback, tasklist,
+show desktop button and pager, and Gnome2::VFS for various other stuff.
+However these modules don't require the rest of the Gnome2 modules -
+they're just named that way because they're maintained by the GNOME
+developers.
+
+--
+$Id: README,v 1.16 2004/11/07 20:01:45 jodrell Exp $
