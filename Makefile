@@ -21,18 +21,18 @@
 
 VERSION:=0.9.1
 
-PREFIX:=/usr/local
-LIBDIR:=$(PREFIX)/lib/perlpanel
-BINDIR:=$(PREFIX)/bin
-DATADIR:=$(PREFIX)/share
-MANDIR:=$(DATADIR)/man
-LOCALEDIR:=$(DATADIR)/locale
-CONFDIR:=/etc
+PREFIX?=/usr/local
+LIBDIR?=$(PREFIX)/lib/perlpanel
+BINDIR?=$(PREFIX)/bin
+DATADIR?=$(PREFIX)/share
+MANDIR?=$(DATADIR)/man
+LOCALEDIR?=$(DATADIR)/locale
+CONFDIR?=/etc
 
-LC_CATEGORY:=LC_MESSAGES
+LC_CATEGORY?=LC_MESSAGES
 
-MAN_SECTION:=man1
-MAN_LIBS_SECTION:=man3
+MAN_SECTION?=man1
+MAN_LIBS_SECTION?=man3
 
 #
 # NB: $(DESTDIR) is usally empty. rpmbuild needs it.
