@@ -152,16 +152,19 @@ sub parse_menufile {
 
 			my $line = @{$self->{menudata}}[$line_no];
 
-			my ($cmd, $name, $val);
+			my ($cmd, $name, $val, $icon);
 
-			if ($line =~ /\[(.+?)\]/) {
+			if ($line =~ /\[(.+?)(?<!\\)\]/) {
 				$cmd = lc($1);
 			}
-			if ($line =~ /\((.+?)\)/) {
+			if ($line =~ /\((.+?)(?<!\\)\)/) {
 				$name = $1;
 			}
-			if ($line =~ /\{(.+?)\}/) {
+			if ($line =~ /\{(.+?)(?<!\\)\}/) {
 				$val = $1;
+			}
+			if ($line =~ /\<(.+?)(?<!\\)\>/) {
+				$icon = $1;
 			}
 
 			if (!defined($cmd)) {
@@ -173,7 +176,8 @@ sub parse_menufile {
 					# we're in a submenu, so create an item, and a new menu, make the menu
 					# a submenu of the item, and make $current_menu a reference to it:
 
-					my $item = $self->menu_item($name, $self->get_icon($name, 1), undef);
+					$icon = $self->get_icon($name, 1) unless $icon;
+					my $item = $self->menu_item($name, $icon, undef);
 
 					$current_menu->append($item);
 
@@ -210,9 +214,10 @@ sub parse_menufile {
 					$current_menu->append(Gtk2::SeparatorMenuItem->new);
 
 				} elsif ($cmd eq 'exec') {
+					$icon = $self->get_icon($val, 0) unless $icon;
 					$current_menu->append($self->menu_item(
 						$name,
-						$self->get_icon($val, 0),
+						$icon,
 						sub { system("$val &") }
 					));
 				}
