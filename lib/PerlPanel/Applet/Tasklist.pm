@@ -45,9 +45,43 @@ sub configure {
 	$self->widget->set_spacing(0);
 	$self->widget->set_border_width(0);
 
+	unless (exists $self->{config}{button_relief}) {
+#		$self->{config}{button_relief} = 'normal';
+#		$self->{config}{button_relief} = 'half';
+		$self->{config}{button_relief} = 'none';
+		PerlPanel::save_config();
+	}
+	$self->{tasklist}->set_button_relief($self->{config}{button_relief});
+
+	unless (exists $self->{config}{grouping}) {
+#		$self->{config}{grouping} = 'always-group';
+#		$self->{config}{grouping} = 'never-group';
+		$self->{config}{grouping} = 'auto-group';
+		PerlPanel::save_config();
+	}
+	$self->{tasklist}->set_grouping($self->{config}{grouping});
+
+	unless (exists $self->{config}{grouping_limit}) {
+		$self->{config}{grouping_limit} = 800;
+		PerlPanel::save_config();
+	}
+	$self->{tasklist}->set_grouping_limit($self->{config}{grouping_limit});
+#	$self->{tasklist}->set_grouping_limit($self->{screen}->get_width);
+
+	unless (exists $self->{config}{include_all_workspaces}) {
+		$self->{config}{include_all_workspaces} = 1;
+		PerlPanel::save_config();
+	}
+	$self->{tasklist}->set_include_all_workspaces($self->{config}{include_all_workspaces});
+	unless (exists $self->{config}{switch_workspace_on_unminimize}) {
+		$self->{config}{switch_workspace_on_unminimize} = 1;
+		PerlPanel::save_config();
+	}
+	$self->{tasklist}->set_switch_workspace_on_unminimize($self->{config}{switch_workspace_on_unminimize});
+
 	$self->resize if (PerlPanel::expanded);
 
-	if ($PerlPanel::OBJECT_REF->{config}->{panel}->{expand} eq 'false') {
+	if ($PerlPanel::OBJECT_REF->{config}{panel}{expand} eq 'false') {
 		my $button = Gtk2::Button->new;
 		$button->signal_connect('clicked', sub { $self->popup_menu });
 		$self->widget->pack_start($button, 0, 0, 0);
@@ -61,8 +95,8 @@ sub configure {
 
 sub resize {
 	my $self = shift;
-	$self->{tasklist}->set_minimum_width($self->{config}->{minimum_width});
-	$self->widget->set_size_request($self->{config}->{minimum_width}, PerlPanel::icon_size);
+	$self->{tasklist}->set_minimum_width($self->{config}{minimum_width});
+	$self->widget->set_size_request($self->{config}{minimum_width}, PerlPanel::icon_size);
 }
 
 sub widget {
@@ -84,6 +118,11 @@ sub end {
 sub get_default_config {
 	return {
 		minimum_width	=> 150,
+		button_relief	=> 'none',
+		grouping_limit  => 800,
+		grouping	=> 'auto-group',
+		include_all_workspaces => 1,
+		switch_workspace_on_unminimize => 1,
 	};
 }
 
@@ -124,9 +163,9 @@ sub prefs_window {
 	my $glade = PerlPanel::load_glade('tasklist');
 	$glade->get_widget('icon')->set_from_pixbuf(PerlPanel::get_applet_pbf('Tasklist'));
 	$glade->get_widget('width_spin')->set_range(1, PerlPanel::screen_width);
-	$glade->get_widget('width_spin')->set_value($self->{config}->{minimum_width});
+	$glade->get_widget('width_spin')->set_value($self->{config}{minimum_width});
 	$glade->get_widget('width_spin')->signal_connect('value-changed', sub {
-		$self->{config}->{minimum_width} = $glade->get_widget('width_spin')->get_value;
+		$self->{config}{minimum_width} = $glade->get_widget('width_spin')->get_value;
 		PerlPanel::save_config();
 		$self->resize if (PerlPanel::expanded);
 	});
