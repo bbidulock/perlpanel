@@ -366,6 +366,8 @@ sub configure {
 
 	$self->panel->set_decorated(0); # needed for some window managers
 	$self->panel->stick; # needed for some window managers
+	$self->panel->set_skip_pager_hint(1);
+	$self->panel->set_skip_taskbar_hint(1);
 
 	if ($self->{config}->{panel}->{autohide} eq 'true') {
 		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
