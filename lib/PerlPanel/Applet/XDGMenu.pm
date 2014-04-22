@@ -27,10 +27,10 @@ use base qw(PerlPanel::MenuBase);
 use Encode qw(encode decode);
 use Glib qw(TRUE FALSE);
 use Gtk2;
+use XDG::Menu::Parser;
+use XDG::Menu::Tray;
 use strict;
 use warnings;
-
-require XDG::Menu::Parser;
 
 sub configure {
 	my $self = shift;
@@ -40,7 +40,7 @@ sub configure {
 	my $cf = $self->{config} = PerlPanel::get_config('XDGMenu');
 	$self->widget->set_relief($self->{config}{relief} eq 'true' ? 'half' : 'none');
 	my $pb = $self->{pixbuf} = PerlPanel::get_applet_pbf('BBMenu', PerlPanel::icon_size);
-	if ($cf->{arrow} eq 'true') {
+	if ($cf->{arrow} and $cf->{arrow} eq 'true') {
 		my $fixed = Gtk2::Fixed->new;
 		$fixed->put(Gtk2::Image->new_from_pixbuf($pb), 0, 0);
 		my $arrow = Gtk2::Gdk::Pixbuf->new_from_file(
@@ -166,3 +166,5 @@ sub get_default_config {
 		submenu_label => _('Applications'),
 	};
 }
+
+1;
