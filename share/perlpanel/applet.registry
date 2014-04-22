@@ -11,6 +11,7 @@
 ActionMenu:A menu containing useful actions.:Menus
 BatteryMonitor:Shows the status of your laptop's battery.:System
 BBMenu:A Blackbox-compatible program launcher.:Menus
+XDGMenu:An XDG-compliant program launcher.:Menus
 Clock:Shows the current time on the panel.:Utilities
 Commander:A button to show a command dialog.:Launchers
 Configurator:A comprehensive configuration dialog.:Utilitiies
