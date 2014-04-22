@@ -44,7 +44,8 @@ sub configure {
 		my $fixed = Gtk2::Fixed->new;
 		$fixed->put(Gtk2::Image->new_from_pixbuf($pb), 0, 0);
 		my $arrow = Gtk2::Gdk::Pixbuf->new_from_file(
-		"$PerlPanel::PREFIX/share/\L$PerlPanel::NAME\E/menu-arrow-\L".PerlPanel::position."\E");
+				snprintf('%s/share/%s/menu-arrow-%s.png', $PerlPanel::PREFIX,
+					lc($PerlPanel::NAME), lc(PerlPanel::position)));
 		my $x = $pb->get_width - $arrow->get_width;
 		my $y = PerlPanel::position eq 'bottom' ? 0 : $pb->get_height - $arrow->get_height;
 		$fixed->put(Gtk2::Image->new_from_pixbuf($arrow), $x, $y);
@@ -62,7 +63,7 @@ sub configure {
 		$self->widget->child->pack_start($icon, 0, 0, 0);
 		$self->widget->child->pack_start(Gtk2::Label->new($cf->{label}), 1, 1, 0);
 	}
-	PerlPanel::tips->set_tip($widget, _('Menu'));
+	PerlPanel::tips->set_tip($wg, _('Menu'));
 	$self->widget->show_all;
 
 	$self->{HOME} = $ENV{HOME} if $ENV{HOME};
@@ -113,7 +114,7 @@ sub configure {
 
 	$self->{XDG_ICON_THEME} = $ENV{XDG_ICON_THEME} if $ENV{XDG_ICON_THEME};
 	unless ($self->{XDG_ICON_THEME}) {
-		if (-f "$HOME/.gtkrc-2.0") {
+		if (-f "$ENV{HOME}/.gtkrc-2.0") {
 			my @lines = (`cat $ENV{HOME}/.gtkrc-2.0`);
 			foreach (@lines) { chomp;
 				if (m{gtk-icon-theme-name=["]?(.*[^"])["]?$}) {
@@ -126,7 +127,7 @@ sub configure {
 		}
 	}
 
-	$self->{XDG_ICON_DIRS} = join(':',"$HOME/.icons",map{"$_/icons"}@{$self->{XDG_DATA_DIRS}},'/usr/share/pixmaps');
+	$self->{XDG_ICON_DIRS} = join(':',"$ENV{HOME}/.icons",map{"$_/icons"}@{$self->{XDG_DATA_DIRS}},'/usr/share/pixmaps');
 	$self->{XDG_ICON_DIRS} = [ split(/:/,$self->{XDG_ICON_DIRS}) ];
 
 	return 0 unless $self->{XDG_ROOT_MENU} and -f $self->{XDG_ROOT_MENU};
