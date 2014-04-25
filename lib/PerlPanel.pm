@@ -364,10 +364,18 @@ sub configure {
 
 	}
 
-	$self->panel->set_decorated(0); # needed for some window managers
-	$self->panel->stick; # needed for some window managers
+
+	$self->panel->set_decorated(0);
+	$self->panel->stick;
 	$self->panel->set_skip_pager_hint(1);
 	$self->panel->set_skip_taskbar_hint(1);
+
+	$self->panel->set_deletable(0);
+	$self->panel->set_accept_focus(1);
+	$self->panel->set_focus_on_map(0);
+	$self->panel->set_has_frame(0);
+	$self->panel->set_auto_startup_notification(1);
+	$self->panel->set_resizable(0);
 
 	if ($self->{config}->{panel}->{autohide} eq 'true') {
 		$self->{leave_connect_id} = $self->panel->signal_connect('leave_notify_event', sub { $self->autohide; });
@@ -635,46 +643,64 @@ sub move {
 	$self->resize unless ($self->{config}->{panel}->{expand} eq 'false');
 
 	my ($xpos, $ypos) = $self->get_desired_position;
-
-	my $skip_move = 0;
-	# assuming that making the panel move is an expensive process (which it could be over a network or on a slow
-	# system), we'll check to see if we actually need to move it in the first place:
-	if (defined($self->panel->window) && $self->panel->window->is_visible) {
-		# get_position segfaults if the panel's not visible:
-		my ($cur_x, $cur_y) = $self->panel->get_position;
-		$skip_move = 1 if ($cur_x == $xpos && $cur_y == $ypos);
-	}
-	$self->panel->move($xpos, $ypos) unless $skip_move == 1;
+	$self->panel->parse_geometry("+$xpos+$ypos"); # sets initial UPosition
+	$self->panel->move($xpos, $ypos);
 
 	# now we do the struts thing:
-	if (defined($self->panel->window) && $self->{struts_set} != 1) {
-		my ($top, $bottom);
+	if (defined($self->panel->window)) {
+		my ($top, $bottom) = (0, 0);
+		my ($top_start_x, $top_end_x, $bottom_start_x, $bottom_end_x) = (0, 0, 0, 0);
 
-		if ($self->{config}->{panel}->{autohide} eq 'true') {
-			($top, $bottom) = (0, 0);
-
-		} elsif ($self->{config}->{panel}->{expand} eq 'false' && $self->{config}->{panel}->{use_struts} eq 'false') {
-			($top, $bottom) = (0, 0);
-
-		} else {
-			($top, $bottom) = ($self->position eq 'top' ? ($self->panel->allocation->height, 0) : (0, $self->panel->allocation->height));
-
+		unless ($self->{config}{panel}{autohide} eq 'true' or
+			($self->{config}{panel}{expand} eq 'false' and $self->{config}{panel}{use_struts} eq 'false')) {
+			my($x,$y) = $self->panel->get_position;
+			if ($self->position eq 'top') {
+				$top = $self->panel->allocation->height;
+				$top_start_x = $x;
+				$top_end_x = $x + $self->panel->allocation->width;
+			} else {
+				$bottom = $self->panel->allocation->height;
+				$bottom_start_x = $x;
+				$bottom_end_x = $x + $self->panel->allocation->width;
+			}
 		}
-
-		$self->panel->window->property_change(
-			Gtk2::Gdk::Atom->intern('_NET_WM_STRUT', undef),
-			Gtk2::Gdk::Atom->intern('CARDINAL', undef),
-			32,
-			'replace',
-			0,
-			0,
-			$top,
-			$bottom,
-		);
-
-		$self->{struts_set} = 1;
+		if ($top or $bottom) {
+			unless ($self->{struts} and $self->{struts}[0] == $top and $self->{struts}[1] == $bottom) {
+				$self->panel->window->property_change(
+					Gtk2::Gdk::Atom->intern(_NET_WM_STRUT=>undef),
+					Gtk2::Gdk::Atom->intern(CARDINAL=>undef),
+					32,
+					'replace',
+					0,
+					0,
+					$top,
+					$bottom,
+				);
+			}
+			unless ($self->{struts} and $self->{struts}[0] == $top and $self->{struts}[1] == $bottom
+					and $self->{struts}[2] == $top_start_x and $self->{struts}[3] == $top_end_x
+					and $self->{struts}[4] == $bottom_start_x and $self->{struts}[5] == $bottom_end_x) {
+				$self->panel->window->property_change(
+					Gtk2::Gdk::Atom->intern(_NET_WM_STRUT_PARTIAL=>undef),
+					Gtk2::Gdk::Atom->intern(CARDINAL=>undef),
+					32,
+					'replace',
+					0,0,$top,$bottom,
+					0,0,
+					0,0,
+					$top_start_x, $top_end_x,
+					$bottom_start_x, $bottom_end_x);
+				);
+			}
+			$self->{struts} = [ $top, $bottom, $top_start_x, $top_end_x, $bottom_start_x, $bottom_end_x ];
+		} elsif ($self->{struts}) {
+			$self->panel->window->property_delete(
+				Gtk2::Gdk::Atom->intern(_NET_WM_STRUT=>undef));
+			$self->panel->window->property_delete(
+				Gtk2::Gdk::Atom->intern(_NET_WM_STRUT_PARTIAL=>undef));
+			delete $self->{struts};
+		}
 	}
-
 	return 1;
 }
 
