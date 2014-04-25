@@ -84,6 +84,7 @@ sub configure {
 
 	if ($CAN_MANAGE == 1) {
 		$TRAY_MANAGER->signal_connect('tray_icon_added', sub {
+			my ($tray,$icon) = @_;
 			if($self->{config}->{hide_if_empty} &&
 			   $self->{config}->{hide_if_empty} !~ /^(no|false)$/i &&
 			   $self->{fully_hid}) {
@@ -91,19 +92,38 @@ sub configure {
 				$self->{widget}->show_all();
 				$self->{fully_hid} = 0;
 			}
-			# put the socket inside a viewport so the panel doesn't get stretched if the
-			# icon is too large:
-			my $port = Gtk2::Viewport->new;
-			$port->set_border_width(0);
-			$port->set_size_request(-1, (PerlPanel::icon_size() - 2));
-			$port->set_shadow_type('none');
-			if (defined($_[1]->parent)) {
-				$_[1]->reparent($port);
+			if (0) {
+				# bad idea: causes the status icons to not properly resize to fit
+				# the panel, also, viewports do not attempt to change the size of
+				# their children when they resize: this keeps status icons from
+				# resizing when the panel size is changed.
+
+				# need to ask socket to resize or it never will request the tray
+				# icon to resize using XEMBED protocol
+				$icon->set_size_request(-1, (PerlPanel::icon_size() - 2));
+
+				# put the socket inside a viewport so the panel doesn't get stretched if the
+				# icon is too large:
+				my $port = Gtk2::Viewport->new;
+				$port->set_border_width(0);
+				$port->set_size_request(-1, (PerlPanel::icon_size() - 2));
+				$port->set_shadow_type('none');
+				if (defined($icon->parent)) {
+					$icon->reparent($port);
+				} else {
+					$port->add($icon);
+				}
+				$self->{hbox}->add($port);
+				$port->show_all;
 			} else {
-				$port->add($_[1]);
+				$icon->set_size_request(-1, (PerlPanel::icon_size() - 2));
+				if ($icon->parent) {
+					$icon->reparent($self->{hbox});
+				} else {
+					$self->{hbox}->add($icon);
+				}
+				$icon->show_all;
 			}
-			$self->{hbox}->add($port);
-			$port->show_all;
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
 
 			$self->{hbox}->show;
@@ -113,7 +133,10 @@ sub configure {
 		});
 
 		$TRAY_MANAGER->signal_connect('tray_icon_removed', sub {
-			$self->{hbox}->remove($_[1]->parent) if defined($_[1]->parent);
+			my ($tray,$icon) = @_;
+			if (0) {
+				$self->{hbox}->remove($icon->parent) if defined($icon->parent);
+			}
 			$self->widget->set_size_request(-1, PerlPanel::icon_size());
 			if ($self->{config}->{hide_if_empty} &&
 			  $self->{config}->{hide_if_empty} !~ /^(no|false)$/i &&
