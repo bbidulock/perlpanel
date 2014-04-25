@@ -689,7 +689,7 @@ sub move {
 					0,0,
 					0,0,
 					$top_start_x, $top_end_x,
-					$bottom_start_x, $bottom_end_x);
+					$bottom_start_x, $bottom_end_x,
 				);
 			}
 			$self->{struts} = [ $top, $bottom, $top_start_x, $top_end_x, $bottom_start_x, $bottom_end_x ];
