@@ -138,7 +138,7 @@ sub end {
 sub get_default_config {
 	return {
 		interval => 10000,
-		units => 'celcius',
+		units => 'celsius',
 	};
 }
 

@@ -235,8 +235,8 @@ sub get_default_config {
 	return {
 		show_control_items => 'true',
 		label	=> _('Menu'),
-		relief	=> 'false',
-		apps_in_submenu => 'false',
+		relief	=> 'true',
+		apps_in_submenu => 'true',
 		submenu_label	=> _('Applications'),
 	};
 }

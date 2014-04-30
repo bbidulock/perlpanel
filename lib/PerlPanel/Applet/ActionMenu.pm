@@ -61,7 +61,7 @@ sub create_menu {
 sub get_default_config {
 	return {
 		label	=> _('Actions'),
-		relief	=> 'false',
+		relief	=> 'true',
 	};
 }
 

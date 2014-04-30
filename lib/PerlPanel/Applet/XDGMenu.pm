@@ -159,9 +159,9 @@ sub get_menu_data {
 
 sub get_default_config {
 	return {
+		label => _('Applications'),
 		show_control_items => 'true',
-		label => _('Menu'),
-		relief => 'false',
+		relief => 'true',
 		apps_in_submenu => 'false',
 		submenu_label => _('Applications'),
 	};

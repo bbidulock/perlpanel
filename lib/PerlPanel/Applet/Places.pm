@@ -177,7 +177,11 @@ sub file_age {
 }
 
 sub get_default_config {
-	return (relief=>'half',arrow=>'false',label=>_('Places'));
+	return {
+		label	=> _('Places'),
+		relief	=> 'true',
+		arrow	=> 'false',
+	};
 }
 
 1;
