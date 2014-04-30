@@ -97,7 +97,7 @@ sub run {
 				my $new_pbf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($icon_file, $default_pbf->get_width, $default_pbf->get_height);
 				$icon->set_from_pixbuf($new_pbf);
 			} else {
-					$icon->set_from_pixbuf($default_pbf);
+				$icon->set_from_pixbuf($default_pbf);
 			}
 		}
 	});
