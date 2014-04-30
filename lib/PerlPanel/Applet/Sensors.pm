@@ -16,8 +16,6 @@ sub configure {
 	$self->{config}{interval} = 1000 unless $self->{config}{interval};
 	$self->{config}{units} = 'celcius' unless $self->{config}{units};
 
-	$self->{parser} = new Hardware::SensorsParser();
-
 	$self->{sensors} = {};
 	$self->{widget} = Gtk2::HBox->new;
 
@@ -28,7 +26,7 @@ sub configure {
 	$self->{button}->set_relief('none');
 	$self->{button}->add($self->{image});
 
-	$self->{widget}->pack_start($self->{button});
+	$self->{widget}->pack_start($self->{button},0,0,0);
 	$self->{widget}->show_all;
 
 	$self->update;
@@ -39,36 +37,44 @@ sub configure {
 
 sub update {
 	my $self = shift;
-	my $parser = $self->{parser};
-	my @chips = $parser->list_chipset();
+	my $parser = Hardware::SensorsParser->new;
+	my @chips = $parser->list_chipsets();
+	# print STDERR "Chips: ", join(',', @chips), "\n";
 	foreach my $chip (@chips) {
 		my @sensors = $parser->list_sensors($chip);
+		# print STDERR "Sensors: ", join(',', @sensors), "\n";
 		foreach my $sensor (@sensors) {
+			next unless $sensor =~ /temp/i;
 			my @flags = $parser->list_sensor_flags($chip,$sensor);
+			# print STDERR "Flags: ", join(',', @flags), "\n";
 			foreach my $flag (@flags) {
+				next unless $flag eq 'input';
 				my $tag = "$chip:$sensor:$flag";
 				$self->{sensors}{$tag} = {} unless $self->{sensors}{$tag};
 				my $value = $parser->get_sensor_value($chip,$sensor,$flag);
+				next unless $value;
 				$self->{sensors}{$tag}{value} = $value;
 				my $label = $self->{sensors}{$tag}{label};
 				unless ($label) {
-					$label = Gtk::Label->new;
+					$label = Gtk2::Label->new;
 					$label->set_use_markup(1);
+					$label->show_all;
 					$self->{widget}->pack_start($label, 0, 0, 0);
+					$self->{widget}->show_all;
 					$self->{sensors}{$tag}{label} = $label;
 				}
 				my $markup;
 				if ($self->{config}{units} eq 'fahrenheit') {
 					$value = $self->celsius_to_fahrenheit($value);
-					$markup = sprintf("%d\N{DEGREES}F", $value);
+					$markup = sprintf("%d\N{DEGREE SIGN}F", $value);
 				} elsif ($self->{config}{units} eq 'kelvin') {
 					$value = $self->celsius_to_kelvin($value);
-					$markup = sprintf("%d\N{DEGREES}K", $value);
+					$markup = sprintf("%d\N{DEGREE SIGN}K", $value);
 				} else {
-					$markup = sprintf("%d\N{DEGREES}C", $value);
+					$markup = sprintf("%d\N{DEGREE SIGN}C", $value);
 				}
 				my $tooltip = "Chip: $chip\nSensor: $sensor\nFlag: $flag\nValue: $markup";
-				PerlPanel::tips->set_type($label, $tooltip);
+				PerlPanel::tips->set_tip($label, $tooltip);
 				$label->set_markup("<small><b>$markup</b></small>");
 			}
 		}
