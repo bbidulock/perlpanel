@@ -16,6 +16,7 @@ Clock:Shows the current time on the panel.:Utilities
 Commander:A button to show a command dialog.:Launchers
 Configurator:A comprehensive configuration dialog.:Utilitiies
 CPUTemp:Shows the temperature of your computer's CPU.:System
+Sensors:Shows the temperature of various sensors:System
 DriveManager:An icon to manage a storage device.:System
 GnomeMenu:Your GNOME Menu.:Menus
 # DEPRECATED IN 0.8.0: IconBar:Shows launcher icons on the panel.:Launchers
