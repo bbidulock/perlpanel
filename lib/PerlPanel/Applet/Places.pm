@@ -26,7 +26,8 @@ sub configure {
 
 	my $wg = $self->{widget} = Gtk2::Button->new;
 	my $cf = $self->{config} = PerlPanel::get_config('Places');
-	$wg->set_relief($cf->{relief} eq 'true' ? 'half' : 'none');
+	$cf = {} unless $cf;
+	$wg->set_relief(($cf->{relief} and $cf->{relief} eq 'true') ? 'half' : 'none');
 	my $pb = $self->{pixbuf} = PerlPanel::get_applet_pbf('Places', PerlPanel::icon_size);
 	if ($cf->{arrow} and $cf->{arrow} eq 'true') {
 		my $fixed = Gtk2::Fixed->new;
@@ -55,6 +56,7 @@ sub configure {
 	}
 	PerlPanel::tips->set_tip($wg, _('Places'));
 	$wg->signal_connect(clicked=>sub{$self->clicked});
+	$self->{mtime} = 0;
 	PerlPanel::add_timeout(1000, sub{
 			$self->create_menu if ($self->file_age > $self->{mtime});
 			return 1;
@@ -115,19 +117,19 @@ sub add_places {
 		$places{$place}[1] = $names{$place}[1];
 	}
 
-	$places{HOME}	    = [ $self->{HOME},	    _('Home')		q(user-home)		];
-	$places{ROOT}	    = [ '/',		    _('File System')	q(folder)		];
+	$places{HOME}	    = [ $self->{HOME},	    _('Home'),		q(user-home)		];
+	$places{ROOT}	    = [ '/',		    _('File System'),	q(folder)		];
 
-	foreach my $place (keys %{$places}) {
+	foreach my $place (keys %places) {
 		if (my $dir = $places{$place}[0]) {
-			$dir = q(file://).uri_escape($dir);
+			$dir = q(file://).join('/',map{uri_escape($_)}split(/\//,$dir));
 			$places{$place}[0] = $dir;
 		}
 	}
 
-	$places{COMPUTER}   = [ q(computer:///),    _('Computer')	q(computer)		];
+	$places{COMPUTER}   = [ q(computer:///),    _('Computer'),	q(computer)		];
 	$places{NETWORK}    = [ q(network:///),	    _('Network'),	q(network)		];
-	$places{TRASH}	    = [ q(trash:///),	    _('Trash')		q(user-trash)		];
+	$places{TRASH}	    = [ q(trash:///),	    _('Trash'),		q(user-trash)		];
 
 	my @marks = ();
 	foreach my $file (@{$self->{files}}) {
@@ -149,16 +151,14 @@ sub add_places {
 	}
 	$self->{mtime} = $self->file_age;
 
-	my $item = $self->menu_item(_('Places'), PerlPanel::lookup_icon('gnome-fs-directory'), undef);
-	my $submenu = Gtk2::Menu->new;
-	$item->set_submenu($submenu);
-	$self->menu->append($item);
-
-	foreach my $place (map{$places{$_}}qw(HOME ROOT DESKTOP DOWNLOAD TEMPLATES PUBLICSHARE DOCUMENTS MUSIC
-				PICTURES VIDEOS COMPUTER NETWORK TRASH), @marks) {
+	foreach my $place ((map{$places{$_}}qw(HOME ROOT DESKTOP DOWNLOAD TEMPLATES PUBLICSHARE DOCUMENTS MUSIC
+				PICTURES VIDEOS COMPUTER NETWORK TRASH)), @marks) {
 		if ($place->[0]) {
-			$submenu->append($self->menu_item($place->[1],$place->[2],
-				sub{ PerlPanel::launch("pcmanfm --no-desktop '$place->[0]'") }));
+			$self->menu->append($self->menu_item($place->[1],PerlPanel::lookup_icon($place->[2]),
+				sub{
+					# print STDERR "would launch: \"pcmanfm --no-desktop '$place->[0]'\"\n";
+					PerlPanel::launch("pcmanfm --no-desktop '$place->[0]'");
+				}));
 		}
 	}
 	return 1;
@@ -170,14 +170,14 @@ sub file_age {
 	my $mtime;
 	foreach my $file (@{$self->{files}}) {
 		next unless -r $file;
-		$mtime = stat($file)->[9];
-		$lastest = $mtime if $mtime > $latest;
+		$mtime = (stat($file))[9];
+		$latest = $mtime if $mtime > $latest;
 	}
 	return $latest;
 }
 
 sub get_default_config {
-	return undef;
+	return (relief=>'half',arrow=>'false',label=>_('Places'));
 }
 
 1;
