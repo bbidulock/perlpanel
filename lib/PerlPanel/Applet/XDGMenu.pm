@@ -38,7 +38,7 @@ sub configure {
 
 	my $wg = $self->{widget} = Gtk2::Button->new;
 	my $cf = $self->{config} = PerlPanel::get_config('XDGMenu');
-	$self->widget->set_relief($self->{config}{relief} eq 'true' ? 'half' : 'none');
+	$wg->set_relief($cf->{relief} eq 'true' ? 'half' : 'none');
 	my $pb = $self->{pixbuf} = PerlPanel::get_applet_pbf('BBMenu', PerlPanel::icon_size);
 	if ($cf->{arrow} and $cf->{arrow} eq 'true') {
 		my $fixed = Gtk2::Fixed->new;
@@ -55,16 +55,16 @@ sub configure {
 		$icon = $self->{icon} = Gtk2::Image->new_from_pixbuf($pb);
 	}
 	if ($cf->{label} eq '') {
-		$self->widget->add($icon);
+		$wg->add($icon);
 	} else {
-		$self->widget->add(Gtk2::HBox->new);
-		$self->widget->child->set_border_width(0);
-		$self->widget->child->set_spacing(0);
-		$self->widget->child->pack_start($icon, 0, 0, 0);
-		$self->widget->child->pack_start(Gtk2::Label->new($cf->{label}), 1, 1, 0);
+		$wg->add(Gtk2::HBox->new);
+		$wg->child->set_border_width(0);
+		$wg->child->set_spacing(0);
+		$wg->child->pack_start($icon, 0, 0, 0);
+		$wg->child->pack_start(Gtk2::Label->new($cf->{label}), 1, 1, 0);
 	}
 	PerlPanel::tips->set_tip($wg, _('Menu'));
-	$self->widget->show_all;
+	$wg->show_all;
 
 	$self->{HOME} = $ENV{HOME} if $ENV{HOME};
 	$self->{HOME} = '~' unless $self->{HOME};
@@ -133,8 +133,8 @@ sub configure {
 	return 0 unless $self->{XDG_ROOT_MENU} and -f $self->{XDG_ROOT_MENU};
 
 	$self->create_menu;
-	$self->widget->signal_connect('clicked', sub { $self->popup });
-	$self->widget->show_all;
+	$wg->signal_connect('clicked', sub { $self->popup });
+	$wg->show_all;
 	return 1;
 }
 

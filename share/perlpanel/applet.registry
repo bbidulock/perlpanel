@@ -24,6 +24,7 @@ Launcher:Shows a single launcher icon on the panel.:Launchers
 LoadMonitor:Shows the current CPU load.:System
 Lock:Locks the screen.:Actions
 NautilusBookmarks:Launch Nautilus bookmarks.:Launchers
+Places::Launch places and bookmarks.:Launchers
 NetLoadMonitor:Shows the current net load.:System
 NotificationArea:Shows notification icons on your panel.:Utilities
 OpenBoxMenu:Your OpenBox Menu.:Menus
