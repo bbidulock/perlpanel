@@ -33,7 +33,7 @@ sub configure {
 		my $fixed = Gtk2::Fixed->new;
 		$fixed->put(Gtk2::Image->new_from_pixbuf($pb), 0, 0);
 		my $arrow = Gtk2::Gdk::Pixbuf->new_from_file(
-				snrpintf('%s/share/%s/menu-arrow-%s.png', $PerlPanel::PREFIX,
+				sprintf('%s/share/%s/menu-arrow-%s.png', $PerlPanel::PREFIX,
 					lc($PerlPanel::NAME), lc(PerlPanel::position)));
 		my $x = $pb->get_width - $arrow->get_width;
 		my $y = PerlPanel::position eq 'bottom' ? 0 : $pb->get_height - $arrow->get_height;
