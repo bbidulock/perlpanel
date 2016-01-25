@@ -141,7 +141,7 @@ sub create_menu {
 	my $cf = $self->{config};
 	my $cmd = "xde-menu --monitor";
 	$cmd .= " --tooltips" if $cf->{tooltips} eq 'true';
-	$cmd .= " --actions" = if $cf->{actions} eq 'true';
+	$cmd .= " --actions" if $cf->{actions} eq 'true';
 	$cmd .= " &";
 	system($cmd);
 	return 1;
@@ -153,7 +153,7 @@ sub popup {
 	my $cf = $self->{config};
 	my $cmd = "xde-menu --popmenu";
 	$cmd .= " --tooltips" if $cf->{tooltips} eq 'true';
-	$cmd .= " --actions" = if $cf->{actions} eq 'true';
+	$cmd .= " --actions" if $cf->{actions} eq 'true';
 	my ($w, $h) = $self->widget->get_size_request();
 	my ($x, $y) = PerlPanel::get_widget_position($self->widget);
 	$cmd .= sprintf(" --where=%dx%d+%d+%d", $w, $h, $x, $y);
