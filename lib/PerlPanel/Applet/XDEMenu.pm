@@ -154,7 +154,10 @@ sub popup {
 	my $cmd = "xde-menu --popmenu";
 	$cmd .= " --tooltips" if $cf->{tooltips} eq 'true';
 	$cmd .= " --actions" if $cf->{actions} eq 'true';
-	my ($w, $h) = $self->widget->get_allocation;
+	my $w = $self->widget->allocation->width;
+	my $h = $self->widget->allocation->height;
+	$w = PerlPanel::panel->allocation->height if $w <= 0;
+	$h = PerlPanel::panel->allocation->height if $h <= 0;
 	my ($x, $y) = PerlPanel::get_widget_position($self->widget);
 	$cmd .= sprintf(" --where=%dx%d+%d+%d", $w, $h, $x, $y);
 	$cmd .= " &";
