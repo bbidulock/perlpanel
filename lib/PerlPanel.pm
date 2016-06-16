@@ -337,6 +337,9 @@ sub draw_border {
 sub configure {
 	my $self = shift;
 
+	$self->{screen}->signal_connect('monitors-changed', sub { $self->move });
+	$self->{screen}->signal_connect('size-changed', sub { $self->move });
+
 	if ($self->{config}->{panel}->{expand} ne 'false') {
 		$self->resize;
 	} else {
