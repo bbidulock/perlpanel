@@ -339,7 +339,6 @@ sub configure {
 
 	if ($self->{config}->{panel}->{expand} ne 'false') {
 		$self->resize;
-
 	} else {
 		$self->shrink;
 		$self->panel->set_resizable(0);
@@ -356,14 +355,11 @@ sub configure {
 		$self->panel->set_type_hint('dock');
 	}
 
-	if ($self->{config}->{panel}->{expand} ne 'false') {
+	if ($self->{config}->{panel}->{autohide} eq 'true') {
 		$self->panel->set_keep_above(1);
-
 	} else {
 		$self->panel->set_keep_below(1);
-
 	}
-
 
 	$self->panel->set_decorated(0);
 	$self->panel->stick;
