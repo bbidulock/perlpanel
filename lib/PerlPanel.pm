@@ -357,8 +357,14 @@ sub configure {
 
 	if ($self->{config}->{panel}->{autohide} eq 'true') {
 		$self->panel->set_keep_above(1);
+		$self->panel->set_keep_below(0);
 	} else {
-		$self->panel->set_keep_below(1);
+		$self->panel->set_keep_above(0);
+		if ($self->{config}->{panel}->{expand} ne 'false') {
+			$self->panel->set_keep_below(1);
+		} else {
+			$self->panel->set_keep_below(0);
+		}
 	}
 
 	$self->panel->set_decorated(0);
