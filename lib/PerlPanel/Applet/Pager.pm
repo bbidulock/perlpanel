@@ -42,6 +42,7 @@ sub configure {
 
 	$self->{widget} = Gtk2::HBox->new;
 	$self->widget->set_border_width(0);
+	$self->widget->set_spacing(0);
 	$self->widget->set_size_request(-1, PerlPanel::icon_size());
 	$self->widget->signal_connect('button_release_event', sub {
 		if ($_[1]->button == 3) {

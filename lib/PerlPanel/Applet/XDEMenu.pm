@@ -36,6 +36,7 @@ sub configure {
 
 	my $wg = $self->{widget} = Gtk2::Button->new;
 	my $cf = $self->{config} = PerlPanel::get_config('XDEMenu');
+	$wg->set_border_width(0);
 	$wg->set_relief($cf->{relief} eq 'true' ? 'half' : 'none');
 	my $pb = $self->{pixbuf} = PerlPanel::get_applet_pbf('BBMenu', PerlPanel::icon_size);
 	if ($cf->{arrow} and $cf->{arrow} eq 'true') {

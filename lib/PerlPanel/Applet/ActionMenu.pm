@@ -28,6 +28,7 @@ sub configure {
 	$self->{menu}	= Gtk2::Menu->new;
 	$self->{config} = PerlPanel::get_config('ActionMenu');
 
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief($self->{config}->{relief} eq 'true' ? 'half' : 'none');
 
 	$self->{pixbuf} = PerlPanel::get_applet_pbf('ActionMenu', PerlPanel::icon_size);

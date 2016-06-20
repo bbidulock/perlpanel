@@ -67,6 +67,8 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
+	$self->widget->set_border_width(0);
+	$self->widget->set_spacing(0);
 	$self->{controller} = Xmms::Remote->new;
 	$self->{pbfs}{pause} = Gtk2::Gdk::Pixbuf->new_from_file_at_size(sprintf('%s/%s.png', $ICON_DIR, 'pause'), PerlPanel::icon_size, PerlPanel::icon_size);
 	foreach my $name (qw(prev play stop next)) {

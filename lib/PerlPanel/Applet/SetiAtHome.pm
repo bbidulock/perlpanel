@@ -37,6 +37,7 @@ sub configure {
 	$self->{config} = PerlPanel::get_config('SetiAtHome');
 	$self->{widget} = Gtk2::Button->new;
 
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->configuration_dialog });
 
@@ -44,6 +45,8 @@ sub configure {
 	$self->{label} = Gtk2::Label->new;
 
 	$self->widget->add(Gtk2::HBox->new);
+	$self->widget->child->set_border_width(0);
+	$self->widget->child->set_spacing(0);
 	$self->widget->child->pack_start(Gtk2::Image->new_from_pixbuf($self->{icon}), 0, 0, 0);
 	$self->widget->child->pack_start($self->{label}, 1, 1, 0);
 

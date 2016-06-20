@@ -18,10 +18,13 @@ sub configure {
 
 	$self->{sensors} = {};
 	$self->{widget} = Gtk2::HBox->new;
+	$self->{widget}->set_border_width(0);
+	$self->{widget}->set_spacing(0);
 
 	$self->{image} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('Sensors',PerlPanel::icon_size));
 
 	$self->{button} = Gtk2::Button->new;
+	$self->{button}->set_border_width(0);
 	$self->{button}->signal_connect(clicked=>sub{$self->dialog});
 	$self->{button}->set_relief('none');
 	$self->{button}->add($self->{image});

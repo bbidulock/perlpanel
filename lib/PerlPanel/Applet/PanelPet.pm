@@ -45,6 +45,7 @@ sub configure {
     $self->{config} = PerlPanel::get_config('PanelPet');
 
     $self->{widget} = Gtk2::Button->new;
+    $self->{widget}->set_border_width(0);
     $self->{widget}->set_relief('none');
 
     # Handle right mouse click events

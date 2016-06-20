@@ -43,6 +43,7 @@ sub configure {
 	$self->{widget}	= Gtk2::Button->new;
 	$self->{config} = PerlPanel::get_config('BBMenu');
 
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief($self->{config}->{relief} eq 'true' ? 'half' : 'none');
 
 	$self->{pixbuf} = PerlPanel::get_applet_pbf('BBMenu', PerlPanel::icon_size);

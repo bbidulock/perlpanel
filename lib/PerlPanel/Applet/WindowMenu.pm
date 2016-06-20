@@ -38,6 +38,7 @@ sub configure {
 	$self->{screen}->signal_connect('window-closed', $callback);
 	$self->update_icon;
 	$self->{widget} = Gtk2::Button->new;
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief('none');
 	if ($self->{config}->{label} ne '') {
 		$self->widget->add(Gtk2::HBox->new);

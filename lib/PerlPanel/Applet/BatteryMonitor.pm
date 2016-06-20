@@ -36,6 +36,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::EventBox->new;
+	$self->{widget}->set_border_width(0);
 
 	$self->{label}= Gtk2::Label->new();
 	$self->{widget}->add($self->{label});

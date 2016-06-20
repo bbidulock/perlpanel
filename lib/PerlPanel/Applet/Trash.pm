@@ -35,6 +35,7 @@ sub configure {
 	my $self = shift;
 	$self->{config} = PerlPanel::get_config('Trash');
 	$self->{widget} = Gtk2::EventBox->new;
+	$self->widget->set_border_width(0);
 	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('Trash', PerlPanel::icon_size)));
 	PerlPanel::tips->set_tip($self->widget, _('Drag files here to send to the Trash Can'));
 

@@ -37,6 +37,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::HBox->new;
+	$self->widget->set_border_width(0);
 	$self->widget->set_spacing(PerlPanel::spacing);
 
 	$self->{icondir} = sprintf('%s/.%s/icons', $ENV{HOME}, lc($PerlPanel::NAME));

@@ -34,6 +34,7 @@ sub configure {
 	my $self = shift;
 
 	$self->{widget} = Gtk2::Button->new;
+	$self->widget->set_border_width(0);
 
 	$self->{config} = PerlPanel::get_config('OpenBoxMenu');
 

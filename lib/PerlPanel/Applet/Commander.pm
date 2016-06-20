@@ -33,6 +33,7 @@ sub configure {
 	my ($self, $opt) = @_;
 	if ($opt ne 'no-widget') {
 		$self->{widget} = Gtk2::Button->new;
+		$self->widget->set_border_width(0);
 		$self->widget->set_relief('none');
 		$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('commander', PerlPanel::icon_size)));
 		$self->widget->signal_connect('clicked', sub { $self->run });

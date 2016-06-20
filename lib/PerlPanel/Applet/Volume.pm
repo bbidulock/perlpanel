@@ -52,6 +52,7 @@ sub configure {
 	$self->{config} = PerlPanel::get_config('Volume');
 	$self->{widget} = Gtk2::Button->new;
 	$self->widget->add(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('volume', PerlPanel::icon_size)));
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief('none');
 
 	if ($self->{active} == 0) {

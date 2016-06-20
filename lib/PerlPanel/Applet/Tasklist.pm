@@ -83,6 +83,7 @@ sub configure {
 
 	if ($PerlPanel::OBJECT_REF->{config}{panel}{expand} eq 'false') {
 		my $button = Gtk2::Button->new;
+		$button->set_border_width(0);
 		$button->signal_connect('clicked', sub { $self->popup_menu });
 		$self->widget->pack_start($button, 0, 0, 0);
 	}

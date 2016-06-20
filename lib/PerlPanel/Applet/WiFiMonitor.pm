@@ -36,6 +36,7 @@ sub configure {
 	my $self = shift;
 	$self->{config} = PerlPanel::get_config('WiFiMonitor', $self->{id});
 	$self->{widget} = Gtk2::EventBox->new;
+	$self->widget->set_border_width(0);
 
 	if ($self->{config}{show_icon} eq 'true' and
             $self->{config}{show_percent} eq 'true' ) {
@@ -44,6 +45,8 @@ sub configure {
 		$self->{label} = Gtk2::Label->new;
 		$self->widget->add(Gtk2::HBox->new);
 
+		$self->widget->child->set_border_width(0);
+		$self->widget->child->set_spacing(0);
 		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 		$self->widget->child->pack_start($self->{label}, 1, 1, 0);
 
@@ -58,6 +61,8 @@ sub configure {
 		$self->{label} = Gtk2::Label->new;
 		$self->widget->add(Gtk2::HBox->new);
 
+		$self->widget->child->set_border_width(0);
+		$self->widget->child->set_spacing(0);
 		$self->widget->child->pack_start($self->{icon}, 0, 0, 0);
 
         }

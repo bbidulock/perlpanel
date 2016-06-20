@@ -52,10 +52,13 @@ sub configure {
 	$self->label->set_use_markup(1);
 
 	$self->{box} = Gtk2::HBox->new;
+	$self->{box}->set_border_width(0);
+	$self->{box}->set_spacing(0);
 	$self->{box}->pack_start(Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('CPUTemp', PerlPanel::icon_size)), 0, 0, 0);
 	$self->{box}->pack_start($self->label, 0, 0, 0);
 
 	$self->{widget} = Gtk2::Button->new;
+	$self->widget->set_border_width(0);
 	$self->widget->signal_connect('clicked', sub { $self->dialog });
 	$self->widget->set_relief('none');
 	$self->widget->add($self->{box});

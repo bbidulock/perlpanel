@@ -32,6 +32,7 @@ sub configure {
 	$self->{menu}	= Gtk2::Menu->new;
 	$self->{config} = PerlPanel::get_config('ShellManager');
 
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief('none');
 
 	$self->{icon} = Gtk2::Image->new_from_pixbuf(PerlPanel::get_applet_pbf('ShellManager', PerlPanel::icon_size));

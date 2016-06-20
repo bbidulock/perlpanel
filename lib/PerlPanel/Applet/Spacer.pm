@@ -31,6 +31,7 @@ sub new {
 sub configure {
 	my $self = shift;
 	$self->{widget} = Gtk2::EventBox->new;
+	$self->widget->set_border_width(0);
 	$self->widget->add(Gtk2::Label->new);
 	$self->widget->signal_connect('button_release_event', sub {
 		if ($_[1]->button == 3) {

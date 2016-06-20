@@ -49,6 +49,7 @@ sub configure {
 	$self->{config} = PerlPanel::get_config('DriveManager', $self->{id});
 
 	$self->{widget} = Gtk2::Button->new;
+	$self->widget->set_border_width(0);
 	$self->widget->set_relief('none');
 	$self->widget->signal_connect('clicked', sub { $self->clicked });
 	$self->widget->add(Gtk2::Image->new);
